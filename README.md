@@ -1,0 +1,2 @@
+# shiftedit
+ShiftEdit IDE
