@@ -16,7 +16,7 @@ define(['jquery','ace','app/tabs'], function () {
         //create tab
 		tab = $(".ui-layout-center").tabs('add', file, '<div></div>');
 		tab.data(file, file);
-		tab.data(siteId, siteId);
+		tab.data(site, siteId);
 
 		//update dom
 		tab.attr('data-file', file);

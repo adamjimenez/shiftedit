@@ -1,6 +1,7 @@
-define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang"], function () {
+define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/site", "app/lang"], function () {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
+var site = require('app/site');
 var lang = require('app/lang').lang;
 
 function save(tab, callback) {
@@ -17,7 +18,6 @@ function save(tab, callback) {
     }
 
     var content = editor.getValue();
-
 
     if(!tab.data("site") || !tab.data("file")) {
         saveAs(tab, callback);
@@ -48,9 +48,40 @@ function save(tab, callback) {
 function saveAs(tab, callback) {
     console.log('save as');
 
+    prompt.prompt({
+		title: lang.saveChangesText,
+		msg: 'Save as: '+$(ui.tab).data('file'),
+		buttons: 'YESNOCANCEL',
+		fn: function (btn, value) {
+			if (btn == "ok") {
+			    //TODO check if filename exists
+
+            	tab.data(file, value);
+            	tab.attr('data-file', file);
+
+            	var siteId = site.active();
+
+            	if(!siteId) {
+            	    prompt.alert('Error', 'No site selected');
+            	    return false;
+            	}
+
+            	tab.data(site, siteId);
+            	tab.attr('data-site', siteId);
+
+			    //save
+			    saveAs(tab, callback);
+			} else if (btn == 'cancel') {
+			    //focus editor
+			}
+		}
+    });
+
+    /*
     if (callback) {
         callback(tab);
     }
+    */
 }
 
 function setEdited(tab, edited) {
@@ -73,7 +104,7 @@ function checkEdited (e, ui) {
     var tabpanel = this;
 
     if($(ui.tab).data('edited')) {
-        prompt.prompt({
+        prompt.confirm({
 			title: lang.saveChangesText,
 			msg: 'Save changes to: '+$(ui.tab).data('file'),
 			buttons: 'YESNOCANCEL',
@@ -87,7 +118,7 @@ function checkEdited (e, ui) {
 				} else if (btn == 'no') {
 				    //remove
 				    var index = $(ui.tab).index();
-				    setEdited(ui.tab, false)
+				    setEdited(ui.tab, false);
 				    $(tabpanel).tabs('remove', index);
 				} else if (btn == 'cancel') {
 				    //focus editor

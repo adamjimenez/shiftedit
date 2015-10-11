@@ -72,9 +72,14 @@ function load() {
         });
 }
 
+function active() {
+    return currentSite;
+}
+
 return {
     init: init,
-    load: load
+    load: load,
+    active: active
 };
 
 });
