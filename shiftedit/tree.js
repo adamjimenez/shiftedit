@@ -143,8 +143,7 @@ function init() {
     					case 'css':
     					case 'html':
     						//console.log('load');
-    						var tab = $('.ui-layout-center').tabs('add', file, '<div></div>');
-    						editor.create(tab, d.content);
+    						editor.create(file, d.content, siteId);
 
     						/*
     						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
