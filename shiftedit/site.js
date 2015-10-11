@@ -66,9 +66,6 @@ function load() {
 
             if(currentSite){
                 $( "#sites" ).val(currentSite).change();
-
-                //$( "#sites" ).focus().val(currentSite);
-                //$( "#sites" ).combobox('close');
             }
 
             return sites;

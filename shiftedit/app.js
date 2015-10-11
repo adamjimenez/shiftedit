@@ -11,7 +11,7 @@ requirejs.config({
         "jquery.menubar": "menubar/jquery.menubar",
         "ui.combobox": "combobox/ui.combobox",
         "jstree": "jstree/jstree",
-        //ace: "/js/ace.20141108/src"
+        "ace": "ace.20141108/src/ace"
     },
     "shim": {
         "jquery-ui": {

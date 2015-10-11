@@ -1,5 +1,6 @@
-define(["jstree","app/util"], function () {
+define(["jstree","app/util","app/editor"], function () {
 var util = require('app/util');
+var editor = require('app/editor');
 var siteId;
 var tree;
 
@@ -143,11 +144,15 @@ function init() {
     					case 'html':
     						//console.log('load');
     						var tab = $('.ui-layout-center').tabs('add', file, '<div></div>');
+    						editor.create(tab, d.content);
+
+    						/*
     						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
     						var editor = ace.edit(panel.children('div')[0]);
     						editor.setTheme("ace/theme/monokai");
     						editor.getSession().setMode("ace/mode/php");
     						editor.getSession().getDocument().setValue(d.content);
+    						*/
     					break;
     					case 'png':
     					case 'jpg':
