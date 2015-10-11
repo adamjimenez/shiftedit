@@ -1,9 +1,11 @@
-define(function (require) {
-var tabs_contextmenu = require('./tabs_contextmenu');
+define(["ui.tabs.paging","app/tabs_contextmenu"], function () {
+var tabs_contextmenu = require('app/tabs_contextmenu');
 
 // TABS - sortable
 $( ".ui-layout-west" ).tabs();
 var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({closable: true, addTab:true});
+
+//console.log(tabs);
 
 // initialize paging
 $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });

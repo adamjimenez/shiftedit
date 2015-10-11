@@ -1,5 +1,5 @@
-define(function (require) {
-var util = require('./util');
+define(["jstree","app/util"], function () {
+var util = require('app/util');
 var siteId;
 var tree;
 
@@ -169,6 +169,8 @@ function init() {
     		$('#data .default').html('Select a file from the tree.').show();
     	}
     });
+
+
 }
 
 function refresh() {

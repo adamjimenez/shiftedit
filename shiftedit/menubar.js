@@ -1,7 +1,7 @@
-define(function (require) {
-var lang = require('./lang').lang;
-var makeMenuText = require('./util').makeMenuText;
-var prefs = require('./prefs').prefs;
+define(["jquery.menubar"], function () {
+var lang = require('app/lang').lang;
+var makeMenuText = require('app/util').makeMenuText;
+var prefs = require('app/prefs').prefs;
 
 console.log('menubar');
 

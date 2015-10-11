@@ -1,7 +1,6 @@
-define(function (require) {
-    require('ace/ace');
-    var locale = require('./lang');
-    var prefs = require('./prefs');
+define(["jquery-ui","app/lang", "app/prefs", "app/site", "app/tabs", "app/tree", "app/layout"], function () {
+    var locale = require("app/lang");
+    var prefs = require("app/prefs");
 
     locale.load()
     .fail(function () {
@@ -10,10 +9,11 @@ define(function (require) {
     .done(prefs.load())
     .then(function (lang) {
         // yay!
-        var site = require('./site');
-        var tabs = require('./tabs');
-        var tree = require('./tree');
+        var tabs = require("app/tabs");
+        var tree = require("app/tree");
         tree.init();
-        var layout = require('./layout');
+        var site = require("app/site");
+        site.init();
+        var layout = require("app/layout");
     });
 });
