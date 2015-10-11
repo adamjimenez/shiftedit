@@ -1,4 +1,10 @@
-define(['jquery','ace'], function () {
+define(['jquery','ace','app/tabs'], function () {
+    var tabs = require('app/tabs');
+
+    function onChange(e) {
+		tabs.setEdited(this, true);
+    }
+
     function create(file, content, siteId) {
         //check if file already open
         var index = $(".ui-layout-center li[data-file='"+file+"'][data-siteId='"+siteId+"']").index();
@@ -14,7 +20,7 @@ define(['jquery','ace'], function () {
 
 		//update dom
 		tab.attr('data-file', file);
-		tab.attr('data-siteId', siteId);
+		tab.attr('data-site', siteId);
 
 		//load ace
 		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
@@ -22,6 +28,22 @@ define(['jquery','ace'], function () {
 		editor.setTheme("ace/theme/monokai");
 		editor.getSession().setMode("ace/mode/php");
 		editor.getSession().getDocument().setValue(content);
+
+		editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
+
+		//shortcuts
+		//save
+		editor.commands.addCommand({
+			name: "save",
+			bindKey: {
+				win: "Ctrl-S",
+				mac: "Command-S",
+				sender: "editor"
+			},
+			exec: jQuery.proxy(function (editor, args, request) {
+				return tabs.save(this);
+			}, tab)
+		});
     }
 
     return {

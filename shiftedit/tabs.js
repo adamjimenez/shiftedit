@@ -1,5 +1,102 @@
-define(["ui.tabs.paging","app/tabs_contextmenu"], function () {
+define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang"], function () {
 var tabs_contextmenu = require('app/tabs_contextmenu');
+var prompt = require('app/prompt');
+var lang = require('app/lang').lang;
+
+function save(tab, callback) {
+    tab = $(tab);
+
+    console.log('save');
+
+    var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+    var editor = ace.edit(panel.children('div')[0]);
+
+    if(!editor){
+        console.error('editor instance not found');
+        return false;
+    }
+
+    var content = editor.getValue();
+
+
+    if(!tab.data("site") || !tab.data("file")) {
+        saveAs(tab, callback);
+    }
+
+    $.post("/api/files?cmd=save&site="+tab.data("site")+"&file="+tab.data("file"), {
+        content: content,
+    }, function(data){
+        //console.log(data);
+
+        if (data.success) {
+            //trigger event save
+            //tab.parent('div').trigger('save', [tab]);
+
+            setEdited(tab, false);
+
+            if (callback) {
+                callback(tab);
+            }
+        } else {
+            prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
+        }
+    }, 'json').fail(function() {
+		prompt.alert(lang.failedText, 'Error saving file');
+    });
+}
+
+function saveAs(tab, callback) {
+    console.log('save as');
+
+    if (callback) {
+        callback(tab);
+    }
+}
+
+function setEdited(tab, edited) {
+    var value = edited ? 1 : 0;
+
+    tab = $(tab);
+	tab.data("edited", value);
+	tab.attr('data-edited', value);
+
+	if(edited) {
+	    //change title
+	    tab.children('.ui-tabs-anchor').text(tab.data('file')+'*');
+	} else {
+	    //change title
+	    tab.children('.ui-tabs-anchor').text(tab.data('file'));
+	}
+}
+
+function checkEdited (e, ui) {
+    var tabpanel = this;
+
+    if($(ui.tab).data('edited')) {
+        prompt.prompt({
+			title: lang.saveChangesText,
+			msg: 'Save changes to: '+$(ui.tab).data('file'),
+			buttons: 'YESNOCANCEL',
+			fn: function (btn) {
+				if (btn == "yes") {
+				    //save
+				    save(ui.tab, function(tab) {
+				        var index = $(tab).index();
+				        $(tabpanel).tabs('remove', index);
+				    });
+				} else if (btn == 'no') {
+				    //remove
+				    var index = $(ui.tab).index();
+				    setEdited(ui.tab, false)
+				    $(tabpanel).tabs('remove', index);
+				} else if (btn == 'cancel') {
+				    //focus editor
+				}
+			}
+        });
+        return false;
+    }
+}
 
 // TABS - sortable
 $( ".ui-layout-west" ).tabs();
@@ -9,6 +106,8 @@ var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({clo
 
 // initialize paging
 $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });
+
+$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
 
 //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
 tabs.find( ".ui-tabs-nav" ).sortable({
@@ -53,6 +152,9 @@ tabs.find( ".ui-tabs-nav" ).sortable({
 });
 
 return {
+    setEdited: setEdited,
+    save: save,
+    saveAs: saveAs
 };
 
 });
