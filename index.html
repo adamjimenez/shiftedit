@@ -1,0 +1,230 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="language" content="en" />
+
+	<title>ShiftEdit Nxt</title>
+
+	<link rel="stylesheet" type="text/css" href="lib/css/layout-default-latest.css" />
+	<link rel="stylesheet" type="text/css" href="lib/css/themes/base/jquery.ui.all.css" />
+	<link rel="stylesheet" type="text/css" href="lib/menubar/jquery.menubar.css" />
+    <link rel="stylesheet" type="text/css" href="lib/contextMenu/jquery.contextMenu.css" />
+    <link rel="stylesheet" type="text/css" href="lib/combobox/ui.combobox.css" />
+	<link rel="stylesheet" type="text/css" href="shiftedit/app.css" />
+	<link rel="stylesheet" type="text/css" href="lib/jstree/themes/default/style.css" />
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+	<!-- REQUIRED scripts for layout widget -->
+	<script type="text/javascript" src="lib/js/jquery-latest.js"></script>
+	<script type="text/javascript" src="lib/js/jquery-ui-latest.js"></script>
+	<script type="text/javascript" src="lib/js/jquery.layout-latest.js"></script>
+	<!--<script type="text/javascript" src="lib/js/jquery.layout.resizePaneAccordions-latest.js"></script>-->
+	<script type="text/javascript" src="lib/menubar/jquery.menubar.js"></script>
+	<script type="text/javascript" src="lib/js/ui.tabs.closable.js"></script>
+	<script type="text/javascript" src="lib/js/ui.tabs.addTab.js"></script>
+    <script type="text/javascript" src="lib/contextMenu//jquery.ui.position.min.js"></script>
+    <script type="text/javascript" src="lib/contextMenu/jquery.contextMenu.min.js"></script>
+    <script type="text/javascript" src="lib/combobox/ui.combobox.js"></script>
+	<script type="text/javascript" src="lib/js/ui.tabs.paging.js"></script>
+	<script type="text/javascript" src="lib/jstree/jstree.js"></script>
+
+    <script data-main="shiftedit/app" src="lib/require.js"></script>
+
+    <script src="lib/ace.20141108/src/ace.js"></script>
+    <script src="lib/ace.20141108/src/theme-twilight.js"></script>
+    <script src="lib/ace.20141108/src/mode-html.js"></script>
+    <script src="lib/ace.20141108/src/mode-javascript.js"></script>
+    <script src="lib/ace.20141108/src/mode-css.js"></script>
+    <script src="lib/ace.20141108/src/mode-php.js"></script>
+
+    <!--
+    <script type="text/javascript" src="lib/js/themeswitchertool.js"></script>
+	<script type="text/javascript" src="lib/js/debug.js"></script>
+	-->
+</head>
+<body>
+
+<div class="ui-layout-north ui-widget-content" style="display: none;">
+
+    <ul id="bar1" class="menubar">
+        <li>
+            <a href="#File">File</a>
+            <ul>
+                <li>
+                    <a href="#new...">New...</a>
+                </li>
+                <li>
+                    <a href="#open...">Open...</a>
+                </li>
+                <li>
+                    <a href="#upload...">Upload...</a>
+                </li>
+                <li>-</li>
+                <li class="ui-state-disabled">
+                    <a href="#Save">Save</a>
+                </li>
+                <li class="ui-state-disabled">
+                    <a href="#saveAs">Save as...</a>
+                </li>
+                <li class="ui-state-disabled">
+                    <a href="#saveAll">Save all</a>
+                </li>
+                <li>
+                    <a href="#saveMinified">Save with minified</a>
+                </li>
+                <li>
+                    <a href="#download">Download</a>
+                </li>
+                <li>
+                    <a href="#revert">Revert to Saved</a>
+                </li>
+                <li>
+                    <a href="#revisionHistory">Revision History</a>
+                </li>
+                <li>
+                    <a href="#validate">Validate</a>
+                </li>
+                <li>-</li>
+                <li>
+                    <a href="#print">Print...</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#Edit">Edit</a>
+            <ul>
+                <li>
+                    <a href="#Copy">Copy</a>
+                </li>
+                <li>
+                    <a href="#Cut">Cut</a>
+                </li>
+                <li class="ui-state-disabled">Paste</li>
+            </ul>
+        </li>
+        <li>
+            <a href="#View">View</a>
+            <ul>
+                <li>
+                    <a href="#Fullscreen">Fullscreen</a>
+                </li>
+                <li>
+                    <a href="#Fit into view">Fit into view</a>
+                </li>
+                <li>
+                    <a href="#Encoding">Encoding</a>
+
+                    <ul>
+                        <li>
+                            <a href="#Auto-detect">Auto-detect</a>
+                        </li>
+                        <li>
+                            <a href="#UTF-8">UTF-8</a>
+                        </li>
+                        <li>
+                            <a href="#UTF-16">UTF-16</a>
+
+                            <ul>
+                                <li>
+                                    <a href="#Option 1">Option 1</a>
+                                </li>
+                                <li>
+                                    <a href="#Option 2">Option 2</a>
+                                </li>
+                                <li>
+                                    <a href="#Option 3">Option 3</a>
+                                </li>
+                                <li>
+                                    <a href="#Option 4">Option 4</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#Customize...">Customize...</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#Edit">Help</a>
+            <ul>
+                <li>
+                    <a href="#support">Support</a>
+                </li>
+                <li>
+                    <a href="#support">Send feedback</a>
+                </li>
+                <li>
+                    <a href="#support">Google Group</a>
+                </li>
+                <li>
+                    <a href="#support">Changelog</a>
+                </li>
+                <li>
+                    <a href="#support">Shortcuts</a>
+                </li>
+                <li>
+                    <a href="#support">About ShiftEdit</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="ui-layout-south ui-widget-content" style="display: none;">
+	<ul></ul>
+    <!-- add wrapper that layout will auto-size to 'fill space' -->
+    <div class="ui-layout-content">
+    </div>
+</div>
+
+<div class="ui-layout-center" style="display: none;">
+	<ul></ul>
+    <!-- add wrapper that layout will auto-size to 'fill space' -->
+    <div class="ui-layout-content">
+    </div>
+</div>
+
+<div class="ui-layout-west" style="display: none;">
+	<ul>
+        <li><a href="#tabs-filetree"><i class="fa fa-folder"></i></a></li>
+        <li><a href="#tabs-2"><i class="fa fa-search"></i></a></li>
+        <li><a href="#tabs-3"><i class="fa fa-code"></i></a></li>
+        <li><a href="#tabs-3"><i class="fa fa-pencil"></i></a></li>
+        <li><a href="#tabs-3"><i class="fa fa-cut"></i></a></li>
+    </ul>
+    <!-- add wrapper that layout will auto-size to 'fill space' -->
+    <div class="ui-layout-content">
+        <div id="tabs-filetree">
+            <div id="sitebar">
+                <select id="sites">
+                </select>
+            </div>
+
+            <button id="refresh_site"></button>
+
+            <div id="tabs-filetree">
+    			<div id="tree"></div>
+            </div>
+        </div>
+
+        <div id="tabs-2"></div>
+        <div id="tabs-3"></div>
+        <div id="tabs-3"></div>
+        <div id="tabs-3"></div>
+    </div>
+</div>
+
+<div class="ui-layout-east" style="display: none;">
+	<ul></ul>
+    <!-- add wrapper that layout will auto-size to 'fill space' -->
+    <div class="ui-layout-content">
+    </div>
+</div>
+
+</body>
+</html>
+<?
+exit;
+?>

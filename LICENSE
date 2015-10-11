@@ -1,0 +1,81 @@
+ShiftEdit Software Development Kit Non-commercial License Agreement
+
+tl;dr
+You may use the ShiftEdit SDK for private non-commercial projects only.
+
+1. Introduction
+1.1 The ShiftEdit Software Development Kit (referred to in this License Agreement as the "SDK" and specifically including the ShiftEdit system files) is licensed to you subject to the terms of this Non-commercial License Agreement.
+
+1.2 Any software provided along with the SDK that is associated with a separate license agreement is licensed to you under the terms of that separate license agreement.
+
+This License Agreement forms a legally binding contract between you and ShiftCreate in relation to your use of the SDK.
+
+1.2 “ShiftCreate” refers to ShiftCreate LTD, registered place of business 64a Southfields, Letchworth, Herts, UK.
+
+2. Accepting this license agreement
+2.1 In order to use the SDK, you must first agree to this License Agreement. You may not use the SDK if you do not accept this License Agreement.
+
+2.2 You agree to be bound by the terms of this SDK License by installing, copying, downloading, accessing or otherwise using the SDK.
+
+2.3 If you are agreeing to be bound by this License Agreement on behalf of your employer or other entity, you represent and warrant that you have full legal authority to bind your employer or such entity to this License Agreement. If you do not have the requisite authority, you may not accept the License Agreement or use the SDK on behalf of your employer or other entity.
+
+3. The ShiftEdit SDK
+3.1 ShiftEdit grants to you a non-exclusive, non-commercial, non-transferable, personal license to do the following, all subject to the terms of this license:
+
+Copy and modify any SDK source code, and include such copies and modifications in software that you create (“Derived Software”), and include SDK object code in Derived Software;
+
+Use SDK source code, SDK object code, and Derived Software for your own personal, noncommercial use;
+
+Distribute Derived Software and SDK documentation to others, provided that any distribution is for noncommercial purposes only, is without charge or fee or consideration of any kind, and that every recipient of the distribution agree to and is bound by the terms of this SDK License.
+
+3.2 You agree that ShiftCreate or third parties own all legal right, title and interest in and to the SDK, including any Intellectual Property Rights that subsist in the SDK. "Intellectual Property Rights" means any and all rights under patent law, copyright law, trade secret law, trademark law, and any and all other proprietary rights. ShiftCreate reserves all rights not expressly granted
+to you.
+
+3.3 You may not use the SDK for any purpose not expressly permitted by this License Agreement. You do not have the right to:
+
+Reverse engineer or in any other way attempt to reproduce the operation of the code in the SDK, or defeat or circumvent any security features of any code in the SDK; Use anything in the SDK or any Derived Software for any commercial purpose, including without limitation for provision of programming, hosting, or any other services for others; Distribute anything in the SDK or any Derived Software to any other party that is not bound by the terms of this SDK License; Make any copies of anything in the SDK without including all copyright, license, and other legal notices with the copy;
+Transfer the SDK, this SDK License, or any part thereof, to any other party. Any attempt at such a transfer is void.
+
+3.4 Use, reproduction and distribution of components of the SDK licensed under a separate license agreement are governed solely by the terms of that separate license agreement and not this License Agreement.
+
+3.5 You agree that the form and nature of the SDK that ShiftCreate provides may change without prior notice to you and that future versions of the SDK may be incompatible with applications developed on previous versions of the SDK. You agree that ShiftCreate may stop (permanently or temporarily) providing the SDK (or any features within the SDK) to you or to users generally at ShiftCreate's sole discretion, without prior notice to you.
+
+3.6 Nothing in this License Agreement gives you a right to use any of ShiftCreate's trade names, trademarks, service marks, logos, domain names, or other
+distinctive brand features.
+
+3.7 You agree that you will not remove, obscure, or alter any proprietary rights notices (including copyright and trademark notices) that may be affixed to or contained within the SDK.
+
+
+4. Termination of this license agreement
+4.1 This License Agreement will continue to apply until terminated by either you
+or ShiftCreate as set out below.
+
+4.2 If you want to terminate this License Agreement, you may do so by ceasing your use of the SDK and any relevant developer credentials.
+
+4.3 ShiftCreate may at any time, terminate this License Agreement with you if:
+a. you do not abide by the provisions of this License Agreement; or b. at any time upon 72 hours notice to you; or
+c. at any time upon post of a notice of termination to ShiftCreate’s website. In such event, you must destroy all copies of the SDK and any Derived Software.
+Termination of this SDK License shall terminate your rights and all obligations of ShiftCreate under this SDK License, but the remaining provisions shall survive
+termination.
+
+5. DISCLAIMER OF WARRANTIES
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+6. Indemnification
+
+6.1 You hereby indemnify ShiftCreate from any claim brought by a third party resulting from the use of the SDK. The Client further indemnifies ShiftCreate in respect of all losses, including loss of turnover, sales, revenue, profits or indirect, consequential or special loss, costs, actions, proceedings, claims, damages, expenses (including reasonable legal costs and expenses), or liabilities, whatsoever suffered or incurred by ShiftCreate in consequence of the Client's breach or non-observance of the Agreement.
+
+6.2 You shall defend and pay all costs, damages, awards, fees (including any reasonable legal fees) and judgements awarded against ShiftCreate arising from the above claims and shall provide ShiftCreate with notice of such claims, full authority to defend, compromise or settle such claims and reasonable assistance necessary to defend such claims, at your sole expense.
+
+7. Changes to the license agreement
+7.1 ShiftCreate may make changes to the License Agreement as it distributes new versions of the SDK. When these changes are made, ShiftCreate will make a new version of the License Agreement available on the website where the SDK is made available.
+
+8. Applicable law, jurisdiction
+This License Agreement is formed under the laws of the United Kingdom and any legal claim shall be made in a court or via the legal system of the United Kingdom
+
+9. General legal terms
+9.1 This SDK License sets forth all rights for the user of the SDK and is the entire agreement between the parties. This SDK License supersedes any other communications with respect to the SDK. You agree that this SDK License is not intended to confer and does not confer any rights or remedies upon any person other than the parties to this SDK License. No provision hereof shall be deemed waived unless such waiver shall be in writing and signed by ShiftCreate. If any provision of this SDK License is held invalid or unenforceable, the remainder of
+this SDK License shall continue in full force and effect, and such provision shall be reformed only to the extent necessary to make it valid and enforceable. The parties confirm that it is their wish that this Agreement has been written in the English language only (or an equivalent type of urgent legal relief) in any jurisdiction.
+
+10. Law
+10.1 This Agreement is governed by the law of England and Wales, and the Client submits to the exclusive jurisdiction of the Courts of England and Wales.
