@@ -8,7 +8,7 @@ return {
 
 		return '<div style="display:inline-block; width:160px;">' + text + '</div><div style="display:inline-block; color: gray;">' + key + '</div>';
 	},
-	file_ext: function(filename)
+	fileExtension: function(filename)
     {
     	if( filename.length == 0 ) return "";
     	var dot = filename.lastIndexOf(".");

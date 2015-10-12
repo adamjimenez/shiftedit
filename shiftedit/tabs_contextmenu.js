@@ -1,6 +1,6 @@
-define(function (require) {
-var lang = require('./lang').lang;
-var makeMenuText = require('./util').makeMenuText;
+define(["jquery.contextMenu"], function () {
+var lang = require('app/lang').lang;
+var makeMenuText = require('app/util').makeMenuText;
 
 $.contextMenu({
     selector: '.ui-tabs-nav li',

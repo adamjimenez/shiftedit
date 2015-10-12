@@ -1,5 +1,5 @@
-define(function (require) {
-var menubar = require('./menubar');
+define(["jquery.layout", "app/menubar"], function () {
+var menubar = require("app/menubar");
 
 console.log('layout');
 

@@ -1,34 +1,38 @@
-define(function (require) {
-var prompt = require('./prompt');
-var tree = require('./tree');
-var storage = require('./storage');
+define(["jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox"], function () {
+var prompt = require('app/prompt');
+var tree = require('app/tree');
+var storage = require('app/storage');
 
 var sites = [];
 var currentSite = storage.get('currentSite');
 
-var combobox = $( "#sites" ).combobox({
-    select: function (event, ui) {
-        //connect to site
-        open(ui.item.value);
-    },
-    change: function (event, ui) {
-        //connect to site
-        open(ui.item.value);
-    },
-    create: function( event, ui ) {
-        load();
-    }
-});
+var combobox;
 
-$( "#refresh_site" ).button({
-    icons: {
-       primary: "ui-icon-refresh"
-    },
-    text: false
-})
-.click(function() {
-    tree.refresh();
-});
+function init() {
+    combobox = $( "#sites" ).combobox({
+        select: function (event, ui) {
+            //connect to site
+            open(ui.item.value);
+        },
+        change: function (event, ui) {
+            //connect to site
+            open(ui.item.value);
+        },
+        create: function( event, ui ) {
+            load();
+        }
+    });
+
+    $( "#refresh_site" ).button({
+        icons: {
+           primary: "ui-icon-refresh"
+        },
+        text: false
+    })
+    .click(function() {
+        tree.refresh();
+    });
+}
 
 function open(siteId) {
     currentSite = null;
@@ -61,18 +65,21 @@ function load() {
             });
 
             if(currentSite){
-                    $( "#sites" ).val(currentSite).change();
-
-                    //$( "#sites" ).focus().val(currentSite);
-                    //$( "#sites" ).combobox('close');
+                $( "#sites" ).val(currentSite).change();
             }
 
             return sites;
         });
 }
 
+function active() {
+    return currentSite;
+}
+
 return {
-    load: load
+    init: init,
+    load: load,
+    active: active
 };
 
 });

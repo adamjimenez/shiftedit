@@ -1,5 +1,8 @@
-define(function (require) {
-var util = require('./util');
+define(["jstree","app/util","app/editor","app/prompt"], function () {
+var util = require('app/util');
+var editor = require('app/editor');
+var lang = require('app/lang').lang;
+var prompt = require('app/prompt');
 var siteId;
 var tree;
 
@@ -122,53 +125,64 @@ function init() {
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
     	    var file = data.selected.join(':');
-    	    var type = util.file_ext(file);
+    	    var type = util.fileExtension(file);
 
-    		$.get('/api/files?site='+siteId+'&cmd=open&file=' + file, function (d) {
+    		$.get('/api/files?site='+siteId+'&cmd=open&file=' + file, function (data) {
     		    //console.log(d);
 
-    			if(d && typeof type !== 'undefined') {
-    				$('#data .content').hide();
-    				switch(type) {
-    					case 'text':
-    					case 'txt':
-    					case 'md':
-    					case 'htaccess':
-    					case 'log':
-    					case 'sql':
-    					case 'php':
-    					case 'js':
-    					case 'json':
-    					case 'css':
-    					case 'html':
-    						//console.log('load');
-    						var tab = $('.ui-layout-center').tabs('add', file, '<div></div>');
-    						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    						var editor = ace.edit(panel.children('div')[0]);
-    						editor.setTheme("ace/theme/monokai");
-    						editor.getSession().setMode("ace/mode/php");
-    						editor.getSession().getDocument().setValue(d.content);
-    					break;
-    					case 'png':
-    					case 'jpg':
-    					case 'jpeg':
-    					case 'bmp':
-    					case 'gif':
-    						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
-    						//$('#data .image').show();
-						break;
-    					default:
-    						//$('#data .default').html(d.content).show();
-						break;
-    				}
+    			if(data && typeof type !== 'undefined') {
+    			    if (!data.success) {
+    			        prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
+    			    } else {
+        				$('#data .content').hide();
+        				switch(type) {
+        					case 'text':
+        					case 'txt':
+        					case 'md':
+        					case 'htaccess':
+        					case 'log':
+        					case 'sql':
+        					case 'php':
+        					case 'js':
+        					case 'json':
+        					case 'css':
+        					case 'html':
+        						//console.log('load');
+        						editor.create(file, data.content, siteId);
+
+        						/*
+        						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+        						var editor = ace.edit(panel.children('div')[0]);
+        						editor.setTheme("ace/theme/monokai");
+        						editor.getSession().setMode("ace/mode/php");
+        						editor.getSession().getDocument().setValue(d.content);
+        						*/
+        					break;
+        					case 'png':
+        					case 'jpg':
+        					case 'jpeg':
+        					case 'bmp':
+        					case 'gif':
+        						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
+        						//$('#data .image').show();
+    						break;
+        					default:
+        						//$('#data .default').html(d.content).show();
+    						break;
+        				}
+    			    }
     			}
-    		});
+    		}, 'json').fail(function() {
+        		prompt.alert(lang.failedText, 'Error saving file');
+            });
     	}
     	else {
     		$('#data .content').hide();
     		$('#data .default').html('Select a file from the tree.').show();
     	}
     });
+
+
 }
 
 function refresh() {
