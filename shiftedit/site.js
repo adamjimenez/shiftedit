@@ -1,7 +1,10 @@
-define(["jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox"], function () {
+define(["jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl"], function () {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
+var lang = require('app/lang').lang;
+var util = require('app/util');
+var ssl = require('app/ssl');
 
 var sites = [];
 var currentSite = storage.get('currentSite');
@@ -46,7 +49,8 @@ function open(siteId) {
                 storage.set('currentSite', currentSite);
 
                 //load file tree
-                tree.open(siteId);
+                var options = getAjaxOptions('/api/files?site='+siteId);
+                tree.setAjaxOptions(options);
             }else{
                 prompt.alert('Error', data.error);
             }
@@ -76,10 +80,73 @@ function active() {
     return currentSite;
 }
 
+function getSettings(siteId) {
+    if(!siteId) {
+        siteId = currentSite;
+    }
+
+    site = false;
+    sites.forEach(function(entry) {
+        if(entry.id==siteId){
+            site = entry;
+            return;
+        }
+    });
+
+    return site;
+}
+
+function getAjaxOptions(ajaxUrl) {
+    var settings = getSettings();
+    var params = {};
+
+    if(settings.server_type == 'AJAX' || settings.turbo == 1) {
+        if(settings.turbo){
+        	if( settings.web_url ){
+        		ajaxUrl = settings.web_url+'shiftedit-proxy.php?ModPagespeed=off';
+        	}else{
+        		prompt.alert(lang.errorText, 'Missing web URL');
+        	}
+
+    		//var prefs = shiftedit.app.get_prefs();
+
+    		//fixme prompt for master password
+    		//var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, shiftedit.app.storage.get('masterPassword'), 256) : settings.ftp_pass;
+
+    		var pass = settings.ftp_pass;
+
+    		params = {
+    			user: settings.ftp_user,
+    			pass: util.sha1(pass)
+    		};
+        }else{
+        	ajaxUrl = settings.domain;
+
+        	if( settings.encryption == '1' ){
+        		ajaxUrl = 'https://'+ajaxUrl;
+        	}else{
+        		ajaxUrl = 'http://'+ajaxUrl;
+        	}
+        }
+
+        if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){
+            prompt.alert('Proxy Blocked', 'Click Shield icon in address bar, then "Load Unsafe Script"');
+        }
+    }
+
+    return {
+        site: settings.id,
+        url: ajaxUrl,
+        params: params
+    }
+}
+
 return {
     init: init,
     load: load,
-    active: active
+    active: active,
+    getSettings: getSettings,
+    getAjaxOptions: getAjaxOptions
 };
 
 });

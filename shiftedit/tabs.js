@@ -1,6 +1,7 @@
 define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes"], function (editor,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
+var site = require('app/site');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 
@@ -30,26 +31,36 @@ function save(tab, callback) {
         return;
     }
 
-    $.post("/api/files?cmd=save&site="+tab.data("site")+"&file="+tab.data("file"), {
+    var options = site.getAjaxOptions("/api/files?cmd=save&site="+tab.data("site"));
+
+    var params = options.params;
+    params.content = content;
+
+    $.ajax(options.url+"&file="+tab.data("file"), {
+	    method: 'POST',
+	    dataType: 'json',
+	    data: params,
         content: content,
-    }, function(data){
-        //console.log(data);
+        success: function(data) {
+            //console.log(data);
 
-        if (data.success) {
-            //trigger event save
-            //tab.parent('div').trigger('save', [tab]);
+            if (data.success) {
+                //trigger event save
+                //tab.parent('div').trigger('save', [tab]);
 
-            setEdited(tab, false);
+                setEdited(tab, false);
 
-            if (callback) {
-                callback(tab);
+                if (callback) {
+                    callback(tab);
+                }
+            } else {
+                prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
             }
-        } else {
-            prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
         }
-    }, 'json').fail(function() {
+    }).fail(function() {
 		prompt.alert(lang.failedText, 'Error saving file');
     });
+
 }
 
 function saveAs(tab, callback) {

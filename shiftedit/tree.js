@@ -3,19 +3,36 @@ var util = require('app/util');
 var editor = require('app/editor');
 var lang = require('app/lang').lang;
 var prompt = require('app/prompt');
-var siteId;
+var options = {};
 var tree;
 
 function init() {
     tree = $('#tree')
     .jstree({
     	'core' : {
+    	    /*
     		'data' : {
     			'url' : '',
     			'data' : function (node) {
     				return { 'id' : node.id };
     			}
-    		},
+    		},*/
+            'data' : function (node, callback) {
+                console.log(node);
+
+                if(!options.url){
+                    return false;
+                }
+
+        		$.ajax(options.url+'&cmd=list', {
+        		    method: 'POST',
+        		    dataType: 'json',
+        		    data: options.params,
+        		    success: function(data) {
+                        callback.call(tree, data);
+        		    }
+        		});
+            },
     		'check_callback' : function(o, n, p, i, m) {
     			if(m && m.dnd && m.pos !== 'i') { return false; }
     			if(o === "move_node" || o === "copy_node") {
@@ -127,50 +144,55 @@ function init() {
     	    var file = data.selected.join(':');
     	    var type = util.fileExtension(file);
 
-    		$.get('/api/files?site='+siteId+'&cmd=open&file=' + file, function (data) {
-    		    //console.log(d);
+    		$.ajax(options.url+'&cmd=open&file=' + file, {
+    		    method: 'POST',
+    		    dataType: 'json',
+    		    data: options.params,
+		        success: function (data) {
+        		    //console.log(d);
 
-    			if(data && typeof type !== 'undefined') {
-    			    if (!data.success) {
-    			        prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
-    			    } else {
-        				$('#data .content').hide();
-        				switch(type) {
-        					case 'text':
-        					case 'txt':
-        					case 'md':
-        					case 'htaccess':
-        					case 'log':
-        					case 'sql':
-        					case 'php':
-        					case 'js':
-        					case 'json':
-        					case 'css':
-        					case 'html':
-        						//console.log('load');
-        						editor.create(file, data.content, siteId);
+        			if(data && typeof type !== 'undefined') {
+        			    if (!data.success) {
+        			        prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
+        			    } else {
+            				$('#data .content').hide();
+            				switch(type) {
+            					case 'text':
+            					case 'txt':
+            					case 'md':
+            					case 'htaccess':
+            					case 'log':
+            					case 'sql':
+            					case 'php':
+            					case 'js':
+            					case 'json':
+            					case 'css':
+            					case 'html':
+            						//console.log('load');
+            						editor.create(file, data.content, options.site);
 
-        						/*
-        						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-        						var editor = ace.edit(panel.children('div')[0]);
-        						editor.setTheme("ace/theme/monokai");
-        						editor.getSession().setMode("ace/mode/php");
-        						editor.getSession().getDocument().setValue(d.content);
-        						*/
-        					break;
-        					case 'png':
-        					case 'jpg':
-        					case 'jpeg':
-        					case 'bmp':
-        					case 'gif':
-        						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
-        						//$('#data .image').show();
-    						break;
-        					default:
-        						//$('#data .default').html(d.content).show();
-    						break;
-        				}
-    			    }
+            						/*
+            						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+            						var editor = ace.edit(panel.children('div')[0]);
+            						editor.setTheme("ace/theme/monokai");
+            						editor.getSession().setMode("ace/mode/php");
+            						editor.getSession().getDocument().setValue(d.content);
+            						*/
+            					break;
+            					case 'png':
+            					case 'jpg':
+            					case 'jpeg':
+            					case 'bmp':
+            					case 'gif':
+            						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
+            						//$('#data .image').show();
+        						break;
+            					default:
+            						//$('#data .default').html(d.content).show();
+        						break;
+            				}
+        			    }
+        			}
     			}
     		}, 'json').fail(function() {
         		prompt.alert(lang.failedText, 'Error saving file');
@@ -189,9 +211,9 @@ function refresh() {
     tree.jstree(true).refresh();
 }
 
-function open(id) {
-    siteId = id;
-    tree.jstree(true).settings.core.data.url = '/api/files?site='+siteId;
+function setAjaxOptions(siteOptions) {
+    options = siteOptions;
+    tree.jstree(true).settings.core.data.url = options.url;
 
     //tree.jstree('create_node', '#', {'id' : 'myId', 'text' : 'My Text'}, 'last');
 
@@ -200,8 +222,7 @@ function open(id) {
 
 return {
     init: init,
-    siteId: siteId,
-    open: open,
+    setAjaxOptions: setAjaxOptions,
     refresh: refresh
 };
 
