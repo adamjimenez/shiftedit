@@ -7,7 +7,7 @@ define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout"], function ()
         console.error("Cannot load language file");
     })
     .done(prefs.load())
-    .then(function (lang) {
+    .always(function (lang) {
         // yay!
         var tabs = require("app/tabs");
         tabs.init();
