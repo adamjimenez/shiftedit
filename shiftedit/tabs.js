@@ -1,8 +1,8 @@
-define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/site", "app/lang"], function () {
+define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/editor"], function () {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
-var site = require('app/site');
 var lang = require('app/lang').lang;
+var modes = require('app/modes').modes;
 
 function save(tab, callback) {
     tab = $(tab);
@@ -59,6 +59,7 @@ function saveAs(tab, callback) {
             	tab.data(file, value);
             	tab.attr('data-file', file);
 
+                var site = require('app/site');
             	var siteId = site.active();
 
             	if(!siteId) {
@@ -117,9 +118,8 @@ function checkEdited (e, ui) {
 				    });
 				} else if (btn == 'no') {
 				    //remove
-				    var index = $(ui.tab).index();
 				    setEdited(ui.tab, false);
-				    $(tabpanel).tabs('remove', index);
+				    close(ui.tab);
 				} else if (btn == 'cancel') {
 				    //focus editor
 				}
@@ -127,6 +127,61 @@ function checkEdited (e, ui) {
         });
         return false;
     }
+}
+
+function close (tab) {
+    var tabpanel = $(tab).closest(".ui-tabs");
+    var index = $(tab).index();
+    $(tabpanel).tabs('remove', index);
+}
+
+function newTab (e, ui) {
+    //show new tab page
+    var tab = $(ui.tab);
+    if(!tab.attr('data-newtab')){
+        return;
+    }
+
+    var editor = require('app/editor');
+
+    var panel = $(ui.panel);
+
+    panel.append('\
+			<div class="newTab">\
+				<div class="column" style="display:block; width:25%; float:left;">\
+					<h5>Create</h5>\
+					<ul class="fileTypes"></ul>\
+				</div>\
+				<div class="column" style="display:block; width:25%; float:left; margin:10px;">\
+					<h5>Recent</h5>\
+					<ul class="recentFiles"></ul>\
+				</div>\
+				<div class="column" style="display:block; width:25%; float:left; margin:10px;">\
+					<h5>Other</h5>\
+					<ul class="other">\
+					    <li><a href="#">New Site</a></li>\
+						<li><a href="#" class="preview">Preview</a></li>\
+						<li><a href="#" class="ssh">SSH</a></li>\
+					</ul>\
+				</div>\
+			</div>\
+		');
+
+	var HTML = '';
+
+	for (var i in modes) {
+		if (modes.hasOwnProperty(i)) {
+			HTML += '<li class="'+modes[i][0]+'">  <a href="#" data-filetype="'+modes[i][2][0]+'" class="newfile file-' + modes[i][2][0] + '">' + modes[i][1] + '</a></li>';
+		}
+	}
+
+	panel.find('ul.fileTypes').append(HTML);
+
+
+	panel.find('a.newfile').click(function(){
+		editor.create("untitled."+this.dataset.filetype, '');
+		close(ui.tab);
+	});
 }
 
 // TABS - sortable
@@ -137,8 +192,8 @@ var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({clo
 
 // initialize paging
 $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });
-
 $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
+$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
 
 //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
 tabs.find( ".ui-tabs-nav" ).sortable({

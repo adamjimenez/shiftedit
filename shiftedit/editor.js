@@ -16,11 +16,12 @@ define(['jquery','ace','app/tabs'], function () {
         //create tab
 		tab = $(".ui-layout-center").tabs('add', file, '<div></div>');
 		tab.data(file, file);
-		tab.data(site, siteId);
-
-		//update dom
 		tab.attr('data-file', file);
-		tab.attr('data-site', siteId);
+
+		if(siteId) {
+		    tab.data('site', siteId);
+		    tab.attr('data-site', siteId);
+		}
 
 		//load ace
 		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
