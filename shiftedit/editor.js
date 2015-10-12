@@ -1,5 +1,7 @@
-define(['jquery','ace','app/tabs'], function () {
+define(['jquery','ace','app/tabs', "app/util", "app/modes"], function () {
     var tabs = require('app/tabs');
+    var util = require('app/util');
+    var modes = require('app/modes').modes;
 
     function onChange(e) {
 		tabs.setEdited(this, true);
@@ -27,7 +29,20 @@ define(['jquery','ace','app/tabs'], function () {
 		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 		var editor = ace.edit(panel.children('div')[0]);
 		editor.setTheme("ace/theme/monokai");
-		editor.getSession().setMode("ace/mode/php");
+
+		//set mode
+		var ext = util.fileExtension(file);
+		var mode = 'text';
+
+		//check default file associations
+		modes.forEach(function (item) {
+			if (item[2].indexOf(ext) !== -1) {
+				mode = item[0];
+				return;
+			}
+		});
+
+		editor.getSession().setMode("ace/mode/"+mode);
 		editor.getSession().getDocument().setValue(content);
 
 		editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));

@@ -123,7 +123,7 @@ function init() {
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
     	    var file = data.selected.join(':');
-    	    var type = util.file_ext(file);
+    	    var type = util.fileExtension(file);
 
     		$.get('/api/files?site='+siteId+'&cmd=open&file=' + file, function (d) {
     		    //console.log(d);
