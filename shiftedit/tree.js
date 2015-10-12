@@ -1,4 +1,4 @@
-define(["jstree","app/util","app/editor","app/prompt"], function () {
+define(["jstree","app/util","app/editor","app/prompt",'app/lang'], function () {
 var util = require('app/util');
 var editor = require('app/editor');
 var lang = require('app/lang').lang;

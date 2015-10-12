@@ -1,4 +1,4 @@
-define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/editor"], function () {
+define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes"], function () {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var lang = require('app/lang').lang;
@@ -184,63 +184,68 @@ function newTab (e, ui) {
 	});
 }
 
-// TABS - sortable
-$( ".ui-layout-west" ).tabs();
-var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({closable: true, addTab:true});
+function init() {
+    tabs_contextmenu.init();
 
-//console.log(tabs);
+    // TABS - sortable
+    $( ".ui-layout-west" ).tabs();
+    var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({closable: true, addTab:true});
 
-// initialize paging
-$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });
-$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
-$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
+    //console.log(tabs);
 
-//connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
-tabs.find( ".ui-tabs-nav" ).sortable({
-    connectWith: '.ui-tabs-nav',
-    receive: function (event, ui) {
-        var receiver = $(this).parent(),
-            sender = $(ui.sender[0]).parent(),
-            tab = ui.item[0],
-            tab$ = $(ui.item[0]),
-        // Find the id of the associated panel
-            panelId = tab$.attr( "aria-controls" ),
-            insertBefore = document.elementFromPoint(event.pageX,event.pageY);
+    // initialize paging
+    $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });
+    $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
+    $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
 
-        tab$ = $(tab$.removeAttr($.makeArray(tab.attributes).
-                      map(function(item){ return item.name;}).
-                      join(' ')).remove());
-        tab$.find('a').removeAttr('id tabindex role class');
-        //console.log(insertBefore, tab);
-        //console.log(insertBefore.parentElement == tab);
-        if(insertBefore.parentElement == tab){
-            insertBefore = document.elementFromPoint(event.pageX + insertBefore.offsetWidth, event.pageY);
-            //console.log('ins', insertBefore);
+    //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
+    tabs.find( ".ui-tabs-nav" ).sortable({
+        connectWith: '.ui-tabs-nav',
+        receive: function (event, ui) {
+            var receiver = $(this).parent(),
+                sender = $(ui.sender[0]).parent(),
+                tab = ui.item[0],
+                tab$ = $(ui.item[0]),
+            // Find the id of the associated panel
+                panelId = tab$.attr( "aria-controls" ),
+                insertBefore = document.elementFromPoint(event.pageX,event.pageY);
+
+            tab$ = $(tab$.removeAttr($.makeArray(tab.attributes).
+                          map(function(item){ return item.name;}).
+                          join(' ')).remove());
+            tab$.find('a').removeAttr('id tabindex role class');
+            //console.log(insertBefore, tab);
+            //console.log(insertBefore.parentElement == tab);
+            if(insertBefore.parentElement == tab){
+                insertBefore = document.elementFromPoint(event.pageX + insertBefore.offsetWidth, event.pageY);
+                //console.log('ins', insertBefore);
+            }
+            //console.log($(insertBefore).closest('li[role="tab"]').get());
+            insertBefore = $(insertBefore).closest('li[role="tab"]').get(0);
+            //console.log(insertBefore);
+            if(insertBefore)
+                tab$.insertBefore(insertBefore);
+            else
+                $(this).append(tab$);
+
+            $($( "#" + panelId ).remove()).appendTo(receiver);
+            tabs.tabs('refresh');
+        },
+
+        //don't drag "add tab" button
+        items: "li:not(.button)",
+        //allow dragging out of panel Adam Jimenez
+        sort: function(e, ui) {
+            ui.item.appendTo(document.body);
         }
-        //console.log($(insertBefore).closest('li[role="tab"]').get());
-        insertBefore = $(insertBefore).closest('li[role="tab"]').get(0);
-        //console.log(insertBefore);
-        if(insertBefore)
-            tab$.insertBefore(insertBefore);
-        else
-            $(this).append(tab$);
-
-        $($( "#" + panelId ).remove()).appendTo(receiver);
-        tabs.tabs('refresh');
-    },
-
-    //don't drag "add tab" button
-    items: "li:not(.button)",
-    //allow dragging out of panel Adam Jimenez
-    sort: function(e, ui) {
-        ui.item.appendTo(document.body);
-    }
-});
+    });
+}
 
 return {
     setEdited: setEdited,
     save: save,
-    saveAs: saveAs
+    saveAs: saveAs,
+    init: init
 };
 
 });
