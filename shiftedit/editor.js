@@ -1,9 +1,10 @@
-define(['jquery','ace',"app/tabs", "app/util", "app/modes"], function () {
-//var tabs = require("app/tabs");
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes"], function (tabs, exports) {
 var util = require('app/util');
 var modes = require('app/modes').modes;
+var editor;
 
 function onChange(e) {
+    var tabs = require("app/tabs");
 	tabs.setEdited(this, true);
 }
 
@@ -27,7 +28,7 @@ function create(file, content, siteId) {
 
 	//load ace
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-	var editor = ace.edit(panel.children('div')[0]);
+	editor = ace.edit(panel.children('div')[0]);
 	editor.setTheme("ace/theme/monokai");
 
 	//set mode
@@ -60,6 +61,17 @@ function create(file, content, siteId) {
 			return tabs.save(this);
 		}, tab)
 	});
+	editor.commands.addCommand({
+		name: "saveAs",
+		bindKey: {
+			win: "Ctrl-Alt-S",
+			mac: "Command-Alt-S",
+			sender: "editor"
+		},
+		exec: jQuery.proxy(function (editor, args, request) {
+			return tabs.saveAs(this);
+		}, tab)
+	});
 
 	//move cursor to top
 	var startLine = 0;
@@ -78,7 +90,16 @@ function create(file, content, siteId) {
 	editor.focus();
 }
 
+function focus() {
+    editor.focus();
+}
+
+/*
 return {
     create: create
-};
+};*/
+
+exports.create = create;
+exports.focus = focus;
+
 });

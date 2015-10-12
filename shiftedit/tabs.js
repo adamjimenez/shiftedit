@@ -1,8 +1,14 @@
-define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes"], function () {
+define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes"], function (editor,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
+
+function get_editor(tab) {
+    tab = $(tab);
+    var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+    return ace.edit(panel.children('div')[0]);
+}
 
 function save(tab, callback) {
     tab = $(tab);
@@ -10,7 +16,7 @@ function save(tab, callback) {
     console.log('save');
 
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    var editor = ace.edit(panel.children('div')[0]);
+    var editor = get_editor(tab);
 
     if(!editor){
         console.error('editor instance not found');
@@ -21,6 +27,7 @@ function save(tab, callback) {
 
     if(!tab.data("site") || !tab.data("file")) {
         saveAs(tab, callback);
+        return;
     }
 
     $.post("/api/files?cmd=save&site="+tab.data("site")+"&file="+tab.data("file"), {
@@ -50,15 +57,16 @@ function saveAs(tab, callback) {
 
     prompt.prompt({
 		title: lang.saveChangesText,
-		msg: 'Save as: '+$(ui.tab).data('file'),
+		msg: 'Save as:',
+		value: tab.attr('data-file'),
 		buttons: 'YESNOCANCEL',
-		fn: function (btn, value) {
+		fn: function (btn, file) {
 			if (btn == "ok") {
 			    //TODO check if filename exists
 
-            	tab.data(file, value);
+            	tab.data('file', file);
             	tab.attr('data-file', file);
-
+console.log(file);
                 var site = require('app/site');
             	var siteId = site.active();
 
@@ -71,9 +79,11 @@ function saveAs(tab, callback) {
             	tab.attr('data-site', siteId);
 
 			    //save
-			    saveAs(tab, callback);
+			    save(tab, callback);
 			} else if (btn == 'cancel') {
 			    //focus editor
+			    var editor = get_editor(tab);
+			    editor.focus();
 			}
 		}
     });
@@ -241,11 +251,9 @@ function init() {
     });
 }
 
-return {
-    setEdited: setEdited,
-    save: save,
-    saveAs: saveAs,
-    init: init
-};
+    exports.setEdited = setEdited;
+    exports.save = save;
+    exports.saveAs = saveAs;
+    exports.init = init;
 
 });
