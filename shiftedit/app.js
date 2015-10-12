@@ -6,6 +6,8 @@
 requirejs.config({
     baseUrl: "lib",
     paths: {
+        "json": 'require/json',
+        "locale": '../locale',
         "app": "../shiftedit",
         "jquery.contextMenu": "contextMenu/jquery.contextMenu",
         "jquery.menubar": "menubar/jquery.menubar",
@@ -19,6 +21,10 @@ requirejs.config({
             deps: ["jquery"]
         },
         "jquery.contextMenu": {
+            exports: "$",
+            deps: ["jquery"]
+        },
+        "jquery.layout": {
             exports: "$",
             deps: ["jquery"]
         },

@@ -1,4 +1,4 @@
-define(["jquery-ui","app/lang", "app/prefs", "app/site", "app/tabs", "app/tree", "app/layout"], function () {
+define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout"], function () {
     var locale = require("app/lang");
     var prefs = require("app/prefs");
 
@@ -10,10 +10,12 @@ define(["jquery-ui","app/lang", "app/prefs", "app/site", "app/tabs", "app/tree",
     .then(function (lang) {
         // yay!
         var tabs = require("app/tabs");
+        tabs.init();
         var tree = require("app/tree");
         tree.init();
         var site = require("app/site");
         site.init();
         var layout = require("app/layout");
+        layout.init();
     });
 });

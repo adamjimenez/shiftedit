@@ -1,35 +1,40 @@
 define(["jquery.layout", "app/menubar"], function () {
 var menubar = require("app/menubar");
 
-console.log('layout');
+function init() {
+    console.log('layout');
 
-//page layout
-myLayout = $('body').layout({
-	west__size:			300,
-	east__size:			300,
-	south__size:		300,
-	south__initClosed:	true,
-	north: {
-        enableCursorHotkey: false,
-        closable: false,
-        resizable: false,
-        spacing_open: 0,
-        spacing_closed: 0
-    },
-    stateManagement__enabled:	true
-	// RESIZE Accordion widget when panes resize
-	//west__onresize:		$.layout.callbacks.resizePaneAccordions
-	//east__onresize:		$.layout.callbacks.resizePaneAccordions
-});
+    menubar.init();
 
-myLayout.allowOverflow("north");
+    //page layout
+    myLayout = $('body').layout({
+    	west__size:			300,
+    	east__size:			300,
+    	south__size:		300,
+    	south__initClosed:	true,
+    	north: {
+            enableCursorHotkey: false,
+            closable: false,
+            resizable: false,
+            spacing_open: 0,
+            spacing_closed: 0
+        },
+        stateManagement__enabled:	true
+    	// RESIZE Accordion widget when panes resize
+    	//west__onresize:		$.layout.callbacks.resizePaneAccordions
+    	//east__onresize:		$.layout.callbacks.resizePaneAccordions
+    });
 
-// if a new theme is applied, it could change the height of some content,
-// so call resizeAll to 'correct' any header/footer heights affected
-// NOTE: this is only necessary because we are changing CSS *AFTER LOADING* using themeSwitcher
-//setTimeout( myLayout.resizeAll, 1000 ); /* allow time for browser to re-render with new theme */
+    myLayout.allowOverflow("north");
+
+    // if a new theme is applied, it could change the height of some content,
+    // so call resizeAll to 'correct' any header/footer heights affected
+    // NOTE: this is only necessary because we are changing CSS *AFTER LOADING* using themeSwitcher
+    //setTimeout( myLayout.resizeAll, 1000 ); /* allow time for browser to re-render with new theme */
+}
 
 return {
+    init: init
 };
 
 });
