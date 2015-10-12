@@ -45,6 +45,22 @@ define(['jquery','ace','app/tabs'], function () {
 				return tabs.save(this);
 			}, tab)
 		});
+
+		//move cursor to top
+    	var startLine = 0;
+
+    	editor.selection.setSelectionRange({
+    		start: {
+    			row: startLine,
+    			column: 0
+    		},
+    		end: {
+    			row: startLine,
+    			column: 0
+    		}
+    	});
+
+		editor.focus();
     }
 
     return {
