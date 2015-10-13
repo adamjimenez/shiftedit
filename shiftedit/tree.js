@@ -153,7 +153,7 @@ function init() {
 
         			if(data && typeof type !== 'undefined') {
         			    if (!data.success) {
-        			        prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
+        			        prompt.alert(lang.failedText, 'Error opening file' + ': ' + data.error);
         			    } else {
             				$('#data .content').hide();
             				switch(type) {
