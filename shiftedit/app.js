@@ -26,7 +26,7 @@ requirejs.config({
         },
         "jquery.layout": {
             exports: "$",
-            deps: ["jquery"]
+            deps: ["jquery-ui"]
         },
         "jquery.menubar": {
             exports: "$",
