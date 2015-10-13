@@ -4,7 +4,7 @@ var makeMenuText = require('app/util').makeMenuText;
 
 function init() {
     $.contextMenu({
-        selector: '.ui-tabs-nav li',
+        selector: '.ui-tabs-nav li:not(.button)',
         callback: function(key, opt){
             var lis = [];
 
@@ -52,8 +52,8 @@ function init() {
             "save": {name: makeMenuText('Save', 'Ctrl+S')},
             "saveAs": {name: makeMenuText('Save as...', 'Ctrl+Alt+S')},
             "saveAll": {name: makeMenuText('Save all', 'Ctrl+Shift+S')},
-            "revealInTree": {name: "Reveal in file tree"},
-            "bookmarkAll": {name: "Bookmark all files"}
+            "revealInTree": {name: "Reveal in file tree", disabled: true},
+            "bookmarkAll": {name: "Bookmark all files", disabled: true}
         }
     });
 }
