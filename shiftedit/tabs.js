@@ -4,6 +4,8 @@ var prompt = require('app/prompt');
 var site = require('app/site');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
+var closing = [];
+var saving = [];
 
 function get_editor(tab) {
     tab = $(tab);
@@ -31,12 +33,12 @@ function save(tab, callback) {
         return;
     }
 
-    var options = site.getAjaxOptions("/api/files?cmd=save&site="+tab.data("site"));
+    var options = site.getAjaxOptions("/api/files?site="+tab.data("site"));
 
     var params = options.params;
     params.content = content;
 
-    $.ajax(options.url+"&file="+tab.data("file"), {
+    $.ajax(options.url+"&cmd=save&file="+tab.data("file"), {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params,
@@ -53,12 +55,22 @@ function save(tab, callback) {
                 if (callback) {
                     callback(tab);
                 }
+
+                //continue with next save
+                if (saving.length)
+                    saving.splice(0, 1);
+
+                if (saving.length) {
+                    save(saving[0]);
+                }
             } else {
                 prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
+                saving = [];
             }
         }
     }).fail(function() {
 		prompt.alert(lang.failedText, 'Error saving file');
+		saving = [];
     });
 
 }
@@ -107,6 +119,11 @@ function saveAs(tab, callback) {
     */
 }
 
+function saveAll(tab, callback) {
+    saving = $(tab).parent().children('li:not(.button)');
+    save(saving[0]);
+}
+
 function setEdited(tab, edited) {
     var value = edited ? 1 : 0;
 
@@ -141,6 +158,7 @@ function checkEdited (e, ui) {
 				    close(ui.tab);
 				} else if (btn == 'cancel') {
 				    //focus editor
+				    closing = [];
 				}
 			}
         });
@@ -149,6 +167,11 @@ function checkEdited (e, ui) {
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
+
+	    if(closing.length) {
+	        closing.splice(0, 1);
+	        close(closing[0]);
+	    }
     }
 }
 
@@ -156,6 +179,16 @@ function close (tab) {
     var tabpanel = $(tab).closest(".ui-tabs");
     var index = $(tab).index();
     $(tabpanel).tabs('remove', index);
+}
+
+function closeAll (tab) {
+    closing = $(tab).parent().children('li:not(.button)');
+    close(closing[0]);
+}
+
+function closeTabsRight (tab) {
+    closing = $(tab).nextAll('li:not(.button)');
+    close(closing[0]);
 }
 
 function newTab (e, ui) {
@@ -276,6 +309,9 @@ function init() {
     exports.setEdited = setEdited;
     exports.save = save;
     exports.saveAs = saveAs;
+    exports.saveAll = saveAll;
     exports.init = init;
-
+    exports.close = close;
+    exports.closeAll = closeAll;
+    exports.closeTabsRight = closeTabsRight;
 });
