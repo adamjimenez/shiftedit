@@ -17,7 +17,7 @@ function create(file, content, siteId) {
     }
 
     //create tab
-	tab = $(".ui-layout-center").tabs('add', file, '<div></div>');
+	tab = $(".ui-layout-center").tabs('add', file, '<div class="editor"></div>');
 	tab.data(file, file);
 	tab.attr('data-file', file);
 	tab.attr('title', file);

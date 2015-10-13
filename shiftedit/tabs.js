@@ -10,7 +10,12 @@ var saving = [];
 function get_editor(tab) {
     tab = $(tab);
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    return ace.edit(panel.children('div')[0]);
+
+    if(panel.children('div.editor').length) {
+        return ace.edit(panel.children('div.editor')[0]);
+    }
+
+    return false;
 }
 
 function save(tab, callback) {
@@ -245,6 +250,11 @@ function tabActivate( tab ) {
     var file = tab.data('file');
     var title = file ? file : 'ShiftEdit';
     document.title = title;
+
+    var editor = get_editor(tab);
+
+    if (editor)
+        editor.focus();
 }
 
 function init() {
