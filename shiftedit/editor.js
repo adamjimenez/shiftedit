@@ -26,6 +26,8 @@ function create(file, content, siteId) {
 	    tab.attr('data-site', siteId);
 	}
 
+    $(".ui-layout-center").trigger("tabsactivate", [{newTab:tab}]);
+
 	//load ace
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 	editor = ace.edit(panel.children('div')[0]);

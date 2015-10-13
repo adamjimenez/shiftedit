@@ -77,7 +77,7 @@ function saveAs(tab, callback) {
 
             	tab.data('file', file);
             	tab.attr('data-file', file);
-console.log(file);
+
                 var site = require('app/site');
             	var siteId = site.active();
 
@@ -133,10 +133,7 @@ function checkEdited (e, ui) {
 			fn: function (btn) {
 				if (btn == "yes") {
 				    //save
-				    save(ui.tab, function(tab) {
-				        var index = $(tab).index();
-				        $(tabpanel).tabs('remove', index);
-				    });
+				    save(ui.tab, close);
 				} else if (btn == 'no') {
 				    //remove
 				    setEdited(ui.tab, false);
@@ -147,6 +144,10 @@ function checkEdited (e, ui) {
 			}
         });
         return false;
+    }else{
+        if($(ui.tab).attr('aria-selected')) {
+            document.title = 'ShiftEdit';
+        }
     }
 }
 
@@ -198,11 +199,18 @@ function newTab (e, ui) {
 
 	panel.find('ul.fileTypes').append(HTML);
 
-
 	panel.find('a.newfile').click(function(){
 		editor.create("untitled."+this.dataset.filetype, '');
 		close(ui.tab);
 	});
+
+    $(this).trigger("tabsactivate", [{newTab:ui.tab}]);
+}
+
+function tabActivate( tab ) {
+    var file = tab.data('file');
+    var title = file ? file : 'ShiftEdit';
+    document.title = title;
 }
 
 function init() {
@@ -218,6 +226,8 @@ function init() {
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
+
+    $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ tabActivate($(ui.newTab)); } );
 
     //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
     tabs.find( ".ui-tabs-nav" ).sortable({
