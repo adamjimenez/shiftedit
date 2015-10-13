@@ -52,6 +52,9 @@ h3, h4 { /* Headers & Footer in Center & East panes */
 	font-size:		1em !important;
 	padding:		0 !important;
 }
+.ui-tabs .ui-tabs-nav li, .ui-tabs .ui-tabs-nav li.ui-tabs-active .ui-tabs-anchor, .ui-tabs .ui-tabs-nav li .ui-tabs-anchor{
+	cursor: hand;
+}
 
 .ui-tabs .ui-tabs-panel{
     background: initial;
