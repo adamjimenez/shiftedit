@@ -77,6 +77,7 @@ function saveAs(tab, callback) {
 
             	tab.data('file', file);
             	tab.attr('data-file', file);
+	            tab.attr('title', file);
 
                 var site = require('app/site');
             	var siteId = site.active();

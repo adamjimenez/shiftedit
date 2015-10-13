@@ -20,6 +20,7 @@ function create(file, content, siteId) {
 	tab = $(".ui-layout-center").tabs('add', file, '<div></div>');
 	tab.data(file, file);
 	tab.attr('data-file', file);
+	tab.attr('title', file);
 
 	if(siteId) {
 	    tab.data('site', siteId);
