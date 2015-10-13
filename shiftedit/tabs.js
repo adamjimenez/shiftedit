@@ -1,8 +1,15 @@
-define(["ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes"], function () {
+define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes"], function (editor,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
+var site = require('app/site');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
+
+function get_editor(tab) {
+    tab = $(tab);
+    var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+    return ace.edit(panel.children('div')[0]);
+}
 
 function save(tab, callback) {
     tab = $(tab);
@@ -10,7 +17,7 @@ function save(tab, callback) {
     console.log('save');
 
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    var editor = ace.edit(panel.children('div')[0]);
+    var editor = get_editor(tab);
 
     if(!editor){
         console.error('editor instance not found');
@@ -21,28 +28,39 @@ function save(tab, callback) {
 
     if(!tab.data("site") || !tab.data("file")) {
         saveAs(tab, callback);
+        return;
     }
 
-    $.post("/api/files?cmd=save&site="+tab.data("site")+"&file="+tab.data("file"), {
+    var options = site.getAjaxOptions("/api/files?cmd=save&site="+tab.data("site"));
+
+    var params = options.params;
+    params.content = content;
+
+    $.ajax(options.url+"&file="+tab.data("file"), {
+	    method: 'POST',
+	    dataType: 'json',
+	    data: params,
         content: content,
-    }, function(data){
-        //console.log(data);
+        success: function(data) {
+            //console.log(data);
 
-        if (data.success) {
-            //trigger event save
-            //tab.parent('div').trigger('save', [tab]);
+            if (data.success) {
+                //trigger event save
+                //tab.parent('div').trigger('save', [tab]);
 
-            setEdited(tab, false);
+                setEdited(tab, false);
 
-            if (callback) {
-                callback(tab);
+                if (callback) {
+                    callback(tab);
+                }
+            } else {
+                prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
             }
-        } else {
-            prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
         }
-    }, 'json').fail(function() {
+    }).fail(function() {
 		prompt.alert(lang.failedText, 'Error saving file');
     });
+
 }
 
 function saveAs(tab, callback) {
@@ -50,14 +68,16 @@ function saveAs(tab, callback) {
 
     prompt.prompt({
 		title: lang.saveChangesText,
-		msg: 'Save as: '+$(ui.tab).data('file'),
+		msg: 'Save as:',
+		value: tab.attr('data-file'),
 		buttons: 'YESNOCANCEL',
-		fn: function (btn, value) {
+		fn: function (btn, file) {
 			if (btn == "ok") {
 			    //TODO check if filename exists
 
-            	tab.data(file, value);
+            	tab.data('file', file);
             	tab.attr('data-file', file);
+	            tab.attr('title', file);
 
                 var site = require('app/site');
             	var siteId = site.active();
@@ -71,9 +91,11 @@ function saveAs(tab, callback) {
             	tab.attr('data-site', siteId);
 
 			    //save
-			    saveAs(tab, callback);
+			    save(tab, callback);
 			} else if (btn == 'cancel') {
 			    //focus editor
+			    var editor = get_editor(tab);
+			    editor.focus();
 			}
 		}
     });
@@ -112,10 +134,7 @@ function checkEdited (e, ui) {
 			fn: function (btn) {
 				if (btn == "yes") {
 				    //save
-				    save(ui.tab, function(tab) {
-				        var index = $(tab).index();
-				        $(tabpanel).tabs('remove', index);
-				    });
+				    save(ui.tab, close);
 				} else if (btn == 'no') {
 				    //remove
 				    setEdited(ui.tab, false);
@@ -126,6 +145,10 @@ function checkEdited (e, ui) {
 			}
         });
         return false;
+    }else{
+        if($(ui.tab).attr('aria-selected')) {
+            document.title = 'ShiftEdit';
+        }
     }
 }
 
@@ -177,11 +200,18 @@ function newTab (e, ui) {
 
 	panel.find('ul.fileTypes').append(HTML);
 
-
 	panel.find('a.newfile').click(function(){
 		editor.create("untitled."+this.dataset.filetype, '');
 		close(ui.tab);
 	});
+
+    $(this).trigger("tabsactivate", [{newTab:ui.tab}]);
+}
+
+function tabActivate( tab ) {
+    var file = tab.data('file');
+    var title = file ? file : 'ShiftEdit';
+    document.title = title;
 }
 
 function init() {
@@ -197,6 +227,8 @@ function init() {
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
+
+    $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ tabActivate($(ui.newTab)); } );
 
     //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
     tabs.find( ".ui-tabs-nav" ).sortable({
@@ -241,11 +273,9 @@ function init() {
     });
 }
 
-return {
-    setEdited: setEdited,
-    save: save,
-    saveAs: saveAs,
-    init: init
-};
+    exports.setEdited = setEdited;
+    exports.save = save;
+    exports.saveAs = saveAs;
+    exports.init = init;
 
 });
