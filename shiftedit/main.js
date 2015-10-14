@@ -1,4 +1,4 @@
-define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout"], function () {
+define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop"], function () {
     var locale = require("app/lang");
     var prefs = require("app/prefs");
 
