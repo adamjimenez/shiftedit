@@ -7,7 +7,7 @@ var util = require('app/util');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var closing = [];
-var saving = [];
+var saving = {};
 var opening = [];
 
 function get_editor(tab) {
@@ -94,7 +94,15 @@ function open(file, siteId) {
 }
 
 function save(tab, callback) {
-    tab = $(tab);
+    saving[tab.attr('id')] = tab;
+    saveFiles(callback);
+}
+
+function saveFiles(callback) {
+    if (!Object.keys(saving).length)
+        return;
+
+    var tab = saving[Object.keys(saving)[0]];
 
     console.log('save');
 
@@ -123,9 +131,10 @@ function save(tab, callback) {
 	if (!loading.start('Saving ' + file, function(){
 		console.log('abort saving files');
 		ajax.abort();
-		saving = [];
+		saving = {};
 	})) {
-		saving = [];
+        saving[tab.attr('id')] = tab;
+		console.log('queued save: ' + file);
 		return;
 	}
 
@@ -135,6 +144,7 @@ function save(tab, callback) {
 	    data: params,
         content: content,
         success: function(data) {
+            loading.stop();
             //console.log(data);
 
             if (data.success) {
@@ -143,30 +153,25 @@ function save(tab, callback) {
 
                 setEdited(tab, false);
 
-                if (callback) {
-                    callback(tab);
-                }
-
+console.log(saving);
                 //continue with next save
-                if (saving.length)
-                    saving.splice(0, 1);
+                delete saving[tab.attr('id')];
 
-                if (saving.length) {
-                    save(saving[0]);
+                if (Object.keys(saving).length) {
+                    saveFiles(callback);
+                }else if (callback) {
+                    callback(tab);
                 }
             } else {
                 prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
-                saving = [];
+                saving = {};
             }
         }
     }).fail(function() {
-		prompt.alert(lang.failedText, 'Error saving file');
-		saving = [];
-    })
-    .always(function () {
         loading.stop();
+		prompt.alert(lang.failedText, 'Error saving file');
+		saving = {};
     });
-
 }
 
 function saveAs(tab, callback) {
@@ -214,8 +219,11 @@ function saveAs(tab, callback) {
 }
 
 function saveAll(tab, callback) {
-    saving = $(tab).parent().children('li:not(.button)');
-    save(saving[0]);
+    var tabs = $(tab).parent().children('li:not(.button)');
+    tabs.forEach(function(item){
+        saving[tab.attr('id')] = tab;
+    });
+    saveFiles();
 }
 
 function setEdited(tab, edited) {
