@@ -8,7 +8,7 @@ var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var closing = [];
 var saving = {};
-var opening = [];
+var opening = {};
 
 function get_editor(tab) {
     tab = $(tab);
@@ -21,7 +21,19 @@ function get_editor(tab) {
     return false;
 }
 
-function open(file, siteId) {
+function open(file, siteId, callback) {
+    opening[siteId+'|'+file] = 1;
+    openFiles(callback);
+}
+
+function openFiles(callback) {
+    if (!Object.keys(opening).length)
+        return;
+
+    var arr = Object.keys(opening)[0].split('|');
+    var siteId = arr[0];
+    var file = arr[1];
+
     var options = site.getAjaxOptions("/api/files?site="+siteId);
     var type = util.fileExtension(file);
 
@@ -29,9 +41,9 @@ function open(file, siteId) {
 	if (!loading.start('Opening ' + file, function(){
 		console.log('abort opening files');
 		ajax.abort();
-		opening = [];
+		opening = {};
 	})) {
-		opening = [];
+		console.log('in queue');
 		return;
 	}
 
@@ -40,56 +52,63 @@ function open(file, siteId) {
 	    dataType: 'json',
 	    data: options.params,
         success: function (data) {
-		    //console.log(d);
+            loading.stop();
+    	    //console.log(d);
 
-			if(data && typeof type !== 'undefined') {
-			    if (!data.success) {
-			        prompt.alert(lang.failedText, 'Error opening file' + ': ' + data.error);
-			    } else {
-    				$('#data .content').hide();
-    				switch(type) {
-    					case 'text':
-    					case 'txt':
-    					case 'md':
-    					case 'htaccess':
-    					case 'log':
-    					case 'sql':
-    					case 'php':
-    					case 'js':
-    					case 'json':
-    					case 'css':
-    					case 'html':
-    						//console.log('load');
-    						editor.create(file, data.content, options.site);
+		    if (!data.success) {
+		        prompt.alert(lang.failedText, 'Error opening file' + ': ' + data.error);
+	            opening = {};
+		    } else {
+				$('#data .content').hide();
+				switch(type) {
+					case 'text':
+					case 'txt':
+					case 'md':
+					case 'htaccess':
+					case 'log':
+					case 'sql':
+					case 'php':
+					case 'js':
+					case 'json':
+					case 'css':
+					case 'html':
+						//console.log('load');
+						editor.create(file, data.content, options.site);
 
-    						/*
-    						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    						var editor = ace.edit(panel.children('div')[0]);
-    						editor.setTheme("ace/theme/monokai");
-    						editor.getSession().setMode("ace/mode/php");
-    						editor.getSession().getDocument().setValue(d.content);
-    						*/
-    					break;
-    					case 'png':
-    					case 'jpg':
-    					case 'jpeg':
-    					case 'bmp':
-    					case 'gif':
-    						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
-    						//$('#data .image').show();
-						break;
-    					default:
-    						//$('#data .default').html(d.content).show();
-						break;
-    				}
-			    }
-			}
+						/*
+						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+						var editor = ace.edit(panel.children('div')[0]);
+						editor.setTheme("ace/theme/monokai");
+						editor.getSession().setMode("ace/mode/php");
+						editor.getSession().getDocument().setValue(d.content);
+						*/
+					break;
+					case 'png':
+					case 'jpg':
+					case 'jpeg':
+					case 'bmp':
+					case 'gif':
+						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
+						//$('#data .image').show();
+					break;
+					default:
+						//$('#data .default').html(d.content).show();
+					break;
+				}
+
+                delete opening[siteId+'|'+file];
+
+                if (Object.keys(opening).length) {
+                    openFiles(callback);
+                }else if (callback) {
+                    callback(tab);
+                }
+		    }
 		}
 	}, 'json').fail(function() {
-		prompt.alert(lang.failedText, 'Error opening file');
-    })
-    .always(function () {
         loading.stop();
+		prompt.alert(lang.failedText, 'Error opening file');
+		opening = {};
     });
 }
 
@@ -133,8 +152,7 @@ function saveFiles(callback) {
 		ajax.abort();
 		saving = {};
 	})) {
-        saving[tab.attr('id')] = tab;
-		console.log('queued save: ' + file);
+		console.log('in queued save');
 		return;
 	}
 
@@ -153,7 +171,6 @@ function saveFiles(callback) {
 
                 setEdited(tab, false);
 
-console.log(saving);
                 //continue with next save
                 delete saving[tab.attr('id')];
 
