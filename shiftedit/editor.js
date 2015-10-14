@@ -9,13 +9,6 @@ function onChange(e) {
 }
 
 function create(file, content, siteId) {
-    //check if file already open
-    var index = $(".ui-layout-center li[data-file='"+file+"'][data-siteId='"+siteId+"']").index();
-    if(index!==-1){
-        $(".ui-layout-center").tabs("option", "active", index);
-        return;
-    }
-
     //create tab
 	tab = $(".ui-layout-center").tabs('add', file, '<div class="editor"></div>');
 	tab.data(file, file);

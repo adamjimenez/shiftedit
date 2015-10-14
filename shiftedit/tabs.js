@@ -34,6 +34,14 @@ function openFiles(callback) {
     var siteId = arr[0];
     var file = arr[1];
 
+    //check if file already open
+    var index = $(".ui-layout-center li[data-file='"+file+"'][data-site='"+siteId+"']").index();
+    if(index!==-1){
+        $(".ui-layout-center").tabs("option", "active", index);
+        delete opening[siteId+'|'+file];
+        return;
+    }
+
     var options = site.getAjaxOptions("/api/files?site="+siteId);
     var type = util.fileExtension(file);
 
