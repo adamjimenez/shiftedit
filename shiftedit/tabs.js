@@ -1,11 +1,14 @@
-define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes"], function (editor,exports) {
+define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util'], function (editor,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
+var loading = require('app/loading');
+var util = require('app/util');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var closing = [];
 var saving = [];
+var opening = [];
 
 function get_editor(tab) {
     tab = $(tab);
@@ -16,6 +19,78 @@ function get_editor(tab) {
     }
 
     return false;
+}
+
+function open(file, siteId) {
+    var options = site.getAjaxOptions("/api/files?site="+siteId);
+    var type = util.fileExtension(file);
+
+    var ajax;
+	if (!loading.start('Opening ' + file, function(){
+		console.log('abort opening files');
+		ajax.abort();
+		opening = [];
+	})) {
+		opening = [];
+		return;
+	}
+
+	ajax = $.ajax(options.url+'&cmd=open&file=' + file, {
+	    method: 'POST',
+	    dataType: 'json',
+	    data: options.params,
+        success: function (data) {
+		    //console.log(d);
+
+			if(data && typeof type !== 'undefined') {
+			    if (!data.success) {
+			        prompt.alert(lang.failedText, 'Error opening file' + ': ' + data.error);
+			    } else {
+    				$('#data .content').hide();
+    				switch(type) {
+    					case 'text':
+    					case 'txt':
+    					case 'md':
+    					case 'htaccess':
+    					case 'log':
+    					case 'sql':
+    					case 'php':
+    					case 'js':
+    					case 'json':
+    					case 'css':
+    					case 'html':
+    						//console.log('load');
+    						editor.create(file, data.content, options.site);
+
+    						/*
+    						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+    						var editor = ace.edit(panel.children('div')[0]);
+    						editor.setTheme("ace/theme/monokai");
+    						editor.getSession().setMode("ace/mode/php");
+    						editor.getSession().getDocument().setValue(d.content);
+    						*/
+    					break;
+    					case 'png':
+    					case 'jpg':
+    					case 'jpeg':
+    					case 'bmp':
+    					case 'gif':
+    						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
+    						//$('#data .image').show();
+						break;
+    					default:
+    						//$('#data .default').html(d.content).show();
+						break;
+    				}
+			    }
+			}
+		}
+	}, 'json').fail(function() {
+		prompt.alert(lang.failedText, 'Error opening file');
+    })
+    .always(function () {
+        loading.stop();
+    });
 }
 
 function save(tab, callback) {
@@ -31,6 +106,7 @@ function save(tab, callback) {
         return false;
     }
 
+    var file = tab.data("file");
     var content = editor.getValue();
 
     if(!tab.data("site") || !tab.data("file")) {
@@ -43,7 +119,17 @@ function save(tab, callback) {
     var params = options.params;
     params.content = content;
 
-    $.ajax(options.url+"&cmd=save&file="+tab.data("file"), {
+    var ajax;
+	if (!loading.start('Saving ' + file, function(){
+		console.log('abort saving files');
+		ajax.abort();
+		saving = [];
+	})) {
+		saving = [];
+		return;
+	}
+
+	ajax = $.ajax(options.url+"&cmd=save&file="+file, {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params,
@@ -76,6 +162,9 @@ function save(tab, callback) {
     }).fail(function() {
 		prompt.alert(lang.failedText, 'Error saving file');
 		saving = [];
+    })
+    .always(function () {
+        loading.stop();
     });
 
 }
@@ -324,4 +413,5 @@ function init() {
     exports.close = close;
     exports.closeAll = closeAll;
     exports.closeTabsRight = closeTabsRight;
+    exports.open = open;
 });

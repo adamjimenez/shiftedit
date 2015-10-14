@@ -1,8 +1,9 @@
-define(["jstree","app/util","app/editor","app/prompt",'app/lang'], function () {
+define(["jstree","app/util","app/editor","app/prompt",'app/lang','app/tabs'], function () {
 var util = require('app/util');
 var editor = require('app/editor');
 var lang = require('app/lang').lang;
 var prompt = require('app/prompt');
+var tabs = require('app/tabs');
 var options = {};
 var tree;
 
@@ -142,61 +143,7 @@ function init() {
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
     	    var file = data.selected.join(':');
-    	    var type = util.fileExtension(file);
-
-    		$.ajax(options.url+'&cmd=open&file=' + file, {
-    		    method: 'POST',
-    		    dataType: 'json',
-    		    data: options.params,
-		        success: function (data) {
-        		    //console.log(d);
-
-        			if(data && typeof type !== 'undefined') {
-        			    if (!data.success) {
-        			        prompt.alert(lang.failedText, 'Error opening file' + ': ' + data.error);
-        			    } else {
-            				$('#data .content').hide();
-            				switch(type) {
-            					case 'text':
-            					case 'txt':
-            					case 'md':
-            					case 'htaccess':
-            					case 'log':
-            					case 'sql':
-            					case 'php':
-            					case 'js':
-            					case 'json':
-            					case 'css':
-            					case 'html':
-            						//console.log('load');
-            						editor.create(file, data.content, options.site);
-
-            						/*
-            						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-            						var editor = ace.edit(panel.children('div')[0]);
-            						editor.setTheme("ace/theme/monokai");
-            						editor.getSession().setMode("ace/mode/php");
-            						editor.getSession().getDocument().setValue(d.content);
-            						*/
-            					break;
-            					case 'png':
-            					case 'jpg':
-            					case 'jpeg':
-            					case 'bmp':
-            					case 'gif':
-            						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
-            						//$('#data .image').show();
-        						break;
-            					default:
-            						//$('#data .default').html(d.content).show();
-        						break;
-            				}
-        			    }
-        			}
-    			}
-    		}, 'json').fail(function() {
-        		prompt.alert(lang.failedText, 'Error saving file');
-            });
+    	    tabs.open(file, options.site);
     	}
     	else {
     		$('#data .content').hide();
