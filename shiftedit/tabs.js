@@ -81,7 +81,7 @@ function openFiles(callback) {
 					case 'css':
 					case 'html':
 						//console.log('load');
-						editor.create(file, data.content, options.site);
+						editor.create(file, data.content, options.site, data);
 
 						/*
 						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
