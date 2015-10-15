@@ -10,7 +10,7 @@ var closing = [];
 var saving = {};
 var opening = {};
 
-function get_editor(tab) {
+function getEditor(tab) {
     tab = $(tab);
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 
@@ -137,7 +137,7 @@ function saveFiles(callback) {
     console.log('save');
 
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    var editor = get_editor(tab);
+    var editor = getEditor(tab);
 
     if(!editor){
         console.error('editor instance not found');
@@ -255,7 +255,7 @@ function saveAs(tab, callback) {
 			    save(tab, callback);
 			} else if (btn == 'cancel') {
 			    //focus editor
-			    var editor = get_editor(tab);
+			    var editor = getEditor(tab);
 			    editor.focus();
 			}
 		}
@@ -423,7 +423,7 @@ function tabActivate( tab ) {
     var title = file ? file : 'ShiftEdit';
     document.title = title;
 
-    var editor = get_editor(tab);
+    var editor = getEditor(tab);
 
     if (editor)
         editor.focus();
@@ -489,6 +489,7 @@ function init() {
     });
 }
 
+    exports.getEditor = getEditor;
     exports.setEdited = setEdited;
     exports.save = save;
     exports.saveAs = saveAs;

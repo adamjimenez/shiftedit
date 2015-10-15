@@ -19,7 +19,7 @@ function init() {
     			}
     		},*/
             'data' : function (node, callback) {
-                console.log(node);
+                //console.log(node);
 
                 if(!options.url){
                     return false;
@@ -150,6 +150,113 @@ function init() {
     		$('#data .default').html('Select a file from the tree.').show();
     	}
     });
+
+
+    $('.drag')
+        .on('mousedown', function (e) {
+            console.log(1);
+            return $.vakata.dnd.start(e, { 'jstree' : true, 'obj' : $(this), 'nodes' : [{ id : true, text: $(this).text() }] }, '<div id="jstree-dnd" class="jstree-default"><i class="jstree-icon jstree-er"></i>' + $(this).text() + '</div>');
+        });
+    $(document)
+        .on('dnd_move.vakata', function (e, data) {
+            var t = $(data.event.target);
+            if(!t.closest('.jstree').length) {
+                if(t.closest('.editor').length) {
+                    var pos = $(data.helper).position();
+                    data.helper.find('.jstree-icon').removeClass('jstree-er').addClass('jstree-ok');
+
+                    editor = ace.edit(t.closest('.editor')[0]);
+        			editor.focus();
+
+        			//move caret with mouse
+        			var coords = editor.renderer.pixelToScreenCoordinates(pos.left, pos.top-10);
+
+        			editor.moveCursorToPosition(coords); // buggy in ace
+        			/*
+        			editor.selection.setSelectionRange({
+        				start: coords,
+        				end: coords
+        			});
+        			*/
+                }
+                else {
+                    data.helper.find('.jstree-icon').removeClass('jstree-ok').addClass('jstree-er');
+                }
+            }
+        })
+        .on('dnd_stop.vakata', function (e, data) {
+            console.log(3);
+            var t = $(data.event.target);
+            if(!t.closest('.jstree').length) {
+                if(t.closest('.editor').length) {
+                    //$(data.element).clone().appendTo(t.closest('.drop'));
+                    // node data:
+                    /*
+                    console.log(data);
+                    if(data.data.jstree && data.data.origin) {
+                        console.log(data.data.origin.get_node(data.element));
+                    }
+                    */
+
+                    editor = ace.edit(t.closest('.editor')[0]);
+        			editor.focus();
+
+                    var panel = t.closest('.ui-tabs-panel')[0];
+                    var id = $(panel).attr('id');
+                    var tab = $('li[aria-controls='+id+']')[0];
+
+                    var nodes = data.data.nodes;
+            		if (nodes) {
+            			var node;
+            			var html = '';
+
+            			for( i=0; i<nodes.length; i++ ){
+            				node = nodes[i];
+
+            				var from = $(tab).data('file');
+            				//var to = tree.getPath(node);
+            				var to = node;
+            				var path = '';
+
+            				if( from ){
+            				//	path = relative(dirname(from), to);
+            					path = '/'+to;
+            				}else{
+            					path = '/'+to;
+            				}
+
+            				switch( util.fileExtension(node.toLowerCase()) ){
+            					case 'jpg':
+            					case 'jpeg':
+            					case 'gif':
+            					case 'png':
+            					case 'svg':
+            						html+='<img src="'+path+'" />\n';
+            					break;
+            					case 'css':
+            						html+='<link type="text/css" rel="stylesheet" href="'+path+'">\n';
+            					break;
+            					case 'js':
+            						html+='<script type="text/javascript" src="'+path+'"></script>\n';
+            					break;
+            					default:
+            						var pos = editor.getCursorPosition();
+            						var state = editor.getSession().getState(pos.row, pos.column);
+
+            						if( state.substring(0,3)==='php' ){
+            							html+='require("'+path+'");\n';
+            						}else{
+            							html+='<a href="'+path+'">'+node+'</a>\n';
+            						}
+            					break;
+            				}
+            			}
+
+			            editor.insert(html);
+            		}
+                }
+            }
+        });
 
 
 }
