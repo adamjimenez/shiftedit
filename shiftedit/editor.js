@@ -62,6 +62,11 @@ function create(file, content, siteId, options) {
 	    tab.attr('data-site', siteId);
 	}
 
+	if(options.mdate) {
+	    tab.data('mdate', options.mdate);
+	    tab.attr('data-mdate', options.mdate);
+	}
+
     $(".ui-layout-center").trigger("tabsactivate", [{newTab:tab}]);
 
 	//load ace

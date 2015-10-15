@@ -164,7 +164,9 @@ function saveFiles(callback) {
 		return;
 	}
 
-	ajax = $.ajax(options.url+"&cmd=save&file="+file, {
+    var confirmed = tab.data('overwrite') ? tab.data('overwrite') : 0;
+
+	ajax = $.ajax(options.url+"&cmd=save&file="+file+"&mdate="+tab.data("mdate")+"&confirmed="+confirmed, {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params,
@@ -177,15 +179,35 @@ function saveFiles(callback) {
                 //trigger event save
                 //tab.parent('div').trigger('save', [tab]);
 
-                setEdited(tab, false);
+                if(data.changed && !confirmed ){
+                    prompt.confirm({
+                        title: 'File changed',
+                        msg: 'File has changed since last save.. save anyway?',
+                        fn: function(value) {
+                           switch(value) {
+                                case 'yes':
+                                   tab.data('overwrite', 1);
+                                   saveFiles();
+                                break;
+                                case 'no':
+                                case 'cancel':
+                                    delete saving[tab.attr('id')];
+                                break;
+                           }
+                        }
+                    });
+                }else{
+                    setEdited(tab, false);
+                    tab.data('overwrite', 0);
 
-                //continue with next save
-                delete saving[tab.attr('id')];
+                    //continue with next save
+                    delete saving[tab.attr('id')];
 
-                if (Object.keys(saving).length) {
-                    saveFiles(callback);
-                }else if (callback) {
-                    callback(tab);
+                    if (Object.keys(saving).length) {
+                        saveFiles(callback);
+                    }else if (callback) {
+                        callback(tab);
+                    }
                 }
             } else {
                 prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);

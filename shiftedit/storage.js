@@ -5,7 +5,12 @@ define(function (require) {
     	},
     	get: function(key){
     	    if(localStorage[key]) {
-			    return JSON.parse(localStorage[key]);
+    	        try{
+    			    return JSON.parse(localStorage[key]);
+    	        } catch(e) {
+    	            console.log('could not parse '+key);
+    	            return false;
+    	        }
     	    }
     	}
     };
