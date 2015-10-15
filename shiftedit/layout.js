@@ -1,5 +1,6 @@
 define(["jquery.layout", "app/menubar"], function () {
 var menubar = require("app/menubar");
+var myLayout;
 
 function init() {
     console.log('layout');
@@ -8,6 +9,7 @@ function init() {
 
     //page layout
     myLayout = $('body').layout({
+        resizable: true,
     	west__size:			300,
     	east__size:			300,
     	south__size:		300,

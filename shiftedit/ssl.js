@@ -1,4 +1,6 @@
 define(function (require) {
+require('jquery');
+
 var blocked = true;
 
 $.ajax({

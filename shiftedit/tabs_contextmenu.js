@@ -1,45 +1,35 @@
-define(["jquery.contextMenu","app/util",'app/lang'], function () {
+define(["jquery.contextMenu","app/util",'app/lang','app/tabs'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
+var tabs = require('app/tabs');
 
 function init() {
     $.contextMenu({
-        selector: '.ui-tabs-nav li',
+        selector: '.ui-tabs-nav li:not(.button)',
         callback: function(key, opt){
-            var lis = [];
-
             switch(key) {
                 case 'new':
                     $(this).closest(".ui-tabs").tabs('add');
                 break;
                 case 'close':
-                    lis = $(this);
-                break;
+                    return tabs.close($(this));
                 case 'closeOtherTabs':
                     lis = $(this).siblings('li:not(.button)');
                 break;
                 case 'closeAllTabs':
-                    lis = $(this).parent().children('li:not(.button)');
-                break;
+                    return tabs.closeAll($(this));
                 case 'closeTabsRight':
-                    lis = $(this).nextAll('li:not(.button)');
-                break;
+                    return tabs.closeTabsRight($(this));
                 case 'save':
-                break;
+                    return tabs.save($(this));
                 case 'saveAs':
-                break;
+                    return tabs.saveAs($(this));
                 case 'saveAll':
-                break;
+                    return tabs.saveAll($(this));
                 case 'revealInTree':
                 break;
                 case 'bookmarkAll':
                 break;
-            }
-
-            if(lis.length){
-                $.each( lis, function( index, value ){
-                    $(this).closest(".ui-tabs").tabs('remove', $(value).index());
-                });
             }
         },
         items: {
@@ -52,8 +42,8 @@ function init() {
             "save": {name: makeMenuText('Save', 'Ctrl+S')},
             "saveAs": {name: makeMenuText('Save as...', 'Ctrl+Alt+S')},
             "saveAll": {name: makeMenuText('Save all', 'Ctrl+Shift+S')},
-            "revealInTree": {name: "Reveal in file tree"},
-            "bookmarkAll": {name: "Bookmark all files"}
+            "revealInTree": {name: "Reveal in file tree", disabled: true},
+            "bookmarkAll": {name: "Bookmark all files", disabled: true}
         }
     });
 }

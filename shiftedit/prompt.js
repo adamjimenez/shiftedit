@@ -34,19 +34,19 @@ define(function (require) {
             modal: true,
             buttons: {
                 Yes: function() {
-                    options.fn('yes');
                     $( this ).dialog( "close" );
                     $( "#dialog-message" ).remove();
+                    options.fn('yes');
                 },
                 No: function() {
-                    options.fn('no');
                     $( this ).dialog( "close" );
                     $( "#dialog-message" ).remove();
+                    options.fn('no');
                 },
                 Cancel: function() {
-                    options.fn('cancel');
                     $( this ).dialog( "close" );
                     $( "#dialog-message" ).remove();
+                    options.fn('cancel');
                 }
             }
         });

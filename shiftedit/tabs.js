@@ -1,18 +1,135 @@
-define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes"], function (editor,exports) {
+define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util'], function (editor,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
+var loading = require('app/loading');
+var util = require('app/util');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
+var closing = [];
+var saving = {};
+var opening = {};
 
 function get_editor(tab) {
     tab = $(tab);
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    return ace.edit(panel.children('div')[0]);
+
+    if(panel.children('div.editor').length) {
+        return ace.edit(panel.children('div.editor')[0]);
+    }
+
+    return false;
+}
+
+function open(file, siteId, callback) {
+    opening[siteId+'|'+file] = 1;
+    openFiles(callback);
+}
+
+function openFiles(callback) {
+    if (!Object.keys(opening).length)
+        return;
+
+    var arr = Object.keys(opening)[0].split('|');
+    var siteId = arr[0];
+    var file = arr[1];
+
+    //check if file already open
+    var index = $(".ui-layout-center li[data-file='"+file+"'][data-site='"+siteId+"']").index();
+    if(index!==-1){
+        $(".ui-layout-center").tabs("option", "active", index);
+        delete opening[siteId+'|'+file];
+        return;
+    }
+
+    var options = site.getAjaxOptions("/api/files?site="+siteId);
+    var type = util.fileExtension(file);
+
+    var ajax;
+	if (!loading.start('Opening ' + file, function(){
+		console.log('abort opening files');
+		ajax.abort();
+		opening = {};
+	})) {
+		console.log('in queue');
+		return;
+	}
+
+	ajax = $.ajax(options.url+'&cmd=open&file=' + file, {
+	    method: 'POST',
+	    dataType: 'json',
+	    data: options.params,
+        success: function (data) {
+            loading.stop();
+    	    //console.log(d);
+
+		    if (!data.success) {
+		        prompt.alert(lang.failedText, 'Error opening file' + ': ' + data.error);
+	            opening = {};
+		    } else {
+				$('#data .content').hide();
+				switch(type) {
+					case 'text':
+					case 'txt':
+					case 'md':
+					case 'htaccess':
+					case 'log':
+					case 'sql':
+					case 'php':
+					case 'js':
+					case 'json':
+					case 'css':
+					case 'html':
+						//console.log('load');
+						editor.create(file, data.content, options.site, data);
+
+						/*
+						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+						var editor = ace.edit(panel.children('div')[0]);
+						editor.setTheme("ace/theme/monokai");
+						editor.getSession().setMode("ace/mode/php");
+						editor.getSession().getDocument().setValue(d.content);
+						*/
+					break;
+					case 'png':
+					case 'jpg':
+					case 'jpeg':
+					case 'bmp':
+					case 'gif':
+						//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
+						//$('#data .image').show();
+					break;
+					default:
+						//$('#data .default').html(d.content).show();
+					break;
+				}
+
+                delete opening[siteId+'|'+file];
+
+                if (Object.keys(opening).length) {
+                    openFiles(callback);
+                }else if (callback) {
+                    callback(tab);
+                }
+		    }
+		}
+	}, 'json').fail(function() {
+        loading.stop();
+		prompt.alert(lang.failedText, 'Error opening file');
+		opening = {};
+    });
 }
 
 function save(tab, callback) {
-    tab = $(tab);
+    saving[tab.attr('id')] = tab;
+    saveFiles(callback);
+}
+
+function saveFiles(callback) {
+    if (!Object.keys(saving).length)
+        return;
+
+    var tab = saving[Object.keys(saving)[0]];
 
     console.log('save');
 
@@ -24,6 +141,7 @@ function save(tab, callback) {
         return false;
     }
 
+    var file = tab.data("file");
     var content = editor.getValue();
 
     if(!tab.data("site") || !tab.data("file")) {
@@ -31,36 +149,76 @@ function save(tab, callback) {
         return;
     }
 
-    var options = site.getAjaxOptions("/api/files?cmd=save&site="+tab.data("site"));
+    var options = site.getAjaxOptions("/api/files?site="+tab.data("site"));
 
     var params = options.params;
     params.content = content;
 
-    $.ajax(options.url+"&file="+tab.data("file"), {
+    var ajax;
+	if (!loading.start('Saving ' + file, function(){
+		console.log('abort saving files');
+		ajax.abort();
+		saving = {};
+	})) {
+		console.log('in queued save');
+		return;
+	}
+
+    var confirmed = tab.data('overwrite') ? tab.data('overwrite') : 0;
+
+	ajax = $.ajax(options.url+"&cmd=save&file="+file+"&mdate="+tab.data("mdate")+"&confirmed="+confirmed, {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params,
         content: content,
         success: function(data) {
+            loading.stop();
             //console.log(data);
 
             if (data.success) {
                 //trigger event save
                 //tab.parent('div').trigger('save', [tab]);
 
-                setEdited(tab, false);
+                if(data.changed && !confirmed ){
+                    prompt.confirm({
+                        title: 'File changed',
+                        msg: 'File has changed since last save.. save anyway?',
+                        fn: function(value) {
+                           switch(value) {
+                                case 'yes':
+                                   tab.data('overwrite', 1);
+                                   saveFiles();
+                                break;
+                                case 'no':
+                                case 'cancel':
+                                    delete saving[tab.attr('id')];
+                                break;
+                           }
+                        }
+                    });
+                }else{
+                    setEdited(tab, false);
+                    tab.data('overwrite', 0);
 
-                if (callback) {
-                    callback(tab);
+                    //continue with next save
+                    delete saving[tab.attr('id')];
+
+                    if (Object.keys(saving).length) {
+                        saveFiles(callback);
+                    }else if (callback) {
+                        callback(tab);
+                    }
                 }
             } else {
                 prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
+                saving = {};
             }
         }
     }).fail(function() {
+        loading.stop();
 		prompt.alert(lang.failedText, 'Error saving file');
+		saving = {};
     });
-
 }
 
 function saveAs(tab, callback) {
@@ -107,6 +265,14 @@ function saveAs(tab, callback) {
     */
 }
 
+function saveAll(tab, callback) {
+    var tabs = $(tab).parent().children('li:not(.button)');
+    tabs.forEach(function(item){
+        saving[tab.attr('id')] = tab;
+    });
+    saveFiles();
+}
+
 function setEdited(tab, edited) {
     var value = edited ? 1 : 0;
 
@@ -141,6 +307,7 @@ function checkEdited (e, ui) {
 				    close(ui.tab);
 				} else if (btn == 'cancel') {
 				    //focus editor
+				    closing = [];
 				}
 			}
         });
@@ -149,6 +316,11 @@ function checkEdited (e, ui) {
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
+
+	    if(closing.length) {
+	        closing.splice(0, 1);
+	        close(closing[0]);
+	    }
     }
 }
 
@@ -156,6 +328,16 @@ function close (tab) {
     var tabpanel = $(tab).closest(".ui-tabs");
     var index = $(tab).index();
     $(tabpanel).tabs('remove', index);
+}
+
+function closeAll (tab) {
+    closing = $(tab).parent().children('li:not(.button)');
+    close(closing[0]);
+}
+
+function closeTabsRight (tab) {
+    closing = $(tab).nextAll('li:not(.button)');
+    close(closing[0]);
 }
 
 function newTab (e, ui) {
@@ -212,6 +394,11 @@ function tabActivate( tab ) {
     var file = tab.data('file');
     var title = file ? file : 'ShiftEdit';
     document.title = title;
+
+    var editor = get_editor(tab);
+
+    if (editor)
+        editor.focus();
 }
 
 function init() {
@@ -276,6 +463,10 @@ function init() {
     exports.setEdited = setEdited;
     exports.save = save;
     exports.saveAs = saveAs;
+    exports.saveAll = saveAll;
     exports.init = init;
-
+    exports.close = close;
+    exports.closeAll = closeAll;
+    exports.closeTabsRight = closeTabsRight;
+    exports.open = open;
 });

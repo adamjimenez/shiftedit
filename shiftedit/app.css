@@ -209,3 +209,20 @@ div.buttons {
     left: 0;
     height: 100%;
 }
+
+#serverProgress {
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	z-index: 1000000000000;
+	margin: 10px;
+	opacity: 0.8;
+	text-align: center;
+}
+
+#serverProgress strong{
+    background: #f9edbe;
+    padding:5px;
+    border-radius: 5px;
+    border: 1px solid #f0c36d;
+}
