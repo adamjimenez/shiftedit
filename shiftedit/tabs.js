@@ -340,13 +340,15 @@ function checkEdited (e, ui) {
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
+    }
+}
 
-	    if(closing.length) {
-	        closing.splice(0, 1);
-	        close(closing[0]);
-	    }else{
-	        recordOpenFiles();
-	    }
+function afterClose(e, uo) {
+    if(closing.length) {
+        closing.splice(0, 1);
+        close(closing[0]);
+    }else{
+        recordOpenFiles();
     }
 }
 
@@ -439,6 +441,7 @@ function init() {
     // initialize paging
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
+    $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsremove', afterClose);
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
 
     $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ tabActivate($(ui.newTab)); } );
