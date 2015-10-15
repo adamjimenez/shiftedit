@@ -131,7 +131,7 @@ function create(file, content, siteId, options) {
 			column: 0
 		}
 	});
-	console.log(options);
+	//console.log(options);
 	if (options && options.state) {
 	    restoreState(options.state);
 	}

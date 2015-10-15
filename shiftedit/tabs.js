@@ -108,8 +108,11 @@ function openFiles(callback) {
 
                 if (Object.keys(opening).length) {
                     openFiles(callback);
-                }else if (callback) {
-                    callback(tab);
+                }else{
+                    recordOpenFiles();
+
+                    if (callback)
+                        callback(tab);
                 }
 		    }
 		}
@@ -289,6 +292,27 @@ function setEdited(tab, edited) {
 	}
 }
 
+function recordOpenFiles() {
+	var files = [];
+
+    $( "li[data-file][data-site]" ).each(function( index ) {
+        var tab = $( this );
+
+		files.push({
+			site: tab.data('site'),
+			file: tab.data('file')
+		});
+	});
+
+	$.ajax({
+		url: '/api/prefs?cmd=save_state',
+		data: {
+			files: JSON.stringify(files)
+		},
+		method: 'POST'
+	});
+}
+
 function checkEdited (e, ui) {
     var tabpanel = this;
 
@@ -320,6 +344,8 @@ function checkEdited (e, ui) {
 	    if(closing.length) {
 	        closing.splice(0, 1);
 	        close(closing[0]);
+	    }else{
+	        recordOpenFiles();
 	    }
     }
 }
@@ -469,4 +495,5 @@ function init() {
     exports.closeAll = closeAll;
     exports.closeTabsRight = closeTabsRight;
     exports.open = open;
+    exports.recordOpenFiles = recordOpenFiles;
 });

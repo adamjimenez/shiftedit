@@ -1,7 +1,7 @@
 define(["jquery.menubar",'app/lang','app/prefs'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
-var prefs = require('app/prefs').prefs;
+var prefs = require('app/prefs').get_prefs();
 
 
 //console.log(prefs);
