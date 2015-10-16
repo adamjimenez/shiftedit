@@ -231,3 +231,12 @@ div.buttons {
     display: inline;
     opacity: 1;
 }
+
+/* Menubar */
+.ui-menubar .ui-menu{
+    width: 300px;
+}
+
+.ui-menubar{
+    font-size: 12px;
+}

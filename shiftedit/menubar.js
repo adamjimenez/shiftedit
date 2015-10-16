@@ -1,8 +1,8 @@
-define(["jquery.menubar",'app/lang','app/prefs'], function () {
+define(["jquery.menubar",'app/lang','app/prefs', 'app/tabs'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var prefs = require('app/prefs').get_prefs();
-
+var tabs = require('app/tabs');
 
 //console.log(prefs);
 function init () {
@@ -15,7 +15,7 @@ function init () {
     			id: 'new',
     			text: makeMenuText(lang.newText + '...', 'Alt+N'),
     			handler: function () {
-    				shiftedit.app.tabs.newFile(tabs);
+    				$('.ui-layout-center').tabs('add');
     			}
     		},
     		{
@@ -635,27 +635,48 @@ function init () {
 
     };
 
-    //console.log(menu);
+    function buildMenu(el, menu){
+        for(var i in menu) {
+            if(menu[i]==='-') {
+                el.append('<li>-</li>');
+            }else{
+                var item = $('<li>\
+                    <a href="#'+i+'">'+menu[i].text+'</a>\
+                </li>').appendTo(el);
 
+                if(menu[i].disabled) {
+                    item.addClass('ui-state-disabled');
+                }
 
+                if(menu[i].handler) {
+                    item.children('a').click(menu[i].handler);
+                }
 
+                if(typeof menu[i].items === 'object'){
+                    var submenu = $('<ul></ul').appendTo(item);
+                    buildMenu(submenu, menu[i].items);
+                }
+            }
+        }
+    }
+
+    buildMenu($("#menubar"), menu);
 
     /*
     function select(event, ui) {
-        $("<div/>").text("Selected: " + ui.item.text()).appendTo("#log");
-        if (ui.item.text() == 'Quit') {
-            $(this).menubar('destroy');
-        }
-    }*/
-    $("#bar1").menubar(/*{
+        console.log("Selected: " + ui.item.text());
+    }
+    */
+
+    $("#menubar").menubar({
         autoExpand: true,
         menuIcon: true,
         buttons: false,
-        position: {
-            within: $("#demo-frame").add(window).first()
-        }//,
+        //position: {
+        //    within: $("#demo-frame").add(window).first()
+        //},
         //select: select
-    }*/);
+    });
 }
 
 return {
