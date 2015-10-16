@@ -1,4 +1,4 @@
-define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore'], function () {
+define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent'], function () {
     var locale = require("app/lang");
     var prefs = require("app/prefs");
 
@@ -19,6 +19,8 @@ define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'a
             var layout = require("app/layout");
             layout.init();
             require('app/restore').restoreBatch(prefs.getOpeningFilesBatch());
+            var recent = require("app/recent");
+            recent.load();
         })
     );
 });

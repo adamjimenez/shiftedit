@@ -1,4 +1,4 @@
-define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util'], function (editor,exports) {
+define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent'], function (editor,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -6,6 +6,7 @@ var loading = require('app/loading');
 var util = require('app/util');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
+var recent = require('app/recent');
 var closing = [];
 var saving = {};
 var opening = {};
@@ -82,6 +83,7 @@ function openFiles(callback) {
 					case 'html':
 						//console.log('load');
 						editor.create(file, data.content, options.site, data);
+						recent.add(file, options.site);
 
 						/*
 						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
@@ -450,18 +452,34 @@ function newTab (e, ui) {
 			</div>\
 		');
 
+    //new files
 	var HTML = '';
-
 	for (var i in modes) {
 		if (modes.hasOwnProperty(i)) {
-			HTML += '<li class="'+modes[i][0]+'">  <a href="#" data-filetype="'+modes[i][2][0]+'" class="newfile file-' + modes[i][2][0] + '">' + modes[i][1] + '</a></li>';
+			HTML += '<li class="'+modes[i][0]+'"><a href="#" data-filetype="'+modes[i][2][0]+'" class="newfile file-' + modes[i][2][0] + '">' + modes[i][1] + '</a></li>';
 		}
 	}
 
 	panel.find('ul.fileTypes').append(HTML);
 
-	panel.find('a.newfile').click(function(){
+	panel.find('a.newfile').click(function() {
 		editor.create("untitled."+this.dataset.filetype, '');
+		close(ui.tab);
+	});
+
+    //recent files
+    var recentFiles = recent.getRecent();
+	HTML = '';
+	for (i in recentFiles) {
+		if (recentFiles.hasOwnProperty(i)) {
+			HTML += '<li><a href="#" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + recentFiles[i].file+ '</a></li>';
+		}
+	}
+
+	panel.find('ul.recentFiles').append(HTML);
+
+	panel.find('a.openfile').click(function() {
+	    open($(this).data('file'), $(this).data('site'));
 		close(ui.tab);
 	});
 
