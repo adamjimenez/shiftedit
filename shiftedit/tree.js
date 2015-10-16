@@ -127,19 +127,50 @@ function init() {
                             "cut": {
                                 "separator_before": false,
                                 "separator_after": false,
-                                "label": "Cut"
+                                "label": "Cut",
+    							"action"			: function (data) {
+    								var inst = $.jstree.reference(data.reference),
+    									obj = inst.get_node(data.reference);
+    								if(inst.is_selected(obj)) {
+    									inst.cut(inst.get_top_selected());
+    								}
+    								else {
+    									inst.cut(obj);
+    								}
+    							}
                             },
                             "copy": {
                                 "separator_before": false,
                                 "icon": false,
                                 "separator_after": false,
-                                "label": "Copy"
+                                "label": "Copy",
+                                "shortcut": 67,
+                                "shortcut_label": "C",
+    							"action"			: function (data) {
+    							    console.log('yooo');
+    								var inst = $.jstree.reference(data.reference),
+    									obj = inst.get_node(data.reference);
+    								if(inst.is_selected(obj)) {
+    									inst.copy(inst.get_top_selected());
+    								}
+    								else {
+    									inst.copy(obj);
+    								}
+    							}
                             },
                             "paste": {
                                 "separator_before": false,
                                 "icon": false,
+    							"_disabled"			: function (data) {
+    								return !$.jstree.reference(data.reference).can_paste();
+    							},
                                 "separator_after": false,
-                                "label": "Paste"
+                                "label": "Paste",
+    							"action"			: function (data) {
+    								var inst = $.jstree.reference(data.reference),
+    									obj = inst.get_node(data.reference);
+    								inst.paste(obj);
+    							}
                             }
                         }
                     }
@@ -251,7 +282,27 @@ function init() {
     		.fail(function () {
     			data.instance.refresh();
     		});
+    }).on('keydown.jstree', '.jstree-anchor', function (e) {
+        var reference = this;
+        var instance = $.jstree.reference(this);
+        var selected = instance.get_selected();
+        var items = instance.settings.contextmenu.items(selected);
+        for(var i in items){
+            if(items[i].shortcut === e.which) {
+                items[i].action({reference:reference});
+            }
+
+            if(items[i].submenu){
+                var submenu_items = items[i].submenu;
+                for(var j in submenu_items){
+                    if(submenu_items[j].shortcut === e.which) {
+                        submenu_items[j].action({reference:reference});
+                    }
+                }
+            }
+        }
     })
+    /*
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
     	    var file = data.selected.join(':');
@@ -261,7 +312,7 @@ function init() {
     		$('#data .content').hide();
     		$('#data .default').html('Select a file from the tree.').show();
     	}
-    });
+    })*/;
 
 
     $('.drag')
