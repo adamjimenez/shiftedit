@@ -57,11 +57,13 @@ define(function (require) {
         $( "#dialog-message" ).remove();
 
         //create dialog markup
+        var inputType = options.password ? 'password' : 'text';
+
         $( "body" ).append('<div id="dialog-message" title="'+options.title+'">\
   <form>\
     <fieldset>\
       <label for="name">'+options.msg+'</label>\
-      <input type="text" name="input" id="input" value="'+options.value+'" class="text ui-widget-content ui-corner-all" required>\
+      <input type="'+inputType+'" name="input" id="input" value="'+options.value+'" class="text ui-widget-content ui-corner-all" required>\
  \
       <!-- Allow form submission with keyboard without duplicating the dialog button -->\
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
@@ -72,7 +74,12 @@ define(function (require) {
         //select filename before dot
         $('#input').focus(function () {
             var pos = this.value.lastIndexOf('.');
-            this.setSelectionRange(0, pos);
+
+            if( pos!==-1 ){
+                this.setSelectionRange(0, pos);
+            }else{
+                this.select();
+            }
         });
 
         //handle buttons/ submit
