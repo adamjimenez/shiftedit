@@ -17,6 +17,15 @@ return {
     	if( dot == -1 ) return "";
     	return filename.substr(dot+1, filename.length);
     },
+    selectFilename: function(){
+        var pos = this.value.lastIndexOf('.');
+
+        if( pos!==-1 ){
+            this.setSelectionRange(0, pos);
+        }else{
+            this.select();
+        }
+    },
     startsWith: function(haystack, needle) {
         if(haystack)
             return needle === "" || haystack.indexOf(needle) === 0;

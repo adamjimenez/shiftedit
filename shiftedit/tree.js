@@ -350,6 +350,8 @@ function init() {
     	}
     })*/;
 
+    //only select filename part on rename
+    $(document).on("focus", '.jstree-rename-input', util.selectFilename);
 
 
     $('.drag')

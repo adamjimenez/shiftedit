@@ -1,4 +1,4 @@
-define(function (require) {
+define(['app/util'], function (util) {
     function alert(title, message) {
         $( "#dialog-message" ).remove();
 
@@ -72,15 +72,7 @@ define(function (require) {
 </div>');
 
         //select filename before dot
-        $('#input').focus(function () {
-            var pos = this.value.lastIndexOf('.');
-
-            if( pos!==-1 ){
-                this.setSelectionRange(0, pos);
-            }else{
-                this.select();
-            }
-        });
+        $('#input').focus(util.selectFilename);
 
         //handle buttons/ submit
         function ok() {
