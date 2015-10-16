@@ -234,25 +234,49 @@ function saveAs(tab, callback) {
 		buttons: 'YESNOCANCEL',
 		fn: function (btn, file) {
 			if (btn == "ok") {
-			    //TODO check if filename exists
-
-            	tab.data('file', file);
-            	tab.attr('data-file', file);
-	            tab.attr('title', file);
+			    //check if filename exists
+            	if (!loading.start('Check file exists', function(){
+            		console.log('abort checking file site');
+            		ajax.abort();
+            	})) {
+            		return;
+            	}
 
                 var site = require('app/site');
             	var siteId = site.active();
 
-            	if(!siteId) {
-            	    prompt.alert('Error', 'No site selected');
-            	    return false;
-            	}
+			    $.ajax({
+			        url: '/api/files?cmd=file_exists&site='+siteId+'&file='+file,
+	                method: 'GET',
+	                dataType: 'json'
+			    })
+                .then(function (data) {
+                    loading.stop();
 
-            	tab.data(site, siteId);
-            	tab.attr('data-site', siteId);
-
-			    //save
-			    save(tab, callback);
+        		    if (!data.success) {
+        		        prompt.alert(lang.failedText, 'Error checking file' + ': ' + data.error);
+        	            opening = {};
+        		    } else {
+        		        if(data.file_exists) {
+        		            prompt.confirm({
+        		                title: 'Confirm',
+        		                msg: '<strong>'+file+'</strong> exists, overwrite?',
+        		                fn: function(btn) {
+        		                    switch(btn) {
+        		                        case 'yes':
+        		                            doSaveAs(tab, callback, file);
+        		                        break;
+        		                    }
+        		                }
+        		            });
+        		        }else{
+        		            doSaveAs(tab, callback, file);
+        		        }
+                    }
+                }).fail(function() {
+                    loading.stop();
+            		prompt.alert(lang.failedText, 'Error checking site');
+                });
 			} else if (btn == 'cancel') {
 			    //focus editor
 			    var editor = getEditor(tab);
@@ -266,6 +290,27 @@ function saveAs(tab, callback) {
         callback(tab);
     }
     */
+}
+
+
+function doSaveAs(tab, callback, file) {
+	tab.data('file', file);
+	tab.attr('data-file', file);
+    tab.attr('title', file);
+
+    var site = require('app/site');
+	var siteId = site.active();
+
+	if(!siteId) {
+	    prompt.alert('Error', 'No site selected');
+	    return false;
+	}
+
+	tab.data(site, siteId);
+	tab.attr('data-site', siteId);
+
+    //save
+    save(tab, callback);
 }
 
 function saveAll(tab, callback) {
