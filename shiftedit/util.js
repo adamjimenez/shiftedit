@@ -1,6 +1,9 @@
 define(function (require) {
 
 return {
+    clone: function(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    },
     makeMenuText: function(text, key) {
 		if( !key ){
 			key ='';

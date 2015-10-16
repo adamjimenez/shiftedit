@@ -255,13 +255,31 @@ function init() {
     		});
     })
     .on('rename_node.jstree', function (e, data) {
-    	$.get('?operation=rename_node', { 'id' : data.node.id, 'text' : data.text })
-    		.done(function (d) {
-    			data.instance.set_id(data.node, d.id);
-    		})
-    		.fail(function () {
-    			data.instance.refresh();
-    		});
+        //console.log(e);
+        //console.log(data);
+
+        var params = util.clone(options.params);
+        params.oldname = data.old;
+        params.newname = data.text;
+
+		$.ajax(options.url+'&cmd=rename', {
+		    method: 'POST',
+		    dataType: 'json',
+		    data: params
+		})
+		.done(function (d) {
+		    if(!d.success){
+		        prompt.alert('Error', d.error);
+		    }else{
+    		    data.instance.set_id(data.node, params.newname);
+		    }
+    	})
+    	.fail(function () {
+    		data.instance.refresh();
+    	});
+
+    	//$.get('/app/?cmd=rename_node', { 'id' : data.node.id, 'text' : data.text })
+
     })
     .on('move_node.jstree', function (e, data) {
     	$.get('?operation=move_node', { 'id' : data.node.id, 'parent' : data.parent })
@@ -283,6 +301,10 @@ function init() {
     			data.instance.refresh();
     		});
     }).on('keydown.jstree', '.jstree-anchor', function (e) {
+        if($('.jstree-rename-input').length){
+            return;
+        }
+
         var reference = this;
         var instance = $.jstree.reference(this);
         var selected = instance.get_selected();
