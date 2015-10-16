@@ -294,9 +294,7 @@ function saveAs(tab, callback) {
 
 
 function doSaveAs(tab, callback, file) {
-	tab.data('file', file);
-	tab.attr('data-file', file);
-    tab.attr('title', file);
+    setTitle(tab, file);
 
     var site = require('app/site');
 	var siteId = site.active();
@@ -335,6 +333,13 @@ function setEdited(tab, edited) {
 	    //change title
 	    tab.children('.ui-tabs-anchor').text(tab.data('file'));
 	}
+}
+
+function setTitle(tab, file) {
+	tab.data('file', file);
+	tab.attr('data-file', file);
+    tab.attr('title', file);
+    tab.children('.ui-tabs-anchor').text(file);
 }
 
 function recordOpenFiles() {
@@ -474,6 +479,16 @@ function tabActivate( tab ) {
         editor.focus();
 }
 
+function updateTabs(e, params) {
+    var tab = $(".ui-layout-center li[data-file='"+params.oldname+"'][data-site='"+params.site+"']");
+    if(tab.length){
+        tab = $(tab);
+        setTitle(tab, params.newname);
+        tabActivate(tab);
+		recordOpenFiles();
+    }
+}
+
 function init() {
     tabs_contextmenu.init();
 
@@ -490,6 +505,9 @@ function init() {
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
 
     $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ tabActivate($(ui.newTab)); } );
+
+    $( "#tree" ).on( "rename", updateTabs );
+    //$(document).on("rename", "#tree", updateTabs);
 
     //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
     tabs.find( ".ui-tabs-nav" ).sortable({

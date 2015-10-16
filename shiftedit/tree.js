@@ -261,6 +261,7 @@ function init() {
         var params = util.clone(options.params);
         params.oldname = data.old;
         params.newname = data.text;
+        params.site = options.site;
 
 		$.ajax(options.url+'&cmd=rename', {
 		    method: 'POST',
@@ -272,6 +273,7 @@ function init() {
 		        prompt.alert('Error', d.error);
 		    }else{
     		    data.instance.set_id(data.node, params.newname);
+		        $('#tree').trigger('rename', params)
 		    }
     	})
     	.fail(function () {
