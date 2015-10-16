@@ -302,6 +302,18 @@ function init() {
             }
         }
     })
+    .on('dblclick','a',function (e, data) {
+        var reference = this;
+        var instance = $.jstree.reference(this);
+        var selected = instance.get_selected();
+
+    	if(selected && selected.length) {
+    	    var file = selected.join(':');
+    	    tabs.open(file, options.site);
+    	}
+
+        // do stuff...
+    });
     /*
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
@@ -313,6 +325,7 @@ function init() {
     		$('#data .default').html('Select a file from the tree.').show();
     	}
     })*/;
+
 
 
     $('.drag')
