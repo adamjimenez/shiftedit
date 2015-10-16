@@ -226,3 +226,8 @@ div.buttons {
     border-radius: 5px;
     border: 1px solid #f0c36d;
 }
+
+.vakata-context .vakata-contextmenu-shortcut{
+    display: inline;
+    opacity: 1;
+}

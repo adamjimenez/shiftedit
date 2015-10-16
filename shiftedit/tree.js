@@ -6,6 +6,7 @@ var prompt = require('app/prompt');
 var tabs = require('app/tabs');
 var options = {};
 var tree;
+var confirmed = false;
 
 function init() {
     tree = $('#tree')
@@ -39,6 +40,33 @@ function init() {
     			if(o === "move_node" || o === "copy_node") {
     				if(this.get_node(n).parent === this.get_node(p).id) { return false; }
     			}
+
+    			if(o === "delete_node") {
+                	var t = this;
+
+                	if (!confirmed){
+                    	prompt.confirm({
+                    	    title: 'Delete',
+                    	    msg: 'Are you sure you want to delete the selected files?',
+                    	    fn: function(btn) {
+                    	        switch(btn){
+                    	            case 'yes':
+                    	                //console.log(o, n, p, i, m);
+                    	                confirmed = true;
+                    	                t.delete_node(n);
+                    	            break;
+                    	        }
+                    	    }
+                    	});
+        			    return false;
+                	}else{
+                	    confirmed = false;
+                	    return true;
+                	}
+
+    			    //return confirm("Are you sure you want to delete the selected files?");
+    			}
+
     			return true;
     		},
     		'force_text' : true,
@@ -53,7 +81,73 @@ function init() {
     	},
     	'contextmenu' : {
     		'items' : function(node) {
-    			var tmp = $.jstree.defaults.contextmenu.items();
+    			//var tmp = $.jstree.defaults.contextmenu.items();
+
+    			var tmp = {
+                    "rename": {
+                        "separator_before": false,
+                        "separator_after": false,
+                        "_disabled": false,
+                        "label": "Rename",
+    					"shortcut"			: 113,
+    					"shortcut_label"	: 'F2',
+    					"icon"				: "glyphicon glyphicon-leaf",
+    					"action"			: function (data) {
+    						var inst = $.jstree.reference(data.reference),
+    							obj = inst.get_node(data.reference);
+    						inst.edit(obj);
+    					}
+                    },
+                    "remove": {
+                        "separator_before": false,
+                        "icon": false,
+                        "separator_after": false,
+                        "_disabled": false,
+                        "label": "Delete",
+                        "shortcut": 46,
+                        "shortcut_label": "Del",
+    					"action"			: function (data) {
+    						var inst = $.jstree.reference(data.reference),
+    							obj = inst.get_node(data.reference);
+    						if(inst.is_selected(obj)) {
+    							inst.delete_node(inst.get_selected());
+    						}
+    						else {
+    							inst.delete_node(obj);
+    						}
+    					}
+                    },
+                    "ccp": {
+                        "separator_before": true,
+                        "icon": false,
+                        "separator_after": false,
+                        "label": "Edit",
+                        "action": false,
+                        "submenu": {
+                            "cut": {
+                                "separator_before": false,
+                                "separator_after": false,
+                                "label": "Cut"
+                            },
+                            "copy": {
+                                "separator_before": false,
+                                "icon": false,
+                                "separator_after": false,
+                                "label": "Copy"
+                            },
+                            "paste": {
+                                "separator_before": false,
+                                "icon": false,
+                                "separator_after": false,
+                                "label": "Paste"
+                            }
+                        }
+                    }
+                };
+
+    			console.log(tmp);
+
+    			/*
     			delete tmp.create.action;
     			tmp.create.label = "New";
     			tmp.create.submenu = {
@@ -82,6 +176,8 @@ function init() {
     			if(this.get_type(node) === "file") {
     				delete tmp.create;
     			}
+    			*/
+
     			return tmp;
     		}
     	},
@@ -97,10 +193,26 @@ function init() {
     	'plugins' : ['state','dnd','sort','types','contextmenu','unique']
     })
     .on('delete_node.jstree', function (e, data) {
+        /*
     	$.get('?operation=delete_node', { 'id' : data.node.id })
     		.fail(function () {
     			data.instance.refresh();
-    		});
+    		});*/
+
+		$.ajax(options.url+'&cmd=delete&file='+data.node.id, {
+		    method: 'POST',
+		    dataType: 'json',
+		    data: options.params,
+		    /*
+		    data: options.params,
+		    success: function(data) {
+                callback.call(tree, data);
+		    }
+		    */
+		})
+		.fail(function () {
+			data.instance.refresh();
+		});
     })
     .on('create_node.jstree', function (e, data) {
     	$.get('?operation=create_node', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
