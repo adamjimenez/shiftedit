@@ -240,3 +240,22 @@ div.buttons {
 .ui-menubar{
     font-size: 12px;
 }
+
+#shortcutsSheet{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: calc(100% - 20px);
+	height: calc(100% - 20px);
+	background: black;
+	color: white;
+	overflow: auto;
+	z-index: 1000000000000;
+	border-radius: 10px;
+	margin: 10px;
+	opacity: 0.8;
+}
+
+.ui-widget {
+    font-size: 12px; /*1em*/
+}

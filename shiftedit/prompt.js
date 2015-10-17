@@ -1,11 +1,10 @@
 define(['app/util'], function (util) {
-    function alert(title, message) {
+    function alert(options) {
         $( "#dialog-message" ).remove();
 
-        $( "body" ).append('<div id="dialog-message" title="'+title+'">\
+        $( "body" ).append('<div id="dialog-message" title="'+options.title+'">\
   <p>\
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>\
-    '+message+'\
+    '+options.msg+'\
   </p>\
 </div>');
 
@@ -16,7 +15,9 @@ define(['app/util'], function (util) {
                     $( this ).dialog( "close" );
                     $( "#dialog-message" ).remove();
                 }
-            }
+            },
+            width: options.width,
+            height: options.height
         });
     }
 

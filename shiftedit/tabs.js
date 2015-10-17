@@ -65,7 +65,7 @@ function openFiles(callback) {
     	    //console.log(d);
 
 		    if (!data.success) {
-		        prompt.alert(lang.failedText, 'Error opening file' + ': ' + data.error);
+		        prompt.alert({title:lang.failedText, msg:'Error opening file' + ': ' + data.error});
 	            opening = {};
 		    } else {
 				$('#data .content').hide();
@@ -120,7 +120,7 @@ function openFiles(callback) {
 		}
 	}, 'json').fail(function() {
         loading.stop();
-		prompt.alert(lang.failedText, 'Error opening file');
+		prompt.alert({title:lang.failedText, msg:'Error opening file'});
 		opening = {};
     });
 }
@@ -215,13 +215,13 @@ function saveFiles(callback) {
                     }
                 }
             } else {
-                prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
+                prompt.alert({title:lang.failedText, msg:'Error saving file' + ': ' + data.error});
                 saving = {};
             }
         }
     }).fail(function() {
         loading.stop();
-		prompt.alert(lang.failedText, 'Error saving file');
+		prompt.alert({title:lang.failedText, msg:'Error saving file'});
 		saving = {};
     });
 }
@@ -256,7 +256,7 @@ function saveAs(tab, callback) {
                     loading.stop();
 
         		    if (!data.success) {
-        		        prompt.alert(lang.failedText, 'Error checking file' + ': ' + data.error);
+        		        prompt.alert({title:lang.failedText, msg:'Error checking file' + ': ' + data.error});
         	            opening = {};
         		    } else {
         		        if(data.file_exists) {
@@ -277,7 +277,7 @@ function saveAs(tab, callback) {
                     }
                 }).fail(function() {
                     loading.stop();
-            		prompt.alert(lang.failedText, 'Error checking site');
+            		prompt.alert({title:lang.failedText, msg:'Error checking site'});
                 });
 			} else if (btn == 'cancel') {
 			    //focus editor

@@ -1,4 +1,5 @@
-define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent'], function () {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent'], function (exports) {
+    var version = '17.0.0';
     var locale = require("app/lang");
     var prefs = require("app/prefs");
 
@@ -23,4 +24,8 @@ define(["jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'a
             recent.load();
         })
     );
+
+    exports.getVersion = function() {
+        return version;
+    };
 });

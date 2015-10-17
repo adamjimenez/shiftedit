@@ -109,12 +109,12 @@ function open(siteId, password) {
     			    }
     			});
             }else{
-                prompt.alert('Error', data.error);
+                prompt.alert({title:'Error', msg:data.error});
             }
         }
     }).fail(function() {
         loading.stop();
-		prompt.alert(lang.failedText, 'Error opening site');
+		prompt.alert({title:lang.failedText, msg:'Error opening site'});
     });
 
     return ajax;
@@ -168,7 +168,7 @@ function getAjaxOptions(ajaxUrl) {
         	if( settings.web_url ){
         		ajaxUrl = settings.web_url+'shiftedit-proxy.php?ModPagespeed=off';
         	}else{
-        		prompt.alert(lang.errorText, 'Missing web URL');
+        		prompt.alert({title:lang.errorText, msg:'Missing web URL'});
         	}
 
     		//var prefs = shiftedit.app.get_prefs();
@@ -193,7 +193,7 @@ function getAjaxOptions(ajaxUrl) {
         }
 
         if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){
-            prompt.alert('Proxy Blocked', 'Click Shield icon in address bar, then "Load Unsafe Script"');
+            prompt.alert({title:'Proxy Blocked', msg:'Click Shield icon in address bar, then "Load Unsafe Script"'});
         }
     }
 
