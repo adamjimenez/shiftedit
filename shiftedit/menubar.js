@@ -32,7 +32,7 @@ function init () {
     		    id: 'save',
     		    text: makeMenuText(lang.saveText, 'Ctrl+S'),
     			handler: function () {
-    				shiftedit.app.tabs.save();
+    				tabs.save($('.ui-layout-center .ui-tabs-active'));
     			},
     			disabled: true
     	    },
@@ -40,7 +40,7 @@ function init () {
     			id: 'saveAs',
     			text: makeMenuText(lang.saveAsText + '...'),
     			handler: function () {
-    				shiftedit.app.tabs.saveAs();
+    				tabs.saveAs($('.ui-layout-center .ui-tabs-active'));
     			},
     			disabled: true
     		},
