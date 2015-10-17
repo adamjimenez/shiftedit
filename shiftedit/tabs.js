@@ -1,4 +1,4 @@
-define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util'], function (editor,exports) {
+define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent'], function (editor,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -6,11 +6,12 @@ var loading = require('app/loading');
 var util = require('app/util');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
+var recent = require('app/recent');
 var closing = [];
 var saving = {};
 var opening = {};
 
-function get_editor(tab) {
+function getEditor(tab) {
     tab = $(tab);
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 
@@ -64,7 +65,7 @@ function openFiles(callback) {
     	    //console.log(d);
 
 		    if (!data.success) {
-		        prompt.alert(lang.failedText, 'Error opening file' + ': ' + data.error);
+		        prompt.alert({title:lang.failedText, msg:'Error opening file' + ': ' + data.error});
 	            opening = {};
 		    } else {
 				$('#data .content').hide();
@@ -82,6 +83,7 @@ function openFiles(callback) {
 					case 'html':
 						//console.log('load');
 						editor.create(file, data.content, options.site, data);
+						recent.add(file, options.site);
 
 						/*
 						var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
@@ -108,14 +110,17 @@ function openFiles(callback) {
 
                 if (Object.keys(opening).length) {
                     openFiles(callback);
-                }else if (callback) {
-                    callback(tab);
+                }else{
+                    recordOpenFiles();
+
+                    if (callback)
+                        callback(tab);
                 }
 		    }
 		}
 	}, 'json').fail(function() {
         loading.stop();
-		prompt.alert(lang.failedText, 'Error opening file');
+		prompt.alert({title:lang.failedText, msg:'Error opening file'});
 		opening = {};
     });
 }
@@ -134,7 +139,7 @@ function saveFiles(callback) {
     console.log('save');
 
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    var editor = get_editor(tab);
+    var editor = getEditor(tab);
 
     if(!editor){
         console.error('editor instance not found');
@@ -210,13 +215,13 @@ function saveFiles(callback) {
                     }
                 }
             } else {
-                prompt.alert(lang.failedText, 'Error saving file' + ': ' + data.error);
+                prompt.alert({title:lang.failedText, msg:'Error saving file' + ': ' + data.error});
                 saving = {};
             }
         }
     }).fail(function() {
         loading.stop();
-		prompt.alert(lang.failedText, 'Error saving file');
+		prompt.alert({title:lang.failedText, msg:'Error saving file'});
 		saving = {};
     });
 }
@@ -231,28 +236,52 @@ function saveAs(tab, callback) {
 		buttons: 'YESNOCANCEL',
 		fn: function (btn, file) {
 			if (btn == "ok") {
-			    //TODO check if filename exists
-
-            	tab.data('file', file);
-            	tab.attr('data-file', file);
-	            tab.attr('title', file);
+			    //check if filename exists
+            	if (!loading.start('Check file exists', function(){
+            		console.log('abort checking file site');
+            		ajax.abort();
+            	})) {
+            		return;
+            	}
 
                 var site = require('app/site');
             	var siteId = site.active();
 
-            	if(!siteId) {
-            	    prompt.alert('Error', 'No site selected');
-            	    return false;
-            	}
+			    $.ajax({
+			        url: '/api/files?cmd=file_exists&site='+siteId+'&file='+file,
+	                method: 'GET',
+	                dataType: 'json'
+			    })
+                .then(function (data) {
+                    loading.stop();
 
-            	tab.data(site, siteId);
-            	tab.attr('data-site', siteId);
-
-			    //save
-			    save(tab, callback);
+        		    if (!data.success) {
+        		        prompt.alert({title:lang.failedText, msg:'Error checking file' + ': ' + data.error});
+        	            opening = {};
+        		    } else {
+        		        if(data.file_exists) {
+        		            prompt.confirm({
+        		                title: 'Confirm',
+        		                msg: '<strong>'+file+'</strong> exists, overwrite?',
+        		                fn: function(btn) {
+        		                    switch(btn) {
+        		                        case 'yes':
+        		                            doSaveAs(tab, callback, file);
+        		                        break;
+        		                    }
+        		                }
+        		            });
+        		        }else{
+        		            doSaveAs(tab, callback, file);
+        		        }
+                    }
+                }).fail(function() {
+                    loading.stop();
+            		prompt.alert({title:lang.failedText, msg:'Error checking site'});
+                });
 			} else if (btn == 'cancel') {
 			    //focus editor
-			    var editor = get_editor(tab);
+			    var editor = getEditor(tab);
 			    editor.focus();
 			}
 		}
@@ -263,6 +292,25 @@ function saveAs(tab, callback) {
         callback(tab);
     }
     */
+}
+
+
+function doSaveAs(tab, callback, file) {
+    setTitle(tab, file);
+
+    var site = require('app/site');
+	var siteId = site.active();
+
+	if(!siteId) {
+	    prompt.alert('Error', 'No site selected');
+	    return false;
+	}
+
+	tab.data(site, siteId);
+	tab.attr('data-site', siteId);
+
+    //save
+    save(tab, callback);
 }
 
 function saveAll(tab, callback) {
@@ -287,6 +335,34 @@ function setEdited(tab, edited) {
 	    //change title
 	    tab.children('.ui-tabs-anchor').text(tab.data('file'));
 	}
+}
+
+function setTitle(tab, file) {
+	tab.data('file', file);
+	tab.attr('data-file', file);
+    tab.attr('title', file);
+    tab.children('.ui-tabs-anchor').text(file);
+}
+
+function recordOpenFiles() {
+	var files = [];
+
+    $( "li[data-file][data-site]" ).each(function( index ) {
+        var tab = $( this );
+
+		files.push({
+			site: tab.data('site'),
+			file: tab.data('file')
+		});
+	});
+
+	$.ajax({
+		url: '/api/prefs?cmd=save_state',
+		data: {
+			files: JSON.stringify(files)
+		},
+		method: 'POST'
+	});
 }
 
 function checkEdited (e, ui) {
@@ -316,11 +392,15 @@ function checkEdited (e, ui) {
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
+    }
+}
 
-	    if(closing.length) {
-	        closing.splice(0, 1);
-	        close(closing[0]);
-	    }
+function afterClose(e, uo) {
+    if(closing.length) {
+        closing.splice(0, 1);
+        close(closing[0]);
+    }else{
+        recordOpenFiles();
     }
 }
 
@@ -372,18 +452,34 @@ function newTab (e, ui) {
 			</div>\
 		');
 
+    //new files
 	var HTML = '';
-
 	for (var i in modes) {
 		if (modes.hasOwnProperty(i)) {
-			HTML += '<li class="'+modes[i][0]+'">  <a href="#" data-filetype="'+modes[i][2][0]+'" class="newfile file-' + modes[i][2][0] + '">' + modes[i][1] + '</a></li>';
+			HTML += '<li class="'+modes[i][0]+'"><a href="#" data-filetype="'+modes[i][2][0]+'" class="newfile file-' + modes[i][2][0] + '">' + modes[i][1] + '</a></li>';
 		}
 	}
 
 	panel.find('ul.fileTypes').append(HTML);
 
-	panel.find('a.newfile').click(function(){
+	panel.find('a.newfile').click(function() {
 		editor.create("untitled."+this.dataset.filetype, '');
+		close(ui.tab);
+	});
+
+    //recent files
+    var recentFiles = recent.getRecent();
+	HTML = '';
+	for (i in recentFiles) {
+		if (recentFiles.hasOwnProperty(i)) {
+			HTML += '<li><a href="#" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + recentFiles[i].file+ '</a></li>';
+		}
+	}
+
+	panel.find('ul.recentFiles').append(HTML);
+
+	panel.find('a.openfile').click(function() {
+	    open($(this).data('file'), $(this).data('site'));
 		close(ui.tab);
 	});
 
@@ -395,10 +491,20 @@ function tabActivate( tab ) {
     var title = file ? file : 'ShiftEdit';
     document.title = title;
 
-    var editor = get_editor(tab);
+    var editor = getEditor(tab);
 
     if (editor)
         editor.focus();
+}
+
+function updateTabs(e, params) {
+    var tab = $(".ui-layout-center li[data-file='"+params.oldname+"'][data-site='"+params.site+"']");
+    if(tab.length){
+        tab = $(tab);
+        setTitle(tab, params.newname);
+        tabActivate(tab);
+		recordOpenFiles();
+    }
 }
 
 function init() {
@@ -413,9 +519,13 @@ function init() {
     // initialize paging
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('paging', {nextButton: '&gt;', prevButton: '&lt;' });
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
+    $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsremove', afterClose);
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
 
     $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ tabActivate($(ui.newTab)); } );
+
+    $( "#tree" ).on( "rename", updateTabs );
+    //$(document).on("rename", "#tree", updateTabs);
 
     //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
     tabs.find( ".ui-tabs-nav" ).sortable({
@@ -460,6 +570,7 @@ function init() {
     });
 }
 
+    exports.getEditor = getEditor;
     exports.setEdited = setEdited;
     exports.save = save;
     exports.saveAs = saveAs;
@@ -469,4 +580,5 @@ function init() {
     exports.closeAll = closeAll;
     exports.closeTabsRight = closeTabsRight;
     exports.open = open;
+    exports.recordOpenFiles = recordOpenFiles;
 });

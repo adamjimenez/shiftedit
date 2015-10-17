@@ -1,11 +1,10 @@
-define(function (require) {
-    function alert(title, message) {
+define(['app/util'], function (util) {
+    function alert(options) {
         $( "#dialog-message" ).remove();
 
-        $( "body" ).append('<div id="dialog-message" title="'+title+'">\
+        $( "body" ).append('<div id="dialog-message" title="'+options.title+'">\
   <p>\
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>\
-    '+message+'\
+    '+options.msg+'\
   </p>\
 </div>');
 
@@ -16,7 +15,9 @@ define(function (require) {
                     $( this ).dialog( "close" );
                     $( "#dialog-message" ).remove();
                 }
-            }
+            },
+            width: options.width,
+            height: options.height
         });
     }
 
@@ -57,11 +58,13 @@ define(function (require) {
         $( "#dialog-message" ).remove();
 
         //create dialog markup
+        var inputType = options.password ? 'password' : 'text';
+
         $( "body" ).append('<div id="dialog-message" title="'+options.title+'">\
   <form>\
     <fieldset>\
       <label for="name">'+options.msg+'</label>\
-      <input type="text" name="input" id="input" value="'+options.value+'" class="text ui-widget-content ui-corner-all" required>\
+      <input type="'+inputType+'" name="input" id="input" value="'+options.value+'" class="text ui-widget-content ui-corner-all" required>\
  \
       <!-- Allow form submission with keyboard without duplicating the dialog button -->\
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
@@ -70,10 +73,7 @@ define(function (require) {
 </div>');
 
         //select filename before dot
-        $('#input').focus(function () {
-            var pos = this.value.lastIndexOf('.');
-            this.setSelectionRange(0, pos);
-        });
+        $('#input').focus(util.selectFilename);
 
         //handle buttons/ submit
         function ok() {

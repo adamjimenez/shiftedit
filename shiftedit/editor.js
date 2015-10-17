@@ -51,6 +51,10 @@ function saveFolds() {
 }
 
 function create(file, content, siteId, options) {
+    if(!options){
+        options = {};
+    }
+
     //create tab
 	tab = $(".ui-layout-center").tabs('add', file, '<div class="editor"></div>');
 	tab.data(file, file);
@@ -131,7 +135,7 @@ function create(file, content, siteId, options) {
 			column: 0
 		}
 	});
-	console.log(options);
+	//console.log(options);
 	if (options && options.state) {
 	    restoreState(options.state);
 	}

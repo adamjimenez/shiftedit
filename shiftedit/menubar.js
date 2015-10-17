@@ -1,8 +1,11 @@
-define(["jquery.menubar",'app/lang','app/prefs'], function () {
+define(["jquery.menubar",'app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
-var prefs = require('app/prefs').prefs;
-
+var prefs = require('app/prefs').get_prefs();
+var tabs = require('app/tabs');
+var storage = require('app/storage');
+var main = require('app/main');
+var prompt = require('app/prompt');
 
 //console.log(prefs);
 function init () {
@@ -15,7 +18,7 @@ function init () {
     			id: 'new',
     			text: makeMenuText(lang.newText + '...', 'Alt+N'),
     			handler: function () {
-    				shiftedit.app.tabs.newFile(tabs);
+    				$('.ui-layout-center').tabs('add');
     			}
     		},
     		{
@@ -32,7 +35,7 @@ function init () {
     		    id: 'save',
     		    text: makeMenuText(lang.saveText, 'Ctrl+S'),
     			handler: function () {
-    				shiftedit.app.tabs.save();
+    				tabs.save($('.ui-layout-center .ui-tabs-active'));
     			},
     			disabled: true
     	    },
@@ -40,7 +43,7 @@ function init () {
     			id: 'saveAs',
     			text: makeMenuText(lang.saveAsText + '...'),
     			handler: function () {
-    				shiftedit.app.tabs.saveAs();
+    				tabs.saveAs($('.ui-layout-center .ui-tabs-active'));
     			},
     			disabled: true
     		},
@@ -462,23 +465,158 @@ function init () {
     		text: 'Help',
     		items: [{
     			id: 'support',
-    			text: lang.support
+    			text: lang.support,
+    			handler: function() {
+		            window.open('/docs/');
+    			}
     		},{
     			id: 'feedback',
-    			text: lang.feedback
+    			text: lang.feedback,
+    			handler: function() {
+		            window.open('/contact');
+    			}
     		},{
     			id: 'mailingList',
-    			text: lang.mailingList
+    			text: lang.mailingList,
+    			handler: function() {
+		            window.open('http://groups.google.co.uk/group/shiftedit?hl=en"');
+    			}
     		},{
     			id: 'changelog',
-    			text: lang.changelog
+    			text: lang.changelog,
+    			handler: function() {
+		            window.open('/changelog');
+    			}
     		},{
     			id: 'keyboardShortcuts',
     			text: makeMenuText('Shortcuts', 'Ctrl+/'),
-    			disabled: false
+    			handler: function() {
+            		if (!document.getElementById('shortcutsSheet')) {
+            			$.ajax({
+            				url: '/screens/shortcuts',
+            				success: function (result) {
+            					if (!document.getElementById('shortcutsSheet')) {
+            						var div = document.createElement('div');
+            						div.id = 'shortcutsSheet';
+            						div.innerHTML = result;
+            						document.body.appendChild(div);
+            					}
+            				}
+            			});
+            		}
+    			}
     		},{
     			id: 'about',
-    			text: lang.aboutShiftEdit
+    			text: lang.aboutShiftEdit,
+    			handler: function() {
+            		var d = new Date();
+            		var year = d.getFullYear();
+            		var edition = storage.get('edition') ? storage.get('edition') : '';
+            		var title = 'ShiftEdit';
+            		var version = main.getVersion();
+            		var html = version + ' ' + edition + '\
+            		    <br><br>Copyright &copy; 2007-'+year+' ShiftCreate Limited. All Rights Reserved.<br>\
+            		    ShiftEdit is made possible thanks to the following open source projects:<br><br> \
+        				<table width="100%">\
+        				<tr>\
+        					<td>\
+        						<a href="http://ace.ajax.org/" target="_blank">Ace</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.github.com/ajaxorg/ace/master/LICENSE" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="http://coffeelint.org/" target="_blank">Coffee Lint</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.github.com/clutchski/coffeelint/master/LICENSE" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="http://csslint.net/" target="_blank">CSS Lint</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.github.com/stubbornella/csslint/master/LICENSE" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="http://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a>\
+        					</td>\
+        					<td>\
+        						<a href="http://fontawesome.io/license/" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="https://jquery.com/" target="_blank">jQuery</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.githubusercontent.com/jquery/jquery/master/LICENSE.txt" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="http://swisnl.github.io/jQuery-contextMenu/" target="_blank">jQuery Contextmenu</a>\
+        					</td>\
+        					<td>\
+        						<a href="http://opensource.org/licenses/mit-license" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="https://jqueryui.com/" target="_blank">jQuery UI</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.githubusercontent.com/jquery/jquery-ui/master/LICENSE.txt" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="https://github.com/kpdecker/jsdiff" target="_blank">JSDiff</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.github.com/kpdecker/jsdiff/master/LICENSE" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="http://jshint.com/" target="_blank">JSHint</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.github.com/jshint/jshint/master/LICENSE" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="https://www.jstree.com/" target="_blank">JSTree</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.githubusercontent.com/vakata/jstree/master/LICENSE-MIT" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="http://layout.jquery-dev.com/" target="_blank">UI Layout</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.githubusercontent.com/allpro/layout/master/LICENSE.txt" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				</table>\
+        				<br>\
+        				<p>Special thanks to all the Premier subscribers who help to make my dreams a reality.</p>';
+
+            		prompt.alert({
+            		    title: title,
+            		    msg: html,
+            		    width: 500,
+            		    height: 490
+            		});
+    			}
     		}]
     	},
 
@@ -635,27 +773,48 @@ function init () {
 
     };
 
-    //console.log(menu);
+    function buildMenu(el, menu){
+        for(var i in menu) {
+            if(menu[i]==='-') {
+                el.append('<li>-</li>');
+            }else{
+                var item = $('<li>\
+                    <a href="#'+i+'">'+menu[i].text+'</a>\
+                </li>').appendTo(el);
 
+                if(menu[i].disabled) {
+                    item.addClass('ui-state-disabled');
+                }
 
+                if(menu[i].handler) {
+                    item.children('a').click(menu[i].handler);
+                }
 
+                if(typeof menu[i].items === 'object'){
+                    var submenu = $('<ul></ul').appendTo(item);
+                    buildMenu(submenu, menu[i].items);
+                }
+            }
+        }
+    }
+
+    buildMenu($("#menubar"), menu);
 
     /*
     function select(event, ui) {
-        $("<div/>").text("Selected: " + ui.item.text()).appendTo("#log");
-        if (ui.item.text() == 'Quit') {
-            $(this).menubar('destroy');
-        }
-    }*/
-    $("#bar1").menubar(/*{
+        console.log("Selected: " + ui.item.text());
+    }
+    */
+
+    $("#menubar").menubar({
         autoExpand: true,
         menuIcon: true,
         buttons: false,
-        position: {
-            within: $("#demo-frame").add(window).first()
-        }//,
+        //position: {
+        //    within: $("#demo-frame").add(window).first()
+        //},
         //select: select
-    }*/);
+    });
 }
 
 return {

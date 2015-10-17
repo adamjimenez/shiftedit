@@ -1,10 +1,11 @@
-define(["jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl"], function () {
+define(["jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading"], function () {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var util = require('app/util');
 var ssl = require('app/ssl');
+var loading = require('app/loading');
 
 var sites = [];
 var currentSite = storage.get('currentSite');
@@ -37,24 +38,86 @@ function init() {
     });
 }
 
-function open(siteId) {
+function open(siteId, password) {
     currentSite = null;
 
-    return $.getJSON('/api/sites?site='+siteId)
-        .then(function (data) {
-            //console.log(data);
+    var site = getSettings(siteId);
 
-            if(data.success){
-                currentSite = siteId;
-                storage.set('currentSite', currentSite);
+	if (!loading.start('Connecting to site '+site.name, function(){
+		console.log('abort opening site');
+		ajax.abort();
+		opening = {};
+	})) {
+		console.log('in queue');
+		return;
+	}
 
-                //load file tree
-                var options = getAjaxOptions('/api/files?site='+siteId);
-                tree.setAjaxOptions(options);
+    var ajax = $.ajax({
+        url: '/api/sites?site='+siteId,
+	    method: 'POST',
+	    dataType: 'json',
+	    data: {
+	        password: password,
+	        save_password: 1
+	    }
+    })
+    .then(function (data) {
+        loading.stop();
+        //console.log(data);
+
+        if(data.success){
+            currentSite = siteId;
+            storage.set('currentSite', currentSite);
+
+            //load file tree
+            var options = getAjaxOptions('/api/files?site='+siteId);
+            tree.setAjaxOptions(options);
+        }else{
+            if (data.require_password) {
+    			loading.stop();
+
+        		password = site.ftp_pass;
+
+        		/*
+        		if (prefs.useMasterPassword) {
+        			if (password) {
+        				password = (Aes.Ctr.decrypt(password, shiftedit.app.storage.get('masterPassword'), 256));
+        			}
+        		}
+        		*/
+
+    			prompt.prompt({
+    			    title: 'Require server password for '+site.name,
+    			    msg: lang.passwordText,
+    			    value: password,
+    			    password: true,
+    			    fn: function(btn, password) {
+    			        switch(btn) {
+    			            case 'ok':
+                                /*
+    							var prefs = prefs.get_prefs();
+    							if (prefs.useMasterPassword) {
+    								if (params.password) {
+    									params.password = Aes.Ctr.encrypt(params.password, storage.get('masterPassword'), 256);
+    								}
+    							}
+    							*/
+
+    							open(siteId, password);
+			                break;
+    			        }
+    			    }
+    			});
             }else{
-                prompt.alert('Error', data.error);
+                prompt.alert({title:'Error', msg:data.error});
             }
-        });
+        }
+    }).fail(function() {
+        loading.stop();
+		prompt.alert({title:lang.failedText, msg:'Error opening site'});
+    });
+
+    return ajax;
 }
 
 function load() {
@@ -105,7 +168,7 @@ function getAjaxOptions(ajaxUrl) {
         	if( settings.web_url ){
         		ajaxUrl = settings.web_url+'shiftedit-proxy.php?ModPagespeed=off';
         	}else{
-        		prompt.alert(lang.errorText, 'Missing web URL');
+        		prompt.alert({title:lang.errorText, msg:'Missing web URL'});
         	}
 
     		//var prefs = shiftedit.app.get_prefs();
@@ -130,7 +193,7 @@ function getAjaxOptions(ajaxUrl) {
         }
 
         if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){
-            prompt.alert('Proxy Blocked', 'Click Shield icon in address bar, then "Load Unsafe Script"');
+            prompt.alert({title:'Proxy Blocked', msg:'Click Shield icon in address bar, then "Load Unsafe Script"'});
         }
     }
 
@@ -138,7 +201,7 @@ function getAjaxOptions(ajaxUrl) {
         site: settings.id,
         url: ajaxUrl,
         params: params
-    }
+    };
 }
 
 return {
