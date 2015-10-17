@@ -1,4 +1,4 @@
-define(["jquery.menubar",'app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt'], function () {
+define(["jquery.menubar",'app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var prefs = require('app/prefs').get_prefs();
@@ -6,6 +6,36 @@ var tabs = require('app/tabs');
 var storage = require('app/storage');
 var main = require('app/main');
 var prompt = require('app/prompt');
+var util = require('app/util');
+
+function toggleOptions(target) {
+    $("#menubar [data-target]").addClass('ui-state-disabled');
+
+    if(target) {
+        //get active tab
+        var tab = $('.ui-layout-center .ui-tabs-active');
+        var file = tab.attr('data-file');
+
+        if(!file)
+            return;
+
+        var extension = util.fileExtension(file);
+
+        $("#menubar [data-target='"+target+"']").each(function() {
+            var show = true;
+            var match = $(this).attr('data-match');
+            if(match) {
+                var r = new RegExp(match, "i");
+                if (!r.test(extension)){
+                    show = false;
+                }
+            }
+
+            if(show)
+                $(this).removeClass('ui-state-disabled');
+        });
+    }
+}
 
 //console.log(prefs);
 function init () {
@@ -37,7 +67,8 @@ function init () {
     			handler: function () {
     				tabs.save($('.ui-layout-center .ui-tabs-active'));
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     	    },
     		{
     			id: 'saveAs',
@@ -45,20 +76,29 @@ function init () {
     			handler: function () {
     				tabs.saveAs($('.ui-layout-center .ui-tabs-active'));
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'saveAll',
     			text: makeMenuText(lang.saveAllText + '...', 'Ctrl+Shift+S'),
     			handler: function () {
-    				shiftedit.app.tabs.saveAll();
+    				tabs.saveAll();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'minify',
     			text: lang.minify,
-    			disabled: true
+    			handler: function () {
+    				tabs.save($('.ui-layout-center .ui-tabs-active'),{
+    				    minify: true
+    				});
+    			},
+    			disabled: true,
+    			target: 'file',
+    			match: 'js|css'
     		},
     		{
     			id: 'download',
@@ -66,7 +106,8 @@ function init () {
     			handler: function () {
     				shiftedit.app.tabs.download();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'revertToOriginal',
@@ -77,23 +118,27 @@ function init () {
     					editor.setValue(editor.original);
     				}
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'revisionHistory',
     			text: lang.revisionHistoryText,
     			disabled: true,
-    			hidden: true
+    			hidden: true,
+    			target: 'file'
     		},
     		{
     			id: 'validate',
     			text: lang.validateText,
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		}, '-',
     		{
     			id: 'print',
     			text: makeMenuText(lang.print+'...', 'Ctrl+P'),
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		}]
         },
     	 "edit": {
@@ -104,7 +149,8 @@ function init () {
     			handler: function () {
     				shiftedit.app.tabs.get_editor().gotoLine();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		}, '-',
     		{
     			id: 'toggleBreakpoint',
@@ -113,7 +159,8 @@ function init () {
     				shiftedit.app.tabs.get_editor().toggleBreakpoint();
     				shiftedit.app.tabs.get_editor().focus();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'nextBreakpoint',
@@ -122,7 +169,8 @@ function init () {
     				shiftedit.app.tabs.get_editor().nextBreakpoint();
     				shiftedit.app.tabs.get_editor().focus();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'prevBreakpoint',
@@ -131,7 +179,8 @@ function init () {
     				shiftedit.app.tabs.get_editor().prevBreakpoint();
     				shiftedit.app.tabs.get_editor().focus();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'clearBreakpoints',
@@ -140,7 +189,8 @@ function init () {
     				shiftedit.app.tabs.get_editor().clearBreakpoints();
     				shiftedit.app.tabs.get_editor().focus();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		}, '-',
     		{
     			id: 'toggleComment',
@@ -149,7 +199,8 @@ function init () {
     				shiftedit.app.tabs.get_editor().toggleComment();
     				shiftedit.app.tabs.get_editor().focus();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'jumpToMatching',
@@ -158,7 +209,8 @@ function init () {
     				shiftedit.app.tabs.get_editor().editor.jumpToMatching();
     				shiftedit.app.tabs.get_editor().focus();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		{
     			id: 'selectToMatching',
@@ -167,7 +219,8 @@ function init () {
     				shiftedit.app.tabs.get_editor().editor.jumpToMatching(true);
     				shiftedit.app.tabs.get_editor().focus();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},
     		'-',
     		{
@@ -180,84 +233,96 @@ function init () {
     				handler: function () {
     					shiftedit.app.tabs.get_editor().collapseSelection();
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			},{
     				id: 'expandSelection',
     				text: makeMenuText(lang.expandSelection, 'Ctrl+Shift+E'),
     				handler: function () {
     					shiftedit.app.tabs.get_editor().expandSelection();
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			}, '-',{
     				id: 'applyHTMLComment',
     				text: lang.applyHTMLComment,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().wrapSelection('<!--', '-->');
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			},{
     				id: 'applySlashStarComment',
     				text: lang.applySlashStarComment,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().wrapSelection('/*', '*/');
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			},{
     				id: 'applySlashComment',
     				text: lang.applySlashComment,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().prependLineSelection('//');
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			}, '-',{
     				id: 'convertSingleQuotes',
     				text: lang.convertSingleQuotes,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().replaceInSelection('\'', '"');
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			},{
     				id: 'convertDoubleQuotes',
     				text: lang.convertDoubleQuotes,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().replaceInSelection('"', '\'');
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			},{
     				id: 'convertTabs',
     				text: 'Convert Tabs To Spaces',
     				handler: function () {
     					shiftedit.app.tabs.get_editor().replaceInSelection('	', '  ');
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			},{
     				id: 'convertSpaces',
     				text: lang.convertSpaces,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().replaceInSelection('  ', '	');
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			},{
     				id: 'addLineBreaks',
     				text: lang.addLineBreaks,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().appendLineSelection('<br>');
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			}, '-',{
     				id: 'convertToUppercase',
     				text: lang.convertToUppercase,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().selectionToUppercase();
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			},{
     				id: 'convertToLowercase',
     				text: lang.convertToLowercase,
     				handler: function () {
     					shiftedit.app.tabs.get_editor().selectionToLowercase();
     				},
-    				disabled: true
+    				disabled: true,
+    			    target: 'file'
     			}],
     			handler: function () {
     				return false;
@@ -268,49 +333,56 @@ function init () {
     			handler: function () {
     				shiftedit.app.tabs.get_editor().copyLinesUp();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},{
     			id: 'copyLinesDown',
     			text: makeMenuText(lang.copyLinesDown, 'Shift+Alt+Down'),
     			handler: function () {
     				shiftedit.app.tabs.get_editor().copyLinesDown();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},{
     			id: 'moveLinesUp',
     			text: makeMenuText(lang.moveLinesUp, 'Alt+Up'),
     			handler: function () {
     				shiftedit.app.tabs.get_editor().moveLinesUp();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},{
     			id: 'moveLinesDown',
     			text: makeMenuText(lang.moveLinesDown, 'Alt+Down'),
     			handler: function () {
     				shiftedit.app.tabs.get_editor().moveLinesDown();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		},{
     			id: 'deleteLines',
     			text: makeMenuText(lang.deleteLines, 'Ctrl+D'),
     			handler: function () {
     				shiftedit.app.tabs.get_editor().deleteLines();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		}, '-',{
     			id: 'addSemicolon',
     			text: makeMenuText(lang.addSemicolon, 'Ctrl+;'),
     			handler: function () {
     				shiftedit.app.tabs.get_editor().addSemicolon();
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		}, {
     			id: 'applySourceFormatting',
     			text: makeMenuText('Beautify', 'Alt+Shift+F'),
     			handler: function () {
     				shiftedit.app.tabs.get_editor().exec('applySourceFormatting');
     			},
-    			disabled: true
+    			disabled: true,
+    			target: 'file'
     		}, {
     			text: makeMenuText(lang.preferencesText, 'Ctrl+U'),
     			scope: this,
@@ -786,6 +858,14 @@ function init () {
                     item.addClass('ui-state-disabled');
                 }
 
+                if(menu[i].target) {
+                    item.attr('data-target', menu[i].target);
+                }
+
+                if(menu[i].match) {
+                    item.attr('data-match', menu[i].match);
+                }
+
                 if(menu[i].handler) {
                     item.children('a').click(menu[i].handler);
                 }
@@ -814,6 +894,12 @@ function init () {
         //    within: $("#demo-frame").add(window).first()
         //},
         //select: select
+    });
+
+    $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ toggleOptions('file') } );
+    $( ".ui-layout-center" ).on( "tabsremove", function(e, ui){
+        if (!$('.ui-layout-center .ui-tabs-active').length)
+            toggleOptions(false);
     });
 }
 
