@@ -20,13 +20,13 @@ function init() {
     			}
     		},*/
             'data' : function (node, callback) {
-                //console.log(node);
+                console.log(node);
 
                 if(!options.url){
                     return false;
                 }
 
-        		$.ajax(options.url+'&cmd=list', {
+        		$.ajax(options.url+'&cmd=list&path='+encodeURIComponent(node.id), {
         		    method: 'POST',
         		    dataType: 'json',
         		    data: options.params,
@@ -273,7 +273,7 @@ function init() {
 		        prompt.alert('Error', d.error);
 		    }else{
     		    data.instance.set_id(data.node, params.newname);
-		        $('#tree').trigger('rename', params)
+		        $('#tree').trigger('rename', params);
 		    }
     	})
     	.fail(function () {
@@ -312,15 +312,17 @@ function init() {
         var selected = instance.get_selected();
         var items = instance.settings.contextmenu.items(selected);
         for(var i in items){
-            if(items[i].shortcut === e.which) {
-                items[i].action({reference:reference});
-            }
+            if (items.hasOwnProperty(i)) {
+                if(items[i].shortcut === e.which) {
+                    items[i].action({reference:reference});
+                }
 
-            if(items[i].submenu){
-                var submenu_items = items[i].submenu;
-                for(var j in submenu_items){
-                    if(submenu_items[j].shortcut === e.which) {
-                        submenu_items[j].action({reference:reference});
+                if(items[i].submenu){
+                    var submenu_items = items[i].submenu;
+                    for(var j in submenu_items){
+                        if(submenu_items[j].shortcut === e.which) {
+                            submenu_items[j].action({reference:reference});
+                        }
                     }
                 }
             }
@@ -330,14 +332,17 @@ function init() {
         var reference = this;
         var instance = $.jstree.reference(this);
         var selected = instance.get_selected();
+        var obj = instance.get_node(reference);
+
+        if(obj.icon==="folder") {
+            return;
+        }
 
     	if(selected && selected.length) {
     	    var file = selected.join(':');
     	    tabs.open(file, options.site);
     	}
-
-        // do stuff...
-    });
+    })
     /*
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
