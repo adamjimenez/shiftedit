@@ -134,6 +134,10 @@ function saveFiles(options) {
     if (!Object.keys(saving).length)
         return;
 
+    if (!options) {
+        options = {};
+    }
+
     var tab = saving[Object.keys(saving)[0]];
 
     console.log('save');

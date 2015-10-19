@@ -1,5 +1,7 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors'], function (tabs, exports) {
 var util = require('app/util');
+var syntax_errors = require('app/syntax_errors');
+var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var editor;
 
@@ -56,7 +58,16 @@ function create(file, content, siteId, options) {
     }
 
     //create tab
-	tab = $(".ui-layout-center").tabs('add', file, '<div class="editor"></div>');
+	tab = $(".ui-layout-center").tabs('add', file, '<div class="editor_status" data-currentError="0">\
+    <button class="previous" type="button" disabled>\
+    <i class="fa fa-arrow-left"></i></button> \
+    <button class="next" type="button" disabled>\
+    <i class="fa fa-arrow-right"></i></button> \
+    <button class="fix" type="button" disabled>Fix</button> \
+    <span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
+	</div>\
+	\
+	<div class="editor"></div>');
 	tab.data(file, file);
 	tab.attr('data-file', file);
 	tab.attr('title', file);
@@ -74,8 +85,17 @@ function create(file, content, siteId, options) {
     $(".ui-layout-center").trigger("tabsactivate", [{newTab:tab}]);
 
 	//load ace
+
+	//fixme panels can be in other tabarea
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-	editor = ace.edit(panel.children('div')[0]);
+	editor = ace.edit(panel.children('.editor')[0]);
+	var session = editor.getSession();
+
+	//syntax bar handlers
+	panel.find('.previous').click(jQuery.proxy(syntax_errors.previous, tab));
+
+	panel.find('.next').click(jQuery.proxy(syntax_errors.next, tab));
+
 	editor.setTheme("ace/theme/monokai");
 
 	//set mode
@@ -96,6 +116,7 @@ function create(file, content, siteId, options) {
     //event listeners
 	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
 	editor.getSession().on('changeFold', jQuery.proxy(saveFolds, tab));
+	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
 
 	//shortcuts
 	//save
@@ -141,10 +162,6 @@ function create(file, content, siteId, options) {
 	}
 
 	editor.focus();
-}
-
-function focus() {
-    editor.focus();
 }
 
 function restoreState(state) {
