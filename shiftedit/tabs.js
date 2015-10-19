@@ -1,4 +1,4 @@
-define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent'], function (editor,exports) {
+define(['app/editors', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent'], function (editors,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -82,7 +82,7 @@ function openFiles(callback) {
 					case 'css':
 					case 'html':
 						//console.log('load');
-						editor.create(file, data.content, options.site, data);
+						editors.create(file, data.content, options.site, data);
 						recent.add(file, options.site);
 
 						/*
@@ -432,7 +432,7 @@ function newTab (e, ui) {
         return;
     }
 
-    var editor = require('app/editor');
+    var editors = require('app/editors');
 
     var panel = $(ui.panel);
 

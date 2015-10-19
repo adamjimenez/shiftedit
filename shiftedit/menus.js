@@ -32,7 +32,13 @@ define(["jquery.menubar"], function () {
                 }
 
                 if(menu[i].handler) {
-                    item.children('a').click(jQuery.proxy(menu[i].handler, undefined, context));
+                    item.click(jQuery.proxy(menu[i].handler, undefined, context));
+
+                    //tick the input
+                    item.click(function(){
+
+                        $(this).find('input').prop("checked", true);
+                    });
                 }
 
                 if(menu[i].cls) {
@@ -40,9 +46,13 @@ define(["jquery.menubar"], function () {
                 }
 
                 if(menu[i].group) {
-                    item.children('a').prepend('<input type="radio">');
+                    item.children('a').prepend('<input type="radio" name="'+menu[i].group+'">');
                 }else if(typeof menu[i].checked === "boolean") {
                     item.children('a').prepend('<input type="checkbox">');
+                }
+
+                if(menu[i].checked) {
+                    item.find('input').attr('checked', 'checked');
                 }
 
                 if(typeof menu[i].items === 'object'){

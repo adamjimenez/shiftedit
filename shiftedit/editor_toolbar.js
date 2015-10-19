@@ -1,4 +1,4 @@
-define(["app/menus", "app/tabs"], function (menus, tabs) {
+define(["app/menus", "app/tabs", "app/editors"], function (menus, tabs, editors) {
 	var menu = [{
 		tooltip: 'Save',
 		text: '<i class="fa fa-save"></i>',
@@ -33,54 +33,48 @@ define(["app/menus", "app/tabs"], function (menus, tabs) {
 		items: [{
 			text: 'None',
 			checked: true,
-			checkHandler: function (item, checked) {
-				if (checked) {
-					var editor = shiftedit.app.tabs.get_editor();
-					var sp = editor.editor.split;
-					if (sp.getSplits() == 2) {
-						secondSession = sp.getEditor(1).session;
-					}
-					sp.setSplits(1);
+			handler: function (item, checked) {
+				var editor = tabs.getEditor(tab);
+				var sp = window.splits[tab.attr('id')];
+				if (sp.getSplits() == 2) {
+					secondSession = sp.getEditor(1).session;
 				}
+				sp.setSplits(1);
 			},
 			group: 'codeSplit'
 		}, {
 			text: 'Below',
 			checked: false,
-			checkHandler: function (item, checked) {
-				if (checked) {
-					var secondSession = null;
-					var editor = shiftedit.app.tabs.get_editor();
-					var sp = editor.editor.split;
-					var newEditor = (sp.getSplits() == 1);
-					sp.setOrientation(sp.BELOW);
-					sp.setSplits(2);
-					if (newEditor) {
-						var session = secondSession || sp.getEditor(0).session;
-						var newSession = sp.setSession(session, 1);
-						newSession.name = session.name;
-						editor.applyEditorPrefs();
-					}
+			handler: function (tab) {
+				var secondSession = null;
+				var editor = tabs.getEditor(tab);
+				var sp = window.splits[tab.attr('id')];
+				var newEditor = (sp.getSplits() == 1);
+				sp.setOrientation(sp.BELOW);
+				sp.setSplits(2);
+				if (newEditor) {
+					var session = secondSession || sp.getEditor(0).session;
+					var newSession = sp.setSession(session, 1);
+					newSession.name = session.name;
+					editors.refresh(tab);
 				}
 			},
 			group: 'codeSplit'
 		}, {
 			text: 'Beside',
 			checked: false,
-			checkHandler: function (item, checked) {
-				if (checked) {
-					var secondSession = null;
-					var editor = shiftedit.app.tabs.get_editor();
-					var sp = editor.editor.split;
-					var newEditor = (sp.getSplits() == 1);
-					sp.setOrientation(sp.BESIDE);
-					sp.setSplits(2);
-					if (newEditor) {
-						var session = secondSession || sp.getEditor(0).session;
-						var newSession = sp.setSession(session, 1);
-						newSession.name = session.name;
-						editor.applyEditorPrefs();
-					}
+			handler: function (tab) {
+				var secondSession = null;
+				var editor = tabs.getEditor(tab);
+				var sp = window.splits[tab.attr('id')];
+				var newEditor = (sp.getSplits() == 1);
+				sp.setOrientation(sp.BESIDE);
+				sp.setSplits(2);
+				if (newEditor) {
+					var session = secondSession || sp.getEditor(0).session;
+					var newSession = sp.setSession(session, 1);
+					newSession.name = session.name;
+					editors.refresh(tab);
 				}
 			},
 			group: 'codeSplit'
