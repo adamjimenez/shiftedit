@@ -86,7 +86,7 @@ define(["app/menus", "app/tabs"], function (menus, tabs) {
 			group: 'codeSplit'
 		}]
 	}, {
-	    text: 'Language',
+	    text: 'Mode',
 		xtype: 'combobox',
 		id: 'language',
 		displayField: 'label',
