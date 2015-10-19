@@ -1,4 +1,4 @@
-define(["jquery.menubar",'app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util'], function () {
+define(["jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var prefs = require('app/prefs').get_prefs();
@@ -7,6 +7,7 @@ var storage = require('app/storage');
 var main = require('app/main');
 var prompt = require('app/prompt');
 var util = require('app/util');
+var menus = require('app/menus');
 
 var themes = [{
 	title: "Black Tie",
@@ -976,70 +977,7 @@ function init () {
 
     };
 
-    function buildMenu(el, menu){
-        for(var i in menu) {
-            if(menu[i]==='-') {
-                el.append('<li>-</li>');
-            }else{
-                var item = $('<li>\
-                    <a href="#'+i+'">'+menu[i].text+'</a>\
-                </li>').appendTo(el);
-
-                if(menu[i].disabled) {
-                    item.addClass('ui-state-disabled');
-                }
-
-                if(menu[i].name) {
-                    item.attr('data-name', menu[i].name);
-                }
-
-                if(menu[i].target) {
-                    item.attr('data-target', menu[i].target);
-                }
-
-                if(menu[i].match) {
-                    item.attr('data-match', menu[i].match);
-                }
-
-                if(menu[i].handler) {
-                    item.children('a').click(menu[i].handler);
-                }
-
-                if(menu[i].cls) {
-                    item.addClass(menu[i].cls);
-                }
-
-                if(menu[i].group) {
-                    item.children('a').prepend('<input type="radio">');
-                }else if(typeof menu[i].checked === "boolean") {
-                    item.children('a').prepend('<input type="checkbox">');
-                }
-
-                if(typeof menu[i].items === 'object'){
-                    var submenu = $('<ul></ul').appendTo(item);
-                    buildMenu(submenu, menu[i].items);
-                }
-            }
-        }
-    }
-
-    buildMenu($("#menubar"), menu);
-
-    /*
-    function select(event, ui) {
-        console.log("Selected: " + ui.item.text());
-    }
-    */
-
-    $("#menubar").menubar({
-        autoExpand: true,
-        menuIcon: true,
-        buttons: false,
-        //position: {
-        //    within: $("#demo-frame").add(window).first()
-        //},
-        //select: select
-    });
+    menus.create($("#menubar"), menu);
 
     function updateTheme(name){
         var url;

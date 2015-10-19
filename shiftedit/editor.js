@@ -1,9 +1,10 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar"], function (tabs, exports) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var editor;
+var editor_toolbar = require('app/editor_toolbar');
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -58,7 +59,8 @@ function create(file, content, siteId, options) {
     }
 
     //create tab
-	tab = $(".ui-layout-center").tabs('add', file, '<div class="editor_status" data-currentError="0">\
+	tab = $(".ui-layout-center").tabs('add', file, '<div class="editor_toolbar"></div>\
+	<div class="editor_status" data-currentError="0">\
     <button class="previous" type="button" disabled>\
     <i class="fa fa-arrow-left"></i></button> \
     <button class="next" type="button" disabled>\
@@ -68,6 +70,7 @@ function create(file, content, siteId, options) {
 	</div>\
 	\
 	<div class="editor"></div>');
+
 	tab.data(file, file);
 	tab.attr('data-file', file);
 	tab.attr('title', file);
@@ -88,6 +91,9 @@ function create(file, content, siteId, options) {
 
 	//fixme panels can be in other tabarea
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+
+	editor_toolbar.create(tab);
+
 	editor = ace.edit(panel.children('.editor')[0]);
 	var session = editor.getSession();
 
