@@ -26,7 +26,7 @@ function onGutterClick(e, editor) {
         			s.setBreakpoint(row);
         		}
 
-				e.stop()
+				e.stop();
 			}
 		}
 	}

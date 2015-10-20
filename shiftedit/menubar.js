@@ -353,8 +353,7 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.toggleComment();
-    				editor.focus();
+					editor.toggleCommentLines();
     			},
     			disabled: true,
     			target: 'file'
@@ -365,7 +364,7 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.editor.jumpToMatching();
+    				editor.jumpToMatching();
     				editor.focus();
     			},
     			disabled: true,
@@ -377,7 +376,7 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.editor.jumpToMatching(true);
+    				editor.jumpToMatching(true);
     				editor.focus();
     			},
     			disabled: true,
@@ -559,7 +558,7 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.deleteLines();
+					editor.commands.exec('removeline', editor);
     			},
     			disabled: true,
     			target: 'file'
@@ -569,7 +568,7 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.addSemicolon();
+					editor.commands.exec('addSemicolon', editor);
     			},
     			disabled: true,
     			target: 'file'
@@ -579,7 +578,7 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.exec('applySourceFormatting');
+    				editor.commands.exec('beautify', editor);
     			},
     			disabled: true,
     			target: 'file'
