@@ -185,7 +185,7 @@ function init () {
     		{
     			text: makeMenuText(lang.open + '...', 'Ctrl+O'),
     			handler: function () {
-    				shiftedit.app.tabs.fileSearch();
+    				tabs.fileSearch();
     			}
     		},
     		{
@@ -394,7 +394,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.collapseSelection();
+					    editor.commands.exec('fold', editor);
     				},
     				disabled: true,
     			    target: 'file'
@@ -404,7 +404,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.expandSelection();
+					    editor.commands.exec('unfold', editor);
     				},
     				disabled: true,
     			    target: 'file'
@@ -414,7 +414,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.wrapSelection('<!--', '-->');
+					    editor.commands.exec('wrapSelection', editor, ['<!--', '-->']);
     				},
     				disabled: true,
     			    target: 'file'
@@ -424,7 +424,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.wrapSelection('/*', '*/');
+					    editor.commands.exec('wrapSelection', editor, ['/*', '*/']);
     				},
     				disabled: true,
     			    target: 'file'
@@ -434,7 +434,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.prependLineSelection('//');
+					    editor.commands.exec('prependLineSelection', editor, ['//']);
     				},
     				disabled: true,
     			    target: 'file'
@@ -444,7 +444,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.replaceInSelection('\'', '"');
+					    editor.commands.exec('replaceInSelection', editor, ['\'', '"']);
     				},
     				disabled: true,
     			    target: 'file'
@@ -454,7 +454,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.replaceInSelection('"', '\'');
+					    editor.commands.exec('replaceInSelection', editor, ['"', "\'"]);
     				},
     				disabled: true,
     			    target: 'file'
@@ -464,7 +464,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.replaceInSelection('	', '  ');
+					    editor.commands.exec('replaceInSelection', editor, ["\t", "    "]);
     				},
     				disabled: true,
     			    target: 'file'
@@ -474,7 +474,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.replaceInSelection('  ', '	');
+					    editor.commands.exec('replaceInSelection', editor, ["    ", "\t"]);
     				},
     				disabled: true,
     			    target: 'file'
@@ -484,7 +484,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.appendLineSelection('<br>');
+					    editor.commands.exec('appendLineSelection', editor, ['<br>']);
     				},
     				disabled: true,
     			    target: 'file'
@@ -494,7 +494,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.selectionToUppercase();
+					    editor.commands.exec('selectionToUppercase', editor);
     				},
     				disabled: true,
     			    target: 'file'
@@ -504,7 +504,7 @@ function init () {
     				handler: function () {
         			    var tab = $('.ui-layout-center .ui-tabs-active');
         			    var editor = tabs.getEditor(tab);
-    					editor.selectionToLowercase();
+					    editor.commands.exec('selectionToLowercase', editor);
     				},
     				disabled: true,
     			    target: 'file'
@@ -600,7 +600,7 @@ function init () {
     				checked: Boolean(prefs.standardToolbar), // when checked has a boolean value, it is assumed to be a CheckItem
     				checkHandler: function (item, checked) {
     					var tabs = Ext.getCmp('tabs');
-    					var indexes = shiftedit.app.tabs.indexes;
+    					var indexes = tabs.indexes;
     					var tbar;
 
     					Ext.each(tabs.items.items, function (tab) {
@@ -615,7 +615,7 @@ function init () {
     						}
     					});
     					prefs.standardToolbar = checked;
-    					shiftedit.app.preferences.save();
+    					preferences.save();
     				}
     			},{
     				id: 'syntaxErrors',
@@ -623,7 +623,7 @@ function init () {
     				checked: Boolean(prefs.syntaxErrors), // when checked has a boolean value, it is assumed to be a CheckItem
     				checkHandler: function (item, checked) {
     					var tabs = Ext.getCmp('tabs');
-    					var indexes = shiftedit.app.tabs.indexes;
+    					var indexes = tabs.indexes;
     					var tbar;
 
     					Ext.each(tabs.items.items, function (tab) {
@@ -633,7 +633,7 @@ function init () {
     					});
 
     					prefs.syntaxErrors = checked;
-    					shiftedit.app.preferences.save();
+    					preferences.save();
     				}
     			}]
         	}, {
@@ -672,7 +672,7 @@ function init () {
         		id: 'customCodeTheme',
         		text: 'Custom Theme',
         		handler: function () {
-        			shiftedit.app.tabs.open('customTheme.css', prefs.customTheme, 0);
+        			tabs.open('customTheme.css', prefs.customTheme, 0);
         		},
         		iconCls: 'blist'
         	}, {
@@ -681,7 +681,7 @@ function init () {
         		checked: Boolean(prefs.wordWrap), // when checked has a boolean value, it is assumed to be a CheckItem
         		checkHandler: function (item, checked) {
         			prefs.wordWrap = checked;
-        			shiftedit.app.preferences.save();
+        			preferences.save();
         		}
         	}, {
         		id: 'fullLineSelection',
@@ -689,7 +689,7 @@ function init () {
         		checked: Boolean(prefs.fullLineSelection), // when checked has a boolean value, it is assumed to be a CheckItem
         		checkHandler: function (item, checked) {
         			prefs.fullLineSelection = checked;
-        			shiftedit.app.preferences.save();
+        			preferences.save();
         		}
         	}, {
         		id: 'highlightActiveLine',
@@ -697,7 +697,7 @@ function init () {
         		checked: Boolean(prefs.highlightActiveLine), // when checked has a boolean value, it is assumed to be a CheckItem
         		checkHandler: function (item, checked) {
         			prefs.highlightActiveLine = checked;
-        			shiftedit.app.preferences.save();
+        			preferences.save();
         		}
         	}, {
         		id: 'showInvisibles',
@@ -705,7 +705,7 @@ function init () {
         		checked: Boolean(prefs.showInvisibles), // when checked has a boolean value, it is assumed to be a CheckItem
         		checkHandler: function (item, checked) {
         			prefs.showInvisibles = checked;
-        			shiftedit.app.preferences.save();
+        			preferences.save();
         		}
         	}, {
         		id: 'lineNumbers',
@@ -713,7 +713,7 @@ function init () {
         		checked: Boolean(prefs.lineNumbers), // when checked has a boolean value, it is assumed to be a CheckItem
         		checkHandler: function (item, checked) {
         			prefs.lineNumbers = checked;
-        			shiftedit.app.preferences.save();
+        			preferences.save();
         		}
         	}, {
         		id: 'printMargin',
@@ -721,7 +721,7 @@ function init () {
         		checked: Boolean(prefs.printMargin), // when checked has a boolean value, it is assumed to be a CheckItem
         		checkHandler: function (item, checked) {
         			prefs.printMargin = checked;
-        			shiftedit.app.preferences.save();
+        			preferences.save();
         		}
         	}, {
         		id: 'fileColumns',
@@ -729,7 +729,7 @@ function init () {
         		checked: Boolean(prefs.fileColumns), // when checked has a boolean value, it is assumed to be a CheckItem
         		checkHandler: function (item, checked) {
         			prefs.fileColumns = checked;
-        			shiftedit.app.preferences.save();
+        			preferences.save();
         		}
         	}]
     	},
@@ -917,8 +917,8 @@ function init () {
     				return;
     			}
 
-    			var site = shiftedit.app.tabs.openSites[tab.id];
-    			var file = shiftedit.app.tabs.openFiles[tab.id];
+    			var site = tabs.openSites[tab.id];
+    			var file = tabs.openFiles[tab.id];
 
     			//share window
     			var shareWin = new Ext.Window({
@@ -991,7 +991,7 @@ function init () {
     										var editor = editor;
     										editor.removeFirepad();
 
-    										if( tab.shared || shiftedit.app.site.shared[site] ){
+    										if( tab.shared || site.shared[site] ){
     											var content = editor.getValue();
     											editor.setValue('');
     											editor.addFirepad(content);
@@ -1021,7 +1021,7 @@ function init () {
     		cls: 'shareBtn',
     		disabled: true
     	}, {
-    		text: shiftedit.app.storage.get('username'),
+    		text: storage.get('username'),
     		items: [{
     			text: lang.updateDetailsText,
     			handler: function () {
@@ -1035,11 +1035,11 @@ function init () {
     		}]
     	},{
     		id: 'goPremier',
-    		text: (shiftedit.app.storage.get('edition') == 'Trial' ? 'Trial Period' : 'Go Premier'),
+    		text: (storage.get('edition') == 'Trial' ? 'Trial Period' : 'Go Premier'),
     		handler: function () {
     			window.open('premier');
     		},
-    		hidden: (shiftedit.app.storage.get('premier') == 'true')
+    		hidden: (storage.get('premier') == 'true')
     	}
     */
 

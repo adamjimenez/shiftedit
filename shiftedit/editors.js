@@ -355,6 +355,72 @@ function create(file, content, siteId, options) {
 		}
 	});
 
+	editor.commands.addCommand({
+		name: "wrapSelection",
+		exec: function (editor, args, request) {
+		    var start = args[0];
+		    var end = args[1];
+
+    		var text = editor.getSelectedText();
+
+    		if (
+    		text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
+    			text = text.substr(start.length, text.length - start.length - end.length);
+    		} else {
+    			text = start + text + end;
+    		}
+
+    		editor.insert(text, true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "prependLineSelection",
+		exec: function (editor, args, request) {
+		    var string = args[0];
+
+    		var text = editor.getSelectedText();
+    		editor.insert(string + text.replace(new RegExp("\n", 'g'), "\n" + string), true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "appendLineSelection",
+		exec: function (editor, args, request) {
+		    var string = args[0];
+
+    		var text = editor.getSelectedText();
+    		editor.insert(text.replace(new RegExp("\n", 'g'), string + "\n") + string, true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "replaceInSelection",
+		exec: function (editor, args, request) {
+		    var needle = args[0];
+		    var replacement = args[0];
+
+    		var text = editor.getSelectedText();
+    		editor.insert(text.replace(new RegExp(needle, 'g'), replacement), true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "selectionToUppercase",
+		exec: function (editor, args, request) {
+    		var text = editor.getSelectedText();
+    		editor.insert(text.toUpperCase(), true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "selectionToLowercase",
+		exec: function (editor, args, request) {
+    		var text = editor.getSelectedText();
+    		editor.insert(text.toLowerCase(), true);
+		}
+	});
+
 	//move cursor to top
 	var startLine = 0;
 
