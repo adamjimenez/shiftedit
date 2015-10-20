@@ -408,7 +408,11 @@ function init () {
     			id: 'print',
     			text: makeMenuText(lang.print+'...', 'Ctrl+P'),
     			disabled: true,
-    			target: 'file'
+    			target: 'file',
+    			handler: function() {
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+			        window.open('/print?s=' + tab.attr('data-site') + '&f=' + tab.attr('data-file'));
+    			}
     		}]
         },
     	 "edit": {
