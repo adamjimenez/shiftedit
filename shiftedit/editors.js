@@ -1,17 +1,39 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split','app/prompt','app/editor_contextmenu'], function (tabs, exports) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var editor;
 var editor_toolbar = require('app/editor_toolbar');
+var editor_contextmenu = require('app/editor_contextmenu');
+var prompt = require('app/prompt');
 
 function onChange(e) {
     var tabs = require("app/tabs");
 	tabs.setEdited(this, true);
 }
 
-function saveFolds() {
+function onGutterClick(e, editor) {
+	if( e.domEvent.button == 2 ){
+		var s = editor.getSession();
+		var className =  e.domEvent.target.className;
+		if (className.indexOf('ace_fold-widget') < 0) {
+			if (className.indexOf("ace_gutter-cell") != -1) {
+				var row = e.getDocumentPosition().row;
+
+        		if( s.$breakpoints[row] ){
+        			s.clearBreakpoint(row);
+        		}else{
+        			s.setBreakpoint(row);
+        		}
+
+				e.stop();
+			}
+		}
+	}
+}
+
+function saveState() {
 	var site = $(this).attr('data-site');
 	var file = $(this).attr('data-file');
 
@@ -50,6 +72,44 @@ function saveFolds() {
 			file: file,
 			state: JSON.stringify(state)
 		});
+	}
+}
+
+function restoreState(state) {
+	//restore folds and breakpoints
+	if (state) {
+		console.log('restore state');
+		state = JSON.parse(state);
+
+		var Range = require("ace/range").Range;
+		var session = editor.getSession();
+		//are those 3 lines set the values in per document base or are global for editor
+		editor.selection.setSelectionRange(state.selection, false);
+		session.setScrollTop(state.scrolltop);
+		session.setScrollLeft(state.scrollleft);
+		if (state.folds) {
+			for (var i = 0, l = state.folds.length; i < l; i++) {
+				var fold = state.folds[i];
+				//console.log(fold);
+				var range = Range.fromPoints(fold.start, fold.end);
+				//console.log(range);
+				session.addFold(fold.placeholder, range);
+			}
+		}
+
+		// if newfile == 1 and there is text cached, restore it
+		var node = session.getNode && session.getNode();
+		if (node && parseInt(node.getAttribute("newfile") || 0, 10) === 1 && node.childNodes.length) {
+			// the text is cached within a CDATA block as first childNode of the <file>
+			if (session.getNode().childNodes[0] instanceof CDATASection) {
+				session.setValue(doc.getNode().childNodes[0].nodeValue);
+			}
+		}
+
+		//console.log(state.breakpoints);
+		if(state.breakpoints){
+			session.setBreakpoints(state.breakpoints);
+		}
 	}
 }
 
@@ -95,6 +155,8 @@ function create(file, content, siteId, options) {
 	    tab.attr('data-mdate', options.mdate);
 	}
 
+    tab.data('original', content);
+
     $(".ui-layout-center").trigger("tabsactivate", [{newTab:tab}]);
 
 	//load ace
@@ -104,7 +166,7 @@ function create(file, content, siteId, options) {
 
 	// Splitting
 	var container = panel.children('.editor')[0];
-	editor = ace.edit(container);
+	//editor = ace.edit(container);
 
 	var Split = require("ace/split").Split;
 	var theme = require("ace/theme/textmate");
@@ -140,13 +202,18 @@ function create(file, content, siteId, options) {
 	editor.getSession().setMode("ace/mode/"+mode);
 	editor.getSession().getDocument().setValue(content);
 
+	//clear history //fixes undo redo when using split
+	var UndoManager = require("ace/undomanager").UndoManager;
+	editor.getSession().setUndoManager(new UndoManager());
+
     //event listeners
 	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
-	editor.getSession().on('changeFold', jQuery.proxy(saveFolds, tab));
+	editor.getSession().on('changeFold', jQuery.proxy(saveState, tab));
+	editor.getSession().on('changeBreakpoint', jQuery.proxy(saveState, tab));
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
+	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 
 	//shortcuts
-	//save
 	editor.commands.addCommand({
 		name: "save",
 		bindKey: {
@@ -168,6 +235,220 @@ function create(file, content, siteId, options) {
 		exec: jQuery.proxy(function (editor, args, request) {
 			return tabs.saveAs(this);
 		}, tab)
+	});
+	editor.commands.addCommand({
+		name: "gotoLinePrompt",
+		bindKey: {
+			win: "Ctrl-G",
+			mac: "Command-G",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			prompt.prompt({
+			    title: 'Go to Line',
+			    fn :function (button, line) {
+    				if (button == 'ok') {
+    					editor.gotoLine(line);
+    					setTimeout(function(){editor.focus()}, 50);
+    				}
+			    }
+			});
+			return true;
+		}
+	});
+	editor.commands.addCommand({
+		name: "toggleBreakpoint",
+		bindKey: {
+			win: "Ctrl-F2|Alt-b",
+			mac: "Command-F2|Alt-b",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			var cursor = editor.getCursorPosition();
+			row = cursor.row;
+
+    		var s = editor.getSession();
+
+    		if( s.$breakpoints[row] ){
+    			s.clearBreakpoint(row);
+    		}else{
+    			s.setBreakpoint(row);
+    		}
+		}
+	});
+	editor.commands.addCommand({
+		name: "nextBreakpoint",
+		bindKey: {
+			win: "F2|Ctrl-b",
+			mac: "F2|Command-b",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+    		var breakpoints = editor.getSession().$breakpoints;
+
+    		var cursor = editor.getCursorPosition();
+    		var row = cursor.row;
+
+    		var real_breakpoints = [];
+
+    		for( var i=0; i<breakpoints.length; i++ ) {
+    			if(breakpoints[i]=='ace_breakpoint') {
+    				if( i>row ){
+    					editor.gotoLine(i+1);
+    					return;
+    				}
+
+    				real_breakpoints.push(i);
+    			}
+    		}
+
+    		//go back to beginning
+    		if( real_breakpoints[0] ){
+    			editor.gotoLine(real_breakpoints[0]+1);
+    		}
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "prevBreakpoint",
+		bindKey: {
+			win: "Shift-F2|Ctrl-Shift-b",
+			mac: "Shift-F2|Command-Shift-b",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+    		var breakpoints = editor.getSession().$breakpoints;
+
+    		var cursor = editor.getCursorPosition();
+    		var row = cursor.row;
+
+    		var real_breakpoints = [];
+
+    		for( var i=breakpoints.length; i>0; i-- ) {
+    			if(breakpoints[i]=='ace_breakpoint') {
+    				if( i<row ){
+    					editor.gotoLine(i+1);
+    					return;
+    				}
+
+    				real_breakpoints.push(i);
+    			}
+    		}
+
+
+    		if( real_breakpoints[0] ){
+    			editor.gotoLine(real_breakpoints[0]+1);
+    		}
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "clearBreakpoints",
+		exec: function (editor, args, request) {
+    		if(typeof row === "undefined"){
+    			var cursor = editor.getCursorPosition();
+    			row = cursor.row;
+    		}
+
+    		var s = editor.getSession();
+
+    		for( var row in s.$breakpoints ){
+    			if(s.$breakpoints[row])
+    				s.clearBreakpoint(row);
+    		}
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "wrapSelection",
+		exec: function (editor, args, request) {
+		    var start = args[0];
+		    var end = args[1];
+
+    		var text = editor.getSelectedText();
+
+    		if (
+    		text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
+    			text = text.substr(start.length, text.length - start.length - end.length);
+    		} else {
+    			text = start + text + end;
+    		}
+
+    		editor.insert(text, true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "prependLineSelection",
+		exec: function (editor, args, request) {
+		    var string = args[0];
+
+    		var text = editor.getSelectedText();
+    		editor.insert(string + text.replace(new RegExp("\n", 'g'), "\n" + string), true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "appendLineSelection",
+		exec: function (editor, args, request) {
+		    var string = args[0];
+
+    		var text = editor.getSelectedText();
+    		editor.insert(text.replace(new RegExp("\n", 'g'), string + "\n") + string, true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "replaceInSelection",
+		exec: function (editor, args, request) {
+		    var needle = args[0];
+		    var replacement = args[0];
+
+    		var text = editor.getSelectedText();
+    		editor.insert(text.replace(new RegExp(needle, 'g'), replacement), true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "selectionToUppercase",
+		exec: function (editor, args, request) {
+    		var text = editor.getSelectedText();
+    		editor.insert(text.toUpperCase(), true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "selectionToLowercase",
+		exec: function (editor, args, request) {
+    		var text = editor.getSelectedText();
+    		editor.insert(text.toLowerCase(), true);
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "tabPrev",
+		bindKey: {
+			win: "Alt-Left",
+			mac: "Command-Left",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			tabs.prev();
+			return true;
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "tabNext",
+		bindKey: {
+			win: "Alt-Right",
+			mac: "Command-Right",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			tabs.next();
+			return true;
+		}
 	});
 
 	//move cursor to top
@@ -194,46 +475,12 @@ function create(file, content, siteId, options) {
 	editor.focus();
 }
 
-function restoreState(state) {
-	//restore folds and breakpoints
-	if (state) {
-		console.log('restore state');
-		state = JSON.parse(state);
-
-		var Range = require("ace/range").Range;
-		var session = editor.getSession();
-		//are those 3 lines set the values in per document base or are global for editor
-		editor.selection.setSelectionRange(state.selection, false);
-		session.setScrollTop(state.scrolltop);
-		session.setScrollLeft(state.scrollleft);
-		if (state.folds) {
-			for (var i = 0, l = state.folds.length; i < l; i++) {
-				var fold = state.folds[i];
-				//console.log(fold);
-				var range = Range.fromPoints(fold.start, fold.end);
-				//console.log(range);
-				session.addFold(fold.placeholder, range);
-			}
-		}
-
-		// if newfile == 1 and there is text cached, restore it
-		var node = session.getNode && session.getNode();
-		if (node && parseInt(node.getAttribute("newfile") || 0, 10) === 1 && node.childNodes.length) {
-			// the text is cached within a CDATA block as first childNode of the <file>
-			if (session.getNode().childNodes[0] instanceof CDATASection) {
-				session.setValue(doc.getNode().childNodes[0].nodeValue);
-			}
-		}
-
-		//console.log(state.breakpoints);
-		if(state.breakpoints){
-			session.setBreakpoints(state.breakpoints);
-		}
-	}
-}
-
 function setMode(editor, mode) {
     editor.getSession().setMode("ace/mode/" + mode);
+}
+
+function init() {
+    editor_contextmenu.init();
 }
 
 /*
@@ -241,6 +488,7 @@ return {
     create: create
 };*/
 
+exports.init = init;
 exports.create = create;
 exports.focus = focus;
 exports.refresh = refresh;

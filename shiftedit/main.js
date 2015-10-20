@@ -1,4 +1,4 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts'], function (exports) {
     var version = '17.0.0';
     var locale = require("app/lang");
     var prefs = require("app/prefs");
@@ -13,6 +13,8 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             // yay!
             var tabs = require("app/tabs");
             tabs.init();
+            var editors = require("app/editors");
+            editors.init();
             var tree = require("app/tree");
             tree.init();
             var site = require("app/site");
@@ -22,6 +24,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             require('app/restore').restoreBatch(prefs.getOpeningFilesBatch());
             var recent = require("app/recent");
             recent.load();
+            var shortcuts = require("app/shortcuts");
         })
     );
 

@@ -1,9 +1,9 @@
 /*!
  * jQuery contextMenu - Plugin for simple contextMenu handling
  *
- * Version: v1.9.0
+ * Version: v1.9.1
  *
- * Authors: Björn Brala (SWIS.nl), Rodney Rehm, Addy Osmani (patches for FF)
+ * Authors: BjÃ¶rn Brala (SWIS.nl), Rodney Rehm, Addy Osmani (patches for FF)
  * Web: http://swisnl.github.io/jQuery-contextMenu/
  *
  * Copyright (c) 2011-2015 SWIS BV and contributors
@@ -11,7 +11,7 @@
  * Licensed under
  *   MIT License http://www.opensource.org/licenses/mit-license
 
- * Date: 2015-10-01T19:17:41.370Z
+ * Date: 2015-10-11T18:22:59.127Z
  */
 
 .context-menu-list {
@@ -80,7 +80,7 @@
 /* icons
     #protip:
     In case you want to use sprites for icons (which I would suggest you do) have a look at
-    http://css-tricks.com/13224-pseudo-spriting/ to get an idea of how to implement 
+    http://css-tricks.com/13224-pseudo-spriting/ to get an idea of how to implement
     .context-menu-item.icon:before {}
  */
 .context-menu-item.icon {

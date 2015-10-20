@@ -36,9 +36,11 @@ define(["jquery.menubar"], function () {
 
                     //tick the input
                     item.click(function(){
-
                         $(this).find('input').prop("checked", true);
+                        $(el).trigger('blur');
+                        $(context).focus();
                     });
+
                 }
 
                 if(menu[i].cls) {
