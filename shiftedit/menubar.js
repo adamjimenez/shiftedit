@@ -235,7 +235,21 @@ function init () {
     			id: 'download',
     			text: makeMenuText('Download', ''),
     			handler: function () {
-    				shiftedit.app.tabs.download();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+
+            		var content = editor.getValue();
+            		var filename = util.basename(tab.attr('data-file'));
+
+            		var blob = new Blob([content]);
+            		var evt = document.createEvent("HTMLEvents");
+            		evt.initEvent("click");
+
+            		var a = document.createElement('a');
+            		a.download = filename;
+            		a.href = webkitURL.createObjectURL(blob);
+
+            		a.dispatchEvent(evt);
     			},
     			disabled: true,
     			target: 'file'
