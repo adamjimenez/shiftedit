@@ -13,11 +13,17 @@ var opening = {};
 
 function getEditor(tab) {
     tab = $(tab);
+
+    if (window.splits && window.splits[tab.attr('id')]) {
+        return window.splits[tab.attr('id')].getEditor(0);
+    }
+
+    /*
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 
     if(panel.children('div.editor').length) {
         return ace.edit(panel.children('div.editor')[0]);
-    }
+    }*/
 
     return false;
 }
@@ -468,7 +474,7 @@ function newTab (e, ui) {
 	panel.find('ul.fileTypes').append(HTML);
 
 	panel.find('a.newfile').click(function() {
-		editor.create("untitled."+this.dataset.filetype, '');
+		editors.create("untitled."+this.dataset.filetype, '');
 		close(ui.tab);
 	});
 

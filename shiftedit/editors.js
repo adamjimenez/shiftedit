@@ -102,11 +102,9 @@ function create(file, content, siteId, options) {
 	//fixme panels can be in other tabarea
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 
-	editor_toolbar.create(tab);
-
 	// Splitting
 	var container = panel.children('.editor')[0];
-	//editor = ace.edit(container);
+	editor = ace.edit(container);
 
 	var Split = require("ace/split").Split;
 	var theme = require("ace/theme/textmate");
@@ -190,6 +188,9 @@ function create(file, content, siteId, options) {
 	    restoreState(options.state);
 	}
 
+	//make toolbar
+	editor_toolbar.create(tab);
+
 	editor.focus();
 }
 
@@ -231,6 +232,10 @@ function restoreState(state) {
 	}
 }
 
+function setMode(editor, mode) {
+    editor.getSession().setMode("ace/mode/" + mode);
+}
+
 /*
 return {
     create: create
@@ -239,5 +244,6 @@ return {
 exports.create = create;
 exports.focus = focus;
 exports.refresh = refresh;
+exports.setMode = setMode;
 
 });
