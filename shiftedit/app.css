@@ -290,3 +290,7 @@ div.buttons {
     left: 0;
     height: 100%;
 }
+
+#quickOpenSearch, #quickOpenFile{
+    width: 100%;
+}

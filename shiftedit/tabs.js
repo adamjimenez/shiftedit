@@ -51,6 +51,9 @@ function getEditor(tab) {
 }
 
 function open(file, siteId, callback) {
+    if(!file)
+        return quickOpen();
+
     opening[siteId+'|'+file] = 1;
     openFiles(callback);
 }
@@ -519,6 +522,7 @@ function newTab (e, ui) {
     $(this).trigger("tabsactivate", [{newTab:ui.tab}]);
 }
 
+//event listener
 function tabActivate( tab ) {
     var file = tab.data('file');
     var title = file ? file : 'ShiftEdit';
@@ -538,6 +542,123 @@ function updateTabs(e, params) {
         tabActivate(tab);
 		recordOpenFiles();
     }
+}
+
+function quickOpen() {
+    //construct dialog
+    $( "body" ).append('<div id="dialog-message" title="Quick open">\
+  <form>\
+    <fieldset>\
+        <input type="text" name="input" id="quickOpenSearch" value="" class="text ui-widget-content ui-corner-all" autocomplete="off" autofocus><br>\
+        <select id="quickOpenFile" size="10"></select>\
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->\
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
+    </fieldset>\
+  </form>\
+</div>');
+
+    var size = $('#quickOpenFile').prop('size');
+
+    //handle keyboard: up / down enter / input
+    $( "#quickOpenSearch" ).keydown(function(e) {
+        var next;
+
+        switch(e.keyCode){
+            case 38: //up
+                $('#quickOpenFile option:selected').prev().prop('selected', true);
+                return false;
+            case 40: //down
+                $('#quickOpenFile option:selected').next().prop('selected', true);
+                return false;
+            case 33: //page up
+                next = $('#quickOpenFile option:selected').prevAll( ":eq("+size+")");
+
+                if(!next.length) {
+                    next = $('#quickOpenFile option:selected').prevAll().last();
+                }
+
+                next.prop('selected', true);
+                return false;
+            case 34: //page down
+                next = $('#quickOpenFile option:selected').nextAll( ":eq("+size+")");
+
+                if(!next.length) {
+                    next = $('#quickOpenFile option:selected').nextAll().last();
+                }
+
+                next.prop('selected', true);
+                return false;
+            case 13: //enter
+                pickSelected();
+                return false;
+        }
+    });
+
+    function pickSelected() {
+        var val = $( "#quickOpenFile" ).val();
+
+        if (val){
+            $( "#dialog-message" ).dialog( "close" );
+            $( "#dialog-message" ).remove();
+
+            var pos = val.indexOf('/');
+            siteId = val.substr(0, pos);
+            file = val.substr(pos+1);
+            open(file, siteId);
+        }
+    }
+
+    function refresh() {
+        var search = $( "#quickOpenSearch" ).val();
+        var val = $( "#quickOpenFile" ).val();
+
+        //populate with recent files
+        recentFiles = recent.getRecent();
+        var items = util.clone(recentFiles);
+
+        for(var i in items) {
+            if(items[i].file.indexOf(search)==-1) {
+                delete items[i];
+            }
+        }
+
+        //TODO add tree items
+
+        //clear old options
+        $('#quickOpenFile').children('option').remove();
+
+        //create select items
+        items.forEach(function(item){
+            $('#quickOpenFile').append('<option value="'+item.site+'/'+item.file+'">'+item.domain+'/'+item.file+'</option>');
+        });
+
+        //select last item
+        var selected = $('#quickOpenFile').val(val);
+
+        //or first one
+        if(!$('#quickOpenFile option:selected').length){
+            $('#quickOpenFile').children(':first').prop('selected', true);
+        }
+    }
+
+    $( "#quickOpenSearch" ).on('input', refresh);
+    refresh();
+
+    //select item click
+    $('#quickOpenFile').click(pickSelected);
+
+    //open dialog
+    var dialog = $( "#dialog-message" ).dialog({
+        modal: true,
+        width: 400,
+        height: 300
+    });
+
+    //prevent form submit
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+        event.preventDefault();
+        options.fn('yes');
+    });
 }
 
 function init() {

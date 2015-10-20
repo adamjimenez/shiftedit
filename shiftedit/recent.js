@@ -19,7 +19,7 @@ function add(file, site) {
     //remove if already in list
 	for (var i in recentFiles) {
 		if (recentFiles[i].file === file && recentFiles[i].site === site) {
-			delete recentFiles[i];
+			recentFiles.splice(i, 1);
 			break;
 		}
 	}
