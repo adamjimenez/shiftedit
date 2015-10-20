@@ -1,4 +1,4 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar"], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split'], function (tabs, exports) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -53,6 +53,16 @@ function saveFolds() {
 	}
 }
 
+function refresh(tab) {
+	//editor.resize();
+
+	window.splits[tab.attr('id')].forEach(
+		function (editor) {
+	        editor.setTheme("ace/theme/monokai");
+		}
+	);
+}
+
 function create(file, content, siteId, options) {
     if(!options){
         options = {};
@@ -92,9 +102,21 @@ function create(file, content, siteId, options) {
 	//fixme panels can be in other tabarea
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 
-	editor_toolbar.create(tab);
+	// Splitting
+	var container = panel.children('.editor')[0];
+	editor = ace.edit(container);
 
-	editor = ace.edit(panel.children('.editor')[0]);
+	var Split = require("ace/split").Split;
+	var theme = require("ace/theme/textmate");
+	var split = new Split(container, theme, 1);
+	editor = split.getEditor(0);
+	editor.setTheme("ace/theme/monokai");
+	editor.split = split;
+
+	//split isn't properly implemented in Ace so we have to use globals :|
+	if(!window.splits) window.splits = {};
+	window.splits[tab.attr('id')] = split;
+
 	var session = editor.getSession();
 
 	//syntax bar handlers
@@ -102,7 +124,6 @@ function create(file, content, siteId, options) {
 
 	panel.find('.next').click(jQuery.proxy(syntax_errors.next, tab));
 
-	editor.setTheme("ace/theme/monokai");
 
 	//set mode
 	var ext = util.fileExtension(file);
@@ -167,6 +188,9 @@ function create(file, content, siteId, options) {
 	    restoreState(options.state);
 	}
 
+	//make toolbar
+	editor_toolbar.create(tab);
+
 	editor.focus();
 }
 
@@ -208,6 +232,10 @@ function restoreState(state) {
 	}
 }
 
+function setMode(editor, mode) {
+    editor.getSession().setMode("ace/mode/" + mode);
+}
+
 /*
 return {
     create: create
@@ -215,5 +243,7 @@ return {
 
 exports.create = create;
 exports.focus = focus;
+exports.refresh = refresh;
+exports.setMode = setMode;
 
 });

@@ -1,8 +1,8 @@
-define(['app/editor','app/tabs'], function (editor,tabs) {
+define(['app/editors','app/tabs'], function (editors,tabs) {
     return {
         restoreBatch: function(files) {
             files.forEach(function(data) {
-    			editor.create(data.file, data.content, data.site, data);
+    			editors.create(data.file, data.content, data.site, data);
             });
 
             tabs.recordOpenFiles();

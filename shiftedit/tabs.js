@@ -1,4 +1,4 @@
-define(['app/editor', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent'], function (editor,exports) {
+define(['app/editors', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent'], function (editors,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -13,11 +13,17 @@ var opening = {};
 
 function getEditor(tab) {
     tab = $(tab);
+
+    if (window.splits && window.splits[tab.attr('id')]) {
+        return window.splits[tab.attr('id')].getEditor(0);
+    }
+
+    /*
     var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 
     if(panel.children('div.editor').length) {
         return ace.edit(panel.children('div.editor')[0]);
-    }
+    }*/
 
     return false;
 }
@@ -82,7 +88,7 @@ function openFiles(callback) {
 					case 'css':
 					case 'html':
 						//console.log('load');
-						editor.create(file, data.content, options.site, data);
+						editors.create(file, data.content, options.site, data);
 						recent.add(file, options.site);
 
 						/*
@@ -125,14 +131,18 @@ function openFiles(callback) {
     });
 }
 
-function save(tab, callback) {
+function save(tab, options) {
     saving[tab.attr('id')] = tab;
-    saveFiles(callback);
+    saveFiles(options);
 }
 
-function saveFiles(callback) {
+function saveFiles(options) {
     if (!Object.keys(saving).length)
         return;
+
+    if (!options) {
+        options = {};
+    }
 
     var tab = saving[Object.keys(saving)[0]];
 
@@ -150,14 +160,15 @@ function saveFiles(callback) {
     var content = editor.getValue();
 
     if(!tab.data("site") || !tab.data("file")) {
-        saveAs(tab, callback);
+        saveAs(tab, options);
         return;
     }
 
-    var options = site.getAjaxOptions("/api/files?site="+tab.data("site"));
+    var ajaxOptions = site.getAjaxOptions("/api/files?site="+tab.data("site"));
 
-    var params = options.params;
+    var params = util.clone(ajaxOptions.params);
     params.content = content;
+    var minify = options.minify ? 1 : 0;
 
     var ajax;
 	if (!loading.start('Saving ' + file, function(){
@@ -171,7 +182,7 @@ function saveFiles(callback) {
 
     var confirmed = tab.data('overwrite') ? tab.data('overwrite') : 0;
 
-	ajax = $.ajax(options.url+"&cmd=save&file="+file+"&mdate="+tab.data("mdate")+"&confirmed="+confirmed, {
+	ajax = $.ajax(ajaxOptions.url+"&cmd=save&file="+file+"&mdate="+tab.data("mdate")+"&confirmed="+confirmed+"&minify="+minify, {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params,
@@ -209,9 +220,9 @@ function saveFiles(callback) {
                     delete saving[tab.attr('id')];
 
                     if (Object.keys(saving).length) {
-                        saveFiles(callback);
-                    }else if (callback) {
-                        callback(tab);
+                        saveFiles(options);
+                    }else if (options.callback) {
+                        options.callback(tab);
                     }
                 }
             } else {
@@ -226,7 +237,7 @@ function saveFiles(callback) {
     });
 }
 
-function saveAs(tab, callback) {
+function saveAs(tab, options) {
     console.log('save as');
 
     prompt.prompt({
@@ -266,13 +277,13 @@ function saveAs(tab, callback) {
         		                fn: function(btn) {
         		                    switch(btn) {
         		                        case 'yes':
-        		                            doSaveAs(tab, callback, file);
+        		                            doSaveAs(tab, file, options);
         		                        break;
         		                    }
         		                }
         		            });
         		        }else{
-        		            doSaveAs(tab, callback, file);
+        		            doSaveAs(tab, file, options);
         		        }
                     }
                 }).fail(function() {
@@ -295,7 +306,7 @@ function saveAs(tab, callback) {
 }
 
 
-function doSaveAs(tab, callback, file) {
+function doSaveAs(tab, file, options) {
     setTitle(tab, file);
 
     var site = require('app/site');
@@ -310,10 +321,10 @@ function doSaveAs(tab, callback, file) {
 	tab.attr('data-site', siteId);
 
     //save
-    save(tab, callback);
+    save(tab, options);
 }
 
-function saveAll(tab, callback) {
+function saveAll(tab) {
     var tabs = $(tab).parent().children('li:not(.button)');
     tabs.forEach(function(item){
         saving[tab.attr('id')] = tab;
@@ -427,7 +438,7 @@ function newTab (e, ui) {
         return;
     }
 
-    var editor = require('app/editor');
+    var editors = require('app/editors');
 
     var panel = $(ui.panel);
 
@@ -463,7 +474,7 @@ function newTab (e, ui) {
 	panel.find('ul.fileTypes').append(HTML);
 
 	panel.find('a.newfile').click(function() {
-		editor.create("untitled."+this.dataset.filetype, '');
+		editors.create("untitled."+this.dataset.filetype, '');
 		close(ui.tab);
 	});
 

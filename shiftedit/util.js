@@ -1,6 +1,11 @@
 define(function (require) {
 
 return {
+    basename: function(file)
+    {
+    	var pos = file.lastIndexOf('/');
+    	return file.substring(pos+1,file.length);
+    },
     clone: function(obj) {
         return JSON.parse(JSON.stringify(obj));
     },

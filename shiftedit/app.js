@@ -13,9 +13,13 @@ requirejs.config({
         "jquery.menubar": "menubar/jquery.menubar",
         "ui.combobox": "combobox/ui.combobox",
         "jstree": "jstree/jstree",
-        "ace": "ace.20141108/src/ace"
+        "ace": "ace.20141108/src/ace",
+        "ace/split": 'ace.20141108/src/ext-split'
     },
     "shim": {
+        "ace/split": {
+            deps: ["ace"]
+        },
         "jquery-ui": {
             exports: "$",
             deps: ["jquery"]

@@ -259,3 +259,20 @@ div.buttons {
 .ui-widget {
     font-size: 12px; /*1em*/
 }
+
+/* syntax errors */
+.editor_status{
+	background:#C8E2F9;
+	font-size:11px;
+	padding: 2px 5px 5px 5px;
+	overflow:none;
+	white-space: nowrap;
+}
+
+.editor_status_alert{
+	background:rgb(238, 240, 159);
+}
+
+.editor_status button[disabled]{
+    opacity: 0.5;
+}

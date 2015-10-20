@@ -1,4 +1,4 @@
-define(["app/editor"], function (editor) {
+define(["app/editors"], function (editors) {
 
 if (window.addEventListener) { //not supported by IE
 	window.addEventListener("dragenter", function () {
@@ -37,7 +37,7 @@ if (window.addEventListener) { //not supported by IE
 			reader[i] = new FileReader();
 			reader[i].onloadend = function (file, i) {
 				return function () {
-					editor.create(file.name, reader[i].result);
+					editors.create(file.name, reader[i].result);
 				};
 			}(file, i);
 			reader[i].readAsText(file);
