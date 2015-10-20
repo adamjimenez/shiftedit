@@ -281,3 +281,12 @@ div.buttons {
     background-image: url(/images/icons/breakpoint.png);
 	background-position: 4px center;
 }
+
+.editor{
+    position: relative;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+}

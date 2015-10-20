@@ -139,6 +139,128 @@ for(var i in themes) {
     }
 }
 
+var selectionMenuItems = [{
+	id: 'collapseSelection',
+	text: makeMenuText(lang.collapseSelection, 'Ctrl+Shift+C'),
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('fold', editor);
+	},
+	disabled: true,
+    target: 'file'
+},{
+	id: 'expandSelection',
+	text: makeMenuText(lang.expandSelection, 'Ctrl+Shift+E'),
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('unfold', editor);
+	},
+	disabled: true,
+    target: 'file'
+}, '-',{
+	id: 'applyHTMLComment',
+	text: lang.applyHTMLComment,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('wrapSelection', editor, ['<!--', '-->']);
+	},
+	disabled: true,
+    target: 'file'
+},{
+	id: 'applySlashStarComment',
+	text: lang.applySlashStarComment,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('wrapSelection', editor, ['/*', '*/']);
+	},
+	disabled: true,
+    target: 'file'
+},{
+	id: 'applySlashComment',
+	text: lang.applySlashComment,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('prependLineSelection', editor, ['//']);
+	},
+	disabled: true,
+    target: 'file'
+}, '-',{
+	id: 'convertSingleQuotes',
+	text: lang.convertSingleQuotes,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('replaceInSelection', editor, ['\'', '"']);
+	},
+	disabled: true,
+    target: 'file'
+},{
+	id: 'convertDoubleQuotes',
+	text: lang.convertDoubleQuotes,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('replaceInSelection', editor, ['"', "\'"]);
+	},
+	disabled: true,
+    target: 'file'
+},{
+	id: 'convertTabs',
+	text: 'Convert Tabs To Spaces',
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('replaceInSelection', editor, ["\t", "    "]);
+	},
+	disabled: true,
+    target: 'file'
+},{
+	id: 'convertSpaces',
+	text: lang.convertSpaces,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('replaceInSelection', editor, ["    ", "\t"]);
+	},
+	disabled: true,
+    target: 'file'
+},{
+	id: 'addLineBreaks',
+	text: lang.addLineBreaks,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('appendLineSelection', editor, ['<br>']);
+	},
+	disabled: true,
+    target: 'file'
+}, '-',{
+	id: 'convertToUppercase',
+	text: lang.convertToUppercase,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('selectionToUppercase', editor);
+	},
+	disabled: true,
+    target: 'file'
+},{
+	id: 'convertToLowercase',
+	text: lang.convertToLowercase,
+	handler: function () {
+	    var tab = $('.ui-layout-center .ui-tabs-active');
+	    var editor = tabs.getEditor(tab);
+	    editor.commands.exec('selectionToLowercase', editor);
+	},
+	disabled: true,
+    target: 'file'
+}];
+
 function toggleOptions(target) {
     $("#menubar [data-target]").addClass('ui-state-disabled');
 
@@ -388,127 +510,7 @@ function init () {
     			text: lang.selection,
     			disabled: true,
 			    target: 'file',
-    			items: [{
-    				id: 'collapseSelection',
-    				text: makeMenuText(lang.collapseSelection, 'Ctrl+Shift+C'),
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('fold', editor);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			},{
-    				id: 'expandSelection',
-    				text: makeMenuText(lang.expandSelection, 'Ctrl+Shift+E'),
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('unfold', editor);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			}, '-',{
-    				id: 'applyHTMLComment',
-    				text: lang.applyHTMLComment,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('wrapSelection', editor, ['<!--', '-->']);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			},{
-    				id: 'applySlashStarComment',
-    				text: lang.applySlashStarComment,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('wrapSelection', editor, ['/*', '*/']);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			},{
-    				id: 'applySlashComment',
-    				text: lang.applySlashComment,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('prependLineSelection', editor, ['//']);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			}, '-',{
-    				id: 'convertSingleQuotes',
-    				text: lang.convertSingleQuotes,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('replaceInSelection', editor, ['\'', '"']);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			},{
-    				id: 'convertDoubleQuotes',
-    				text: lang.convertDoubleQuotes,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('replaceInSelection', editor, ['"', "\'"]);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			},{
-    				id: 'convertTabs',
-    				text: 'Convert Tabs To Spaces',
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('replaceInSelection', editor, ["\t", "    "]);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			},{
-    				id: 'convertSpaces',
-    				text: lang.convertSpaces,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('replaceInSelection', editor, ["    ", "\t"]);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			},{
-    				id: 'addLineBreaks',
-    				text: lang.addLineBreaks,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('appendLineSelection', editor, ['<br>']);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			}, '-',{
-    				id: 'convertToUppercase',
-    				text: lang.convertToUppercase,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('selectionToUppercase', editor);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			},{
-    				id: 'convertToLowercase',
-    				text: lang.convertToLowercase,
-    				handler: function () {
-        			    var tab = $('.ui-layout-center .ui-tabs-active');
-        			    var editor = tabs.getEditor(tab);
-					    editor.commands.exec('selectionToLowercase', editor);
-    				},
-    				disabled: true,
-    			    target: 'file'
-    			}],
+    			items: selectionMenuItems,
     			handler: function () {
     				return false;
     			}
@@ -1094,7 +1096,8 @@ function init () {
 }
 
 return {
-    init: init
+    init: init,
+    selectionMenuItems: selectionMenuItems
 };
 
 });

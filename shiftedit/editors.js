@@ -1,10 +1,11 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split','app/prompt'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split','app/prompt','app/editor_contextmenu'], function (tabs, exports) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var editor;
 var editor_toolbar = require('app/editor_toolbar');
+var editor_contextmenu = require('app/editor_contextmenu');
 var prompt = require('app/prompt');
 
 function onChange(e) {
@@ -165,7 +166,7 @@ function create(file, content, siteId, options) {
 
 	// Splitting
 	var container = panel.children('.editor')[0];
-	editor = ace.edit(container);
+	//editor = ace.edit(container);
 
 	var Split = require("ace/split").Split;
 	var theme = require("ace/theme/textmate");
@@ -201,6 +202,10 @@ function create(file, content, siteId, options) {
 	editor.getSession().setMode("ace/mode/"+mode);
 	editor.getSession().getDocument().setValue(content);
 
+	//clear history //fixes undo redo when using split
+	var UndoManager = require("ace/undomanager").UndoManager;
+	editor.getSession().setUndoManager(new UndoManager());
+
     //event listeners
 	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
 	editor.getSession().on('changeFold', jQuery.proxy(saveState, tab));
@@ -209,7 +214,6 @@ function create(file, content, siteId, options) {
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 
 	//shortcuts
-	//save
 	editor.commands.addCommand({
 		name: "save",
 		bindKey: {
@@ -449,11 +453,16 @@ function setMode(editor, mode) {
     editor.getSession().setMode("ace/mode/" + mode);
 }
 
+function init() {
+    editor_contextmenu.init();
+}
+
 /*
 return {
     create: create
 };*/
 
+exports.init = init;
 exports.create = create;
 exports.focus = focus;
 exports.refresh = refresh;
