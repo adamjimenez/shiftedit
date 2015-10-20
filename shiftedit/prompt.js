@@ -54,6 +54,14 @@ define(['app/util'], function (util) {
     }
 
     function prompt(options) {
+        var defaults = {
+            title: '',
+            msg: '',
+            value: ''
+        };
+
+        options = $.extend({}, defaults, options);
+
         //remove any other dialog
         $( "#dialog-message" ).remove();
 
@@ -86,10 +94,10 @@ define(['app/util'], function (util) {
         $( "#dialog-message" ).submit(ok);
 
         //open dialog
-        $( "#dialog-message" ).dialog({
+        var dialog = $( "#dialog-message" ).dialog({
             modal: true,
             buttons: {
-                OK: ok,
+                OK: options.fn('yes'),
                 Cancel: function() {
                     $( this ).dialog( "close" );
                     $( "#dialog-message" ).remove();
@@ -97,6 +105,15 @@ define(['app/util'], function (util) {
                     options.fn('cancel');
                 }
             }
+        });
+
+        //ensure focus
+        setTimeout(function(){ $('#input').focus(); }, 100);
+
+        //prevent form submit
+        form = dialog.find( "form" ).on( "submit", function( event ) {
+            event.preventDefault();
+            options.fn('yes');
         });
     }
 

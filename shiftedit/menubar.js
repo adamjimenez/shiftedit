@@ -258,9 +258,11 @@ function init () {
     			id: 'revertToOriginal',
     			text: 'Revert to Saved',
     			handler: function () {
-    				var editor = shiftedit.app.tabs.get_editor();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+
     				if( editor ){
-    					editor.setValue(editor.original);
+    					editor.setValue(tab.data('original'));
     				}
     			},
     			disabled: true,
@@ -292,7 +294,10 @@ function init () {
     			id: 'goToLine',
     			text: makeMenuText(lang.goToLineText, 'Ctrl+L'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().gotoLine();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    			    console.log(editor)
+					editor.commands.exec('gotoLinePrompt', editor);
     			},
     			disabled: true,
     			target: 'file'
@@ -301,8 +306,10 @@ function init () {
     			id: 'toggleBreakpoint',
     			text: makeMenuText('Toggle Breakpoint', 'Alt+B'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().toggleBreakpoint();
-    				shiftedit.app.tabs.get_editor().focus();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.toggleBreakpoint();
+    				editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -311,8 +318,10 @@ function init () {
     			id: 'nextBreakpoint',
     			text: makeMenuText('Next Breakpoint', 'Ctrl+B'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().nextBreakpoint();
-    				shiftedit.app.tabs.get_editor().focus();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.nextBreakpoint();
+    				editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -321,8 +330,10 @@ function init () {
     			id: 'prevBreakpoint',
     			text: makeMenuText('Previous Breakpoint', 'Ctrl+Shift+B'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().prevBreakpoint();
-    				shiftedit.app.tabs.get_editor().focus();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.prevBreakpoint();
+    				editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -331,8 +342,10 @@ function init () {
     			id: 'clearBreakpoints',
     			text: makeMenuText('Clear Breakpoints'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().clearBreakpoints();
-    				shiftedit.app.tabs.get_editor().focus();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.clearBreakpoints();
+    				editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -341,8 +354,10 @@ function init () {
     			id: 'toggleComment',
     			text: makeMenuText(lang.toggleComment, 'Ctrl+/'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().toggleComment();
-    				shiftedit.app.tabs.get_editor().focus();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.toggleComment();
+    				editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -351,8 +366,10 @@ function init () {
     			id: 'jumpToMatching',
     			text: makeMenuText('Jump to Matching', 'Ctrl+P'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().editor.jumpToMatching();
-    				shiftedit.app.tabs.get_editor().focus();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.editor.jumpToMatching();
+    				editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -361,8 +378,10 @@ function init () {
     			id: 'selectToMatching',
     			text: makeMenuText('Select to Matching', 'Ctrl+Shift+P'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().editor.jumpToMatching(true);
-    				shiftedit.app.tabs.get_editor().focus();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.editor.jumpToMatching(true);
+    				editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -372,11 +391,14 @@ function init () {
     			id: 'selection',
     			text: lang.selection,
     			disabled: true,
+			    target: 'file',
     			items: [{
     				id: 'collapseSelection',
     				text: makeMenuText(lang.collapseSelection, 'Ctrl+Shift+C'),
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().collapseSelection();
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.collapseSelection();
     				},
     				disabled: true,
     			    target: 'file'
@@ -384,7 +406,9 @@ function init () {
     				id: 'expandSelection',
     				text: makeMenuText(lang.expandSelection, 'Ctrl+Shift+E'),
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().expandSelection();
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.expandSelection();
     				},
     				disabled: true,
     			    target: 'file'
@@ -392,7 +416,9 @@ function init () {
     				id: 'applyHTMLComment',
     				text: lang.applyHTMLComment,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().wrapSelection('<!--', '-->');
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.wrapSelection('<!--', '-->');
     				},
     				disabled: true,
     			    target: 'file'
@@ -400,7 +426,9 @@ function init () {
     				id: 'applySlashStarComment',
     				text: lang.applySlashStarComment,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().wrapSelection('/*', '*/');
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.wrapSelection('/*', '*/');
     				},
     				disabled: true,
     			    target: 'file'
@@ -408,7 +436,9 @@ function init () {
     				id: 'applySlashComment',
     				text: lang.applySlashComment,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().prependLineSelection('//');
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.prependLineSelection('//');
     				},
     				disabled: true,
     			    target: 'file'
@@ -416,7 +446,9 @@ function init () {
     				id: 'convertSingleQuotes',
     				text: lang.convertSingleQuotes,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().replaceInSelection('\'', '"');
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.replaceInSelection('\'', '"');
     				},
     				disabled: true,
     			    target: 'file'
@@ -424,7 +456,9 @@ function init () {
     				id: 'convertDoubleQuotes',
     				text: lang.convertDoubleQuotes,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().replaceInSelection('"', '\'');
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.replaceInSelection('"', '\'');
     				},
     				disabled: true,
     			    target: 'file'
@@ -432,7 +466,9 @@ function init () {
     				id: 'convertTabs',
     				text: 'Convert Tabs To Spaces',
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().replaceInSelection('	', '  ');
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.replaceInSelection('	', '  ');
     				},
     				disabled: true,
     			    target: 'file'
@@ -440,7 +476,9 @@ function init () {
     				id: 'convertSpaces',
     				text: lang.convertSpaces,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().replaceInSelection('  ', '	');
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.replaceInSelection('  ', '	');
     				},
     				disabled: true,
     			    target: 'file'
@@ -448,7 +486,9 @@ function init () {
     				id: 'addLineBreaks',
     				text: lang.addLineBreaks,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().appendLineSelection('<br>');
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.appendLineSelection('<br>');
     				},
     				disabled: true,
     			    target: 'file'
@@ -456,7 +496,9 @@ function init () {
     				id: 'convertToUppercase',
     				text: lang.convertToUppercase,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().selectionToUppercase();
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.selectionToUppercase();
     				},
     				disabled: true,
     			    target: 'file'
@@ -464,7 +506,9 @@ function init () {
     				id: 'convertToLowercase',
     				text: lang.convertToLowercase,
     				handler: function () {
-    					shiftedit.app.tabs.get_editor().selectionToLowercase();
+        			    var tab = $('.ui-layout-center .ui-tabs-active');
+        			    var editor = tabs.getEditor(tab);
+    					editor.selectionToLowercase();
     				},
     				disabled: true,
     			    target: 'file'
@@ -476,7 +520,9 @@ function init () {
     			id: 'copyLinesUp',
     			text: makeMenuText(lang.copyLinesUp, 'Shift+Alt+Up'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().copyLinesUp();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.copyLinesUp();
     			},
     			disabled: true,
     			target: 'file'
@@ -484,7 +530,9 @@ function init () {
     			id: 'copyLinesDown',
     			text: makeMenuText(lang.copyLinesDown, 'Shift+Alt+Down'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().copyLinesDown();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.copyLinesDown();
     			},
     			disabled: true,
     			target: 'file'
@@ -492,7 +540,9 @@ function init () {
     			id: 'moveLinesUp',
     			text: makeMenuText(lang.moveLinesUp, 'Alt+Up'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().moveLinesUp();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.moveLinesUp();
     			},
     			disabled: true,
     			target: 'file'
@@ -500,7 +550,9 @@ function init () {
     			id: 'moveLinesDown',
     			text: makeMenuText(lang.moveLinesDown, 'Alt+Down'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().moveLinesDown();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.moveLinesDown();
     			},
     			disabled: true,
     			target: 'file'
@@ -508,7 +560,9 @@ function init () {
     			id: 'deleteLines',
     			text: makeMenuText(lang.deleteLines, 'Ctrl+D'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().deleteLines();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.deleteLines();
     			},
     			disabled: true,
     			target: 'file'
@@ -516,7 +570,9 @@ function init () {
     			id: 'addSemicolon',
     			text: makeMenuText(lang.addSemicolon, 'Ctrl+;'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().addSemicolon();
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.addSemicolon();
     			},
     			disabled: true,
     			target: 'file'
@@ -524,7 +580,9 @@ function init () {
     			id: 'applySourceFormatting',
     			text: makeMenuText('Beautify', 'Alt+Shift+F'),
     			handler: function () {
-    				shiftedit.app.tabs.get_editor().exec('applySourceFormatting');
+    			    var tab = $('.ui-layout-center .ui-tabs-active');
+    			    var editor = tabs.getEditor(tab);
+    				editor.exec('applySourceFormatting');
     			},
     			disabled: true,
     			target: 'file'
@@ -532,7 +590,7 @@ function init () {
     			text: makeMenuText(lang.preferencesText, 'Ctrl+U'),
     			scope: this,
     			handler: function () {
-    				shiftedit.app.preferences.edit();
+    				preferences.edit();
     			},
     		}]
     	},
@@ -909,7 +967,7 @@ function init () {
 
     						if(!allow){
     							//remove firebase before it's deleted!
-    							var editor = shiftedit.app.tabs.get_editor();
+    							var editor = editor;
     							editor.removeFirepad();
     						}
 
@@ -934,7 +992,7 @@ function init () {
     										tab.shared = allow;
 
     										//switch firebase
-    										var editor = shiftedit.app.tabs.get_editor();
+    										var editor = editor;
     										editor.removeFirepad();
 
     										if( tab.shared || shiftedit.app.site.shared[site] ){

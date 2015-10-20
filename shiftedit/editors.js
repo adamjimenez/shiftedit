@@ -1,10 +1,11 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split','app/prompt'], function (tabs, exports) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var editor;
 var editor_toolbar = require('app/editor_toolbar');
+var prompt = require('app/prompt');
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -95,6 +96,8 @@ function create(file, content, siteId, options) {
 	    tab.attr('data-mdate', options.mdate);
 	}
 
+    tab.data('original', content);
+
     $(".ui-layout-center").trigger("tabsactivate", [{newTab:tab}]);
 
 	//load ace
@@ -168,6 +171,26 @@ function create(file, content, siteId, options) {
 		exec: jQuery.proxy(function (editor, args, request) {
 			return tabs.saveAs(this);
 		}, tab)
+	});
+	editor.commands.addCommand({
+		name: "gotoLinePrompt",
+		bindKey: {
+			win: "Ctrl-G",
+			mac: "Command-G",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			prompt.prompt({
+			    title: 'Go to Line',
+			    fn :function (button, line) {
+    				if (button == 'ok') {
+    					editor.gotoLine(line);
+    					setTimeout(function(){editor.focus()}, 50);
+    				}
+			    }
+			});
+			return true;
+		}
 	});
 
 	//move cursor to top
