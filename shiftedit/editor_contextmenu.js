@@ -19,6 +19,14 @@ selectionMenuItems.forEach(function(item) {
 });
 
 function init() {
+    //prevent gutter context menu
+    $(document).on('contextmenu', '.editor', function(e) {
+		if (e.target.classList.contains('ace_gutter-cell')) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+		}
+    });
+
     $.contextMenu({
         selector: '.editor',
         callback: function(key, opt){
