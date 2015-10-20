@@ -308,7 +308,7 @@ function init () {
     		{
     			text: makeMenuText(lang.open + '...', 'Ctrl+O'),
     			handler: function () {
-    				tabs.fileSearch();
+    				tabs.open();
     			}
     		},
     		{
