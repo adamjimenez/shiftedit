@@ -425,6 +425,32 @@ function create(file, content, siteId, options) {
 		}
 	});
 
+	editor.commands.addCommand({
+		name: "tabPrev",
+		bindKey: {
+			win: "Alt-Left",
+			mac: "Command-Left",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			tabs.prev();
+			return true;
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "tabNext",
+		bindKey: {
+			win: "Alt-Right",
+			mac: "Command-Right",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			tabs.next();
+			return true;
+		}
+	});
+
 	//move cursor to top
 	var startLine = 0;
 

@@ -11,6 +11,28 @@ var closing = [];
 var saving = {};
 var opening = {};
 
+function active() {
+    return $('.ui-layout-center .ui-tabs-active');
+}
+
+function next() {
+    var tab = active().next('li:not(.button)');
+    if(!tab.length) {
+        tab = active().parent().children('li:not(.button):first');
+    }
+
+    $(".ui-layout-center").tabs("option", "active", tab.index());
+}
+
+function prev() {
+    var tab = active().prev('li:not(.button)');
+    if(!tab.length) {
+        tab = active().parent().children('li:not(.button):last');
+    }
+
+    $(".ui-layout-center").tabs("option", "active", tab.index());
+}
+
 function getEditor(tab) {
     tab = $(tab);
 
@@ -592,4 +614,6 @@ function init() {
     exports.closeTabsRight = closeTabsRight;
     exports.open = open;
     exports.recordOpenFiles = recordOpenFiles;
+    exports.next = next;
+    exports.prev = prev;
 });

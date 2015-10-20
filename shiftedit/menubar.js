@@ -1,4 +1,4 @@
-define(["jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util'], function () {
+define(["jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util', 'app/shortcuts'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var prefs = require('app/prefs').get_prefs();
@@ -8,6 +8,7 @@ var main = require('app/main');
 var prompt = require('app/prompt');
 var util = require('app/util');
 var menus = require('app/menus');
+var shortcuts = require('app/shortcuts');
 
 var themes = [{
 	title: "Black Tie",
@@ -764,21 +765,7 @@ function init () {
     		},{
     			id: 'keyboardShortcuts',
     			text: makeMenuText('Shortcuts', 'Ctrl+/'),
-    			handler: function() {
-            		if (!document.getElementById('shortcutsSheet')) {
-            			$.ajax({
-            				url: '/screens/shortcuts',
-            				success: function (result) {
-            					if (!document.getElementById('shortcutsSheet')) {
-            						var div = document.createElement('div');
-            						div.id = 'shortcutsSheet';
-            						div.innerHTML = result;
-            						document.body.appendChild(div);
-            					}
-            				}
-            			});
-            		}
-    			}
+    			handler: shortcuts.show
     		},{
     			id: 'about',
     			text: lang.aboutShiftEdit,
