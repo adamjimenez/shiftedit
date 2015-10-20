@@ -12,7 +12,27 @@ function onChange(e) {
 	tabs.setEdited(this, true);
 }
 
-function saveFolds() {
+function onGutterClick(e, editor) {
+	if( e.domEvent.button == 2 ){
+		var s = editor.getSession();
+		var className =  e.domEvent.target.className;
+		if (className.indexOf('ace_fold-widget') < 0) {
+			if (className.indexOf("ace_gutter-cell") != -1) {
+				var row = e.getDocumentPosition().row;
+
+        		if( s.$breakpoints[row] ){
+        			s.clearBreakpoint(row);
+        		}else{
+        			s.setBreakpoint(row);
+        		}
+
+				e.stop()
+			}
+		}
+	}
+}
+
+function saveState() {
 	var site = $(this).attr('data-site');
 	var file = $(this).attr('data-file');
 
@@ -51,6 +71,44 @@ function saveFolds() {
 			file: file,
 			state: JSON.stringify(state)
 		});
+	}
+}
+
+function restoreState(state) {
+	//restore folds and breakpoints
+	if (state) {
+		console.log('restore state');
+		state = JSON.parse(state);
+
+		var Range = require("ace/range").Range;
+		var session = editor.getSession();
+		//are those 3 lines set the values in per document base or are global for editor
+		editor.selection.setSelectionRange(state.selection, false);
+		session.setScrollTop(state.scrolltop);
+		session.setScrollLeft(state.scrollleft);
+		if (state.folds) {
+			for (var i = 0, l = state.folds.length; i < l; i++) {
+				var fold = state.folds[i];
+				//console.log(fold);
+				var range = Range.fromPoints(fold.start, fold.end);
+				//console.log(range);
+				session.addFold(fold.placeholder, range);
+			}
+		}
+
+		// if newfile == 1 and there is text cached, restore it
+		var node = session.getNode && session.getNode();
+		if (node && parseInt(node.getAttribute("newfile") || 0, 10) === 1 && node.childNodes.length) {
+			// the text is cached within a CDATA block as first childNode of the <file>
+			if (session.getNode().childNodes[0] instanceof CDATASection) {
+				session.setValue(doc.getNode().childNodes[0].nodeValue);
+			}
+		}
+
+		//console.log(state.breakpoints);
+		if(state.breakpoints){
+			session.setBreakpoints(state.breakpoints);
+		}
 	}
 }
 
@@ -145,8 +203,10 @@ function create(file, content, siteId, options) {
 
     //event listeners
 	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
-	editor.getSession().on('changeFold', jQuery.proxy(saveFolds, tab));
+	editor.getSession().on('changeFold', jQuery.proxy(saveState, tab));
+	editor.getSession().on('changeBreakpoint', jQuery.proxy(saveState, tab));
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
+	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 
 	//shortcuts
 	//save
@@ -192,6 +252,108 @@ function create(file, content, siteId, options) {
 			return true;
 		}
 	});
+	editor.commands.addCommand({
+		name: "toggleBreakpoint",
+		bindKey: {
+			win: "Ctrl-F2|Alt-b",
+			mac: "Command-F2|Alt-b",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			var cursor = editor.getCursorPosition();
+			row = cursor.row;
+
+    		var s = editor.getSession();
+
+    		if( s.$breakpoints[row] ){
+    			s.clearBreakpoint(row);
+    		}else{
+    			s.setBreakpoint(row);
+    		}
+		}
+	});
+	editor.commands.addCommand({
+		name: "nextBreakpoint",
+		bindKey: {
+			win: "F2|Ctrl-b",
+			mac: "F2|Command-b",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+    		var breakpoints = editor.getSession().$breakpoints;
+
+    		var cursor = editor.getCursorPosition();
+    		var row = cursor.row;
+
+    		var real_breakpoints = [];
+
+    		for( var i=0; i<breakpoints.length; i++ ) {
+    			if(breakpoints[i]=='ace_breakpoint') {
+    				if( i>row ){
+    					editor.gotoLine(i+1);
+    					return;
+    				}
+
+    				real_breakpoints.push(i);
+    			}
+    		}
+
+    		//go back to beginning
+    		if( real_breakpoints[0] ){
+    			editor.gotoLine(real_breakpoints[0]+1);
+    		}
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "prevBreakpoint",
+		bindKey: {
+			win: "Shift-F2|Ctrl-Shift-b",
+			mac: "Shift-F2|Command-Shift-b",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+    		var breakpoints = editor.getSession().$breakpoints;
+
+    		var cursor = editor.getCursorPosition();
+    		var row = cursor.row;
+
+    		var real_breakpoints = [];
+
+    		for( var i=breakpoints.length; i>0; i-- ) {
+    			if(breakpoints[i]=='ace_breakpoint') {
+    				if( i<row ){
+    					editor.gotoLine(i+1);
+    					return;
+    				}
+
+    				real_breakpoints.push(i);
+    			}
+    		}
+
+
+    		if( real_breakpoints[0] ){
+    			editor.gotoLine(real_breakpoints[0]+1);
+    		}
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "clearBreakpoints",
+		exec: function (editor, args, request) {
+    		if(typeof row === "undefined"){
+    			var cursor = editor.getCursorPosition();
+    			row = cursor.row;
+    		}
+
+    		var s = editor.getSession();
+
+    		for( var row in s.$breakpoints ){
+    			if(s.$breakpoints[row])
+    				s.clearBreakpoint(row);
+    		}
+		}
+	});
 
 	//move cursor to top
 	var startLine = 0;
@@ -215,44 +377,6 @@ function create(file, content, siteId, options) {
 	editor_toolbar.create(tab);
 
 	editor.focus();
-}
-
-function restoreState(state) {
-	//restore folds and breakpoints
-	if (state) {
-		console.log('restore state');
-		state = JSON.parse(state);
-
-		var Range = require("ace/range").Range;
-		var session = editor.getSession();
-		//are those 3 lines set the values in per document base or are global for editor
-		editor.selection.setSelectionRange(state.selection, false);
-		session.setScrollTop(state.scrolltop);
-		session.setScrollLeft(state.scrollleft);
-		if (state.folds) {
-			for (var i = 0, l = state.folds.length; i < l; i++) {
-				var fold = state.folds[i];
-				//console.log(fold);
-				var range = Range.fromPoints(fold.start, fold.end);
-				//console.log(range);
-				session.addFold(fold.placeholder, range);
-			}
-		}
-
-		// if newfile == 1 and there is text cached, restore it
-		var node = session.getNode && session.getNode();
-		if (node && parseInt(node.getAttribute("newfile") || 0, 10) === 1 && node.childNodes.length) {
-			// the text is cached within a CDATA block as first childNode of the <file>
-			if (session.getNode().childNodes[0] instanceof CDATASection) {
-				session.setValue(doc.getNode().childNodes[0].nodeValue);
-			}
-		}
-
-		//console.log(state.breakpoints);
-		if(state.breakpoints){
-			session.setBreakpoints(state.breakpoints);
-		}
-	}
 }
 
 function setMode(editor, mode) {

@@ -276,3 +276,8 @@ div.buttons {
 .editor_status button[disabled]{
     opacity: 0.5;
 }
+
+.ace_gutter-cell.ace_breakpoint{
+    background-image: url(/images/icons/breakpoint.png);
+	background-position: 4px center;
+}

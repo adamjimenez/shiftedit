@@ -296,7 +296,6 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    			    console.log(editor)
 					editor.commands.exec('gotoLinePrompt', editor);
     			},
     			disabled: true,
@@ -308,8 +307,7 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.toggleBreakpoint();
-    				editor.focus();
+					editor.commands.exec('toggleBreakpoint', editor);
     			},
     			disabled: true,
     			target: 'file'
@@ -320,8 +318,8 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.nextBreakpoint();
-    				editor.focus();
+					editor.commands.exec('nextBreakpoint', editor);
+					editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -332,8 +330,8 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.prevBreakpoint();
-    				editor.focus();
+					editor.commands.exec('prevBreakpoint', editor);
+					editor.focus();
     			},
     			disabled: true,
     			target: 'file'
@@ -344,8 +342,7 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.clearBreakpoints();
-    				editor.focus();
+					editor.commands.exec('clearBreakpoints', editor);
     			},
     			disabled: true,
     			target: 'file'
