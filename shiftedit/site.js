@@ -75,7 +75,67 @@ function init() {
     }, {
         id: 'deletesite',
         text: 'Delete site',
-        handler: function() {},
+        handler: function(undef, e, confirmed) {
+            if(!confirmed) {
+                var me = this;
+                prompt.confirm({
+                    title: 'Delete site',
+                    msg: 'Are you sure?',
+                    fn: function(value) {
+                       switch(value) {
+                            case 'yes':
+                                $(me).trigger('click', [true]);
+                                return;
+                            default:
+                                return false;
+                       }
+                    }
+                });
+                return;
+            }
+
+            var ajax;
+        	if (!loading.start('Connecting to site '+site.name, function(){
+        		console.log('abort deleting site');
+        		ajax.abort();
+        	})) {
+        		return;
+        	}
+
+            ajax = $.ajax({
+                url: '/api/sites?cmd=delete&site='+currentSite,
+        	    method: 'GET',
+        	    dataType: 'json',
+            })
+            .then(function (data) {
+                loading.stop();
+                //console.log(data);
+
+                if(data.success){
+                    //remove this site from any active tabs
+                    $("li[data-site='"+ currentSite+"']").attr('data-site', '');
+
+                    //disable file tree
+                    $('#tree').hide();
+
+                    //disable site options
+                    disableMenuItems();
+
+                    currentSite = 0;
+
+                    //refresh combo
+                    $( "#sites" ).combobox('val');
+                    load();
+                }else{
+                    prompt.alert({title:'Error', msg:data.error});
+                }
+            }).fail(function() {
+                loading.stop();
+        		prompt.alert({title:lang.failedText, msg:'Error opening site'});
+            });
+
+
+        },
         disabled: true
     }, '-', {
         id: 'import',
@@ -185,7 +245,9 @@ function open(siteId, password) {
     currentSite = null;
 
     var site = getSettings(siteId);
+    currentSite = siteId;
 
+    var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
 		console.log('abort opening site');
 		ajax.abort();
@@ -195,7 +257,7 @@ function open(siteId, password) {
 		return;
 	}
 
-    var ajax = $.ajax({
+    ajax = $.ajax({
         url: '/api/sites?site='+siteId,
 	    method: 'POST',
 	    dataType: 'json',
@@ -209,7 +271,6 @@ function open(siteId, password) {
         //console.log(data);
 
         if(data.success){
-            currentSite = siteId;
             storage.set('currentSite', currentSite);
 
             //load file tree
@@ -218,6 +279,9 @@ function open(siteId, password) {
 
             //enable site options
             enableMenuItems(site);
+
+            //show tree
+            $('#tree').show();
         }else{
             if (data.require_password) {
     			loading.stop();
