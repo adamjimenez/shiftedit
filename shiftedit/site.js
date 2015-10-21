@@ -38,6 +38,88 @@ function init() {
     });
 
     //button menu
+    var items = [{
+        id: 'newsite',
+        text: 'New site..',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'editsite',
+        text: 'Edit site..',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'duplicate',
+        text: 'Duplicate..',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'deletesite',
+        text: 'Delete site',
+        handler: function() {},
+        disabled: false
+    }, '-', {
+        id: 'deletesite',
+        text: 'Delete site',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'import',
+        text: 'Import..',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'export',
+        text: 'Export',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'share',
+        text: 'Share site',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'download',
+        text: 'Download revisions',
+        handler: function() {},
+        disabled: false
+    }, '-', {
+        id: 'phpmyadmin',
+        text: 'PhpMyAdmin',
+        handler: function() {},
+        disabled: false
+    }, '-', {
+        id: 'deletesite',
+        text: 'SSH Terminal',
+        handler: function() {},
+        disabled: true
+    }, {
+        id: 'deletesite',
+        text: 'Reboot',
+        handler: function() {},
+        disabled: true
+    }];
+
+    var el = $("#siteMenu");
+    var context;
+    items.forEach(function(item) {
+        if(item==='-') {
+            el.append('<li>-</li>');
+        } else {
+            var itemEl = $('<li>\
+                <a href="#">'+item.text+'</a>\
+            </li>').appendTo(el);
+
+            if(item.disabled) {
+                itemEl.addClass('ui-state-disabled');
+            }
+
+            if(item.handler) {
+                itemEl.click(jQuery.proxy(item.handler, undefined, context));
+            }
+        }
+    });
+
     var menu = $("#siteMenu").menu().hide();
 
     $("#siteNenuBtn").button({
