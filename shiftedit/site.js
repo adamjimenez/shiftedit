@@ -12,6 +12,25 @@ var currentSite = storage.get('currentSite');
 
 var combobox;
 
+function enableMenuItems(site) {
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'share', 'download'];
+
+    if(site.db_phpmyadmin)
+        items.push('phpmyadmin');
+
+    items.forEach(function(item){
+        $('#'+item).removeClass('ui-state-disabled');
+    });
+}
+
+function disableMenuItems() {
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'share', 'download', 'phpmyadmin', 'ssh', 'reboot'];
+
+    items.forEach(function(item){
+        $('#'+item).removeClass('ui-state-disabled');
+    });
+}
+
 function init() {
     combobox = $( "#sites" ).combobox({
         select: function (event, ui) {
@@ -47,23 +66,18 @@ function init() {
         id: 'editsite',
         text: 'Edit site..',
         handler: function() {},
-        disabled: false
+        disabled: true
     }, {
         id: 'duplicate',
         text: 'Duplicate..',
         handler: function() {},
-        disabled: false
+        disabled: true
     }, {
         id: 'deletesite',
         text: 'Delete site',
         handler: function() {},
-        disabled: false
+        disabled: true
     }, '-', {
-        id: 'deletesite',
-        text: 'Delete site',
-        handler: function() {},
-        disabled: false
-    }, {
         id: 'import',
         text: 'Import..',
         handler: function() {},
@@ -72,29 +86,48 @@ function init() {
         id: 'export',
         text: 'Export',
         handler: function() {},
-        disabled: false
+        disabled: true
     }, {
         id: 'share',
         text: 'Share site',
         handler: function() {},
-        disabled: false
+        disabled: true
     }, {
         id: 'download',
         text: 'Download revisions',
         handler: function() {},
-        disabled: false
+        disabled: true
     }, '-', {
         id: 'phpmyadmin',
         text: 'PhpMyAdmin',
-        handler: function() {},
-        disabled: false
+        handler: function() {
+    		var settings = getSettings(currentSite);
+    		var password = settings.db_password;
+
+            /*
+    		if (prefs.useMasterPassword) {
+    			password = Aes.Ctr.decrypt(settings.db_password, localStorage.masterPassword, 256);
+    		}
+    		*/
+
+    		// create hidden form
+    		var form = $('<form id="pma_form" method="post" target="_blank" action="'+settings.db_phpmyadmin+'">\
+    		<input type="hidden" name="pma_username" value="'+settings.db_username+'">\
+    		<input type="hidden" name="pma_password" value="'+password+'">\
+    		</form>').appendTo('body')
+    		.on('submit', function(){
+    		    $(this).remove();
+    		})
+    		.submit();
+        },
+        disabled: true
     }, '-', {
-        id: 'deletesite',
+        id: 'ssh',
         text: 'SSH Terminal',
         handler: function() {},
         disabled: true
     }, {
-        id: 'deletesite',
+        id: 'reboot',
         text: 'Reboot',
         handler: function() {},
         disabled: true
@@ -106,7 +139,7 @@ function init() {
         if(item==='-') {
             el.append('<li>-</li>');
         } else {
-            var itemEl = $('<li>\
+            var itemEl = $('<li id="'+item.id+'">\
                 <a href="#">'+item.text+'</a>\
             </li>').appendTo(el);
 
@@ -182,6 +215,9 @@ function open(siteId, password) {
             //load file tree
             var options = getAjaxOptions('/api/files?site='+siteId);
             tree.setAjaxOptions(options);
+
+            //enable site options
+            enableMenuItems(site);
         }else{
             if (data.require_password) {
     			loading.stop();
