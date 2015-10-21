@@ -183,7 +183,9 @@ function init() {
     }, {
         id: 'download',
         text: 'Download revisions',
-        handler: function() {},
+        handler: function() {
+	        window.open('_ajax/download_revisions.php?site='+currentSite);
+        },
         disabled: true
     }, '-', {
         id: 'phpmyadmin',
