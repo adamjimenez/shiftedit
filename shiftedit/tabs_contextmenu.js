@@ -1,7 +1,9 @@
-define(["jquery.contextMenu","app/util",'app/lang','app/tabs'], function () {
+define(["jquery.contextMenu","app/util",'app/lang','app/tabs','app/prompt','app/site'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var tabs = require('app/tabs');
+var site = require('app/site');
+var prompt = require('app/prompt');
 
 function init() {
     $.contextMenu({
@@ -29,7 +31,26 @@ function init() {
                 case 'revealInTree':
                 break;
                 case 'bookmarkAll':
-                break;
+            		var name = '';
+            		var link = location.protocol+'//'+location.host+location.pathname+'#';
+
+            		$('li[role="tab"][data-site][data-file]:not(.button)').each(function() {
+            		    var siteId = $(this).data('site');
+            		    var file = $(this).data('file');
+            		    var settings = site.getSettings(siteId);
+
+            			link += settings.name + '/' + file + '|';
+            			name += file + ', ';
+            		});
+
+            		link = link.substr(0, (link.length - 1));
+            		name = name.substr(0, (name.length - 2));
+
+                    return prompt.alert({
+                        title: 'Bookmark all files',
+                        msg: 'Drag the link to your bookmarks: <br>\
+                        <a href="' + link + '">' + name + '</a>'
+                    });
             }
         },
         items: {
@@ -43,7 +64,7 @@ function init() {
             "saveAs": {name: makeMenuText('Save as...', 'Ctrl+Alt+S')},
             "saveAll": {name: makeMenuText('Save all', 'Ctrl+Shift+S')},
             "revealInTree": {name: "Reveal in file tree", disabled: true},
-            "bookmarkAll": {name: "Bookmark all files", disabled: true}
+            "bookmarkAll": {name: "Bookmark all files"}
         }
     });
 }
