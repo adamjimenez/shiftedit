@@ -294,3 +294,7 @@ div.buttons {
 #quickOpenSearch, #quickOpenFile{
     width: 100%;
 }
+
+#siteMenu {
+    position: absolute;
+}

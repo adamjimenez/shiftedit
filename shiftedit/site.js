@@ -36,6 +36,34 @@ function init() {
     .click(function() {
         tree.refresh();
     });
+
+    //button menu
+    var menu = $("#siteMenu").menu().hide();
+
+    $("#siteNenuBtn").button({
+        icons: {
+            primary: "ui-icon-gear"
+        },
+        text: false
+    })
+    .click(function() {
+        // Make use of the general purpose show and position operations
+        // open and place the menu where we want.
+        menu.show().position({
+              my: "left top",
+              at: "left bottom",
+              of: this
+        });
+
+        // Register a click outside the menu to close it
+        $( document ).on( "click", function() {
+              menu.hide();
+        });
+
+        // Make sure to return false here or the click registration
+        // above gets invoked.
+        return false;
+    });
 }
 
 function open(siteId, password) {
