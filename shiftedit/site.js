@@ -95,7 +95,7 @@ function init() {
             }
 
             var ajax;
-        	if (!loading.start('Connecting to site '+site.name, function(){
+        	if (!loading.start('Deleting site '+site.name, function(){
         		console.log('abort deleting site');
         		ajax.abort();
         	})) {
@@ -113,7 +113,7 @@ function init() {
 
                 if(data.success){
                     //remove this site from any active tabs
-                    $("li[data-site='"+ currentSite+"']").attr('data-site', '');
+                    $("li[data-site='"+currentSite+"']").attr('data-site', '');
 
                     //disable file tree
                     $('#tree').hide();
@@ -131,7 +131,7 @@ function init() {
                 }
             }).fail(function() {
                 loading.stop();
-        		prompt.alert({title:lang.failedText, msg:'Error opening site'});
+        		prompt.alert({title:lang.failedText, msg:'Error deleting site'});
             });
 
 
@@ -145,7 +145,35 @@ function init() {
     }, {
         id: 'export',
         text: 'Export',
-        handler: function() {},
+        handler: function() {
+            var ajax;
+        	if (!loading.start('Exporting site '+site.name, function(){
+        		console.log('abort exporting site');
+        		ajax.abort();
+        	})) {
+        		return;
+        	}
+
+            ajax = $.ajax({
+                url: '/api/sites?cmd=export&site='+currentSite,
+        	    method: 'GET',
+        	    dataType: 'json',
+            })
+            .then(function (data) {
+                loading.stop();
+
+                if(data.success){
+                    var link = $('<a href="data:text/xml;base64,'+btoa(data.content)+'" download="'+data.file+'"></a>').appendTo('body');
+                    link.get(0).click();
+                    link.remove();
+                }else{
+                    prompt.alert({title:'Error', msg:data.error});
+                }
+            }).fail(function() {
+                loading.stop();
+        		prompt.alert({title:lang.failedText, msg:'Error exporting site'});
+            });
+        },
         disabled: true
     }, {
         id: 'share',
