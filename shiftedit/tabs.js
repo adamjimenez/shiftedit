@@ -525,11 +525,21 @@ function newTab (e, ui) {
 //event listener
 function tabActivate( tab ) {
     var file = tab.data('file');
+    var siteId = tab.data('site');
     var title = file ? file : 'ShiftEdit';
     document.title = title;
 
-    var editor = getEditor(tab);
+    //hash
+    var hash = '#';
+    if(siteId){
+        settings = site.getSettings(siteId);
+        hash += settings.name + '/';
+    }
 
+    hash += file ? tab.data('file') : 'newfile';
+    window.location.hash = hash;
+
+    var editor = getEditor(tab);
     if (editor)
         editor.focus();
 }

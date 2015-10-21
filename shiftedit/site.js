@@ -45,7 +45,7 @@ function init() {
             open(ui.item.value);
         },
         create: function( event, ui ) {
-            load();
+            //load();
         }
     });
 
@@ -408,14 +408,16 @@ function active() {
     return currentSite;
 }
 
-function getSettings(siteId) {
-    if(!siteId) {
-        siteId = currentSite;
+function getSettings(val) {
+    if(!val) {
+        val = currentSite;
     }
+
+    var key = isNaN(val) ? 'name' : 'id';
 
     site = false;
     sites.forEach(function(entry) {
-        if(entry.id==siteId){
+        if(entry[key]==val){
             site = entry;
             return;
         }
