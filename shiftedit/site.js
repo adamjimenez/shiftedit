@@ -18,6 +18,9 @@ function enableMenuItems(site) {
     if(site.db_phpmyadmin)
         items.push('phpmyadmin');
 
+    if(site.server_type==='Hosted')
+        items.push('reboot');
+
     items.forEach(function(item){
         $('#'+item).removeClass('ui-state-disabled');
     });
@@ -219,7 +222,29 @@ function init() {
     }, {
         id: 'reboot',
         text: 'Reboot',
-        handler: function() {},
+        handler: function() {
+            var ajax;
+        	if (!loading.start('Rebooting site '+site.name, function(){
+        		console.log('abort reboot');
+        		ajax.abort();
+        	})) {
+        		return;
+        	}
+
+            ajax = $.ajax({
+                url: '/api/sites?cmd=reboot&site='+currentSite,
+        	    method: 'GET',
+        	    dataType: 'json',
+            })
+            .then(function (data) {
+                loading.stop();
+
+                //refresh tree?
+            }).fail(function() {
+                loading.stop();
+        		prompt.alert({title:lang.failedText, msg:'Error rebooting'});
+            });
+        },
         disabled: true
     }];
 
