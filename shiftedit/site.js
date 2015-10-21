@@ -12,6 +12,28 @@ var currentSite = storage.get('currentSite');
 
 var combobox;
 
+function enableMenuItems(site) {
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'share', 'download'];
+
+    if(site.db_phpmyadmin)
+        items.push('phpmyadmin');
+
+    if(site.server_type==='Hosted')
+        items.push('reboot');
+
+    items.forEach(function(item){
+        $('#'+item).removeClass('ui-state-disabled');
+    });
+}
+
+function disableMenuItems() {
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'share', 'download', 'phpmyadmin', 'ssh', 'reboot'];
+
+    items.forEach(function(item){
+        $('#'+item).removeClass('ui-state-disabled');
+    });
+}
+
 function init() {
     combobox = $( "#sites" ).combobox({
         select: function (event, ui) {
@@ -36,13 +58,251 @@ function init() {
     .click(function() {
         tree.refresh();
     });
+
+    //button menu
+    var items = [{
+        id: 'newsite',
+        text: 'New site..',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'editsite',
+        text: 'Edit site..',
+        handler: function() {},
+        disabled: true
+    }, {
+        id: 'duplicate',
+        text: 'Duplicate..',
+        handler: function() {},
+        disabled: true
+    }, {
+        id: 'deletesite',
+        text: 'Delete site',
+        handler: function(undef, e, confirmed) {
+            if(!confirmed) {
+                var me = this;
+                prompt.confirm({
+                    title: 'Delete site',
+                    msg: 'Are you sure?',
+                    fn: function(value) {
+                       switch(value) {
+                            case 'yes':
+                                $(me).trigger('click', [true]);
+                                return;
+                            default:
+                                return false;
+                       }
+                    }
+                });
+                return;
+            }
+
+            var ajax;
+        	if (!loading.start('Deleting site '+site.name, function(){
+        		console.log('abort deleting site');
+        		ajax.abort();
+        	})) {
+        		return;
+        	}
+
+            ajax = $.ajax({
+                url: '/api/sites?cmd=delete&site='+currentSite,
+        	    method: 'GET',
+        	    dataType: 'json',
+            })
+            .then(function (data) {
+                loading.stop();
+                //console.log(data);
+
+                if(data.success){
+                    //remove this site from any active tabs
+                    $("li[data-site='"+currentSite+"']").attr('data-site', '');
+
+                    //disable file tree
+                    $('#tree').hide();
+
+                    //disable site options
+                    disableMenuItems();
+
+                    currentSite = 0;
+
+                    //refresh combo
+                    $( "#sites" ).combobox('val');
+                    load();
+                }else{
+                    prompt.alert({title:'Error', msg:data.error});
+                }
+            }).fail(function() {
+                loading.stop();
+        		prompt.alert({title:lang.failedText, msg:'Error deleting site'});
+            });
+
+
+        },
+        disabled: true
+    }, '-', {
+        id: 'import',
+        text: 'Import..',
+        handler: function() {},
+        disabled: false
+    }, {
+        id: 'export',
+        text: 'Export',
+        handler: function() {
+            var ajax;
+        	if (!loading.start('Exporting site '+site.name, function(){
+        		console.log('abort exporting site');
+        		ajax.abort();
+        	})) {
+        		return;
+        	}
+
+            ajax = $.ajax({
+                url: '/api/sites?cmd=export&site='+currentSite,
+        	    method: 'GET',
+        	    dataType: 'json',
+            })
+            .then(function (data) {
+                loading.stop();
+
+                if(data.success){
+                    var link = $('<a href="data:text/xml;base64,'+btoa(data.content)+'" download="'+data.file+'"></a>').appendTo('body');
+                    link.get(0).click();
+                    link.remove();
+                }else{
+                    prompt.alert({title:'Error', msg:data.error});
+                }
+            }).fail(function() {
+                loading.stop();
+        		prompt.alert({title:lang.failedText, msg:'Error exporting site'});
+            });
+        },
+        disabled: true
+    }, {
+        id: 'share',
+        text: 'Share site',
+        handler: function() {},
+        disabled: true
+    }, {
+        id: 'download',
+        text: 'Download revisions',
+        handler: function() {
+	        window.open('_ajax/download_revisions.php?site='+currentSite);
+        },
+        disabled: true
+    }, '-', {
+        id: 'phpmyadmin',
+        text: 'PhpMyAdmin',
+        handler: function() {
+    		var settings = getSettings(currentSite);
+    		var password = settings.db_password;
+
+            /*
+    		if (prefs.useMasterPassword) {
+    			password = Aes.Ctr.decrypt(settings.db_password, localStorage.masterPassword, 256);
+    		}
+    		*/
+
+    		// create hidden form
+    		var form = $('<form id="pma_form" method="post" target="_blank" action="'+settings.db_phpmyadmin+'">\
+    		<input type="hidden" name="pma_username" value="'+settings.db_username+'">\
+    		<input type="hidden" name="pma_password" value="'+password+'">\
+    		</form>').appendTo('body')
+    		.on('submit', function(){
+    		    $(this).remove();
+    		})
+    		.submit();
+        },
+        disabled: true
+    }, '-', {
+        id: 'ssh',
+        text: 'SSH Terminal',
+        handler: function() {},
+        disabled: true
+    }, {
+        id: 'reboot',
+        text: 'Reboot',
+        handler: function() {
+            var ajax;
+        	if (!loading.start('Rebooting site '+site.name, function(){
+        		console.log('abort reboot');
+        		ajax.abort();
+        	})) {
+        		return;
+        	}
+
+            ajax = $.ajax({
+                url: '/api/sites?cmd=reboot&site='+currentSite,
+        	    method: 'GET',
+        	    dataType: 'json',
+            })
+            .then(function (data) {
+                loading.stop();
+
+                //refresh tree?
+            }).fail(function() {
+                loading.stop();
+        		prompt.alert({title:lang.failedText, msg:'Error rebooting'});
+            });
+        },
+        disabled: true
+    }];
+
+    var el = $("#siteMenu");
+    var context;
+    items.forEach(function(item) {
+        if(item==='-') {
+            el.append('<li>-</li>');
+        } else {
+            var itemEl = $('<li id="'+item.id+'">\
+                <a href="#">'+item.text+'</a>\
+            </li>').appendTo(el);
+
+            if(item.disabled) {
+                itemEl.addClass('ui-state-disabled');
+            }
+
+            if(item.handler) {
+                itemEl.click(jQuery.proxy(item.handler, undefined, context));
+            }
+        }
+    });
+
+    var menu = $("#siteMenu").menu().hide();
+
+    $("#siteNenuBtn").button({
+        icons: {
+            primary: "ui-icon-gear"
+        },
+        text: false
+    })
+    .click(function() {
+        // Make use of the general purpose show and position operations
+        // open and place the menu where we want.
+        menu.show().position({
+              my: "left top",
+              at: "left bottom",
+              of: this
+        });
+
+        // Register a click outside the menu to close it
+        $( document ).on( "click", function() {
+              menu.hide();
+        });
+
+        // Make sure to return false here or the click registration
+        // above gets invoked.
+        return false;
+    });
 }
 
 function open(siteId, password) {
     currentSite = null;
 
     var site = getSettings(siteId);
+    currentSite = siteId;
 
+    var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
 		console.log('abort opening site');
 		ajax.abort();
@@ -52,7 +312,7 @@ function open(siteId, password) {
 		return;
 	}
 
-    var ajax = $.ajax({
+    ajax = $.ajax({
         url: '/api/sites?site='+siteId,
 	    method: 'POST',
 	    dataType: 'json',
@@ -66,12 +326,17 @@ function open(siteId, password) {
         //console.log(data);
 
         if(data.success){
-            currentSite = siteId;
             storage.set('currentSite', currentSite);
 
             //load file tree
             var options = getAjaxOptions('/api/files?site='+siteId);
             tree.setAjaxOptions(options);
+
+            //enable site options
+            enableMenuItems(site);
+
+            //show tree
+            $('#tree').show();
         }else{
             if (data.require_password) {
     			loading.stop();

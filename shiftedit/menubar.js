@@ -1,4 +1,4 @@
-define(["jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util', 'app/shortcuts'], function () {
+define(["jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util', 'app/shortcuts', 'app/editors'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var prefs = require('app/prefs').get_prefs();
@@ -9,6 +9,7 @@ var prompt = require('app/prompt');
 var util = require('app/util');
 var menus = require('app/menus');
 var shortcuts = require('app/shortcuts');
+var editors = require('app/editors');
 
 var themes = [{
 	title: "Black Tie",
@@ -293,6 +294,30 @@ function toggleOptions(target) {
 
 //console.log(prefs);
 function init () {
+    $('body').append('<input type="file" id="upload" style="visibility: hidden;">');
+
+    //handle uploads
+    $('#upload').change(function(e){
+        var files = e.target.files; // FileList object
+
+		if (files.length === 0) {
+			//handleData(dt);
+			return;
+		}
+		var reader = {};
+        for (var i = 0, f; file = files[i]; i++) {
+			reader[i] = new FileReader();
+			reader[i].onloadend = function (file, i) {
+				return function () {
+					editors.create(file.name, reader[i].result);
+				};
+			}(file, i);
+
+            // Read in the image file as a data URL.
+            reader[i].readAsText(file);
+        }
+    });
+
     console.log('menubar');
     var menu = {
         "file": {
@@ -313,6 +338,9 @@ function init () {
     		},
     		{
     			text: 'Upload',
+    			handler: function(){
+    			    $('#upload').click();
+    			}
     		},
             '-',
     	    {
