@@ -595,7 +595,7 @@ function updateCategory() {
 
     //domain placeholder
     var domain_placeholder = 'e.g. ftp.mydomain.com';
-    if( category==='Proxy' ){
+    if( category==='AJAX' ){
         domain_placeholder = 'e.g. www.mydomain.com/shiftedit-proxy.php';
     } else if( category==='SFTP' ){
         domain_placeholder = 'e.g. mydomain.com';
@@ -657,7 +657,7 @@ function edit(newSite, duplicate) {
                             <input type="radio" name="serverTypeItem" value="Hosted" id="radio4"><label for="radio4">Hosted</label>\
                             <input type="radio" name="serverTypeItem" value="Other" id="other"><label for="other" id="otherLabel">Other</label>\
                             <ul id="otherMenu">\
-                                <li><a href="#">Proxy</a></li>\
+                                <li><a href="#">AJAX</a></li>\
                                 <li><a href="#">WebDAV</a></li>\
                             </ul>\
                         </span>\
