@@ -298,3 +298,56 @@ div.buttons {
 #siteMenu {
     position: absolute;
 }
+
+#siteSettings p{
+    display: flex;
+    vertical-align: middle;
+    align-items: center;
+}
+
+#siteSettings input[name=port], #siteSettings input[name=timeout]{
+    max-width: 50px;
+}
+
+#siteSettings label{
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 4px;
+    line-height: 16px;
+}
+
+#siteSettings label:first-child{
+    min-width: 110px;
+    width: 110px;
+    padding: 0;
+}
+
+#siteSettings #portContainer label, #siteSettings #timeoutContainer label{
+    min-width: auto;
+    width: auto;
+}
+
+#siteSettings label.ui-button{
+    padding: 0;
+}
+
+#siteSettings input, #siteSettings textarea{
+    flex-grow: 1;
+}
+
+#siteSettings input[type=checkbox]{
+    flex-grow: 0;
+}
+
+#siteSettings .ui-menu {
+    position: absolute;
+    width: 70px;
+}
+
+#cloudRadio .ui-button{
+    width: 100px;
+}
+
+#stackRadio .ui-button{
+    width: 100px;
+}

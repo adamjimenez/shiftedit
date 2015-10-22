@@ -63,17 +63,17 @@ function init() {
     var items = [{
         id: 'newsite',
         text: 'New site..',
-        handler: function() {},
+        handler: create,
         disabled: false
     }, {
         id: 'editsite',
         text: 'Edit site..',
-        handler: function() {},
+        handler: edit,
         disabled: true
     }, {
         id: 'duplicate',
         text: 'Duplicate..',
-        handler: function() {},
+        handler: duplicate,
         disabled: true
     }, {
         id: 'deletesite',
@@ -136,8 +136,6 @@ function init() {
                 loading.stop();
         		prompt.alert({title:lang.failedText, msg:'Error deleting site'});
             });
-
-
         },
         disabled: true
     }, '-', {
@@ -417,7 +415,7 @@ function open(siteId, password) {
         		/*
         		if (prefs.useMasterPassword) {
         			if (password) {
-        				password = (Aes.Ctr.decrypt(password, shiftedit.app.storage.get('masterPassword'), 256));
+        				password = (Aes.Ctr.decrypt(password, storage.get('masterPassword'), 256));
         			}
         		}
         		*/
@@ -475,6 +473,458 @@ function load() {
         });
 }
 
+function create() {
+    edit(true);
+}
+
+function duplicate() {
+    edit(false, true);
+}
+
+function updateCategory() {
+    var category = $('input[name=server_type]').val();
+
+    fields = [
+        'hosted_container',
+        'cloud_container',
+        'host_container',
+        'proxyfield',
+        'domainContainer',
+        'portContainer',
+        'timeoutContainer',
+        'authentication_container',
+        'ftp_user',
+        'pass_container',
+        'ssh_key_container',
+        'dir_container',
+        'web_url',
+        'turbo_mode_container',
+        'git_url',
+        's3_public',
+        's3info',
+        'gdrivelimited',
+        'testSiteButton'
+    ];
+
+    categories = {
+        'FTP': [
+            'host_container',
+            'portContainer',
+            'timeoutContainer',
+            'ftp_user',
+            'pass_container',
+            'dir_container',
+            'web_url',
+            'turbo_mode_container',
+            'testSiteButton'
+        ],
+        'SFTP': [
+            'host_container',
+            'portContainer',
+            'timeoutContainer',
+            'authentication_container',
+            'ftp_user',
+            'pass_container',
+            'dir_container',
+            'web_url',
+            'turbo_mode_container',
+            'testSiteButton'
+        ],
+        'Cloud': [
+            'cloud_container',
+        ],
+        'AmazonS3': [
+            'cloud_container',
+            's3_public',
+            's3info',
+            'ftp_user',
+            'pass_container',
+            'dir_container',
+            'web_url',
+            'testSiteButton'
+        ],
+        'Dropbox': [
+            'cloud_container',
+            'dir_container',
+            'testSiteButton'
+        ],
+        'GDrive': [
+            'cloud_container',
+            'gdrivelimited',
+            'dir_container',
+            'testSiteButton'
+        ],
+        'GDriveLimited': [
+            'cloud_container',
+            'gdrivelimited',
+            'dir_container',
+            'testSiteButton'
+        ],
+        'Hosted': [
+            'git_url',
+            'hosted_container'
+        ],
+        'Proxy': [
+            'proxyfield',
+            'host_container',
+            'ftp_user',
+            'pass_container',
+            'dir_container',
+            'web_url',
+            'testSiteButton'
+        ],
+        'WebDAV': [
+            'host_container',
+            'ftp_user',
+            'pass_container',
+            'dir_container',
+            'web_url',
+            'testSiteButton'
+        ]
+    };
+
+    fields.forEach(function(field){
+        $('#'+field).hide();
+    });
+
+    if (categories[category]) {
+        categories[category].forEach(function(field){
+            $('#'+field).show();
+        });
+    }
+
+    //domain placeholder
+    var domain_placeholder = 'e.g. ftp.mydomain.com';
+    if( category==='Proxy' ){
+        domain_placeholder = 'e.g. www.mydomain.com/shiftedit-proxy.php';
+    } else if( category==='SFTP' ){
+        domain_placeholder = 'e.g. mydomain.com';
+    } else if( category==='WebDAV' ){
+        domain_placeholder = 'e.g. www.mydomain.com';
+    }
+
+    $('#domain').attr('placeholder', domain_placeholder);
+
+    //username placeholder
+    var username_placeholder = 'your username';
+    if( category==='AmazonS3' ){
+        username_placeholder = 'access key id';
+    }
+
+    $('#ftp_user').attr('placeholder', username_placeholder);
+
+    //password placeholder
+    var password_placeholder = 'leave blank to prompt for password';
+    if( category==='AmazonS3' ){
+        password_placeholder = 'secret access key';
+    }
+
+    $('#password').attr('placeholder', password_placeholder);
+}
+
+function edit(newSite, duplicate) {
+	if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Standard' && sites.length >= (1+1)) {
+		return prompt.alert({title: 'Quota exceeded', msg:'Free edition is limited to 1 site. <a href="/premier" target="_blank">Go Premier</a>'});
+	} else if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Education' && sites.length >= (5+1)) {
+		return prompt.alert({title: 'Quota exceeded', msg:'Education edition is limited to 5 sites. <a href="/premier" target="_blank">Go Premier</a>'});
+	}
+
+	//create dialog BEWARE UGLY LONG STRING!
+    $( "body" ).append('<div id="dialog-site" title="Site settings">\
+      <form id="siteSettings" autocomplete="off">\
+        <input type="hidden" name="server_type" value="">\
+        <input type="hidden" name="id" value="">\
+        <!-- fake fields are a workaround for chrome autofill -->\
+        <input style="display:none" type="text" name="fakeusernameremembered"/>\
+        <input style="display:none" type="password" name="fakepasswordremembered"/>\
+        <div id="siteTabs">\
+        	<ul>\
+        	    <li><a href="#tabs-site">Site</a></li>\
+        	    <li><a href="#tabs-database">Database</a></li>\
+        	</ul>\
+            <div>\
+                <div id="tabs-site">\
+                    <p>\
+                        <label for="name">Name:</label>\
+                        <input type="text" name="name" value="" class="text ui-widget-content ui-corner-all" required>\
+                    </p>\
+                    <p>\
+                        <label for="name">Server type:</label>\
+                        <span id="serverTypeRadio">\
+                            <input type="radio" name="serverTypeItem" value="FTP" id="radio1" checked><label for="radio1">FTP</label>\
+                            <input type="radio" name="serverTypeItem" value="SFTP" id="radio2"><label for="radio2">SFTP</label>\
+                            <input type="radio" name="serverTypeItem" value="Cloud" id="radio3"><label for="radio3">Cloud Services</label>\
+                            <input type="radio" name="serverTypeItem" value="Hosted" id="radio4"><label for="radio4">Hosted</label>\
+                            <input type="radio" name="serverTypeItem" value="Other" id="other"><label for="other" id="otherLabel">Other</label>\
+                            <ul id="otherMenu">\
+                                <li><a href="#">Proxy</a></li>\
+                                <li><a href="#">WebDAV</a></li>\
+                            </ul>\
+                        </span>\
+                    </p>\
+                    \
+                    <div id="hosted_container">\
+                        <p>\
+                            <label for="name">Stack:</label>\
+                            <span id="stackRadio">\
+                                <input type="radio" name="stack" value="php" id="stackRadio1">\
+                                <label for="stackRadio1" checled>\
+                                    <img src="/images/logos/php.svg" height="32" width="32"><br>\
+                                    PHP\
+                                </label>\
+                                <input type="radio" name="stack" value="nodejs" id="stackRadio2">\
+                                <label for="stackRadio2">\
+                                    <img src="/images/logos/nodejs.svg" height="32" width="32"><br>\
+                                    Node.js\
+                                </label>\
+                            </span>\
+                        </p>\
+                        <p>\
+                            <label for="name">Git URL:</label>\
+                            <input type="text" name="git_url" value="" class="text ui-widget-content ui-corner-all" required>\
+                        </p>\
+                    </div>\
+                    \
+                    <div id="cloud_container">\
+                        <p>\
+                            <label for="name">Cloud services:</label>\
+                            <span id="cloudRadio">\
+                                <input type="radio" name="cloud" value="Dropbox" id="cloudRadio1">\
+                                <label for="cloudRadio1">\
+                                    <img src="/images/logos/dropbox.svg" height="32" width="32"><br>\
+                                    Dropbox\
+                                </label>\
+                                <input type="radio" name="cloud" value="GDrive" id="cloudRadio2">\
+                                <label for="cloudRadio2">\
+                                    <img src="/images/logos/googledrive.svg" height="32" width="32"><br>\
+                                    Google Drive\
+                                </label>\
+                                <input type="radio" name="cloud" value="AmazonS3" id="cloudRadio3">\
+                                <label for="cloudRadio3">\
+                                    <img src="/images/logos/amazons3.svg" height="32" width="32"><br>\
+                                    Amazon S3\
+                                </label>\
+                            </span>\
+                        </p>\
+                    </div>\
+                    \
+                    <label id="proxyfield">Use a PHP proxy file to handle connections. You will need to configure and upload the \
+                    <a href="https://raw.githubusercontent.com/adamjimenez/shiftedit-ajax/master/shiftedit-proxy.php" target="_blank">proxy file</a>\
+                    to your webspace.</label>\
+                    \
+                    <div id="host_container">\
+                        <p>\
+                            <label for="name">Host:</label>\
+                            <input type="text" id="domain" name="domain" value="" class="text ui-widget-content ui-corner-all" required>\
+                            <span id="portContainer">\
+                                <label for="name">Port:</label>\
+                                <input type="number" name="port" value="" class="text ui-widget-content ui-corner-all">\
+                            </span>\
+                            <span id="timeoutContainer">\
+                                <label for="name">Timeout:</label>\
+                                <input type="number" name="timeout" value="" class="text ui-widget-content ui-corner-all" required>\
+                            </span>\
+                        </p>\
+                    </div>\
+                    <p id="authentication_container">\
+                        <label for="name">Authentication:</label>\
+                        <span id="authenticationRadio">\
+                            <input type="radio" name="logon_type" value="" id="authRadio1" checked><label for="authRadio1">Password</label>\
+                            <input type="radio" name="logon_type" value="key" id="authRadio2"><label for="authRadio2">Public Key</label>\
+                        </span>\
+                    </p>\
+                    <p id="ftp_user">\
+                        <label for="name">Username:</label>\
+                        <input type="text" id="ftp_user" name="ftp_user" value="" class="text ui-widget-content ui-corner-all" required>\
+                    </p>\
+                    <p id="pass_container">\
+                        <label for="name">Password:</label>\
+                        <input type="password" id="password" name="ftp_pass" value="" class="text ui-widget-content ui-corner-all" required>\
+                        <button type="button" id="showPassword">Show</button>\
+                    </p>\
+                    <p id="ssh_key_container">\
+                        <label for="name">Your SSH key:</label>\
+                        <textarea id="sshKey" readonly>'+storage.get('public_key')+'</textarea>\
+                        <label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
+                    </p>\
+                    <p id="dir_container">\
+                        <label for="name">Path:</label>\
+                        <input type="text" name="dir" value="" class="text ui-widget-content ui-corner-all">\
+                        <button type="button">Choose</button>\
+                    </p>\
+                    <p id="web_url">\
+                        <label for="name">Website URL:</label>\
+                        <input type="text" name="web_url" value="" class="text ui-widget-content ui-corner-all">\
+                    </p>\
+                    <p id="turbo_mode_container">\
+                        <label for="name">Turbo mode:</label>\
+                        <input type="checkbox" name="turbo" value="1" class="text ui-widget-content ui-corner-all" >\
+                        Uploads a PHP proxy file for faster connections.\
+                    </p>\
+                    <p id="gdrivelimited">\
+                        <label for="name">Limited access:</label>\
+                        <input type="checkbox" name="gdrivelimited" value="1" class="text ui-widget-content ui-corner-all" >\
+                        Limit access to only files created in ShiftEdit.\
+                    </p>\
+                    <p id="s3_public">\
+                        <label for="name">Save files with public access:</label>\
+                        <input type="checkbox" name="s3_public" value="1" class="text ui-widget-content ui-corner-all" >\
+                    </p>\
+                </div>\
+                <div id="tabs-database">\
+                    <p>\
+                        <label for="name">PhpMyAdmin Url:</label>\
+                        <input type="text" name="db_phpmyadmin" value="" class="text ui-widget-content ui-corner-all">\
+                    </p>\
+                    <p>\
+                        <label for="name">Username:</label>\
+                        <input type="text" name="db_phpmyadmin" value="" class="text ui-widget-content ui-corner-all">\
+                    </p>\
+                    <p>\
+                        <label for="name">Password:</label>\
+                        <input type="password" name="db_password" value="" class="text ui-widget-content ui-corner-all">\
+                        <button type="button" id="showDbPassword">Show</button>\
+                    </p>\
+                </div>\
+            </div>\
+        </div>\
+        <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
+      </form>\
+    </div>');
+
+    //set values
+    var defaults = {
+        server_type: 'FTP',
+        timeout: 10
+    };
+    var settings = newSite ? defaults : getSettings();
+
+    for(var i in settings) {
+		if (settings.hasOwnProperty(i)) {
+		    var field = $('[name='+i+']');
+		    switch(field.attr('type')){
+		        case 'checkbox':
+		            if (settings[i]==1)
+		                field.prop('checked', true);
+	            break;
+	            default:
+                    field.val(settings[i]);
+                break;
+		    }
+		}
+    }
+
+    //select ssh key
+    $('#sshKey').click(function(){
+        $(this).select();
+    });
+
+    //"Other" split button
+    $('#otherMenu').menu().hide();
+    $('#otherMenu a').click(function() {
+        $('#otherLabel').children('span').text($(this).text());
+        $('#other').val($(this).text());
+        $('#otherLabel').trigger('click');
+    });
+    $('#otherLabel').click(function() {
+        var menu = $('#otherMenu').show().position({
+              my: "left top",
+              at: "left bottom",
+              of: this
+        });
+        $( document ).one( "click", function() {
+            menu.hide();
+        });
+        return false;
+    });
+
+    //tabs and buttons
+    $( "#siteTabs" ).tabs();
+    $( "#serverTypeRadio" ).buttonset();
+    $( "#stackRadio" ).buttonset();
+    $( "#cloudRadio" ).buttonset();
+    $( "#authenticationRadio" ).buttonset();
+
+    $( "#showPassword,#showDbPassword" ).click(function(){
+        var input = ($( this ).prev());
+        if(input.attr('type')==='text') {
+            input.attr('type', 'password');
+        }else{
+            input.attr('type', 'text');
+        }
+    });
+
+    //toggle fields
+    $('#cloud_container label, #serverTypeRadio label').click(function() {
+        var category = $(this).prev().prop('checked', true).val(); //make sure radio is checked
+        $('input[name=server_type]').val(category);
+        updateCategory();
+    });
+
+    //trimage
+    $('#siteSettings input[type=text]').blur(function(){
+        $(this).val($(this).val().trim());
+    });
+
+    updateCategory();
+
+    //open dialog
+    var dialog = $( "#dialog-site" ).dialog({
+        modal: true,
+        buttons: {
+            Save: function() {
+                var ajax;
+            	if (!loading.start('Saving site '+site.name, function(){
+            		console.log('abort saving site');
+            		ajax.abort();
+            	})) {
+            		return;
+            	}
+
+                ajax = $.ajax({
+                    url: '/api/sites?cmd=save&site='+$('#siteSettings [name=id]').val(),
+            	    method: 'POST',
+            	    dataType: 'json',
+            	    data: $('#siteSettings').serialize()
+                })
+                .then(function (data) {
+                    loading.stop();
+
+                    if(data.success){
+						/*
+						//set gdrive folder to public
+						if(
+						    (
+						        server_type === 'GDrive' ||
+						        server_type === 'GDriveLimited'
+						    ) &&
+						    dir_id
+						){
+						    console.log('set permissions');
+						    shiftedit.app.gdrive.set_public(dir_id, true);
+						}
+						*/
+
+						currentSite = data.site;
+						load();
+
+						$( "#dialog-site" ).dialog( "close" );
+                        $( "#dialog-site" ).remove();
+                    }else{
+                        prompt.alert({title:'Error', msg:data.error});
+                    }
+                }).fail(function() {
+                    loading.stop();
+            		prompt.alert({title:lang.failedText, msg:'Error saving site'});
+                });
+            }
+        },
+        width: 520,
+        minWidth: 520,
+        minHeight: 300
+    });
+}
+
 function active() {
     return currentSite;
 }
@@ -509,10 +959,10 @@ function getAjaxOptions(ajaxUrl) {
         		prompt.alert({title:lang.errorText, msg:'Missing web URL'});
         	}
 
-    		//var prefs = shiftedit.app.get_prefs();
+    		//var prefs = get_prefs();
 
     		//fixme prompt for master password
-    		//var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, shiftedit.app.storage.get('masterPassword'), 256) : settings.ftp_pass;
+    		//var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256) : settings.ftp_pass;
 
     		var pass = settings.ftp_pass;
 
