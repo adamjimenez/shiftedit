@@ -301,7 +301,6 @@ function init () {
         var files = e.target.files; // FileList object
 
 		if (files.length === 0) {
-			//handleData(dt);
 			return;
 		}
 		var reader = {};
@@ -313,7 +312,6 @@ function init () {
 				};
 			}(file, i);
 
-            // Read in the image file as a data URL.
             reader[i].readAsText(file);
         }
     });

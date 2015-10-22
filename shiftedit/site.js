@@ -143,7 +143,78 @@ function init() {
     }, '-', {
         id: 'import',
         text: 'Import..',
-        handler: function() {},
+        handler: function() {
+            //import site dialog
+            $( "body" ).append('<div id="dialog-message" title="Import site">\
+              <form>\
+                <fieldset>\
+                    Import a Dreamweaver or Filezilla xml file.\
+                    <input type="file" name="file" id="importSite" class="text ui-widget-content ui-corner-all">\
+                </fieldset>\
+              </form>\
+            </div>');
+
+            function doImport(content){
+                $( "#dialog-message" ).dialog( "close" );
+                $( "#dialog-message" ).remove();
+
+                var ajax;
+            	if (!loading.start('Importing site '+site.name, function(){
+            		console.log('abort importing site');
+            		ajax.abort();
+            	})) {
+            		return;
+            	}
+
+                ajax = $.ajax({
+                    url: '/api/sites?cmd=import',
+            	    method: 'POST',
+            	    dataType: 'json',
+            	    data: {
+            	        content: content
+            	    }
+                })
+                .then(function (data) {
+                    loading.stop();
+
+                    if(data.success){
+						prompt.alert({title: 'Success', msg: data.imported+' site(s) imported.'});
+						currentSite = data.site;
+						load();
+                    }else{
+                        prompt.alert({title:'Error', msg:data.error});
+                    }
+                }).fail(function() {
+                    loading.stop();
+            		prompt.alert({title:lang.failedText, msg:'Error importing site'});
+                });
+            }
+
+            $('#importSite').change(function(e){
+                var files = e.target.files; // FileList object
+
+        		if (files.length === 0) {
+        			return;
+        		}
+
+        		var file = files[0];
+    			var reader = new FileReader();
+    			reader.onloadend = function (file) {
+    				return function () {
+    					doImport(reader.result);
+    				};
+    			}(file);
+
+                reader.readAsText(file);
+            });
+
+            //open dialog
+            var dialog = $( "#dialog-message" ).dialog({
+                modal: true,
+                width: 400,
+                height: 300
+            });
+        },
         disabled: false
     }, {
         id: 'export',
