@@ -22,14 +22,6 @@ function setSiteValues(obj) {
 }
 window.shiftedit.setSiteValues = setSiteValues;
 
-function serializeObject(form) {
-    var paramObj = {};
-    $.each($(form).serializeArray(), function(_, kv) {
-      paramObj[kv.name] = kv.value;
-    });
-    return paramObj;
-}
-
 function enableMenuItems(site) {
     var items = ['editsite', 'duplicate', 'deletesite', 'export', 'share', 'download'];
 
@@ -671,7 +663,7 @@ function test() {
 	}
 
     var options = getAjaxOptions('/api/sites?site=');
-    var params = $.extend({}, options.params, serializeObject($('#siteSettings')));
+    var params = $.extend({}, options.params, util.serializeObject($('#siteSettings')));
 
     ajax = $.ajax({
         url: options.url+'&cmd=test',
@@ -1002,7 +994,7 @@ function edit(newSite, duplicate) {
         updateCategory();
     });
 
-    //trimage
+    //trim values
     $('#siteSettings input[type=text]').blur(function(){
         $(this).val($(this).val().trim());
     });
