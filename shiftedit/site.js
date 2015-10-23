@@ -261,7 +261,88 @@ function init() {
     }, {
         id: 'share',
         text: 'Share site',
-        handler: function() {},
+        handler: function() {
+            //import site dialog
+            $( "body" ).append('<div id="dialog-share-site" title="Share site">\
+              <form id="shareSite">\
+                <fieldset>\
+                    Email\
+                    <input type="text" name="email" class="text ui-widget-content ui-corner-all" required autofocus>\
+                    <button type="submit">Add</button>\
+                </fieldset>\
+                <div id="users">\
+                </div>\
+              </form>\
+            </div>');
+
+            loadUsers();
+
+            //handle add user
+            $('#shareSite').submit(function(event){
+                event.preventDefault();
+
+                var ajax;
+            	if (!loading.start('saving user', function(){
+            		ajax.abort();
+            	})) {
+            		return;
+            	}
+
+                ajax = $.ajax({
+                    url: '/api/share?cmd=save&site=' + currentSite + '&email=' + $('#shareSite input[name=email]').val(),
+            	    method: 'GET',
+            	    dataType: 'json',
+                })
+                .then(function (data) {
+                    loading.stop();
+
+                    if(data.success){
+                        $('#shareSite input[name=email]').val('');
+    					loadUsers();
+                    }else{
+                        prompt.alert({title:'Error', msg:data.error});
+                    }
+                }).fail(function() {
+                    loading.stop();
+            		prompt.alert({title:lang.failedText, msg:'Error getting shared'});
+                });
+            });
+
+            //handle remove user
+            $('#shareSite').on('click', 'a.delete', function() {
+                var ajax;
+            	if (!loading.start('deleting user', function(){
+            		ajax.abort();
+            	})) {
+            		return;
+            	}
+
+                ajax = $.ajax({
+                    url: '/api/share?cmd=delete&site='+currentSite+'&contact='+$(this).data('id'),
+            	    method: 'GET',
+            	    dataType: 'json',
+                })
+                .then(function (data) {
+                    loading.stop();
+
+                    if(data.success){
+    					loadUsers();
+                    }else{
+                        prompt.alert({title:'Error', msg:data.error});
+                    }
+                }).fail(function() {
+                    loading.stop();
+            		prompt.alert({title:lang.failedText, msg:'Error getting shared'});
+                });
+            });
+
+            //open dialog
+            var dialog = $( "#dialog-share-site" ).dialog({
+                modal: true,
+                width: 400,
+                height: 300
+            });
+        },
         disabled: true
     }, {
         id: 'download',
@@ -463,6 +544,42 @@ function open(siteId, password) {
     });
 
     return ajax;
+}
+
+function loadUsers() {
+    //get users
+    var ajax;
+	if (!loading.start('getting users', function(){
+		ajax.abort();
+	})) {
+		return;
+	}
+
+    ajax = $.ajax({
+        url: '/api/share?cmd=list&site='+currentSite,
+	    method: 'GET',
+	    dataType: 'json',
+    })
+    .then(function (data) {
+        loading.stop();
+
+        if(data.success){
+			var html = '';
+
+			data.shared.forEach(function(item){
+			    html = '<p>' + item.name + ' <a href="#" data-id="'+item.id+'" class="delete">X</a></p>';
+			});
+
+			$('#users').html(html);
+
+			$('#shareSite input[name=email]').focus();
+        }else{
+            prompt.alert({title:'Error', msg:data.error});
+        }
+    }).fail(function() {
+        loading.stop();
+		prompt.alert({title:lang.failedText, msg:'Error getting shared'});
+    });
 }
 
 function loadRepos(val) {
