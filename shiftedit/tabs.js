@@ -367,6 +367,7 @@ function setEdited(tab, edited) {
 	if(edited) {
 	    //change title
 	    tab.children('.ui-tabs-anchor').text(tab.data('file')+'*');
+	    tab.trigger('change');
 	} else {
 	    //change title
 	    tab.children('.ui-tabs-anchor').text(tab.data('file'));
@@ -542,6 +543,8 @@ function tabActivate( tab ) {
     var editor = getEditor(tab);
     if (editor)
         editor.focus();
+
+    $(tab).trigger('activate');
 }
 
 function updateTabs(e, params) {
