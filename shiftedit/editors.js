@@ -1,4 +1,4 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split','app/prompt','app/editor_contextmenu'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete','ace/split'], function (tabs, exports) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -7,6 +7,8 @@ var editor;
 var editor_toolbar = require('app/editor_toolbar');
 var editor_contextmenu = require('app/editor_contextmenu');
 var prompt = require('app/prompt');
+var autocomplete = require('app/autocomplete');
+var Autocomplete = require("ace/autocomplete").Autocomplete;
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -186,7 +188,6 @@ function create(file, content, siteId, options) {
 
 	panel.find('.next').click(jQuery.proxy(syntax_errors.next, tab));
 
-
 	//set mode
 	var ext = util.fileExtension(file);
 	var mode = 'text';
@@ -212,6 +213,46 @@ function create(file, content, siteId, options) {
 	editor.getSession().on('changeBreakpoint', jQuery.proxy(saveState, tab));
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
+
+	//autocomplete
+	editor.completer = new Autocomplete();
+
+	//remove tab command
+	editor.completer.keyboardHandler.removeCommand('Tab');
+	editor.completer.liveAutocompletionAutoSelect = true;
+	editor.completer.exactMatch = true;
+
+	editor.setOptions({
+		enableBasicAutocompletion: true,
+		enableLiveAutocompletion: true
+	});
+
+
+    window.shiftedit.defs[$(tab).attr('id')] = {
+        'definitions': {},
+	    'definitionRanges': {}
+    };
+	var shifteditCompleter = {
+	    getCompletions: function(editor, session, pos, prefix, callback) {
+	        var completions = autocomplete.run(editor, session, pos, prefix, callback);
+	        //console.log(completions);
+
+	        if (completions) {
+	        	callback(null, completions);
+	        }
+	    },
+	    getDocTooltip: function(selected){
+	    	if (selected.doc) {
+		    	return {
+		    		docHTML: selected.doc
+		    	};
+	    	}
+	    }
+	};
+
+	//var language_tools = require("ace/ext/language_tools");
+	//editor.completers = [language_tools.keyWordCompleter];
+	editor.completers = [shifteditCompleter];
 
 	//shortcuts
 	editor.commands.addCommand({

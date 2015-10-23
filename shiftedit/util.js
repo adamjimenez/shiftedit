@@ -1,14 +1,16 @@
 define(function (require) {
 
+function clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
 return {
     basename: function(file)
     {
     	var pos = file.lastIndexOf('/');
     	return file.substring(pos+1,file.length);
     },
-    clone: function(obj) {
-        return JSON.parse(JSON.stringify(obj));
-    },
+    clone: clone,
     makeMenuText: function(text, key) {
 		if( !key ){
 			key ='';
@@ -22,6 +24,18 @@ return {
     	if( dot == -1 ) return "";
     	return filename.substr(dot+1, filename.length);
     },
+    merge: function(obj1, obj2){
+		/*
+		var obj3 = {};
+		for (var attrname in obj1) {obj3[attrname] = obj1[attrname]; }
+		for (var attrname in obj2) {obj3[attrname] = obj2[attrname]; }
+		return obj3;*/
+
+		var obj1b = clone(obj1);
+		var obj2b = clone(obj2);
+
+		return $.extend({}, obj1b, obj2b);
+	},
     selectFilename: function(){
         var pos = this.value.lastIndexOf('.');
 

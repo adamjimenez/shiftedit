@@ -14,10 +14,14 @@ requirejs.config({
         "ui.combobox": "combobox/ui.combobox",
         "jstree": "jstree/jstree",
         "ace": "ace.20141108/src/ace",
-        "ace/split": 'ace.20141108/src/ext-split'
+        "ace/split": 'ace.20141108/src/ext-split',
+        "ace/autocomplete": "ace.20141108/src/ext-language_tools"
     },
     "shim": {
         "ace/split": {
+            deps: ["ace"]
+        },
+        "ace/autocomplete": {
             deps: ["ace"]
         },
         "jquery-ui": {
