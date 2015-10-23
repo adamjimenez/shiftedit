@@ -154,7 +154,7 @@ function init() {
         text: 'Import..',
         handler: function() {
             //import site dialog
-            $( "body" ).append('<div id="dialog-message" title="Import site">\
+            $( "body" ).append('<div id="dialog-import" title="Import site">\
               <form>\
                 <fieldset>\
                     Import a Dreamweaver or Filezilla xml file.\
@@ -164,8 +164,8 @@ function init() {
             </div>');
 
             function doImport(content){
-                $( "#dialog-message" ).dialog( "close" );
-                $( "#dialog-message" ).remove();
+                $( "#dialog-import" ).dialog( "close" );
+                $( "#dialog-import" ).remove();
 
                 var ajax;
             	if (!loading.start('Importing site '+site.name, function(){
@@ -218,7 +218,7 @@ function init() {
             });
 
             //open dialog
-            var dialog = $( "#dialog-message" ).dialog({
+            var dialog = $( "#dialog-import" ).dialog({
                 modal: true,
                 width: 400,
                 height: 300
@@ -653,6 +653,106 @@ function updateCategory() {
     $('#password').attr('placeholder', password_placeholder);
 }
 
+function chooseFolder() {
+    var options = getAjaxOptions('/api/files?site=');
+    var params = $.extend({}, options.params, util.serializeObject($('#siteSettings')));
+
+	/*
+	if (prefs.useMasterPassword) {
+		if (params.ftp_pass) {
+			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
+		}
+		if (params.db_password) {
+			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
+		}
+	}
+	*/
+
+	delete params.dir;
+	delete params.dir_id;
+
+    $( "body" ).append('<div id="dialog-choose-folder" title="Choose folder">\
+<div id="folderTree"></div>\
+</div>');
+
+    var folderTree = $('#folderTree').jstree({
+    	'core' : {
+            'data' : function (node, callback) {
+                if(!options.url){
+                    return false;
+                }
+
+        		$.ajax(options.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+        		    method: 'POST',
+        		    dataType: 'json',
+        		    data: params,
+        		    success: function(data) {
+                        callback.call(tree, data.files);
+        		    }
+        		});
+            }
+    	}
+    });
+
+    $( "#dialog-choose-folder" ).dialog({
+        modal: true,
+        buttons: {
+            OK: function() {
+                var reference = folderTree;
+                var instance = $.jstree.reference(folderTree);
+                var selected = instance.get_selected();
+                var node = instance.get_node(selected);
+
+				if(node){
+					var parent;
+					if (node.children===false) {
+						parent = node.parent;
+					} else {
+						parent = node;
+					}
+
+					setSiteValues({
+					    dir: node.id,
+					    dir_id: node.id
+					});
+
+					//set web url for gdrive (https://googledrive.com/host/0B716ywBKT84AMXBENXlnYmJISlE/GoogleDriveHosting.html)
+					if( params.server_type == 'GDrive' || params.server_type == 'GDriveLimited' ){
+						Ext.getCmp('formSettings').getForm().findField('web_url').setValue('https://googledrive.com/host/'+node.get('id')+'/');
+					}
+				}
+
+                $( this ).dialog( "close" );
+                $( "#dialog-choose-folder" ).remove();
+            },
+            Cancel: function() {
+                $( this ).dialog( "close" );
+                $( "#dialog-choose-folder" ).remove();
+            }
+        }
+    });
+
+	if(params.server_type == 'GDrive' || params.server_type == 'GDriveLimited'){
+		chooseFolderTree.getStore().setProxy({
+			type: 'direct',
+			directFn: gdrive.treeFn,
+			paramOrder: 'id',
+			reader:{
+				type:'json',
+			}
+		});
+
+		chooseFolderTree.directFn = gdrive.directFn;
+
+        gdrive.fullAccess = (params.server_type === 'GDrive');
+		gdrive.authorise(function(){
+		    chooseFolderTree.reload();
+		});
+	}else{
+		//chooseFolderTree.reload();
+	}
+}
+
 function test() {
     var server_type = $('#siteSettings [name=server_type]').val();
 
@@ -905,7 +1005,7 @@ function edit(newSite, duplicate) {
                     <p id="dir_container">\
                         <label for="name">Path:</label>\
                         <input type="text" name="dir" value="" class="text ui-widget-content ui-corner-all">\
-                        <button type="button">Choose</button>\
+                        <button type="button" id="chooseFolder">Choose</button>\
                     </p>\
                     <p id="web_url">\
                         <label for="name">Website URL:</label>\
@@ -978,6 +1078,8 @@ function edit(newSite, duplicate) {
     $('#sshKey').click(function(){
         $(this).select();
     });
+
+    $('#chooseFolder').click(chooseFolder);
 
     //"Other" split button
     $('#otherMenu').menu().hide();
