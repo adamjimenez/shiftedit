@@ -351,3 +351,13 @@ div.buttons {
 #stackRadio .ui-button{
     width: 100px;
 }
+
+#test_iframe{
+	width: 640px;
+	height: 480px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 10000000000;
+	display: none;
+}

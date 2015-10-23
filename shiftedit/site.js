@@ -12,6 +12,24 @@ var currentSite = storage.get('currentSite');
 
 var combobox;
 
+function setSiteValues(obj) {
+    for (var i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            var field = $('[name='+i+']');
+            field.val(obj[i]);
+        }
+    }
+}
+window.shiftedit.setSiteValues = setSiteValues;
+
+function serializeObject(form) {
+    var paramObj = {};
+    $.each($(form).serializeArray(), function(_, kv) {
+      paramObj[kv.name] = kv.value;
+    });
+    return paramObj;
+}
+
 function enableMenuItems(site) {
     var items = ['editsite', 'duplicate', 'deletesite', 'export', 'share', 'download'];
 
@@ -622,6 +640,128 @@ function updateCategory() {
     $('#password').attr('placeholder', password_placeholder);
 }
 
+function test() {
+    var server_type = $('#siteSettings [name=server_type]').val();
+
+    if( ['Dropbox', 'GDrive', 'GDriveLimited'].indexOf(server_type) !== -1 ){
+        if(server_type==='Dropbox'){
+            return window.open('/popups/dropbox');
+        }else{
+            return window.open('/popups/google_drive?server_type='+server_type);
+        }
+    }
+
+    /*
+	if (prefs.useMasterPassword) {
+		if (params.ftp_pass) {
+			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
+		}
+		if (params.db_password) {
+			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
+		}
+	}
+	*/
+
+    var ajax;
+	if (!loading.start('Testing site '+site.name, function(){
+		console.log('abort testing site');
+		ajax.abort();
+	})) {
+		return;
+	}
+
+    var options = getAjaxOptions('/api/sites?site=');
+    var params = $.extend({}, options.params, serializeObject($('#siteSettings')));
+
+    ajax = $.ajax({
+        url: options.url+'&cmd=test',
+	    method: 'POST',
+	    dataType: 'json',
+	    data: params
+    })
+    .then(function (data) {
+        loading.stop();
+
+        if(data.success){
+			if(data.private){
+				prompt.prompt({
+					title: 'Folder permissions',
+					msg: 'Make folder public readable?',
+					fn: function (btn) {
+						if (btn == "yes") {
+						    $('#siteSettings [name=share]').val('1');
+							test();
+						}
+					}
+				});
+			}else{
+				//remember preview node for tidy up
+				if( data.preview_node ){
+					params.preview_node = data.preview_node;
+				}
+
+				//check web url
+				if( params.web_url && params.server_type !== 'AJAX' ){
+                	if (!loading.start('Testing site '+site.name, function(){
+						clearTimeout(errorTimeout);
+						$('#test_iframe').remove();
+                	})) {
+                		return;
+                	}
+
+					//appending slash
+					if( params.web_url.substr(-1)!=='/' ){
+						params.web_url += '/';
+					}
+
+					//create iframe
+					$('body').append('<iframe id="test_iframe" src="' + params.web_url + '_shiftedit_test_preview.html?shiftedit=' + new Date().getTime() + '"></iframe>');
+
+					//give up after 10 seconds
+					errorTimeout = setTimeout(function(){
+					    loading.stop();
+
+						$('#test_iframe').remove();
+
+						var hints = '';
+
+						if( params.web_url.substr(0, 7) == 'http://' ){
+							hints+= '<li>* Click the padlock in your browser address bar</li>';
+						}
+
+						if( params.web_url.substr(0, 7) !== 'http://' && params.web_url.substr(0, 8) !== 'https://' ){
+							hints+= '<li>* Web url should begin with http:// or https://</li>';
+						}
+
+						hints += '<li>* Ensure Dir points to web root e.g. /httpdocs/</li>';
+
+						prompt.alert({title: 'Error', msg: "Couldn't access web url:<ul>"+hints+'</ul>'});
+					}, 5000);
+
+					//listen for postmessage
+					$(window).one('message', function(event) {
+				        loading.stop();
+
+						clearTimeout(errorTimeout);
+						$('#test_iframe').remove();
+
+						if( event.originalEvent.data == 'preview' ){
+							prompt.alert({title: 'Success', msg: lang.connectionEstablishedText});
+						}
+					});
+				}else{
+					prompt.alert({title: 'Success', msg: lang.connectionEstablishedText});
+				}
+			}
+        }else{
+            prompt.alert({title:'Error', msg:data.error});
+        }
+    }).fail(function() {
+        loading.stop();
+		prompt.alert({title:lang.failedText, msg:'Error testing site'});
+    });
+}
+
 function edit(newSite, duplicate) {
 	if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Standard' && sites.length >= (1+1)) {
 		return prompt.alert({title: 'Quota exceeded', msg:'Free edition is limited to 1 site. <a href="/premier" target="_blank">Go Premier</a>'});
@@ -634,6 +774,7 @@ function edit(newSite, duplicate) {
       <form id="siteSettings" autocomplete="off">\
         <input type="hidden" name="server_type" value="">\
         <input type="hidden" name="id" value="">\
+        <input type="hidden" name="share" value="">\
         <!-- fake fields are a workaround for chrome autofill -->\
         <input style="display:none" type="text" name="fakeusernameremembered"/>\
         <input style="display:none" type="password" name="fakepasswordremembered"/>\
@@ -872,6 +1013,7 @@ function edit(newSite, duplicate) {
     var dialog = $( "#dialog-site" ).dialog({
         modal: true,
         buttons: {
+            Connect: test,
             Save: function() {
                 var ajax;
             	if (!loading.start('Saving site '+site.name, function(){
@@ -901,7 +1043,7 @@ function edit(newSite, duplicate) {
 						    dir_id
 						){
 						    console.log('set permissions');
-						    shiftedit.app.gdrive.set_public(dir_id, true);
+						    gdrive.set_public(dir_id, true);
 						}
 						*/
 
