@@ -46,6 +46,7 @@ function disableMenuItems() {
 
 function init() {
     combobox = $( "#sites" ).combobox({
+        forceSelection: true,
         select: function (event, ui) {
             //connect to site
             open(ui.item.value);
@@ -464,6 +465,26 @@ function open(siteId, password) {
     return ajax;
 }
 
+function loadRepos(val) {
+    return $.getJSON('/api/repos')
+        .then(function (data) {
+            var repos = data.repos;
+
+            $( "#git_url_select" ).children('option').remove();
+
+            $.each(repos, function( index, item ) {
+                $( "#git_url_select" ).append( '<option value="'+item.url+'">'+item.name+'</option>' );
+            });
+
+            if(val){
+                $( "#git_url_select" ).append( '<option value="'+val+'">'+val+'</option>' );
+                $( "#git_url_select" ).val(val).change();
+            }
+
+            return repos;
+        });
+}
+
 function load() {
     return $.getJSON('/api/sites')
         .then(function (data) {
@@ -814,7 +835,8 @@ function edit(newSite, duplicate) {
                         </p>\
                         <p>\
                             <label for="name">Git URL:</label>\
-                            <input type="text" name="git_url" value="" class="text ui-widget-content ui-corner-all" required>\
+                            <input type="hidden" id="git_url" name="git_url">\
+                            <select id="git_url_select" name="git_url_select" class="text ui-widget-content ui-corner-all" required></select>\
                         </p>\
                     </div>\
                     \
@@ -982,6 +1004,19 @@ function edit(newSite, duplicate) {
     $( "#stackRadio" ).buttonset();
     $( "#cloudRadio" ).buttonset();
     $( "#authenticationRadio" ).buttonset();
+
+    //git combo
+    gitCombo = $( "#git_url_select" ).combobox({
+        select: function (event, ui) {
+            $('#git_url').val(ui.item.value);
+        },
+        change: function (event, ui) {
+            $('#git_url').val(ui.item.value);
+        },
+        create: function( event, ui ) {
+        }
+    });
+    loadRepos(settings.git_url);
 
     $( "#showPassword,#showDbPassword" ).click(function(){
         var input = ($( this ).prev());
