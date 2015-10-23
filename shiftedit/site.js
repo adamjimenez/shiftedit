@@ -932,6 +932,11 @@ function edit(newSite, duplicate) {
     };
     var settings = newSite ? defaults : getSettings();
 
+    if(duplicate) {
+        settings.name = 'Copy of '+settings.name;
+        settings.id = '';
+    }
+
     for(var i in settings) {
 		if (settings.hasOwnProperty(i)) {
 		    var field = $('[name='+i+']');
