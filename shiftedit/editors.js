@@ -473,6 +473,9 @@ function create(file, content, siteId, options) {
 	editor_toolbar.create(tab);
 
 	editor.focus();
+
+	//reactivate
+	$(tab).trigger('activate');
 }
 
 function setMode(editor, mode) {

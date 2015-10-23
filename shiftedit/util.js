@@ -31,6 +31,13 @@ return {
             this.select();
         }
     },
+    serializeObject: function(form) {
+        var paramObj = {};
+        $.each($(form).serializeArray(), function(_, kv) {
+          paramObj[kv.name] = kv.value;
+        });
+        return paramObj;
+    },
     startsWith: function(haystack, needle) {
         if(haystack)
             return needle === "" || haystack.indexOf(needle) === 0;

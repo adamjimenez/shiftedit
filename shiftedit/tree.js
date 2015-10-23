@@ -20,7 +20,7 @@ function init() {
     			}
     		},*/
             'data' : function (node, callback) {
-                console.log(node);
+                //console.log(node);
 
                 if(!options.url){
                     return false;
@@ -31,7 +31,8 @@ function init() {
         		    dataType: 'json',
         		    data: options.params,
         		    success: function(data) {
-                        callback.call(tree, data);
+        		        //console.log(data);
+                        callback.call(tree, data.files);
         		    }
         		});
             },

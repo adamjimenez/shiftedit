@@ -33,41 +33,41 @@ function start(action, abortFunction) {
 	}
 }
 
-	function stop(animate) {
-		isLoading = false;
-		if (timer) {
-			clearInterval(timer);
-		}
-		if (document.title.substr(0, 4).indexOf('>') !== -1) {
-			document.title = document.title.substr(4);
-		}
-		$('#serverProgress').remove();
+function stop(animate) {
+	isLoading = false;
+	if (timer) {
+		clearInterval(timer);
 	}
-
-	function title() {
-		var anim = document.title.substr(0, 3);
-		if (anim === '>--') {
-			document.title = '->- ' + document.title.substr(4);
-		} else if (anim === '->-') {
-			document.title = '--> ' + document.title.substr(4);
-		} else if (anim === '-->') {
-			document.title = '>-- ' + document.title.substr(4);
-		} else {
-			document.title = '>-- ' + document.title;
-		}
+	if (document.title.substr(0, 4).indexOf('>') !== -1) {
+		document.title = document.title.substr(4);
 	}
+	$('#serverProgress').remove();
+}
 
-	function abort() {
-		stop();
-
-		if( abortCallback ){
-			abortCallback();
-		}
+function title() {
+	var anim = document.title.substr(0, 3);
+	if (anim === '>--') {
+		document.title = '->- ' + document.title.substr(4);
+	} else if (anim === '->-') {
+		document.title = '--> ' + document.title.substr(4);
+	} else if (anim === '-->') {
+		document.title = '>-- ' + document.title.substr(4);
+	} else {
+		document.title = '>-- ' + document.title;
 	}
+}
 
-	function inProgress() {
-		return isLoading;
+function abort() {
+	stop();
+
+	if( abortCallback ){
+		abortCallback();
 	}
+}
+
+function inProgress() {
+	return isLoading;
+}
 
 return {
     start: start,
