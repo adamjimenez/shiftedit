@@ -595,7 +595,7 @@ function updateCategory() {
             'git_url',
             'hosted_container'
         ],
-        'Proxy': [
+        'AJAX': [
             'proxyfield',
             'host_container',
             'ftp_user',
