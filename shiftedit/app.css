@@ -370,3 +370,19 @@ div.buttons {
 	padding: 1px;
 	border-radius: 1px;
 }
+
+.revisions{
+    float: left;
+    width: 260px;
+}
+
+/* revisions */
+.ace_added{
+	background: #eaf2c2;
+	position: absolute;
+}
+
+.ace_removed{
+	background: #fadad7;
+	position: absolute;
+}

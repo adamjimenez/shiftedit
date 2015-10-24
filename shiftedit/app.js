@@ -18,6 +18,7 @@ requirejs.config({
         "ace/autocomplete": "ace.20141108/src/ext-language_tools",
         "firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
+        "jsdiff": 'jsdiff/diff',
     },
     "shim": {
         "ace/split": {

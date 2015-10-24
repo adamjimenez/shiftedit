@@ -1,4 +1,4 @@
-define(['app/lang'], function () {
+define(['app/prompt','app/lang'], function (prompt) {
 var lang = require('app/lang').lang;
 require('jquery');
 
@@ -69,9 +69,45 @@ function inProgress() {
 	return isLoading;
 }
 
+function fetch(url, options) {
+    var defaults = {
+        action: 'loading',
+        success: function(){},
+        data: []
+    };
+
+    options = $.extend({}, defaults, options);
+
+    var ajax;
+	if (!start(options.action, function(){
+		ajax.abort();
+	})) {
+		return;
+	}
+
+    ajax = $.ajax({
+        url: url,
+	    method: 'GET',
+	    dataType: 'json',
+    })
+    .then(function (data) {
+        stop();
+
+        if(data.success){
+			options.success(data);
+        }else{
+            prompt.alert({title:'Error', msg:data.error});
+        }
+    }).fail(function() {
+        stop();
+		prompt.alert({title:lang.failedText, msg:'Error '+options.action});
+    });
+}
+
 return {
     start: start,
     stop: stop,
     abort: abort,
+    fetch: fetch
 };
 });
