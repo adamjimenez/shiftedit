@@ -71,6 +71,7 @@ function add() {
 		var recentRef = ref.limit(20);
 		groups[firebaseUrl] = ref;
 		group = firebaseUrl;
+		selectedGroup = group;
 		chats[group]='';
 
 		//delete older than 7 days
@@ -142,14 +143,22 @@ function add() {
 			}
 
 			//open chat
-			if (!$('#dialog-chat').length) {
-				open();
-			}
+			open();
 		});
 	}
 }
 
-function open() {
+function init() {
+    $( "body" ).append('<div id="dialog-chat" title="Chat" style="display:none;">\
+        <div class="chats">\
+            <ul id="chat" size="20"></ul>\
+        </div>\
+        <div class="messagePanel">\
+            <div id="messages"></div>\
+            <textarea id="message" disabled autofocus></textarea>\
+        </div>\
+    </div>');
+
 	var width = 300;
 	var height = 400;
 	var x = window.innerWidth - width;
@@ -161,6 +170,42 @@ function open() {
         height: height,
         position: { my: "right bottom", at: "right bottom", of: window }
     });
+
+    close();
+
+    //listener
+    $('body').on('click', '#chatButton a', function(e){ open(); });
+    $('body').on('firebaseon', 'li', add);
+    $('#chat').on('click', 'a', select);
+    $('#message').keypress(function( event ) {
+        if ( event.which == 13 ) {
+            send($(this).val());
+            $(this).val('');
+            return false;
+        }
+    });
+
+    $.contextMenu({
+        selector: '#chat a',
+        callback: function(key, opt){
+            switch(key) {
+                case 'delete':
+                    remove($(this).closest("li"));
+                break;
+            }
+        },
+        items: {
+            "delete": {name: 'Delete'}
+        }
+    });
+}
+
+function open() {
+	$('#dialog-chat').dialog( "open" );
+}
+
+function close() {
+	$('#dialog-chat').dialog( "close" );
 }
 
 function select() {
@@ -199,41 +244,7 @@ function remove(li) {
 
 
 //revisions dialog
-$( "body" ).append('<div id="dialog-chat" title="Chat" style="display:none;">\
-    <div class="chats">\
-        <ul id="chat" size="20"></ul>\
-    </div>\
-    <div class="messagePanel">\
-        <div id="messages"></div>\
-        <textarea id="message" disabled autofocus></textarea>\
-    </div>\
-</div>');
-
-//listener
-$('body').on('click', '#chatButton a', function(e){ open(); });
-$('body').on('firebaseon', 'li', add);
-$('#chat').on('click', 'a', select);
-$('#message').keypress(function( event ) {
-    if ( event.which == 13 ) {
-        send($(this).val());
-        $(this).val('');
-        return false;
-    }
-});
-
-$.contextMenu({
-    selector: '#chat a',
-    callback: function(key, opt){
-        switch(key) {
-            case 'delete':
-                remove($(this).closest("li"));
-            break;
-        }
-    },
-    items: {
-        "delete": {name: 'Delete'}
-    }
-});
+init();
 
 return {
 };
