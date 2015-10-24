@@ -183,22 +183,13 @@ function addFirepad(tab) {
 	doc_name = doc_name.split('.').join('_');
 
 	var url;
-	var chatUrl;
-	var chatName;
 	if( tab.attr('shared') ){
 		url = "https://shiftedit.firebaseio.com/public/";
-		chatUrl = "https://shiftedit.firebaseio.com/public/"+doc_name+'/chat';
-		chatName = basename(file);
 	}else{
 		url = "https://shiftedit.firebaseio.com/sites/";
-		chatUrl = "https://shiftedit.firebaseio.com/sites/"+siteId+'/chat';
-
-		var settings = site.getSettings(siteId);
-		chatName = settings.name;
 	}
 
-    //FIXME
-	//chat.add(chatUrl, chatName);
+	$(tab).trigger('firebaseon');
 
 	firepadRef = new Firebase(url+doc_name);
 	tab.data('firepadRef', firepadRef);

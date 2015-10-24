@@ -386,3 +386,62 @@ div.buttons {
 	background: #fadad7;
 	position: absolute;
 }
+
+/* chat panel */
+#dialog-chat{
+    display: flex;
+}
+
+.chats{
+    float: left;
+    width: 80px;
+    height: 100%;
+    overflow: auto;
+}
+
+.chats ul{
+    width: 100%;
+    height: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.chats a{
+    padding: 2px;
+    display: block;
+    text-decoration: none;
+}
+
+.chats .unread{
+    font-weight: bold;
+}
+
+.chats .selected{
+    background: #ccc;
+}
+
+.messagePanel{
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start; /* align items in Main Axis */
+    align-items: stretch; /* align items in Cross Axis */
+    align-content: stretch; /* Extra space in Cross Axis */
+}
+
+#dialog-chat #messages{
+    height: 100%;
+    flex-grow: 1;
+    overflow: auto;
+}
+
+#dialog-chat #message{
+    width: 100%;
+    height: 80px;
+    align-self: base-line;
+}
