@@ -1,4 +1,4 @@
-define(['app/tabs','app/storage', 'app/site', 'app/util'], function (tabs, storage, site, util) {
+define(['app/tabs','app/storage', 'app/site', 'app/util', 'jquery.contextMenu'], function (tabs, storage, site, util) {
 
 var groups = {};
 var selectedGroup;
@@ -181,6 +181,22 @@ function select() {
     return false;
 }
 
+function remove(li) {
+    var group = li.data('url');
+	var groupRef = groups[group];
+	li.remove();
+
+	//delete messages
+	var timestamp = new Date();
+	timestamp = timestamp.setDate(timestamp.getDate());
+	groupRef.endAt(timestamp).on("child_added", function(snap) {
+		console.log('delete old');
+		snap.ref().remove();
+	});
+
+	$('#messages').html('');
+}
+
 
 //revisions dialog
 $( "body" ).append('<div id="dialog-chat" title="Chat" style="display:none;">\
@@ -202,6 +218,20 @@ $('#message').keypress(function( event ) {
         send($(this).val());
         $(this).val('');
         return false;
+    }
+});
+
+$.contextMenu({
+    selector: '#chat a',
+    callback: function(key, opt){
+        switch(key) {
+            case 'delete':
+                remove($(this).closest("li"));
+            break;
+        }
+    },
+    items: {
+        "delete": {name: 'Delete'}
     }
 });
 
