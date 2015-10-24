@@ -6,12 +6,10 @@ var chats = {};
 var texts = {};
 var scrolls = {};
 var alertIcon = '<i class="fa fa-bell"></i>';
-
 var username = storage.get('username');
 var userId = storage.get('user');
 var avatar = storage.get('avatar');
-
-var alertSound = '';
+var alertSound;
 var alertSoundURL = 'https://shiftedit.s3.amazonaws.com/assets/alert.wav';
 
 function send(msg) {
@@ -65,8 +63,6 @@ function add() {
 		chatName = settings.name;
 	}
 
-	//console.log(firebaseUrl);
-
 	if( !groups[firebaseUrl] ){
 		var li = $('<li data-url="' + firebaseUrl + '"><a href="#">' + chatName + '</a></li>').appendTo('#chat');
 
@@ -104,9 +100,6 @@ function add() {
 
 			//insert hash links
 			message.message = message.message.replace(/#([^\s]+)/g, '<a href="#'+"$1"+'">'+"$1"+'</a>');
-
-			//console.log(group);
-			//console.log(snapshot.name());
 
 			// will display time in 10:30:23 format
 			var time = util.date('M j, g:i A', message.timestamp/1000);
@@ -168,169 +161,6 @@ function open() {
         height: height,
         position: { my: "right bottom", at: "right bottom", of: window }
     });
-
-
-	return;
-
-	new Ext.Window({
-		id: 'chatWin',
-		title: 'Chat',
-		width: width,
-		minWidth: 200,
-		height: height,
-		minHeight: 200,
-		x: x,
-		y: y,
-		closable: true,
-		closeAction: 'close',
-		plain: true,
-		constrain: true,
-        layout: {
-            type: 'border'
-        },
-        items: [{
-			id: 'chatGrid',
-			name: 'chatGrid',
-			xtype: 'grid',
-			store: chatStore,
-            region: 'west',
-            width: 80,
-            split: true,
-			hideHeaders: true,
-			forceFit: true,
-			height: 'auto',
-
-			columns: [{
-				text: "alert",
-				dataIndex: 'alert',
-				sortable: false,
-				width: 16
-			},{
-				text: "name",
-				dataIndex: 'name',
-				sortable: false
-			}],
-			viewConfig:{
-				markDirty:false
-			},
-			listeners: {
-				cellkeydown: {
-					fn: function(cell, td, cellIndex, record, tr, rowIndex, e, eOpts){
-						console.log('delete chat');
-
-						var groupRef = groups[group];
-						//groupRef.remove();
-						//$('#chatGrid').getStore().remove(record);
-
-
-						//delete messages
-						var timestamp = new Date();
-						timestamp = timestamp.setDate(timestamp.getDate());
-						groupRef.endAt(timestamp).on("child_added", function(snap) {
-							console.log('delete old');
-							snap.ref().remove();
-						});
-
-						document.getElementById('chatMessages-innerCt').innerHTML = '';
-
-						$('#chatWin').close();
-					},
-					scope: this
-				}
-			}
-        }, {
-            region: 'center',
-            xtype: 'panel',
-			layout: 'border',
-            items: [{
-				id: 'chatMessages',
-            	region: 'center',
-				html: 'Open a shared file to start chat',
-				anchor: '0 0',  // anchor width and height,
-				overflowY: 'auto',
-				bodyStyle: 'font-size: 11px; padding: 2px;'
-			},{
-            	region: 'south',
-				xtype: 'textarea',
-				style: 'margin:0',
-				hideLabel: true,
-				id: 'chatText',
-				name: 'chatText',
-            	split: true,
-				anchor: '0 0',  // anchor width and height
-				emptyText: 'Send a message'
-			}]
-        }]
-	});
-
-	$('#chatText').on('render', function(){
-		var map = new Ext.util.KeyMap({
-			target: $('#chatText').el,
-			binding: [{
-				key: Ext.EventObject.ENTER,
-				shift: false,
-				ctrl: false,
-				handler: function (obj, e) {
-					e.stopEvent();
-					send();
-				}
-			}, {
-				scope: this,
-				key: Ext.EventObject.ENTER,
-				shift: false,
-				ctrl: true,
-				handler: function (obj, e) {
-					if (e.getTarget().type != 'button') {
-						e.stopEvent();
-						e.getTarget().value = e.getTarget().value + '\n';
-					}
-				}
-			}]
-		});
-	});
-
-	$('#chatGrid').getSelectionModel().on('selectionchange', function (sm, rowIdx, r) {
-	    var d;
-
-		//revertButton.disable();
-		var selections = sm.getSelection();
-
-		//save input and scroll
-		if( $('#chatMessages').body ){
-			d = $('#chatMessages').body.dom;
-			scrolls[group] = d.scrollTop;
-		}
-
-		if( $('#chatText') ){
-			texts[group] = $('#chatText').getValue();
-		}
-
-		if(!selections[0]){
-			group = null;
-			return;
-		}
-
-		group = selections[0].data.firebaseUrl;
-
-		//update messages
-		document.getElementById('chatMessages-innerCt').innerHTML = chats[group];
-
-		//restore input and scroll
-		$('#chatText').setValue('');
-		if( texts[group] ){
-			$('#chatText').setValue(texts[group]);
-		}
-		if( typeof scrolls[group] !== 'undefined' ){
-			d.scrollTop = scrolls[group];
-		}
-
-		//remove chat icon
-		$('li[data-url="' + group + '"]').removeClass('unread');
-	});
-
-	$('#chatWin').on('render', function(){
-		$('#chatGrid').getSelectionModel().select(0);
-	});
 }
 
 function select() {
