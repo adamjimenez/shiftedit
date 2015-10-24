@@ -8,8 +8,7 @@ define(function (require) {
     	        try{
     			    return JSON.parse(localStorage[key]);
     	        } catch(e) {
-    	            console.log('could not parse '+key);
-    	            return false;
+    	            return localStorage[key];
     	        }
     	    }
     	}
