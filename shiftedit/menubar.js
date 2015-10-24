@@ -911,16 +911,17 @@ function init () {
     		}]
     	},
 
+    	'-':'->',
 
-    /*
-    	{
+
+    	'chat': {
     		id: 'chatButton',
     		tooltip: 'Chat',
     		text: '<i class="fa fa-comment"></i>',
     		hidden: true
     	},
 
-    	{
+    	'share': {
     		id: 'share',
     		text: 'Share',
     		hidden: true,
@@ -1039,7 +1040,9 @@ function init () {
     		},
     		cls: 'shareBtn',
     		disabled: true
-    	}, {
+    	},
+
+    	name: {
     		text: storage.get('username'),
     		items: [{
     			text: lang.updateDetailsText,
@@ -1052,7 +1055,9 @@ function init () {
     				location.href = 'logout';
     			}
     		}]
-    	},{
+    	},
+
+    	upgrade: {
     		id: 'goPremier',
     		text: (storage.get('edition') == 'Trial' ? 'Trial Period' : 'Go Premier'),
     		handler: function () {
@@ -1060,7 +1065,6 @@ function init () {
     		},
     		hidden: (storage.get('premier') == 'true')
     	}
-    */
 
     };
 

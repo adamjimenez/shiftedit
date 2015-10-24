@@ -739,6 +739,7 @@ function init() {
     });
 }
 
+    exports.active = active;
     exports.getEditor = getEditor;
     exports.setEdited = setEdited;
     exports.save = save;

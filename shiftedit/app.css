@@ -361,3 +361,12 @@ div.buttons {
 	z-index: 10000000000;
 	display: none;
 }
+
+.other_cursor{
+	position: relative;
+	font-size: 10px;
+	color: #000;
+	opacity: 0.8;
+	padding: 1px;
+	border-radius: 1px;
+}

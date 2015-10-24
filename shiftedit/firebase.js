@@ -1,4 +1,4 @@
-define(function (require) {
+define(['app/tabs'],function (tabs) {
 
 var connected = false;
 
@@ -31,6 +31,21 @@ connect = function (callback) {
 		connected = false;
 	});
 };
+
+$('body').on('click', 'a.user', function() {
+    var user = $(this).data('user');
+    var tab = tabs.active();
+    var editor = tabs.getEditor(tab);
+    var firepad = tab.data('firepad');
+
+	if( firepad.editorAdapter_.otherCursors ){
+		var range = firepad.editorAdapter_.otherCursors[user];
+		editor.renderer.scrollToLine(range.start.row, true, true);
+	}
+	editor.focus();
+
+	return false;
+});
 
 return {
     connect: connect,
