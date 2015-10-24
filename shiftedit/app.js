@@ -14,10 +14,17 @@ requirejs.config({
         "ui.combobox": "combobox/ui.combobox",
         "jstree": "jstree/jstree",
         "ace": "ace.20141108/src/ace",
-        "ace/split": 'ace.20141108/src/ext-split'
+        "ace/split": 'ace.20141108/src/ext-split',
+        "ace/autocomplete": "ace.20141108/src/ext-language_tools",
+        "firepad": 'firepad/firepad',
+        "firepad-userlist": 'firepad/firepad-userlist',
+        "jsdiff": 'jsdiff/diff',
     },
     "shim": {
         "ace/split": {
+            deps: ["ace"]
+        },
+        "ace/autocomplete": {
             deps: ["ace"]
         },
         "jquery-ui": {
@@ -55,6 +62,15 @@ requirejs.config({
         "jstree": {
             exports: "$",
             deps: ["jquery"]
+        },
+        "app/firebase": {
+            deps: ["http://cdn.firebase.com/v0/firebase.js",'firepad','firepad-userlist']
+        },
+        "firebase": {
+            deps: ['Firepad']
+        },
+        "firepad": {
+            deps: ['ace']
         },
     }
 });

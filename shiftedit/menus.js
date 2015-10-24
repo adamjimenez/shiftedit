@@ -2,18 +2,22 @@ define(["jquery.menubar"], function () {
     var context;
 
     function build(el, menu){
-        //var panel = $(el).closest("[role=tabpanel]");
-        //var tab = $("[role=tab][aria-controls="+panel.attr('id')+"]");
-
         for(var i in menu) {
             if(menu[i]==='-') {
                 el.append('<li>-</li>');
+            }else if(menu[i]==='->') {
+                el.css('display', 'flex');
+                el.append('<li style="flex-grow:2"></li>');
             }else{
                 var tooltip = menu[i].tooltip ? menu[i].tooltip : '';
 
                 var item = $('<li>\
                     <a href="#'+i+'" title="'+tooltip+'">'+menu[i].text+'</a>\
                 </li>').appendTo(el);
+
+                if(menu[i].id) {
+                    item.attr('id', menu[i].id);
+                }
 
                 if(menu[i].disabled) {
                     item.addClass('ui-state-disabled');

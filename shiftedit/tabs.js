@@ -426,6 +426,8 @@ function checkEdited (e, ui) {
         });
         return false;
     }else{
+        $(ui.tab).trigger('close');
+
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
@@ -737,6 +739,7 @@ function init() {
     });
 }
 
+    exports.active = active;
     exports.getEditor = getEditor;
     exports.setEdited = setEdited;
     exports.save = save;

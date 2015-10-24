@@ -1,4 +1,4 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'ace/split','app/prompt','app/editor_contextmenu'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete','ace/split', 'app/site', 'app/firebase'], function (tabs, exports) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -7,6 +7,11 @@ var editor;
 var editor_toolbar = require('app/editor_toolbar');
 var editor_contextmenu = require('app/editor_contextmenu');
 var prompt = require('app/prompt');
+var autocomplete = require('app/autocomplete');
+var Autocomplete = require("ace/autocomplete").Autocomplete;
+var site = require('app/site');
+var firebase = require('app/firebase');
+var Firepad = require('firepad');
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -123,7 +128,147 @@ function refresh(tab) {
 	);
 }
 
+function destroy(e) {
+    var tab = $(this);
+    var editor = tabs.getEditor($(tab));
+
+	removeFirepad(tab);
+
+	editor.session.$stopWorker();
+	editor.destroy();
+	editor.container.parentNode.removeChild(editor.container);
+}
+
+function removeFirepad(tab) {
+	console.log('remove firepad');
+
+    var firepad = $(tab).data('firepad');
+    var firepadUserList = $(tab).data('firepadUserList');
+    var firepadRef = $(tab).data('firepadRef');
+
+    //remove firepad if last user
+	if( firepadUserList && Object.keys(firepadUserList.users).length==1 ){
+		firepadRef.off('value');
+		firepadRef.remove();
+	}
+
+	if( firepadUserList ){
+		firepadUserList.dispose();
+	}
+
+	if( firepad ){
+		try{
+			firepad.dispose();
+		}catch(e){
+			console.log(e);
+		}
+	}
+}
+
+function addFirepad(tab) {
+	console.log('adding firepad');
+
+	//TODO loading mask
+
+    var options = {};
+    var content = tab.data('original');
+	if( typeof content === 'string' ){
+		options.content = content.replace(/\r\n/g, "\n");
+	}
+
+	var siteId = tab.attr('data-site');
+	var file = tab.attr('data-file');
+
+	var doc_name = siteId + '/' + file;
+	doc_name = doc_name.split('.').join('_');
+
+	var url;
+	if( tab.attr('shared') ){
+		url = "https://shiftedit.firebaseio.com/public/";
+	}else{
+		url = "https://shiftedit.firebaseio.com/sites/";
+	}
+
+	$(tab).trigger('firebaseon');
+
+	firepadRef = new Firebase(url+doc_name);
+	tab.data('firepadRef', firepadRef);
+
+	//remove on dispose
+	firepadRef.on('value', function(snapshot) {
+		// you could just check "snapshot.val() == null" here, but it's much cheaper to check for children so do that first.
+		if (!snapshot.hasChildren() && snapshot.val() === null) {
+			console.log('firebase was removed');
+			tabs.setEdited(tab, false);
+			tabs.close(tab);
+		}
+	}, function(){
+		console.log('firepad permission denied');
+
+		removeFirepad();
+		setValue(content);
+		editor.moveCursorToPosition({column:0, row:0});
+		//loadmask.hide();
+	});
+
+	// Create Firepad.
+	firepad = Firepad.fromACE(firepadRef, editor, {
+		userId: localStorage.user
+	});
+
+	tab.data('firepad', firepad);
+
+	// Create FirepadUserList (with our desired userId)
+	firepadUserList = FirepadUserList.fromDiv(firepadRef.child('users'), localStorage.user, localStorage.username, editor);
+	tab.data('firepadUserList', firepadUserList);
+
+	//// Initialize contents
+	firepad.on('ready', function() {
+		if( firepad.isHistoryEmpty() ){
+			firepad.setText(content);
+			editor.session.getUndoManager().reset();
+		}else if( typeof content === 'string' && editor.getValue() !== options.content ){
+			//firepad.setText(content);
+			tabs.setEdited(tab, true);
+		}else if(editor.getValue() === options.content){
+			tabs.setEdited(tab.false);
+		}
+
+		//move cursor to start
+		editor.moveCursorToPosition({column:0, row:0});
+
+		saveRef = firepadRef.child('save');
+		saveRef.on('value', function(snapshot) {
+			if( !firepad ){
+				return;
+			}
+
+			var data = snapshot.val();
+			var revision = firepad.firebaseAdapter_.revision_;
+
+			console.log('current revision: ' + revision);
+
+			if( data && revision == data.revision ){
+				console.log('new revision: ' + data.revision);
+				tabs.setEdited(tab.id, false);
+			}
+
+			if( data && data.last_modified ){
+				tab.attr('data-mdate', data.last_modified);
+			}
+		});
+
+	    editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
+
+		//loadmask.hide();
+
+		restoreState(options.state);
+	});
+}
+
 function create(file, content, siteId, options) {
+    var settings = {};
+
     if(!options){
         options = {};
     }
@@ -148,6 +293,7 @@ function create(file, content, siteId, options) {
 	if(siteId) {
 	    tab.data('site', siteId);
 	    tab.attr('data-site', siteId);
+	    settings = site.getSettings(siteId);
 	}
 
 	if(options.mdate) {
@@ -186,7 +332,6 @@ function create(file, content, siteId, options) {
 
 	panel.find('.next').click(jQuery.proxy(syntax_errors.next, tab));
 
-
 	//set mode
 	var ext = util.fileExtension(file);
 	var mode = 'text';
@@ -200,18 +345,86 @@ function create(file, content, siteId, options) {
 	});
 
 	editor.getSession().setMode("ace/mode/"+mode);
-	editor.getSession().getDocument().setValue(content);
 
-	//clear history //fixes undo redo when using split
-	var UndoManager = require("ace/undomanager").UndoManager;
-	editor.getSession().setUndoManager(new UndoManager());
+	//FIREPAD
+    var firepad = false;
+	if( siteId && (settings.shared || tab.attr('shared')) ){
+	    firepad = true;
+
+		if( !firebase.isConnected() ){
+			tab.attr('data-firepadPending', 1);
+
+			firebase.connect(function() {
+			    $('li[role=tab][data-firepadPending]').each(function(index){
+			        addFirepad($(this));
+			    });
+			});
+		}else{
+			addFirepad(tab);
+		}
+	}else{
+		//if no firepad:
+	    editor.getSession().getDocument().setValue(content);
+
+	    editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
+
+    	//clear history //fixes undo redo when using split
+		var UndoManager = require("ace/undomanager").UndoManager;
+		editor.getSession().setUndoManager(new UndoManager());
+
+		//prevent showing as edited
+		//clearTimeout(editedTimer);
+
+		//move cursor to start
+		editor.moveCursorToPosition({column:0, row:0});
+	}
 
     //event listeners
-	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
 	editor.getSession().on('changeFold', jQuery.proxy(saveState, tab));
 	editor.getSession().on('changeBreakpoint', jQuery.proxy(saveState, tab));
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
+    $(tab).on('close', destroy);
+
+	//autocomplete
+	editor.completer = new Autocomplete();
+
+	//remove tab command
+	editor.completer.keyboardHandler.removeCommand('Tab');
+	editor.completer.liveAutocompletionAutoSelect = true;
+	editor.completer.exactMatch = true;
+
+	editor.setOptions({
+		enableBasicAutocompletion: true,
+		enableLiveAutocompletion: true
+	});
+
+
+    window.shiftedit.defs[$(tab).attr('id')] = {
+        'definitions': {},
+	    'definitionRanges': {}
+    };
+	var shifteditCompleter = {
+	    getCompletions: function(editor, session, pos, prefix, callback) {
+	        var completions = autocomplete.run(editor, session, pos, prefix, callback);
+	        //console.log(completions);
+
+	        if (completions) {
+	        	callback(null, completions);
+	        }
+	    },
+	    getDocTooltip: function(selected){
+	    	if (selected.doc) {
+		    	return {
+		    		docHTML: selected.doc
+		    	};
+	    	}
+	    }
+	};
+
+	//var language_tools = require("ace/ext/language_tools");
+	//editor.completers = [language_tools.keyWordCompleter];
+	editor.completers = [shifteditCompleter];
 
 	//shortcuts
 	editor.commands.addCommand({
@@ -451,19 +664,6 @@ function create(file, content, siteId, options) {
 		}
 	});
 
-	//move cursor to top
-	var startLine = 0;
-
-	editor.selection.setSelectionRange({
-		start: {
-			row: startLine,
-			column: 0
-		},
-		end: {
-			row: startLine,
-			column: 0
-		}
-	});
 	//console.log(options);
 	if (options && options.state) {
 	    restoreState(options.state);

@@ -361,3 +361,87 @@ div.buttons {
 	z-index: 10000000000;
 	display: none;
 }
+
+.other_cursor{
+	position: relative;
+	font-size: 10px;
+	color: #000;
+	opacity: 0.8;
+	padding: 1px;
+	border-radius: 1px;
+}
+
+.revisions{
+    float: left;
+    width: 260px;
+}
+
+/* revisions */
+.ace_added{
+	background: #eaf2c2;
+	position: absolute;
+}
+
+.ace_removed{
+	background: #fadad7;
+	position: absolute;
+}
+
+/* chat panel */
+#dialog-chat{
+    display: flex;
+}
+
+.chats{
+    float: left;
+    width: 80px;
+    height: 100%;
+    overflow: auto;
+}
+
+.chats ul{
+    width: 100%;
+    height: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.chats a{
+    padding: 2px;
+    display: block;
+    text-decoration: none;
+}
+
+.chats .unread{
+    font-weight: bold;
+}
+
+.chats .selected{
+    background: #ccc;
+}
+
+.messagePanel{
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start; /* align items in Main Axis */
+    align-items: stretch; /* align items in Cross Axis */
+    align-content: stretch; /* Extra space in Cross Axis */
+}
+
+#dialog-chat #messages{
+    height: 100%;
+    flex-grow: 1;
+    overflow: auto;
+}
+
+#dialog-chat #message{
+    width: 100%;
+    height: 80px;
+    align-self: base-line;
+}
