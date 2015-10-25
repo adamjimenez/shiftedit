@@ -1,4 +1,4 @@
-define(['app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'jquery'], function (tabs, prompt, lang, loading) {
+define(['app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'jquery'], function (tabs, prompt, lang, loading, site) {
     lang = lang.lang;
 /**
  * Tab
@@ -554,6 +554,13 @@ function open(tabpanel){
         var id = $(this).closest('[role=tabpanel]').attr('id');
         var tab = $('[aria-controls='+id+']');
         tabs.close(tab);
+    });
+
+    $('body').on('click', '#sshSite a', function(e){
+        var tabpanel = $('.ui-layout-center');
+        var tab = create(tabpanel);
+        var settings = site.getSettings(site.active());
+        new_session(tab, settings.domain, settings.ftp_user, settings.port);
     });
 
 

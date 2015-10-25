@@ -31,6 +31,9 @@ function enableMenuItems(site) {
     if(site.server_type==='Hosted')
         items.push('reboot');
 
+    if(site.logon_type == 'key')
+        items.push('sshSite');
+
     items.forEach(function(item){
         $('#'+item).removeClass('ui-state-disabled');
     });
@@ -282,7 +285,7 @@ function init() {
         },
         disabled: true
     }, '-', {
-        id: 'ssh',
+        id: 'sshSite',
         text: 'SSH Terminal',
         handler: function() {},
         disabled: true
