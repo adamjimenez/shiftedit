@@ -1,4 +1,4 @@
-define(['app/editors', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent'], function (editors,exports) {
+define(['app/editors', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh'], function (editors,exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -466,6 +466,8 @@ function newTab (e, ui) {
         return;
     }
 
+    tab.addClass('closable');
+
     var editors = require('app/editors');
 
     var panel = $(ui.panel);
@@ -518,7 +520,6 @@ function newTab (e, ui) {
 	panel.find('ul.recentFiles').append(HTML);
 
 	panel.find('a.openfile').click(function() {
-	    open($(this).data('file'), $(this).data('site'));
 		close(ui.tab);
 	});
 
@@ -540,7 +541,11 @@ function tabActivate( tab ) {
     }
 
     hash += file ? tab.data('file') : 'newfile';
-    window.location.hash = hash;
+
+    if(hash!=window.location.hash){
+        console.log('change hash');
+        window.location.hash = hash;
+    }
 
     var editor = getEditor(tab);
     if (editor)
@@ -738,6 +743,11 @@ function init() {
         }
     });
 }
+
+//listeners
+$('body').on('click', 'a.openfile', function() {
+    open($(this).data('file'), $(this).data('site'));
+});
 
     exports.active = active;
     exports.getEditor = getEditor;

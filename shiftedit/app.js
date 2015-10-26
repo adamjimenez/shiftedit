@@ -72,6 +72,9 @@ requirejs.config({
         "firepad": {
             deps: ['ace']
         },
+        "app/ssh": {
+            deps: ["https://ssh.shiftedit.net/socket.io/socket.io.js",'https://ssh.shiftedit.net/term.js']
+        },
     }
 });
 

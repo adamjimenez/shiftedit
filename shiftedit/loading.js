@@ -85,10 +85,13 @@ function fetch(url, options) {
 		return;
 	}
 
+	var method = options.data.length ? 'POST' : 'GET';
+
     ajax = $.ajax({
         url: url,
-	    method: 'GET',
+	    method: method,
 	    dataType: 'json',
+	    data: options.data
     })
     .then(function (data) {
         stop();

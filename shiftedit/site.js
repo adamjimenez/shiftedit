@@ -23,7 +23,7 @@ function setSiteValues(obj) {
 window.shiftedit.setSiteValues = setSiteValues;
 
 function enableMenuItems(site) {
-    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'share', 'download'];
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'download'];
 
     if(site.db_phpmyadmin)
         items.push('phpmyadmin');
@@ -31,13 +31,16 @@ function enableMenuItems(site) {
     if(site.server_type==='Hosted')
         items.push('reboot');
 
+    if(site.logon_type == 'key')
+        items.push('sshSite');
+
     items.forEach(function(item){
         $('#'+item).removeClass('ui-state-disabled');
     });
 }
 
 function disableMenuItems() {
-    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'share', 'download', 'phpmyadmin', 'ssh', 'reboot'];
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'download', 'phpmyadmin', 'ssh', 'reboot'];
 
     items.forEach(function(item){
         $('#'+item).removeClass('ui-state-disabled');
@@ -108,24 +111,9 @@ function init() {
                 return;
             }
 
-            var ajax;
-        	if (!loading.start('Deleting site '+site.name, function(){
-        		console.log('abort deleting site');
-        		ajax.abort();
-        	})) {
-        		return;
-        	}
-
-            ajax = $.ajax({
-                url: '/api/sites?cmd=delete&site='+currentSite,
-        	    method: 'GET',
-        	    dataType: 'json',
-            })
-            .then(function (data) {
-                loading.stop();
-                //console.log(data);
-
-                if(data.success){
+            loading.fetch('/api/sites?cmd=delete&site='+currentSite, {
+                action: 'Deleting site '+site.name,
+                success: function(data) {
                     //remove this site from any active tabs
                     $("li[data-site='"+currentSite+"']").attr('data-site', '');
 
@@ -140,12 +128,7 @@ function init() {
                     //refresh combo
                     $( "#sites" ).combobox('val');
                     load();
-                }else{
-                    prompt.alert({title:'Error', msg:data.error});
                 }
-            }).fail(function() {
-                loading.stop();
-        		prompt.alert({title:lang.failedText, msg:'Error deleting site'});
             });
         },
         disabled: true
@@ -167,35 +150,16 @@ function init() {
                 $( "#dialog-import" ).dialog( "close" );
                 $( "#dialog-import" ).remove();
 
-                var ajax;
-            	if (!loading.start('Importing site '+site.name, function(){
-            		console.log('abort importing site');
-            		ajax.abort();
-            	})) {
-            		return;
-            	}
-
-                ajax = $.ajax({
-                    url: '/api/sites?cmd=import',
-            	    method: 'POST',
-            	    dataType: 'json',
+                loading.fetch('/api/sites?cmd=import', {
+                    action: 'Importing site',
             	    data: {
             	        content: content
-            	    }
-                })
-                .then(function (data) {
-                    loading.stop();
-
-                    if(data.success){
+            	    },
+                    success: function(data) {
 						prompt.alert({title: 'Success', msg: data.imported+' site(s) imported.'});
 						currentSite = data.site;
 						load();
-                    }else{
-                        prompt.alert({title:'Error', msg:data.error});
                     }
-                }).fail(function() {
-                    loading.stop();
-            		prompt.alert({title:lang.failedText, msg:'Error importing site'});
                 });
             }
 
@@ -229,42 +193,23 @@ function init() {
         id: 'export',
         text: 'Export',
         handler: function() {
-            var ajax;
-        	if (!loading.start('Exporting site '+site.name, function(){
-        		console.log('abort exporting site');
-        		ajax.abort();
-        	})) {
-        		return;
-        	}
-
-            ajax = $.ajax({
-                url: '/api/sites?cmd=export&site='+currentSite,
-        	    method: 'GET',
-        	    dataType: 'json',
-            })
-            .then(function (data) {
-                loading.stop();
-
-                if(data.success){
+            loading.fetch('/api/sites?cmd=export&site='+currentSite, {
+                action: 'Exporting site',
+                success: function(data) {
                     var link = $('<a href="data:text/xml;base64,'+btoa(data.content)+'" download="'+data.file+'"></a>').appendTo('body');
                     link.get(0).click();
                     link.remove();
-                }else{
-                    prompt.alert({title:'Error', msg:data.error});
                 }
-            }).fail(function() {
-                loading.stop();
-        		prompt.alert({title:lang.failedText, msg:'Error exporting site'});
             });
         },
         disabled: true
     }, {
-        id: 'share',
+        id: 'shareSite',
         text: 'Share site',
         handler: function() {
             //import site dialog
             $( "body" ).append('<div id="dialog-share-site" title="Share site">\
-              <form id="shareSite">\
+              <form id="shareSiteForm">\
                 <fieldset>\
                     Email\
                     <input type="text" name="email" class="text ui-widget-content ui-corner-all" required autofocus>\
@@ -278,61 +223,25 @@ function init() {
             loadUsers();
 
             //handle add user
-            $('#shareSite').submit(function(event){
+            $('#shareSiteForm').submit(function(event){
                 event.preventDefault();
 
-                var ajax;
-            	if (!loading.start('saving user', function(){
-            		ajax.abort();
-            	})) {
-            		return;
-            	}
-
-                ajax = $.ajax({
-                    url: '/api/share?cmd=save&site=' + currentSite + '&email=' + $('#shareSite input[name=email]').val(),
-            	    method: 'GET',
-            	    dataType: 'json',
-                })
-                .then(function (data) {
-                    loading.stop();
-
-                    if(data.success){
-                        $('#shareSite input[name=email]').val('');
+                loading.fetch('/api/share?cmd=save&site=' + currentSite + '&email=' + $('#shareSiteForm input[name=email]').val(), {
+                    action: 'saving user',
+                    success: function(data) {
+                        $('#shareSiteForm input[name=email]').val('');
     					loadUsers();
-                    }else{
-                        prompt.alert({title:'Error', msg:data.error});
                     }
-                }).fail(function() {
-                    loading.stop();
-            		prompt.alert({title:lang.failedText, msg:'Error getting shared'});
                 });
             });
 
             //handle remove user
-            $('#shareSite').on('click', 'a.delete', function() {
-                var ajax;
-            	if (!loading.start('deleting user', function(){
-            		ajax.abort();
-            	})) {
-            		return;
-            	}
-
-                ajax = $.ajax({
-                    url: '/api/share?cmd=delete&site='+currentSite+'&contact='+$(this).data('id'),
-            	    method: 'GET',
-            	    dataType: 'json',
-                })
-                .then(function (data) {
-                    loading.stop();
-
-                    if(data.success){
+            $('#shareSiteForm').on('click', 'a.delete', function() {
+                loading.fetch('/api/share?cmd=delete&site='+currentSite+'&contact='+$(this).data('id'), {
+                    action: 'deleting user',
+                    success: function(data) {
     					loadUsers();
-                    }else{
-                        prompt.alert({title:'Error', msg:data.error});
                     }
-                }).fail(function() {
-                    loading.stop();
-            		prompt.alert({title:lang.failedText, msg:'Error getting shared'});
                 });
             });
 
@@ -376,7 +285,7 @@ function init() {
         },
         disabled: true
     }, '-', {
-        id: 'ssh',
+        id: 'sshSite',
         text: 'SSH Terminal',
         handler: function() {},
         disabled: true
@@ -384,26 +293,10 @@ function init() {
         id: 'reboot',
         text: 'Reboot',
         handler: function() {
-            var ajax;
-        	if (!loading.start('Rebooting site '+site.name, function(){
-        		console.log('abort reboot');
-        		ajax.abort();
-        	})) {
-        		return;
-        	}
-
-            ajax = $.ajax({
-                url: '/api/sites?cmd=reboot&site='+currentSite,
-        	    method: 'GET',
-        	    dataType: 'json',
-            })
-            .then(function (data) {
-                loading.stop();
-
-                //refresh tree?
-            }).fail(function() {
-                loading.stop();
-        		prompt.alert({title:lang.failedText, msg:'Error rebooting'});
+            loading.fetch('/api/sites?cmd=reboot&site='+currentSite, {
+                action: 'Rebooting site '+site.name,
+                success: function(data) {
+                }
             });
         },
         disabled: true
@@ -547,23 +440,9 @@ function open(siteId, password) {
 }
 
 function loadUsers() {
-    //get users
-    var ajax;
-	if (!loading.start('getting users', function(){
-		ajax.abort();
-	})) {
-		return;
-	}
-
-    ajax = $.ajax({
-        url: '/api/share?cmd=list&site='+currentSite,
-	    method: 'GET',
-	    dataType: 'json',
-    })
-    .then(function (data) {
-        loading.stop();
-
-        if(data.success){
+    loading.fetch('/api/share?cmd=list&site='+currentSite, {
+        action: 'getting users',
+        success: function(data) {
 			var html = '';
 
 			data.shared.forEach(function(item){
@@ -572,13 +451,8 @@ function loadUsers() {
 
 			$('#users').html(html);
 
-			$('#shareSite input[name=email]').focus();
-        }else{
-            prompt.alert({title:'Error', msg:data.error});
+			$('#shareSiteForm input[name=email]').focus();
         }
-    }).fail(function() {
-        loading.stop();
-		prompt.alert({title:lang.failedText, msg:'Error getting shared'});
     });
 }
 

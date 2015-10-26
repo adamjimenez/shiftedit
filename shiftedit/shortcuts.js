@@ -1,4 +1,4 @@
-define(['app/tabs','jquery'], function (tabs) {
+define(['app/tabs','app/find','jquery'], function (tabs, find) {
 
 	var shortcuts = [{ //close ctrl-alt+n
 		key: 78,
@@ -51,7 +51,7 @@ define(['app/tabs','jquery'], function (tabs) {
 		stopEvent: true,
 		fn: function (key, e) {
 			tabs.closeAll();
-		}/*
+		}
 	}, { //find ctrl+f
 		key: 70,
 		ctrl: true,
@@ -59,12 +59,12 @@ define(['app/tabs','jquery'], function (tabs) {
 		scope: this,
 		stopEvent: true,
 		fn: function (key, e) {
-			var prefs = get_prefs();
+			//var prefs = get_prefs();
 
-			if (prefs.keyBinding == 'default') {
+			//if (prefs.keyBinding == 'default') {
 				find.open();
-			}
-		}*/
+			//}
+		}
 	}, /*{ //find ctrl+k
 		key: 75,
 		ctrl: true,

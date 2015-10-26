@@ -445,3 +445,129 @@ div.buttons {
     height: 80px;
     align-self: base-line;
 }
+
+#ssh p{
+    display: flex;
+    vertical-align: middle;
+    align-items: center;
+}
+
+#ssh input[name=port], #ssh input[name=timeout]{
+    max-width: 50px;
+}
+
+#ssh label{
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 4px;
+    line-height: 16px;
+}
+
+#ssh label:first-child{
+    min-width: 110px;
+    width: 110px;
+    padding: 0;
+}
+
+#ssh #portContainer label{
+    min-width: auto;
+    width: auto;
+}
+
+#ssh label.ui-button{
+    padding: 0;
+}
+
+#ssh input, #ssh textarea{
+    flex-grow: 1;
+}
+
+#ssh input[type=checkbox]{
+    flex-grow: 0;
+}
+
+#ssh .ui-menu {
+    position: absolute;
+    width: 70px;
+}
+
+#ssh .delete{
+    position: relative;
+    left: 40px;
+}
+
+/* TERMINAL */
+.terminal {
+  border: #000 solid 5px;
+  font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
+  font-size: 11px;
+  color: #f0f0f0;
+  background: #000;
+}
+
+.terminal div{
+    white-space: nowrap;
+}
+
+.reverse-video {
+  color: #000;
+  background: #f0f0f0;
+}
+
+
+#findForm{
+    padding: 6px;
+}
+
+#findForm .row{
+    display: flex;
+    vertical-align: middle;
+    align-items: center;
+}
+
+#findForm .spacer{
+    flex: 1;
+}
+
+#findForm textarea{
+    min-height: 100px;
+    max-height: 300px;
+}
+
+#findForm input[name=port], #findForm input[name=timeout]{
+    max-width: 50px;
+}
+
+#findForm label{
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 4px;
+    line-height: 16px;
+}
+
+#findForm label:first-child{
+    min-width: 110px;
+    width: 110px;
+    padding: 0;
+}
+
+#findForm label.ui-button{
+    padding: 0;
+}
+
+#findForm input, #findForm textarea{
+    flex-grow: 1;
+}
+
+#findForm input[type=checkbox]{
+    flex-grow: 0;
+}
+
+#findForm .ui-menu {
+    position: absolute;
+    width: 70px;
+}
+
+.ui-progressbar-value {
+	background-color: #ccc;
+}

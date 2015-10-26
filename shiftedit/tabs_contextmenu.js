@@ -7,7 +7,7 @@ var prompt = require('app/prompt');
 
 function init() {
     $.contextMenu({
-        selector: '.ui-tabs-nav li:not(.button)',
+        selector: '.ui-tabs-nav li.closable',
         callback: function(key, opt){
             switch(key) {
                 case 'new':
@@ -16,7 +16,7 @@ function init() {
                 case 'close':
                     return tabs.close($(this));
                 case 'closeOtherTabs':
-                    lis = $(this).siblings('li:not(.button)');
+                    lis = $(this).siblings('li.closable');
                 break;
                 case 'closeAllTabs':
                     return tabs.closeAll($(this));
