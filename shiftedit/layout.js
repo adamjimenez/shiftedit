@@ -1,4 +1,4 @@
-define(["jquery.layout", "app/menubar"], function () {
+define(['exports', "jquery.layout", "app/menubar"], function (exports) {
 var menubar = require("app/menubar");
 var myLayout;
 
@@ -35,8 +35,9 @@ function init() {
     //setTimeout( myLayout.resizeAll, 1000 ); /* allow time for browser to re-render with new theme */
 }
 
-return {
-    init: init
+exports.init = init;
+exports.get =  function() {
+    return myLayout;
 };
 
 });

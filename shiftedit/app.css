@@ -469,7 +469,7 @@ div.buttons {
     padding: 0;
 }
 
-#ssh #portContainer label, #ssh #timeoutContainer label{
+#ssh #portContainer label{
     min-width: auto;
     width: auto;
 }
@@ -512,4 +512,62 @@ div.buttons {
 .reverse-video {
   color: #000;
   background: #f0f0f0;
+}
+
+
+#findForm{
+    padding: 6px;
+}
+
+#findForm .row{
+    display: flex;
+    vertical-align: middle;
+    align-items: center;
+}
+
+#findForm .spacer{
+    flex: 1;
+}
+
+#findForm textarea{
+    min-height: 100px;
+    max-height: 300px;
+}
+
+#findForm input[name=port], #findForm input[name=timeout]{
+    max-width: 50px;
+}
+
+#findForm label{
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 4px;
+    line-height: 16px;
+}
+
+#findForm label:first-child{
+    min-width: 110px;
+    width: 110px;
+    padding: 0;
+}
+
+#findForm label.ui-button{
+    padding: 0;
+}
+
+#findForm input, #findForm textarea{
+    flex-grow: 1;
+}
+
+#findForm input[type=checkbox]{
+    flex-grow: 0;
+}
+
+#findForm .ui-menu {
+    position: absolute;
+    width: 70px;
+}
+
+.ui-progressbar-value {
+	background-color: #ccc;
 }

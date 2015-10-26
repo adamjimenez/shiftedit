@@ -1,4 +1,4 @@
-define(["jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util', 'app/shortcuts', 'app/editors', 'app/revisions', 'app/chat'], function () {
+define(['exports', "jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util', 'app/shortcuts', 'app/editors', 'app/revisions', 'app/chat'], function (exports) {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var prefs = require('app/prefs').get_prefs();
@@ -1116,9 +1116,7 @@ function init () {
     });
 }
 
-return {
-    init: init,
-    selectionMenuItems: selectionMenuItems
-};
+exports.init = init;
+exports.selectionMenuItems = selectionMenuItems;
 
 });

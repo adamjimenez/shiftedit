@@ -1,4 +1,4 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete','ace/split', 'app/site', 'app/firebase'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete','ace/split', 'app/site', 'app/firebase', 'app/find'], function (tabs, exports) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -12,6 +12,7 @@ var Autocomplete = require("ace/autocomplete").Autocomplete;
 var site = require('app/site');
 var firebase = require('app/firebase');
 var Firepad = require('firepad');
+var find = require('app/find');
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -286,6 +287,7 @@ function create(file, content, siteId, options) {
 	\
 	<div class="editor"></div>');
 
+    tab.addClass('closable');
 	tab.data(file, file);
 	tab.attr('data-file', file);
 	tab.attr('title', file);
@@ -437,6 +439,18 @@ function create(file, content, siteId, options) {
 		exec: jQuery.proxy(function (editor, args, request) {
 			return tabs.save(this);
 		}, tab)
+	});
+	editor.commands.addCommand({
+		name: "find",
+		bindKey: {
+			win: "Ctrl-F",
+			mac: "Command-F",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			find.open(editor.getSelectedText());
+			return true;
+		}
 	});
 	editor.commands.addCommand({
 		name: "saveAs",
