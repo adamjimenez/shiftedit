@@ -1,9 +1,10 @@
-define(["jstree","app/util","app/editors","app/prompt",'app/lang','app/tabs'], function () {
+define(["jstree","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading'], function () {
 var util = require('app/util');
 var editor = require('app/editors');
 var lang = require('app/lang').lang;
 var prompt = require('app/prompt');
 var tabs = require('app/tabs');
+var loading = require('app/loading');
 var options = {};
 var tree;
 var confirmed = false;
@@ -35,6 +36,62 @@ function newFile(data) {
 	inst.create_node(parent, { type : "file", text: 'untitled.'+extension }, "last", function (new_node) {
 		setTimeout(function () { inst.edit(new_node); }, 0);
 	});
+}
+
+function downloadZip(data) {
+	var inst = $.jstree.reference(data.reference),
+		node = inst.get_node(data.reference);
+
+	var file = node.id;
+
+	//send compress request
+	var abortFunction = function(){
+		if( source ){
+			source.close();
+		}
+	};
+	loading.start('Compressing ' + file, abortFunction);
+
+	var url = options.url;
+	if( url.indexOf('?')==-1 ){
+		url+='?';
+	}else{
+		url+='&';
+	}
+	url += 'cmd=compress&site='+options.site+'&file='+file;
+
+	var source = new EventSource(url, {withCredentials: true});
+
+	source.addEventListener('message', function(event) {
+		var data = JSON.parse(event.data);
+		console.log(data);
+		if( data.msg === 'done' ){
+			done = true;
+			loading.stop(false);
+
+			source.close();
+
+    		var evt = document.createEvent("HTMLEvents");
+    		evt.initEvent("click");
+
+    		var a = document.createElement('a');
+    		a.download = 1;
+			a.href = url+'&d=1';
+    		a.dispatchEvent(evt)
+		}else{
+			loading.stop(false);
+			loading.start(data.msg, abortFunction);
+		}
+	}, false);
+
+	source.addEventListener('error', function(event) {
+		//console.log(event);
+		if (event.eventPhase == 2) { //EventSource.CLOSED
+			if( source ){
+				source.close();
+			}
+		}
+	}, false);
 }
 
 function init() {
@@ -180,7 +237,6 @@ function init() {
 							}
 						}
     			    },
-
     			    "open": {
                         "label": "Open",
                         "submenu": {
@@ -330,7 +386,8 @@ function init() {
 						}
 					},
 					"downloadzip": {
-						"label": "Download as zip"
+						"label": "Download as zip",
+						action: downloadZip
 					},
 					"reload": {
 						"label" : "Reload"
