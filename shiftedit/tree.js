@@ -445,7 +445,8 @@ function init() {
 						action: downloadZip
 					},
 					"reload": {
-						"label" : "Reload"
+						"label" : "Reload",
+						action: refresh
 					},
 					"chmod": {
 						"label": "Set permissions",
