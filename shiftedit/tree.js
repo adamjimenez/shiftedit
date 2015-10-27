@@ -199,7 +199,14 @@ function open(data) {
 function getSelected() {
     var reference = $('#tree');
     var inst = $.jstree.reference(reference);
-    return inst.get_selected();
+    return inst.get_selected(true);
+}
+
+function getDir(node) {
+    var reference = $('#tree');
+    var inst = $.jstree.reference(reference);
+    var parent = node.type == 'default' ? node : inst.get_node(node.parent);
+    return parent;
 }
 
 function init() {
@@ -214,6 +221,22 @@ function init() {
         },
         withCredentials: true,
         //node: _this.node
+    });
+
+    r.assignDrop($('#tree'));
+
+    $('#tree').on('dragenter', 'a', function(e) {
+        var inst = $.jstree.reference(this);
+        inst.deselect_all();
+        var node = inst.select_node(this);
+    });
+
+    $('#tree').on('dragleave', function(e) {
+        console.log('yo2');
+    });
+
+    $('#tree').on('dragover', function(e) {
+        e.preventDefault();
     });
 
     r.on('fileProgress', function(file){
@@ -264,12 +287,12 @@ function init() {
         r.opts.withCredentials = true;
 
         var node = getSelected()[0];
-        console.log(node);
+        var parent = getDir(node);
 
         r.opts.query = {
             //cmd: 'upload',
             chunked: 1,
-            path: util.dirname(node)
+            path: node.id
         };
 
         r.upload();
