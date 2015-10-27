@@ -77,7 +77,7 @@ function downloadZip(data) {
     		var a = document.createElement('a');
     		a.download = 1;
 			a.href = url+'&d=1';
-    		a.dispatchEvent(evt)
+    		a.dispatchEvent(evt);
 		}else{
 			loading.stop(false);
 			loading.start(data.msg, abortFunction);
