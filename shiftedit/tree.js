@@ -148,6 +148,41 @@ function downloadZip(data) {
 	}, false);
 }
 
+function downloadFile(data) {
+	var inst = $.jstree.reference(data.reference),
+		node = inst.get_node(data.reference);
+
+	var file = node.id;
+
+    loading.fetch(options.url+'&cmd=download&file='+file, {
+        action: 'downloading file',
+        success: function(data) {
+            var byteCharacters = atob(data.content);
+            var byteArrays = [];
+
+            for (var offset = 0; offset < byteCharacters.length; offset += 512) {
+                var slice = byteCharacters.slice(offset, offset + 512);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+
+    		var blob = new Blob(byteArrays);
+    		var evt = document.createEvent("HTMLEvents");
+    		evt.initEvent("click");
+
+    		var a = document.createElement('a');
+    		a.download = util.basename(file);
+    		a.href = URL.createObjectURL(blob);
+    		a.dispatchEvent(evt);
+        }
+    });
+}
+
 function init() {
     tree = $('#tree')
     .jstree({
@@ -295,13 +330,14 @@ function init() {
                         "label": "Open",
                         "submenu": {
 							"open" : {
-								"label"				: "Open"
+								"label": "Open"
 							},
 							"open_tab" : {
-								"label"				: "Open in new browser tab"
+								"label": "Open in new browser tab"
 							},
 							"download" : {
-								"label"				: "Download"
+								"label": "Download",
+								action: downloadFile
 							},
                         }
     			    },
