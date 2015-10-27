@@ -157,21 +157,7 @@ function downloadFile(data) {
     loading.fetch(options.url+'&cmd=download&file='+file, {
         action: 'downloading file',
         success: function(data) {
-            var byteCharacters = atob(data.content);
-            var byteArrays = [];
-
-            for (var offset = 0; offset < byteCharacters.length; offset += 512) {
-                var slice = byteCharacters.slice(offset, offset + 512);
-                var byteNumbers = new Array(slice.length);
-                for (var i = 0; i < slice.length; i++) {
-                    byteNumbers[i] = slice.charCodeAt(i);
-                }
-
-                var byteArray = new Uint8Array(byteNumbers);
-                byteArrays.push(byteArray);
-            }
-
-    		var blob = new Blob(byteArrays);
+            var blob = b64toBlob(data.content);
     		var evt = document.createEvent("HTMLEvents");
     		evt.initEvent("click");
 
