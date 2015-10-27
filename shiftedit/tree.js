@@ -1,4 +1,4 @@
-define(["jstree","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading'], function () {
+define(['resumable', "jstree","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading'], function (Resumable) {
 var util = require('app/util');
 var editor = require('app/editors');
 var lang = require('app/lang').lang;
@@ -8,6 +8,8 @@ var loading = require('app/loading');
 var options = {};
 var tree;
 var confirmed = false;
+var r;
+var uploadStarted =false;
 
 function newFolder(data) {
     //data.item.name
@@ -157,7 +159,7 @@ function downloadFile(data) {
     loading.fetch(options.url+'&cmd=download&file='+file, {
         action: 'downloading file',
         success: function(data) {
-            var blob = b64toBlob(data.content);
+            var blob = util.b64toBlob(data.content);
     		var evt = document.createEvent("HTMLEvents");
     		evt.initEvent("click");
 
@@ -167,6 +169,16 @@ function downloadFile(data) {
     		a.dispatchEvent(evt);
         }
     });
+}
+
+function upload() {
+	var evt = document.createEvent("HTMLEvents");
+	evt.initEvent("click");
+
+	var a = document.createElement('a');
+    r.assignBrowse(a);
+	a.href = '#';
+	a.dispatchEvent(evt);
 }
 
 function open(data) {
@@ -184,7 +196,85 @@ function open(data) {
 	}
 }
 
+function getSelected() {
+    var reference = $('#tree');
+    var inst = $.jstree.reference(reference);
+    return inst.get_selected();
+}
+
 function init() {
+    var chunkedUploads = false;
+    r = new Resumable({
+        //target: _this.url,
+        testChunks: false,
+        query: {
+            cmd: 'upload',
+            chunked: 1,
+            //path: _this.getPath(_this.node)
+        },
+        withCredentials: true,
+        //node: _this.node
+    });
+
+    r.on('fileProgress', function(file){
+		if (uploadStarted) {
+		    //console.log(r.progress());
+			var msg = 'Uploading '+file.fileName;
+			var perc = parseInt(r.progress() * 100);
+
+			loading.stop(false);
+
+			if( perc == 100 ){
+				loading.start(msg+' [deploying..]');
+			}else{
+				loading.start(msg+' ['+perc+'%]', function(){
+				    r.cancel();
+				});
+			}
+		}
+	});
+
+    r.on('complete', function(){
+        uploadStarted = false;
+		loading.stop();
+
+		//clear upload queue so you can upload the same file
+		r.cancel();
+
+		//_this.setUrl(_this.url);
+        refresh();
+	});
+
+    r.on('error', function(message, file){
+		loading.stop();
+		prompt.alert({title:file, msg:message});
+	});
+
+    r.on('fileAdded', function(file){
+        console.log('yoooo')
+        uploadStarted = true;
+
+        if( chunkedUploads ){
+            r.opts.chunkSize = 1*1024*1024;
+        }else{
+            r.opts.chunkSize = 20*1024*1024;
+        }
+
+        r.opts.target = options.url+'&cmd=upload';
+        r.opts.withCredentials = true;
+
+        var node = getSelected()[0];
+        console.log(node);
+
+        r.opts.query = {
+            //cmd: 'upload',
+            chunked: 1,
+            path: util.dirname(node)
+        };
+
+        r.upload();
+    });
+
     tree = $('#tree')
     .jstree({
     	'core' : {
@@ -454,7 +544,9 @@ function init() {
                         "action": false,
                         "submenu": {
         					"upload" : {
-        						"label": "File"
+        						"label": "File",
+        						//icon: 'upload',
+        						action: upload
         					},
         					"upload_folder" : {
         						"label": "Folder"
