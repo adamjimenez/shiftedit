@@ -183,6 +183,21 @@ function downloadFile(data) {
     });
 }
 
+function open(data) {
+	var inst = $.jstree.reference(data.reference);
+    var selected = inst.get_selected();
+    var node = inst.get_node(data.reference);
+
+    if(node.icon==="folder") {
+        return;
+    }
+
+	if(selected && selected.length) {
+	    var file = selected.join(':');
+	    tabs.open(file, options.site);
+	}
+}
+
 function init() {
     tree = $('#tree')
     .jstree({
@@ -330,7 +345,8 @@ function init() {
                         "label": "Open",
                         "submenu": {
 							"open" : {
-								"label": "Open"
+								"label": "Open",
+								action: open
 							},
 							"open_tab" : {
 								"label": "Open in new browser tab"
@@ -607,19 +623,9 @@ function init() {
         }
     })
     .on('dblclick','a',function (e, data) {
-        var reference = this;
-        var instance = $.jstree.reference(this);
-        var selected = instance.get_selected();
-        var obj = instance.get_node(reference);
-
-        if(obj.icon==="folder") {
-            return;
-        }
-
-    	if(selected && selected.length) {
-    	    var file = selected.join(':');
-    	    tabs.open(file, options.site);
-    	}
+        open({
+            reference: this
+        });
     })
     /*
     .on('changed.jstree', function (e, data) {
