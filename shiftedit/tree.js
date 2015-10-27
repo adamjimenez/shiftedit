@@ -13,7 +13,7 @@ function newFolder(data) {
 
 	var inst = $.jstree.reference(data.reference),
 		obj = inst.get_node(data.reference);
-		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent)
+		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
 	inst.create_node(parent, { type : "default" }, "last", function (new_node) {
 		setTimeout(function () { inst.edit(new_node); }, 0);
 	});
@@ -180,43 +180,25 @@ function init() {
 							}
 						}
     			    },
-                    "rename": {
-                        "separator_before": false,
-                        "separator_after": false,
-                        "_disabled": false,
-                        "label": "Rename",
-    					"shortcut"			: 113,
-    					"shortcut_label"	: 'F2',
-    					"icon"				: "glyphicon glyphicon-leaf",
-    					"action"			: function (data) {
-    						var inst = $.jstree.reference(data.reference),
-    							obj = inst.get_node(data.reference);
-    						inst.edit(obj);
-    					}
-                    },
-                    "remove": {
-                        "separator_before": false,
-                        "icon": false,
-                        "separator_after": false,
-                        "_disabled": false,
-                        "label": "Delete",
-                        "shortcut": 46,
-                        "shortcut_label": "Del",
-    					"action"			: function (data) {
-    						var inst = $.jstree.reference(data.reference),
-    							obj = inst.get_node(data.reference);
-    						if(inst.is_selected(obj)) {
-    							inst.delete_node(inst.get_selected());
-    						}
-    						else {
-    							inst.delete_node(obj);
-    						}
-    					}
-                    },
+
+    			    "open": {
+                        "label": "Open",
+                        "submenu": {
+							"open" : {
+								"label"				: "Open"
+							},
+							"open_tab" : {
+								"label"				: "Open in new browser tab"
+							},
+							"download" : {
+								"label"				: "Download"
+							},
+                        }
+    			    },
                     "ccp": {
                         "separator_before": true,
                         "icon": false,
-                        "separator_after": false,
+                        "separator_after": true,
                         "label": "Edit",
                         "action": false,
                         "submenu": {
@@ -243,7 +225,6 @@ function init() {
                                 "shortcut": 67,
                                 "shortcut_label": "C",
     							"action"			: function (data) {
-    							    console.log('yooo');
     								var inst = $.jstree.reference(data.reference),
     									obj = inst.get_node(data.reference);
     								if(inst.is_selected(obj)) {
@@ -267,43 +248,98 @@ function init() {
     									obj = inst.get_node(data.reference);
     								inst.paste(obj);
     							}
+                            },
+                            "rename": {
+                                "separator_before": false,
+                                "separator_after": false,
+                                "_disabled": false,
+                                "label": "Rename",
+            					"shortcut"			: 113,
+            					"shortcut_label"	: 'F2',
+            					"icon"				: "glyphicon glyphicon-leaf",
+            					"action"			: function (data) {
+            						var inst = $.jstree.reference(data.reference),
+            							obj = inst.get_node(data.reference);
+            						inst.edit(obj);
+            					}
+                            },
+                            "remove": {
+                                "separator_before": false,
+                                "icon": false,
+                                "separator_after": false,
+                                "_disabled": false,
+                                "label": "Delete",
+                                "shortcut": 46,
+                                "shortcut_label": "Del",
+            					"action"			: function (data) {
+            						var inst = $.jstree.reference(data.reference),
+            							obj = inst.get_node(data.reference);
+            						if(inst.is_selected(obj)) {
+            							inst.delete_node(inst.get_selected());
+            						}
+            						else {
+            							inst.delete_node(obj);
+            						}
+            					}
+                            },
+                            "duplicate": {
+                                "separator_before": false,
+                                "icon": false,
+    							"_disabled": function (data) {
+    								return !$.jstree.reference(data.reference).can_paste();
+    							},
+                                "separator_after": false,
+                                "label": "Paste",
+    							"action": function (data) {
+    								var inst = $.jstree.reference(data.reference),
+    									obj = inst.get_node(data.reference);
+    								inst.paste(obj);
+    							}
                             }
                         }
-                    }
+                    },
+                    "upload": {
+                        "separator_before": true,
+                        "icon": false,
+                        "separator_after": true,
+                        "label": "Upload",
+                        "action": false,
+                        "submenu": {
+        					"upload" : {
+        						"label": "File"
+        					},
+        					"upload_folder" : {
+        						"label": "Folder"
+        					},
+        					"upload_url" : {
+        						"label": "URL"
+        					}
+                        }
+                    },
+					"extract": {
+						"label": "Extract",
+						"_disabled": function (data) {
+							var inst = $.jstree.reference(data.reference),
+								node = inst.get_node(data.reference);
+
+							if( ['zip', 'bz2', 'tar', 'gz', 'ar'].indexOf(util.fileExtension(node.id)) !== -1 ){
+							    return false;
+							}else{
+							    return true;
+							}
+						}
+					},
+					"downloadzip": {
+						"label": "Download as zip"
+					},
+					"reload": {
+						"label" : "Reload"
+					},
+					"chmod": {
+						"label": "Set permissions",
+                        "separator_after": true
+					}
                 };
-
-    			console.log(tmp);
-
-    			/*
-    			delete tmp.create.action;
-    			tmp.create.label = "New";
-    			tmp.create.submenu = {
-    				"create_folder" : {
-    					"separator_after"	: true,
-    					"label"				: "Folder",
-    					"action"			: function (data) {
-    						var inst = $.jstree.reference(data.reference),
-    							obj = inst.get_node(data.reference);
-    						inst.create_node(obj, { type : "default" }, "last", function (new_node) {
-    							setTimeout(function () { inst.edit(new_node); },0);
-    						});
-    					}
-    				},
-    				"create_file" : {
-    					"label"				: "File",
-    					"action"			: function (data) {
-    						var inst = $.jstree.reference(data.reference),
-    							obj = inst.get_node(data.reference);
-    						inst.create_node(obj, { type : "file" }, "last", function (new_node) {
-    							setTimeout(function () { inst.edit(new_node); },0);
-    						});
-    					}
-    				}
-    			};
-    			if(this.get_type(node) === "file") {
-    				delete tmp.create;
-    			}
-    			*/
 
     			return tmp;
     		}
