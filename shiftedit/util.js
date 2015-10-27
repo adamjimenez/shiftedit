@@ -236,6 +236,13 @@ return {
       };
       return this.date(format, timestamp);
     },
+    dirname: function(path) {
+    	if( path.indexOf('/')==-1 ){
+    		return '';
+    	}
+
+        return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '');
+    },
     makeMenuText: function(text, key) {
 		if( !key ){
 			key ='';

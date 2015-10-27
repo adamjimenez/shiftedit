@@ -8,6 +8,35 @@ var options = {};
 var tree;
 var confirmed = false;
 
+function newFolder(data) {
+    //data.item.name
+
+	var inst = $.jstree.reference(data.reference),
+		obj = inst.get_node(data.reference);
+		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent)
+	inst.create_node(parent, { type : "default" }, "last", function (new_node) {
+		setTimeout(function () { inst.edit(new_node); }, 0);
+	});
+}
+
+function newFile(data) {
+	var inst = $.jstree.reference(data.reference),
+		obj = inst.get_node(data.reference);
+		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
+
+    var extension = data.item.extension;
+    var newName = data.item.name ? data.item.name : 'untitled';
+
+	var i = 0;
+	while( parent.children.indexOf(newName) !== -1 ){
+		i++;
+		newName = newName + i + '.' + extension;
+	}
+	inst.create_node(parent, { type : "file", text: 'untitled.'+extension }, "last", function (new_node) {
+		setTimeout(function () { inst.edit(new_node); }, 0);
+	});
+}
+
 function init() {
     tree = $('#tree')
     .jstree({
@@ -85,6 +114,72 @@ function init() {
     			//var tmp = $.jstree.defaults.contextmenu.items();
 
     			var tmp = {
+    			    "create": {
+                        "label": "New",
+                        "submenu": {
+							"create_folder" : {
+								"separator_after"	: true,
+								"label"				: "Folder",
+								"action"			: newFolder
+							},
+							"create_html" : {
+								"label"				: "HTML file",
+								"action"			: newFile,
+								"extension": 'html'
+							},
+							"create_php" : {
+								"label"				: "PHP file",
+								"action"			: newFile,
+								"extension": 'php'
+							},
+							"create_css" : {
+								"label"				: "CSS file",
+								"action"			: newFile,
+								"extension": 'css'
+							},
+							"create_js" : {
+								"label"				: "JS file",
+								"action"			: newFile,
+								"extension": 'js'
+							},
+							"create_json" : {
+								"label"				: "JSON file",
+								"action"			: newFile,
+								"extension": 'json'
+							},
+							"create_htaccess" : {
+								"label"				: "Htaccess file",
+								"action"			: newFile,
+								"extension": 'htaccess',
+								"name": ''
+							},
+							"create_ruby" : {
+								"label"				: "Ruby file",
+								"action"			: newFile,
+								"extension": 'rb'
+							},
+							"create_python" : {
+								"label"				: "Python file",
+								"action"			: newFile,
+								"extension": 'py'
+							},
+							"create_perl" : {
+								"label"				: "Perl file",
+								"action"			: newFile,
+								"extension": 'pl'
+							},
+							"create_text" : {
+								"label"				: "Text file",
+								"action"			: newFile,
+								"extension": 'txt'
+							},
+							"create_xml" : {
+								"label"				: "XML file",
+								"action"			: newFile,
+								"extension": 'xml'
+							}
+						}
+    			    },
                     "rename": {
                         "separator_before": false,
                         "separator_after": false,
@@ -247,7 +342,7 @@ function init() {
 		});
     })
     .on('create_node.jstree', function (e, data) {
-    	$.get('?operation=create_node', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
+    	$.get(options.url+'&cmd=newfile', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
     		.done(function (d) {
     			data.instance.set_id(data.node, d.id);
     		})
@@ -256,12 +351,9 @@ function init() {
     		});
     })
     .on('rename_node.jstree', function (e, data) {
-        //console.log(e);
-        //console.log(data);
-
         var params = util.clone(options.params);
-        params.oldname = data.old;
-        params.newname = data.text;
+        params.oldname = data.node.id;
+        params.newname = util.dirname(params.oldname)+'/'+data.text;
         params.site = options.site;
 
 		$.ajax(options.url+'&cmd=rename', {
@@ -271,7 +363,7 @@ function init() {
 		})
 		.done(function (d) {
 		    if(!d.success){
-		        prompt.alert('Error', d.error);
+		        prompt.alert({title:'Error', msg:d.error});
 		    }else{
     		    data.instance.set_id(data.node, params.newname);
 		        $('#tree').trigger('rename', params);
