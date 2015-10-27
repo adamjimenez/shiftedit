@@ -23,7 +23,7 @@ function newFolder(data) {
 function newFile(data) {
 	var inst = $.jstree.reference(data.reference),
 		obj = inst.get_node(data.reference);
-		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
+	var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
 
     var extension = data.item.extension;
     var newName = data.item.name ? data.item.name : 'untitled';
@@ -36,6 +36,60 @@ function newFile(data) {
 	inst.create_node(parent, { type : "file", text: 'untitled.'+extension }, "last", function (new_node) {
 		setTimeout(function () { inst.edit(new_node); }, 0);
 	});
+}
+
+function extract(data) {
+	var inst = $.jstree.reference(data.reference),
+		node = inst.get_node(data.reference);
+	var parent = node.type == 'default' ? node : inst.get_node(node.parent);
+
+	var file = node.id;
+
+	//remote extract
+	var abortFunction = function(){
+		if( source ){
+			source.close();
+		}
+	};
+
+	var url = options.url;
+	if( url.indexOf('?')==-1 ){
+		url+='?';
+	}else{
+		url+='&';
+	}
+	url += 'cmd=extract&site='+options.site+'&file='+file;
+
+	loading.start('Extracting ' + file, abortFunction);
+	var source = new EventSource(url, {withCredentials: true});
+
+	var count = 0;
+	var total = 0;
+
+	source.addEventListener('message', function(event) {
+		var data = JSON.parse(event.data);
+
+		if( count === 0 ){
+			total = data.msg;
+		}else{
+			loading.stop(false);
+			loading.start('Extracting ' + data.msg+' ['+count+'/'+total+']', abortFunction);
+		}
+
+		count ++;
+	}, false);
+
+	source.addEventListener('error', function(event) {
+		if (event.eventPhase == 2) { //EventSource.CLOSED
+			if( source ){
+				source.close();
+			}
+
+			loading.stop();
+			refresh();
+		}
+	}, false);
+
 }
 
 function downloadZip(data) {
@@ -64,7 +118,7 @@ function downloadZip(data) {
 
 	source.addEventListener('message', function(event) {
 		var data = JSON.parse(event.data);
-		console.log(data);
+
 		if( data.msg === 'done' ){
 			done = true;
 			loading.stop(false);
@@ -383,7 +437,8 @@ function init() {
 							}else{
 							    return true;
 							}
-						}
+						},
+						action: extract
 					},
 					"downloadzip": {
 						"label": "Download as zip",

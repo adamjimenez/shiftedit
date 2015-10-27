@@ -571,3 +571,7 @@ div.buttons {
 .ui-progressbar-value {
 	background-color: #ccc;
 }
+
+.vakata-context ul {
+    z-index: 2;
+}
