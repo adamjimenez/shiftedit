@@ -181,6 +181,102 @@ function upload() {
 	a.dispatchEvent(evt);
 }
 
+var uploadFolders = [];
+var uploadFiles = [];
+
+function processUploads() {
+    if (uploadFolders.length) {
+        var folder = uploadFolders.shift();
+
+        //check exists
+        loading.stop();
+        loading.fetch(options.url+'&cmd=file_exists&file='+folder, {
+            action: 'Checking '+folder,
+            success: function(data) {
+                if(data.file_exists===false) {
+                    loading.stop();
+                    loading.fetch(options.url+'&cmd=newdir&dir='+folder, {
+                        action: 'Uploading '+folder,
+                        success: function(data) {
+                            processUploads();
+                        }
+                    });
+                }else{
+                    processUploads();
+                }
+            }
+        });
+    } else if(uploadFiles.length) {
+        var file = uploadFiles.shift();
+
+        loading.stop();
+        loading.fetch(options.url+'&cmd=upload', {
+            action: 'uploading '+file.path,
+            data: {
+                file: file.path,
+                content: file.content
+            },
+            success: function(data) {
+                processUploads();
+            }
+        });
+    } else {
+        //done!
+        loading.stop();
+        refresh();
+    }
+}
+
+function uploadFolder() {
+	//var evt = document.createEvent("HTMLEvents");
+	//evt.initEvent("click");
+
+	$('<input type="file" multiple directory webkitdirectory mozdirectory>').change(function(e) {
+		//loading maask
+		var node = getSelected();
+		var parent = getDir(node);
+		var path = parent.id;
+		var files = e.target.files;
+
+        for (var i = 0, f; f = files[i]; ++i) {
+        	// if folder, check exists
+        	var dir = util.dirname(f.webkitRelativePath);
+        	var dirParts = dir.split('/');
+        	var subfolder = '';
+        	dirParts.forEach(function(part) {
+        	    subfolder += part;
+
+            	if(uploadFolders.indexOf(subfolder)==-1){
+            	    uploadFolders.push(subfolder);
+            	}
+
+        	    subfolder += '/';
+        	});
+
+        	uploadFiles[i] = {path: f.webkitRelativePath};
+
+			var reader = new FileReader();
+			reader.onloadend = function (file, i) {
+				return function () {
+					uploadFiles[i].content = this.result;
+				};
+			}(f, i);
+
+			if (f.type.match('text.*')) {
+				reader.readAsText(f);
+			} else {
+				reader.readAsDataURL(f);
+			}
+        }
+
+        console.log(uploadFolders);
+        console.log(uploadFiles);
+
+        processUploads();
+	}).click();
+	//a.dispatchEvent(evt);
+}
+
 function open(data) {
 	var inst = $.jstree.reference(data.reference);
     var selected = inst.get_selected();
@@ -232,7 +328,6 @@ function init() {
     });
 
     $('#tree').on('dragleave', function(e) {
-        console.log('yo2');
     });
 
     $('#tree').on('dragover', function(e) {
@@ -571,7 +666,8 @@ function init() {
         						action: upload
         					},
         					"upload_folder" : {
-        						"label": "Folder"
+        						"label": "Folder",
+        						action: uploadFolder
         					},
         					"upload_url" : {
         						"label": "URL"
