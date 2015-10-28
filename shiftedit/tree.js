@@ -41,11 +41,12 @@ function newFile(data) {
 }
 
 function extract(data) {
-	var inst = $.jstree.reference(data.reference),
-		node = inst.get_node(data.reference);
-	var parent = node.type == 'default' ? node : inst.get_node(node.parent);
-
+    var node = getSelected()[0];
 	var file = node.id;
+	console.log(file)
+	if(!file){
+	    return false;
+	}
 
 	//remote extract
 	var abortFunction = function(){
@@ -269,12 +270,135 @@ function uploadFolder() {
 			}
         }
 
-        console.log(uploadFolders);
-        console.log(uploadFiles);
-
         processUploads();
 	}).click();
 	//a.dispatchEvent(evt);
+}
+
+function loadUploadUrls() {
+    return $.getJSON('/api/uploadurls')
+        .then(function (data) {
+            var urls = data.urls;
+
+            $( "#uploadUrl" ).children('option').remove();
+            $.each(urls, function( index, item ) {
+                $( "#uploadUrl" ).append( '<option value="' + item.value + '">'+item.label+'</option>' );
+            });
+
+            return urls;
+        });
+}
+
+function checkExtract(option) {
+    var val = option.value;
+    var isZip = ['zip', 'bz2', 'tar', 'gz', 'ar'].indexOf(util.fileExtension(val)) !== -1;
+
+	$('#uploadUrlForm [name=extract]').prop('disabled', !isZip);
+}
+
+function uploadByURl() {
+    //dialog
+    $( "body" ).append('<div id="dialog-uploadUrl" class="ui-front" title="Upload by url">\
+      <form id="uploadUrlForm">\
+        <fieldset>\
+            <p>\
+                <label>URL:</label>\
+                <select id="uploadUrl" name="url"></select>\
+                <button type="button" class="delete">X</button>\
+            </p>\
+            <p>\
+                <label>Extract:</label>\
+                <input type="checkbox" name="extract" value="1" disabled>\
+            </p>\
+        </fieldset>\
+      </form>\
+    </div>');
+
+    //profile combo
+    var combo = $( "#uploadUrl" ).combobox({
+        select: function (event, ui) {
+            checkExtract(ui.item);
+        },
+        change: function (event, ui) {
+            checkExtract(ui.item);
+        }
+    });
+    loadUploadUrls();
+
+    $('#uploadUrlForm .delete').click(function() {
+        var url = combo.combobox('val');
+
+        if(!url)
+            return;
+
+        loading.fetch('/api/uploadurls?cmd=delete', {
+            data: {url: url},
+            action: 'Deleting upload url',
+            success: function(data) {
+                combo.combobox('val', '');
+                loadUploadUrls();
+            }
+        });
+    });
+
+    //open dialog
+    var dialog = $( "#dialog-uploadUrl" ).dialog({
+        modal: true,
+        width: 400,
+        height: 300,
+        buttons: {
+            OK: function() {
+				var url = combo.combobox('val');
+
+				if( !url ){
+					combo.combobox('focus');
+					return;
+				}
+
+                var extractFile = $('[name=extract]').prop('checked');
+        		var node = getSelected();
+        		var parent = getDir(node);
+        		var path = parent.id;
+
+                loading.fetch(options.url+'&cmd=uploadByURL', {
+                    data: {
+                        url: url,
+                        path: path
+                    },
+                    action: 'uploading '+url,
+                    success: function(data) {
+                        //add node if it doesn't exist
+                        var node = tree.jstree(true).get_node(data.file);
+                        var parent = getDir(node);
+
+                        if(!node) {
+                            node = tree.jstree('create_node', parent, {'id' : path, 'text' : util.basename(data.file)}, 'last');
+                        }
+
+                        //select node
+                        tree.jstree(true).deselect_all();
+                        tree.jstree(true).select_node(node);
+
+                        //extract?
+                        if(extractFile) {
+                            extract({reference: node});
+                        }
+
+        				//save url
+        				/*
+                        loading.fetch('/api/uploadurls', {
+                            data: {url: url},
+                            action: 'saving url '+url
+                        });
+                        */
+                    },
+                    context: this
+                });
+
+				$( this ).dialog( "close" );
+            }
+        }
+    });
 }
 
 function open(data) {
@@ -670,7 +794,8 @@ function init() {
         						action: uploadFolder
         					},
         					"upload_url" : {
-        						"label": "URL"
+        						"label": "URL",
+        						action: uploadByURl
         					}
                         }
                     },

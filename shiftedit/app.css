@@ -575,3 +575,44 @@ div.buttons {
 .vakata-context ul {
     z-index: 2;
 }
+
+#uploadUrlForm p{
+    display: flex;
+    vertical-align: middle;
+    align-items: center;
+}
+
+#uploadUrlForm label{
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 4px;
+    line-height: 16px;
+}
+
+#uploadUrlForm label:first-child{
+    min-width: 110px;
+    width: 110px;
+    padding: 0;
+}
+
+#uploadUrlForm label.ui-button{
+    padding: 0;
+}
+
+#uploadUrlForm input, #uploadUrlForm textarea{
+    flex-grow: 1;
+}
+
+#uploadUrlForm input[type=checkbox]{
+    flex-grow: 0;
+}
+
+#uploadUrlForm .ui-menu {
+    position: absolute;
+    width: 70px;
+}
+
+#uploadUrlForm .delete{
+    position: relative;
+    left: 40px;
+}
