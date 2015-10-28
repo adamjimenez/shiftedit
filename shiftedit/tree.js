@@ -11,6 +11,9 @@ var confirmed = false;
 var r;
 var uploadStarted =false;
 
+var reference;
+var inst;
+
 function newFolder(data) {
     //data.item.name
 
@@ -43,7 +46,7 @@ function newFile(data) {
 function extract(data) {
     var node = getSelected()[0];
 	var file = node.id;
-	console.log(file)
+
 	if(!file){
 	    return false;
 	}
@@ -414,6 +417,127 @@ function open(data) {
 	    var file = selected.join(':');
 	    tabs.open(file, options.site);
 	}
+}
+
+function chmod(data) {
+	var inst = $.jstree.reference(data.reference);
+    var selected = inst.get_selected();
+    var node = inst.get_node(data.reference);
+
+    //dialog
+    $( "body" ).append('<div id="dialog-chmod" class="ui-front" title="File permissions">\
+      <form id="chmodForm">\
+        <fieldset>\
+            <legend>Owner</legend>\
+            <p>\
+                <input type="checkbox" name="owner-read" id="owner-read">\
+                <label for="owner-read">Read</label>\
+                <input type="checkbox" name="owner-write" id="owner-write">\
+                <label for="owner-write">Write</label>\
+                <input type="checkbox" name="owner-execute" id="owner-execute">\
+                <label for="owner-execute">Execute</label>\
+            </p>\
+        </fieldset>\
+        <fieldset>\
+            <legend>Group</legend>\
+            <p>\
+                <input type="checkbox" name="group-read" id="group-read">\
+                <label for="group-read">Read</label>\
+                <input type="checkbox" name="group-write" id="group-write">\
+                <label for="group-write">Write</label>\
+                <input type="checkbox" name="group-execute" id="group-execute">\
+                <label for="group-execute">Execute</label>\
+            </p>\
+        </fieldset>\
+        <fieldset>\
+            <legend>Public</legend>\
+            <p>\
+                <input type="checkbox" name="public-read" id="public-read">\
+                <label for="public-read">Read</label>\
+                <input type="checkbox" name="public-write" id="public-write">\
+                <label for="public-write">Write</label>\
+                <input type="checkbox" name="public-execute" id="public-execute">\
+                <label for="public-execute">Execute</label>\
+            </p>\
+        </fieldset>\
+        <p>\
+            <label>Numeric value</label> <input type="text" id="chmod-value" name="chmod-value">\
+        </p>\
+      </form>\
+    </div>');
+
+    //$( "#chmodForm input[type=checkbox]" ).button();
+
+    $('#chmod-value').on('keyup change', function() {
+		var perms = $('#chmod-value').val();
+		var owner = perms.substr(0, 1);
+		var group = perms.substr(1, 1);
+		var pub = perms.substr(2, 1);
+
+        $('#owner-read').prop('checked', (owner >= 4 && owner <= 7));
+        $('#owner-write').prop('checked', (owner == 2 || owner == 3 || owner == 6 || owner == 7));
+        $('#owner-execute').prop('checked', (owner == 1 || owner == 3 || owner == 5 || owner == 7));
+        $('#group-read').prop('checked', (group >= 4 && group <= 7));
+        $('#group-write').prop('checked', (group == 2 || group == 3 || group == 6 || group == 7));
+        $('#group-execute').prop('checked', (group == 1 || group == 3 || group == 5 || group == 7));
+        $('#public-read').prop('checked', (pub >= 4 && pub <= 7));
+        $('#public-write').prop('checked', (pub == 2 || pub == 3 || pub == 6 || pub == 7));
+        $('#public-execute').prop('checked', (pub == 1 || pub == 3 || pub == 5 || pub == 7));
+    });
+
+    $( "#chmodForm input[type=checkbox]" ).on('click change', function(){
+		var owner = 0, pub = 0, group = 0;
+
+		if ($('#owner-read').prop('checked'))
+			owner += 4;
+		if ($('#owner-write').prop('checked'))
+			owner += 2;
+		if ($('#owner-execute').prop('checked'))
+			owner += 1;
+
+		if ($('#group-read').prop('checked'))
+			group += 4;
+		if ($('#group-write').prop('checked'))
+			group += 2;
+		if ($('#group-execute').prop('checked'))
+			group += 1;
+
+		if ($('#public-read').prop('checked'))
+			pub += 4;
+		if ($('#public-write').prop('checked'))
+			pub += 2;
+		if ($('#public-execute').prop('checked'))
+			pub += 1;
+
+		$('#chmod-value').val(owner + '' + group + '' + pub);
+    });
+
+    $('#chmod-value').val(node.data.perms).change();
+
+    //open dialog
+    var dialog = $( "#dialog-chmod" ).dialog({
+        modal: true,
+        width: 400,
+        height: 350,
+        buttons: {
+            OK: function() {
+                var node = getSelected()[0];
+                var mode = $('#chmod-value').val();
+
+                loading.fetch(options.url+'&cmd=chmod&file='+node.id+'&mode='+mode, {
+                    action: 'chmod file',
+                    success: function(data) {
+                        node.data.perms = mode;
+                        var el = inst.get_node(node, true);
+                        el.trigger("change_node.jstree"); //FIXME supposed to update column
+
+				        $( "#dialog-chmod" ).dialog( "close" );
+                    }
+                });
+            }
+        }
+    });
+
 }
 
 function getSelected() {
@@ -823,7 +947,8 @@ function init() {
 					},
 					"chmod": {
 						"label": "Set permissions",
-                        "separator_after": true
+                        "separator_after": true,
+                        action: chmod
 					}
                 };
 
@@ -1105,6 +1230,8 @@ function init() {
         });
 
 
+    reference = $('#tree');
+    inst = $.jstree.reference(reference);
 }
 
 function refresh() {
