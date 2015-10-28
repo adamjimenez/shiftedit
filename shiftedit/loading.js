@@ -85,7 +85,7 @@ function fetch(url, options) {
 		return;
 	}
 
-	var method = options.data.length ? 'POST' : 'GET';
+	var method = typeof(options.data)==='object' ? 'POST' : 'GET';
 
     ajax = $.ajax({
         url: url,
