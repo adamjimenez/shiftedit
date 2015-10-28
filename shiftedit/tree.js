@@ -1,4 +1,4 @@
-define(['resumable', "jstree","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading'], function (Resumable) {
+define(['resumable', "jstreegrid","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading'], function (Resumable) {
 var util = require('app/util');
 var editor = require('app/editors');
 var lang = require('app/lang').lang;
@@ -274,7 +274,6 @@ function init() {
 	});
 
     r.on('fileAdded', function(file){
-        console.log('yoooo')
         uploadStarted = true;
 
         if( chunkedUploads ){
@@ -619,7 +618,41 @@ function init() {
     			return name + ' ' + counter;
     		}
     	},
-    	'plugins' : ['state','dnd','sort','types','contextmenu','unique']
+        grid: {
+            resizable: true,
+            columns: [
+                {width: 50, header: "Name"},
+                {
+                    width: 30,
+                    header: "Modified",
+                    value: "modified",
+                    format: function(v) {
+        				if( v === '' ){
+        					return '';
+        				}
+
+        				return new Date(v*1000).toLocaleString();
+        			}
+                },
+                {
+                    width: 30,
+                    header: "Size",
+                    value: "size",
+                    format: function(size) {
+        				if( size === '' ){
+        					return '';
+        				}
+
+        				var si;
+        				for( si = 0; size >= 1024; size /= 1024, si++ );
+
+        				return ''+Math.round(size)+'BKMGT'.substr(si, 1);
+        			}
+                },
+                {width: 30, header: "Permissions", value: "perms"}
+            ]
+        },
+    	'plugins' : ['state','dnd','sort','types','contextmenu','unique','grid']
     })
     .on('delete_node.jstree', function (e, data) {
         /*
