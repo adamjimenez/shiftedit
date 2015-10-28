@@ -444,7 +444,7 @@ function open(tabpanel){
 	var tab = create(tabpanel);
 
     //import site dialog
-    $( "body" ).append('<div id="dialog-ssh" title="SSH connection">\
+    $( "body" ).append('<div id="dialog-ssh" class="ui-front" title="SSH connection">\
       <form id="ssh">\
         <fieldset>\
             <p>\

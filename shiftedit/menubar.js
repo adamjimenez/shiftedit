@@ -396,7 +396,7 @@ function init () {
 
             		var a = document.createElement('a');
             		a.download = filename;
-            		a.href = webkitURL.createObjectURL(blob);
+            		a.href = URL.createObjectURL(blob);
 
             		a.dispatchEvent(evt);
     			},
