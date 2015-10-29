@@ -682,14 +682,14 @@ function init() {
         		});
             },
     		'check_callback' : function(o, n, p, i, m) {
+            	var t = this;
+
     			if(m && m.dnd && m.pos !== 'i') { return false; }
     			if(o === "move_node" || o === "copy_node") {
     				if(this.get_node(n).parent === this.get_node(p).id) { return false; }
     			}
 
     			if(o === "delete_node") {
-                	var t = this;
-
                 	if (!confirmed){
                     	prompt.confirm({
                     	    title: 'Delete',
@@ -1013,7 +1013,9 @@ function init() {
                 {width: 30, header: "Permissions", value: "perms"}
             ]
         },
-    	'plugins' : ['state','dnd','sort','types','contextmenu','unique','grid']
+    	'plugins' : [
+    	    'state','dnd','sort','types','contextmenu','unique'//,'grid'
+    	]
     })
     .on('delete_node.jstree', function (e, data) {
         /*
@@ -1073,7 +1075,32 @@ function init() {
 
     })
     .on('move_node.jstree', function (e, data) {
-    	$.get('?operation=move_node', { 'id' : data.node.id, 'parent' : data.parent })
+    	prompt.confirm({
+    	    title: 'Move',
+    	    msg: 'Are you sure you want to move the selected files?',
+    	    fn: function(btn) {
+    	        switch(btn){
+    	            case 'yes':
+    	                doMove();
+    	            break;
+    	            default:
+    	                refresh();
+    	            break;
+    	        }
+    	    }
+    	});
+
+        function doMove() {
+            var params = util.clone(options.params);
+            params.oldname = data.node.id;
+            params.newname = data.parent+'/'+util.basename(data.node.id);
+            params.site = options.site;
+
+    		$.ajax(options.url+'&cmd=rename', {
+    		    method: 'POST',
+    		    dataType: 'json',
+    		    data: params
+    		})
     		.done(function (d) {
     			//data.instance.load_node(data.parent);
     			data.instance.refresh();
@@ -1081,6 +1108,7 @@ function init() {
     		.fail(function () {
     			data.instance.refresh();
     		});
+        }
     })
     .on('copy_node.jstree', function (e, data) {
     	$.get('?operation=copy_node', { 'id' : data.original.id, 'parent' : data.parent })
@@ -1171,7 +1199,6 @@ function init() {
             }
         })
         .on('dnd_stop.vakata', function (e, data) {
-            console.log(3);
             var t = $(data.event.target);
             if(!t.closest('.jstree').length) {
                 if(t.closest('.editor').length) {
