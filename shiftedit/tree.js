@@ -1,10 +1,11 @@
-define(['resumable', "jstreegrid","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading'], function (Resumable) {
+define(['resumable', "jstreegrid","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading', 'app/site'], function (Resumable) {
 var util = require('app/util');
 var editor = require('app/editors');
 var lang = require('app/lang').lang;
 var prompt = require('app/prompt');
 var tabs = require('app/tabs');
 var loading = require('app/loading');
+var site = require('app/site');
 var options = {};
 var tree;
 var confirmed = false;
@@ -419,6 +420,19 @@ function open(data) {
 	}
 }
 
+function openTab(data) {
+	var inst = $.jstree.reference(data.reference);
+    var selected = inst.get_selected();
+    var node = inst.get_node(data.reference);
+
+    if(node.icon==="folder") {
+        return;
+    }
+
+    var settings = site.getSettings(options.site);
+	window.open('//' + location.host + location.pathname + '#' + settings.name + '/' + node.id);
+}
+
 function chmod(data) {
 	var inst = $.jstree.reference(data.reference);
     var selected = inst.get_selected();
@@ -790,7 +804,8 @@ function init() {
 								action: open
 							},
 							"open_tab" : {
-								"label": "Open in new browser tab"
+								"label": "Open in new browser tab",
+								action: openTab
 							},
 							"download" : {
 								"label": "Download",

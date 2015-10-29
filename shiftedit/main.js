@@ -21,8 +21,9 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             site.init();
 
             site.load()
-            .then(function() {
-                require('app/restore').restoreBatch(prefs.getOpeningFilesBatch());
+            .done(function() {
+                //require('app/restore').restoreBatch(prefs.getOpeningFilesBatch());
+                var hash = require("app/hash").load();
             });
 
             var layout = require("app/layout");
@@ -30,7 +31,6 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             var recent = require("app/recent");
             recent.load();
             var shortcuts = require("app/shortcuts");
-            var hash = require("app/hash");
             var definitions = require("app/definitions");
             var find = require("app/find");
         })

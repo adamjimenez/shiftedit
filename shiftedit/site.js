@@ -1,4 +1,4 @@
-define(["jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading"], function () {
+define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading"], function (exports) {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
@@ -467,7 +467,7 @@ function loadRepos(val) {
                 $( "#git_url_select" ).append( '<option value="'+item.url+'">'+item.name+'</option>' );
             });
 
-            if(val){
+            if(val) {
                 $( "#git_url_select" ).append( '<option value="'+val+'">'+val+'</option>' );
                 $( "#git_url_select" ).val(val).change();
             }
@@ -487,8 +487,9 @@ function load() {
                 $( "#sites" ).append( '<option value="'+site.id+'">'+site.name+'</option>' );
             });
 
-            if(currentSite){
-                $( "#sites" ).val(currentSite).change();
+            if(currentSite) {
+                $( "#sites" ).val(currentSite);
+                return open(currentSite);
             }
 
             return sites;
@@ -1259,12 +1260,10 @@ function getAjaxOptions(ajaxUrl) {
     };
 }
 
-return {
-    init: init,
-    load: load,
-    active: active,
-    getSettings: getSettings,
-    getAjaxOptions: getAjaxOptions
-};
+exports.init = init;
+exports.load = load;
+exports.active = active;
+exports.getSettings = getSettings;
+exports.getAjaxOptions = getAjaxOptions;
 
 });

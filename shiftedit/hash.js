@@ -1,6 +1,6 @@
 define(['app/tabs', 'app/site'], function (tabs, site) {
 
-this.loadFromHash = function () {
+load = function () {
 	var hash = window.location.hash.substr(1);
 	console.log('hash: '+ hash);
 
@@ -16,8 +16,9 @@ this.loadFromHash = function () {
 	});
 };
 
-window.onhashchange = this.loadFromHash;
+window.onhashchange = load;
 
 return {
+    load: load
 };
 });
