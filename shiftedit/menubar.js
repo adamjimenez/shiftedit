@@ -616,11 +616,9 @@ function init () {
     			disabled: true,
     			target: 'file'
     		}, {
+    		    id: 'openPreferences',
     			text: makeMenuText(lang.preferencesText, 'Ctrl+U'),
-    			scope: this,
-    			handler: function () {
-    				preferences.edit();
-    			},
+    			scope: this
     		}]
     	},
     	"view": {

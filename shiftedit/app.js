@@ -16,11 +16,15 @@ requirejs.config({
         "ace": "ace.20141108/src/ace",
         "ace/split": 'ace.20141108/src/ext-split',
         "ace/autocomplete": "ace.20141108/src/ext-language_tools",
+        "ace/mode/css/csslint": "ace.20141108/src/worker-css",
         "firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
         "jsdiff": 'jsdiff/diff',
     },
     "shim": {
+        "ace/mode/css/csslint": {
+            deps: ["ace"]
+        },
         "ace/split": {
             deps: ["ace"]
         },
