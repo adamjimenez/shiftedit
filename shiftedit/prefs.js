@@ -518,7 +518,8 @@ if(!prefs)
 function load() {
     return $.getJSON('/api/prefs')
         .done(function (data) {
-            prefs = data.prefs;
+            prefs = $.extend(defaultPrefs, data.prefs);
+
             openingFilesBatch = data.openingFilesBatch;
 			storage.set('prefs', prefs);
             return prefs;
@@ -733,13 +734,13 @@ function open() {
     }
 
     //form values
-    var values = $.extend(defaultPrefs, prefs);
+    //var values = $.extend(defaultPrefs, prefs);
 
     var inputs = $('#prefsForm input, #prefsForm select');
 
     inputs.each(function() {
         var name = $(this).prop('name');
-        var val = values[name];
+        var val = prefs[name];
 
         switch($(this).prop('type')) {
             case 'checkbox':
@@ -749,14 +750,24 @@ function open() {
                 $("input[name=" + name + "][value=" + val + "]").prop('checked', true);
             break;
             default:
-                $(this).val(values[$(this).prop('name')]);
+                $(this).val(prefs[$(this).prop('name')]);
             break;
         }
     });
 
     inputs.change(function() {
         var name = $(this).prop('name');
-        var val = $(this).val();
+        var val;
+
+        switch($(this).prop('type')) {
+            case 'checkbox':
+                val = $(this).is(':checked');
+            break;
+            default:
+                val = $(this).val();
+            break;
+        }
+
 
         //apply change to open editors
         $('li[file]').each(function() {
