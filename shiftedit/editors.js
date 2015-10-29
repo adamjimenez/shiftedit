@@ -700,6 +700,14 @@ function init() {
     editor_contextmenu.init();
 }
 
+//cleanup firepads on exit
+window.onunload = function(){
+	//remove redundant firebases
+	$('li[file]').each(function() {
+	    removeFirepad(this);
+	});
+};
+
 /*
 return {
     create: create
