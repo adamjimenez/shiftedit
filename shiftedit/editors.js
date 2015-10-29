@@ -1,4 +1,4 @@
-define(['app/tabs', 'exports', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete','ace/split', 'app/site', 'app/firebase', 'app/find'], function (tabs, exports) {
+define(['app/tabs', 'exports', 'app/prefs', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete','ace/split', 'app/site', 'app/firebase', 'app/find'], function (tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -336,15 +336,21 @@ function create(file, content, siteId, options) {
 
 	//set mode
 	var ext = util.fileExtension(file);
-	var mode = 'text';
 
 	//check default file associations
-	modes.forEach(function (item) {
-		if (item[2].indexOf(ext) !== -1) {
-			mode = item[0];
-			return;
-		}
-	});
+	var mode = 'text';
+	prefs = preferences.get_prefs();
+
+	if( prefs.fileAssociations[ext] ){
+		mode = prefs.fileAssociations[ext];
+	}else{
+    	modes.forEach(function (item) {
+    		if (item[2].indexOf(ext) !== -1) {
+    			mode = item[0];
+    			return;
+    		}
+    	});
+	}
 
 	editor.getSession().setMode("ace/mode/"+mode);
 
