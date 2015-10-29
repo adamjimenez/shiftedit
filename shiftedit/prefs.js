@@ -628,6 +628,15 @@ function load() {
             console.log('loaded prefs');
             prefs = $.extend(defaultPrefs, data.prefs);
 
+            for(var i in prefs){
+                if (prefs.hasOwnProperty(i)) {
+                    try{
+                        prefs[i] = JSON.parse(prefs[i]);
+                    }catch(e) {
+                    }
+                }
+            }
+
             openingFilesBatch = data.openingFilesBatch;
 			storage.set('prefs', prefs);
 
@@ -676,6 +685,10 @@ function updateSkin(name){
 }
 
 function save(name, value) {
+    if(typeof(value)==='object') {
+        value = JSON.stringify(value);
+    }
+
     $.ajax({
         url: '/api/prefs?cmd=save&name='+name,
 	    method: 'POST',
