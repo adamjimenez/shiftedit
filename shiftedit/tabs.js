@@ -1,4 +1,4 @@
-define(['app/editors', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh'], function (editors,exports) {
+define(['app/editors', 'app/prefs', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh'], function (editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -10,6 +10,7 @@ var recent = require('app/recent');
 var closing = [];
 var saving = {};
 var opening = {};
+var autoSaveTimer;
 
 function active() {
     return $('.ui-layout-center .ui-tabs-active');
@@ -240,6 +241,7 @@ function saveFiles(options) {
                 }else{
                     setEdited(tab, false);
                     tab.data('overwrite', 0);
+                    tab.data('mdate', data.last_modified);
 
                     //continue with next save
                     delete saving[tab.attr('id')];
@@ -368,6 +370,18 @@ function setEdited(tab, edited) {
 	    //change title
 	    tab.children('.ui-tabs-anchor').text(tab.data('file')+'*');
 	    tab.trigger('change');
+
+	    //autosave
+	    if(tab.data("file") && tab.data("site")) {
+    	    prefs = preferences.get_prefs();
+
+            clearTimeout(autoSaveTimer);
+    	    if (prefs.autoSave) {
+    	        autoSaveTimer = setTimeout(function() {
+    	            save(tab);
+    	        }, 5000);
+    	    }
+	    }
 	} else {
 	    //change title
 	    tab.children('.ui-tabs-anchor').text(tab.data('file'));
