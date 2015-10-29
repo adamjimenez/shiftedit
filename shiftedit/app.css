@@ -616,3 +616,60 @@ div.buttons {
     position: relative;
     left: 40px;
 }
+
+
+
+
+
+.prefs p{
+    display: flex;
+    vertical-align: middle;
+    align-items: center;
+}
+
+.prefs label{
+    display: block;
+    padding-left: 10px;
+    padding-right: 4px;
+    line-height: 16px;
+}
+
+.prefs label:first-child{
+    min-width: 110px;
+    width: 110px;
+    padding: 0;
+}
+
+.prefs label.ui-button{
+    padding: 0;
+}
+
+.prefs input, .prefs textarea{
+    flex-grow: 1;
+}
+
+.prefs input[type=checkbox]{
+    flex-grow: 0;
+}
+
+.prefs input[type=number]{
+    width: 40px;
+}
+
+.prefs .ui-menu {
+    position: absolute;
+    width: 70px;
+}
+
+.prefs{
+    padding-bottom: 20px;
+}
+
+#tabs-notes{
+    display: flex;
+}
+
+#notes{
+    width: 100%;
+    flex-grow: 1;
+}

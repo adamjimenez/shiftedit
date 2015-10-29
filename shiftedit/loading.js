@@ -97,7 +97,7 @@ function fetch(url, options) {
         stop();
 
         if(data.success){
-			$.proxy(options.success, options.context, data)();
+			options.success(data);
         }else{
             prompt.alert({title:'Error', msg:data.error});
         }

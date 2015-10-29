@@ -1,12 +1,44 @@
-define(["app/menus", "app/tabs", "app/editors", "app/modes"], function (menus, tabs, editors) {
+define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/modes"], function (util, menus, tabs, editors, preferences) {
 var modes = require('app/modes').modes;
 
 var changeMode = function(tab) {
     var editor = tabs.getEditor(tab);
+    var label = $(this).text().trim();
+    var mode = $(this).attr('data-name');
+
+    //set editor mode
     editors.setMode(editor, $(this).attr('data-name'));
 
     //set button value
-    $(this).parent().prev().children('.ui-button-text').text($(this).text());
+    $(this).parent().prev().children('.ui-button-text').text(label);
+
+    var ext  = util.fileExtension(tab.data('file'));
+
+	//save pref
+	var defaultMode = 'text';
+
+	//check default file associations
+	modes.forEach(function (item) {
+		if (item[2].indexOf(ext) !== -1) {
+			defaultMode = item[0];
+			return;
+		}
+	});
+
+	var prefs = preferences.get_prefs();
+
+	if(typeof(prefs.fileAssociations)!=='object')
+	    prefs.fileAssociations = {};
+
+	if( defaultMode === mode ){
+		delete prefs.fileAssociations[ext];
+	}else{
+		prefs.fileAssociations[ext] = mode;
+	}
+
+	console.log(prefs.fileAssociations);
+
+    preferences.save('fileAssociations', prefs.fileAssociations);
 };
 
 var modeItems = [];
