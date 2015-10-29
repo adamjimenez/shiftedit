@@ -1,4 +1,4 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes'], function (exports) {
     var version = '17.0.0';
     var locale = require("app/lang");
     var prefs = require("app/prefs");
@@ -9,7 +9,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
     })
     .done(
         prefs.load()
-        .then(function (lang) {
+        .done(function () {
             // yay!
             var tabs = require("app/tabs");
             tabs.init();
@@ -34,6 +34,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             var definitions = require("app/definitions");
             var find = require("app/find");
             var exit = require("app/exit");
+            var notes = require("app/notes").init();
         })
     );
 

@@ -517,7 +517,8 @@ if(!prefs)
 
 function load() {
     return $.getJSON('/api/prefs')
-        .done(function (data) {
+        .then(function (data) {
+            console.log('loaded prefs');
             prefs = $.extend(defaultPrefs, data.prefs);
 
             openingFilesBatch = data.openingFilesBatch;

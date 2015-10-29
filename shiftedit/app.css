@@ -664,3 +664,12 @@ div.buttons {
 .prefs{
     padding-bottom: 20px;
 }
+
+#tabs-notes{
+    display: flex;
+}
+
+#notes{
+    width: 100%;
+    flex-grow: 1;
+}
