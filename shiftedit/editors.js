@@ -1,4 +1,4 @@
-define(['app/tabs', 'exports', 'app/prefs', 'jquery','ace/ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/ext-language_tools','ace/ext-split', 'app/site', 'app/firebase', 'app/find'], function (tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/ext-language_tools','ace/ext-split', 'app/site', 'app/firebase', 'app/find'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -13,6 +13,9 @@ var site = require('app/site');
 var firebase = require('app/firebase');
 var Firepad = require('firepad');
 var find = require('app/find');
+
+ace.config.set("packaged", true);
+ace.config.set("basePath", require.toUrl("ace"));
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -282,6 +285,7 @@ function applyPrefs(tab) {
 		editor.setHighlightSelectedWord(true);
 
 	    /*
+	    require("ace/ext-emmet");
 		if( prefs.zen ){
 			console.log('loading emmet');
 		    //emmet fka zen
@@ -428,7 +432,7 @@ function create(file, content, siteId, options) {
 	var mode = 'text';
 	prefs = preferences.get_prefs();
 
-	if( prefs.fileAssociations[ext] ){
+	if( prefs.fileAssociations && prefs.fileAssociations[ext] ){
 		mode = prefs.fileAssociations[ext];
 	}else{
     	modes.forEach(function (item) {
@@ -785,6 +789,8 @@ function create(file, content, siteId, options) {
 
 	//reactivate
 	$(tab).trigger('activate');
+
+	return $(tab);
 }
 
 function setMode(editor, mode) {
