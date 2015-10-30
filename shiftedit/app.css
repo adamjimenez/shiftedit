@@ -673,3 +673,8 @@ div.buttons {
     width: 100%;
     flex-grow: 1;
 }
+
+.ui-menu .ui-menu-divider{
+    float: left;
+    clear: left;
+}
