@@ -678,3 +678,10 @@ div.buttons {
     float: left;
     clear: left;
 }
+
+#picker{
+	position: absolute;
+	z-index: 100;
+	display: block;
+	background: white;
+}

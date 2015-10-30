@@ -42,6 +42,110 @@ function onGutterClick(e, editor) {
 	}
 }
 
+function onChangeCursor(e, selection) {
+    var editor = tabs.getEditor(this);
+    var session = selection.session;
+	var pos = selection.getSelectionLead();
+	var line = session.getLine(pos.row);
+	var prefix = line.slice(0, pos.column);
+	var value;
+	var convertToRgb = false;
+
+	$('#picker').remove();
+
+	//color picker
+	if (/(#[0-9a-f]*)$/i.test(prefix)) {
+		before = pos.column - RegExp.$1.length;
+
+		if (/(#[0-9a-f]*)/i.test(line.slice(before))) {
+			rawValue = RegExp.$1;
+		}
+
+		value = rawValue;
+
+		if( value.length == 4 ){
+			value = '#'+value[1]+value[1]+value[2]+value[2]+value[3]+value[3];
+		}
+
+		type = 'color';
+	//rgb color picker
+	}else if (/rgb\(([0-9,\s]*)$/i.test(prefix)) {
+		before = pos.column - RegExp.$1.length;
+
+		if (/([0-9,\s]*)/i.test(line.slice(before))) {
+			rawValue = RegExp.$1;
+		}
+
+		rawValue = RegExp.$1;
+
+		value = rawValue.replace(/\s/g,'');
+
+		var rgb = value.split(',');
+		if( rgb.length >= 3 ){
+			value = util.rgbToHex(rgb[0], rgb[1], rgb[2]);
+		}
+
+		type = 'color';
+		convertToRgb = true;
+	}
+
+	if (value) {
+		rawValue = rawValue ? rawValue : value;
+
+		range = {
+			start: {
+				row: pos.row,
+				column: before
+			},
+			end: {
+				row: pos.row,
+				column: before + rawValue.length
+			}
+		};
+
+		//charCoords
+		pos = editor.renderer.textToScreenCoordinates(range.start.row, range.start.column);
+		var offset = $(editor.container).offset();
+		pos.pageX -= offset.left;
+		pos.pageY -= offset.top;
+
+		el = document.createElement('input');
+		el.type = type;
+
+		if (type == 'number') {
+			el.min = parseFloat(value) - 10;
+			el.max = parseFloat(value) + 10;
+			el.step = 1;
+		}
+
+		el.id = 'picker';
+		el.value = value ? value : rawValue;
+
+		//position picker
+		el.style.top = pos.pageY + 20 + "px";
+		el.style.left = pos.pageX +  "px";
+
+		var container = editor.container;
+		container.parentNode.appendChild(el);
+
+		el.onclick = function () {
+			selection.setSelectionRange(range);
+			this.focus();
+		};
+
+		el.onchange = function () {
+			var newValue = this.value;
+			if( convertToRgb ){
+				var rgb = util.hexToRgb(newValue);
+				newValue = rgb.r+', '+rgb.g+', '+rgb.b;
+			}
+
+			selection.setSelectionRange(range);
+			editor.insert(newValue);
+		};
+	}
+}
+
 function saveState() {
 	var site = $(this).attr('data-site');
 	var file = $(this).attr('data-file');
@@ -483,6 +587,8 @@ function create(file, content, siteId, options) {
 	editor.getSession().on('changeBreakpoint', jQuery.proxy(saveState, tab));
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
+	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
+
     $(tab).on('close', destroy);
 
 	//autocomplete
