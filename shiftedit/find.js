@@ -1,4 +1,4 @@
-define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace'], function (tabs, layout, site, autosize) {
+define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace'], function (tabs, layout, site, autosize) {
 
     var timer;
     var findIn = 'current';
