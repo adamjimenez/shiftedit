@@ -505,6 +505,7 @@ function newTab (e, ui) {
 					</ul>\
 				</div>\
 			</div>\
+			<br style="clear: both">\
 		');
 
     //new files
@@ -710,7 +711,20 @@ function init() {
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsremove', afterClose);
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
 
-    $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ tabActivate($(ui.newTab)); } );
+    //remember scroll
+    $( ".ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south" ).on( "tabsbeforeactivate", function(e, ui){
+        var oldPanel = $(ui.oldPanel);
+        oldPanel.data('scrollTop', oldPanel.closest('.ui-layout-content').scrollTop());
+    });
+
+    //restore scroll
+    $( ".ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south" ).on( "tabsactivate", function(e, ui){
+        var newPanel = $(ui.newPanel);
+        newPanel.closest('.ui-layout-content').scrollTop(newPanel.data("scrollTop"));
+
+        //set title etc
+        tabActivate($(ui.Tab));
+    });
 
     $( "#tree" ).on( "rename", updateTabs );
     //$(document).on("rename", "#tree", updateTabs);
