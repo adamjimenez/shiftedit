@@ -17,15 +17,17 @@ requirejs.config({
         //"ace/split": 'ace.20141108/src/ext-split',
         //"ace/autocomplete": "ace.20141108/src/ext-language_tools",
         "ace/mode/css/csslint": "ace.20141108/src/worker-css",
-        "ace/ext/emmet": 'ace.20141108/src/ext-emmet',
+        //"ace/ext/emmet": 'ace.20141108/src/ext-emmet',
         "firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
         "jsdiff": 'jsdiff/diff',
     },
     "shim": {
+        /*
         "ace/ext/emmet": {
             deps: ['emmet','ace/ace']
         },
+        */
         "ace/mode/css/csslint": {
             deps: ["ace/ace"]
         },
