@@ -1,7 +1,8 @@
-define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang'], function (exports, editors) {
+define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout'], function (exports, editors) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var prefs = storage.get('prefs');
+var layout = require('app/layout');
 var openingFilesBatch = [];
 
 var defaultPrefs = {};
@@ -197,6 +198,23 @@ skins.forEach(function(item){
     skinHTML += '<label>\
 	    <input type="radio" name="skin" value="'+item.name+'">\
 	    '+item.title+'\
+	</label>';
+});
+
+var codeThemes = ['custom', 'ambiance', 'chaos', 'chrome', 'clouds', 'clouds_midnight', 'cobalt', 'crimson_editor', 'dawn', 'dreamweaver', 'eclipse', 'idle_fingers', 'katzenmilch', 'kr_theme', 'kuroir', 'merbivore', 'merbivore_soft', 'mono_industrial', 'monokai', 'pastel_on_dark', 'solarized_dark', 'solarized_light', 'terminal', 'textmate', 'tomorrow', 'tomorrow_night', 'tomorrow_night_blue', 'tomorrow_night_bright', 'tomorrow_night_eighties', 'twilight', 'vibrant_ink', 'xcode'];
+
+var themeHTML = '';
+codeThemes.forEach(function(item){
+    var label = item.replace(/_/g, ' ');
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+
+    if(item==='custom') {
+        label += '(<a class="editCustomTheme" href="#">Edit</a>)';
+    }
+
+    themeHTML += '<label>\
+	    <input type="radio" name="codeTheme" value="'+item+'">\
+	    '+ label +'\
 	</label>';
 });
 
@@ -692,6 +710,10 @@ function save(name, value) {
         updateSkin(value);
     }
 
+    if(name==='customTheme'){
+		$('#ace-custom').remove();
+    }
+
     //apply change to open editors
     $('li[data-file]').each(function() {
         editors.applyPrefs(this);
@@ -718,11 +740,15 @@ function save(name, value) {
 
 function open() {
     //create tab
-	var tab = $('.ui-layout-center').tabs('add', 'Preferences', '<div class="prefs">\
+    layout.get().open('east');
+
+	var tab = $('.ui-layout-east').tabs('add', 'Preferences', '<div class="prefs">\
 	<form id="prefsForm">\
 	<h2>General</h2>\
 	<label>Skin</label>\
 	'+skinHTML+'<br>\
+	<label>Code theme</label>\
+	'+themeHTML+'<br>\
 	<label>Prompt on exit</label>\
 	<label>\
 	    <input type="radio" name="promptOnExit" value="unsaved">\
@@ -952,6 +978,11 @@ function open() {
 
 $('body').on('click', '#openPreferences a', function(e){
     open();
+});
+
+$('body').on('click', '.editCustomTheme', function(e){
+	var tab = editors.create('customTheme.css', prefs.customTheme, 0);
+	tab.data('pref', 'customTheme');
 });
 
 exports.get_prefs = function() {

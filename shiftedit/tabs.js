@@ -185,8 +185,18 @@ function saveFiles(options) {
     var file = tab.data("file");
     var content = editor.getValue();
 
+    //save pref
+    if(tab.data('pref')){
+        preferences.save(tab.data('pref'), content);
+        setEdited(tab, false);
+        delete saving[tab.attr('id')];
+        return;
+    }
+
+    //save as if new file
     if(!tab.data("site") || !tab.data("file")) {
         saveAs(tab, options);
+        delete saving[tab.attr('id')];
         return;
     }
 
