@@ -1,4 +1,4 @@
-define(['jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang'], function () {
+define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang'], function (exports, editors) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var prefs = storage.get('prefs');
@@ -685,6 +685,18 @@ function updateSkin(name){
 }
 
 function save(name, value) {
+    prefs[name] = value;
+
+    //skin
+    if(name==='skin') {
+        updateSkin(value);
+    }
+
+    //apply change to open editors
+    $('li[data-file]').each(function() {
+        editors.applyPrefs(this);
+    });
+
     if(typeof(value)==='object') {
         value = JSON.stringify(value);
     }
@@ -806,10 +818,10 @@ function open() {
 	    <input type="checkbox" name="indentOnPaste" value="1">\
 	    Indent on paste\
 	</label>\
-	<label>\
+	<!--<label>\
 	    <input type="checkbox" name="zen" value="1">\
 	    Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
-	</label>\
+	</label>-->\
 	<label>\
 	    <input type="checkbox" name="behaviours" value="1">\
 	    Auto-close tags, brackets, quotes etc\
@@ -932,16 +944,6 @@ function open() {
             break;
         }
 
-        //skin
-        if(name==='skin') {
-            updateSkin(val);
-        }
-
-        //apply change to open editors
-        $('li[file]').each(function() {
-
-        });
-
         //save it
         prefs[name] = val;
         save(name, val);
@@ -952,16 +954,14 @@ $('body').on('click', '#openPreferences a', function(e){
     open();
 });
 
-return {
-    get_prefs: function() {
-        return prefs;
-    },
-    getOpeningFilesBatch: function() {
-        return openingFilesBatch;
-    },
-    load: load,
-    save: save,
-    open: open
+exports.get_prefs = function() {
+    return prefs;
 };
+exports.getOpeningFilesBatch = function() {
+    return openingFilesBatch;
+};
+exports.load = load;
+exports.save = save;
+exports.open = open;
 
 });

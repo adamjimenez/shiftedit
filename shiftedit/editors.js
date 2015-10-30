@@ -1,4 +1,4 @@
-define(['app/tabs', 'exports', 'app/prefs', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete','ace/split', 'app/site', 'app/firebase', 'app/find'], function (tabs, exports, preferences) {
+define(['app/tabs', 'exports', 'app/prefs', 'jquery','ace/ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/ext-language_tools','ace/ext-split', 'app/site', 'app/firebase', 'app/find'], function (tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -267,6 +267,93 @@ function addFirepad(tab) {
 	});
 }
 
+function applyPrefs(tab) {
+    tab = $(tab);
+    var prefs = preferences.get_prefs();
+
+	window.splits[tab.attr('id')].forEach(function (editor) {
+		if (prefs.behaviours) {
+			editor.setBehavioursEnabled(true);
+		}else{
+			editor.setBehavioursEnabled(false);
+		}
+
+		editor.setDragDelay(0);
+		editor.setHighlightSelectedWord(true);
+
+	    /*
+		if( prefs.zen ){
+			console.log('loading emmet');
+		    //emmet fka zen
+			editor.setOption("enableEmmet", true);
+		}else{
+			editor.setOption("enableEmmet", false);
+		}
+		*/
+
+		//var beautify = require("ace/ext/beautify");
+		//editor.commands.addCommands(beautify.commands);
+
+		var keybinding = null;
+		switch (prefs.keyBinding) {
+		case 'vim':
+			keybinding = require("ace/keyboard/vim").handler;
+			break;
+		case 'emacs':
+			keybinding = require("ace/keyboard/emacs").handler;
+			break;
+		}
+
+		editor.setKeyboardHandler(keybinding);
+		editor.getSession().setFoldStyle(prefs.codeFolding);
+		editor.getSession().setTabSize(parseInt(prefs.tabSize, 10));
+
+		// set linebreak mode. don't change if using firepad
+		if(
+			['auto','unix','windows'].indexOf(prefs.lineBreak) !== -1 &&
+			!$(tab).data('firepad')
+		){
+		    console.log('Linemode: '+prefs.lineBreak);
+			editor.getSession().getDocument().setNewLineMode(prefs.lineBreak);
+		}
+
+		// set theme
+		var codeTheme = prefs.codeTheme ? prefs.codeTheme : 'dreamweaver';
+		if( codeTheme == 'custom' ){
+			customTheme = prefs.customTheme;
+			var themeObj = {
+				cssClass: 'ace-custom',
+				cssText: customTheme
+			};
+
+			editor.setTheme(themeObj);
+		}else{
+			editor.setTheme("ace/theme/" + codeTheme);
+		}
+
+		if (prefs.fullLineSelection) {
+			editor.setSelectionStyle('line');
+		} else {
+			editor.setSelectionStyle('text');
+		}
+
+		editor.setHighlightActiveLine(prefs.highlightActiveLine);
+		editor.setShowInvisibles(Boolean(prefs.showInvisibles));
+		editor.setOption("scrollPastEnd", Boolean(prefs.scrollPastEnd));
+		editor.renderer.setShowGutter(Boolean(prefs.lineNumbers));
+		editor.renderer.setHScrollBarAlwaysVisible(Boolean(prefs.hScroll));
+		editor.renderer.setVScrollBarAlwaysVisible(true);
+		editor.renderer.setAnimatedScroll(true);
+		editor.getSession().setUseSoftTabs(Boolean(prefs.softTabs));
+		editor.getSession().setUseWrapMode(Boolean(prefs.wordWrap)); //wrap mode causing a problem!
+		//editor.setScrollSpeed(parseInt(prefs.scrollSpeed, 10));
+		editor.renderer.setPrintMarginColumn(parseInt(prefs.printMarginColumn, 10));
+		editor.setShowPrintMargin(Boolean(prefs.printMargin));
+		//editor.container.style.fontFamily = prefs.font;
+		editor.setFontSize(prefs.fontSize + 'px');
+	});
+}
+
 function create(file, content, siteId, options) {
     var settings = {};
 
@@ -360,10 +447,10 @@ function create(file, content, siteId, options) {
 	    firepad = true;
 
 		if( !firebase.isConnected() ){
-			tab.attr('data-firepadPending', 1);
+			tab.attr('data-firepad', 1);
 
 			firebase.connect(function() {
-			    $('li[role=tab][data-firepadPending]').each(function(index){
+			    $('li[role=tab][data-firepad]').each(function(index){
 			        addFirepad($(this));
 			    });
 			});
@@ -694,6 +781,8 @@ function create(file, content, siteId, options) {
 
 	editor.focus();
 
+	applyPrefs(tab);
+
 	//reactivate
 	$(tab).trigger('activate');
 }
@@ -724,5 +813,6 @@ exports.create = create;
 exports.focus = focus;
 exports.refresh = refresh;
 exports.setMode = setMode;
+exports.applyPrefs = applyPrefs;
 
 });

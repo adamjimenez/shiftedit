@@ -7,7 +7,7 @@ var changeMode = function(tab) {
     var mode = $(this).attr('data-name');
 
     //set editor mode
-    editors.setMode(editor, $(this).attr('data-name'));
+    editors.setMode(editor, mode);
 
     //set button value
     $(this).parent().prev().children('.ui-button-text').text(label);
@@ -35,8 +35,6 @@ var changeMode = function(tab) {
 	}else{
 		prefs.fileAssociations[ext] = mode;
 	}
-
-	console.log(prefs.fileAssociations);
 
     preferences.save('fileAssociations', prefs.fileAssociations);
 };

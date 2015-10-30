@@ -1,7 +1,8 @@
 define(['exports', "jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util', 'app/shortcuts', 'app/editors', 'app/revisions', 'app/chat'], function (exports) {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
-var prefs = require('app/prefs').get_prefs();
+var preferences = require('app/prefs');
+var prefs = {};
 var tabs = require('app/tabs');
 var storage = require('app/storage');
 var main = require('app/main');
@@ -164,6 +165,8 @@ function toggleOptions(target) {
 
 //console.log(prefs);
 function init () {
+    prefs = preferences.get_prefs();
+
     $('body').append('<input type="file" id="upload" style="visibility: hidden;">');
 
     //handle uploads
@@ -491,9 +494,10 @@ function init () {
     			scope: this
     		}]
     	},
+
     	"view": {
     		text: lang.viewText,
-    		items: [{
+    		items: [/*{
     			text: 'Toolbars',
     			items: [{
     				id: 'standardToolbar',
@@ -537,7 +541,9 @@ function init () {
     					preferences.save();
     				}
     			}]
-        	}, {
+        	}, */
+
+        	/*{
         		text: 'Default',
         		//items: defaultCodeItems,
         		handler: function () {
@@ -556,63 +562,58 @@ function init () {
         			tabs.open('customTheme.css', prefs.customTheme, 0);
         		},
         		iconCls: 'blist'
-        	}, {
+        	},*/ {
         		id: 'wordWrap',
         		text: lang.wordWrap,
         		checked: Boolean(prefs.wordWrap), // when checked has a boolean value, it is assumed to be a CheckItem
-        		checkHandler: function (item, checked) {
-        			prefs.wordWrap = checked;
-        			preferences.save();
+        		handler: function (item, checked) {
+        			preferences.save('wordWrap', checked);
         		}
         	}, {
         		id: 'fullLineSelection',
         		text: lang.fullLineSelection,
         		checked: Boolean(prefs.fullLineSelection), // when checked has a boolean value, it is assumed to be a CheckItem
-        		checkHandler: function (item, checked) {
-        			prefs.fullLineSelection = checked;
-        			preferences.save();
+        		handler: function (item, checked) {
+        			preferences.save('fullLineSelection', checked);
         		}
         	}, {
         		id: 'highlightActiveLine',
         		text: lang.highlightActiveLine,
         		checked: Boolean(prefs.highlightActiveLine), // when checked has a boolean value, it is assumed to be a CheckItem
-        		checkHandler: function (item, checked) {
-        			prefs.highlightActiveLine = checked;
-        			preferences.save();
+        		handler: function (item, checked) {
+        			preferences.save('highlightActiveLine', checked);
         		}
         	}, {
         		id: 'showInvisibles',
         		text: lang.showInvisibles,
         		checked: Boolean(prefs.showInvisibles), // when checked has a boolean value, it is assumed to be a CheckItem
-        		checkHandler: function (item, checked) {
-        			prefs.showInvisibles = checked;
-        			preferences.save();
+        		handler: function (item, checked) {
+        			preferences.save('showInvisibles', checked);
         		}
         	}, {
         		id: 'lineNumbers',
         		text: lang.lineNumbers,
         		checked: Boolean(prefs.lineNumbers), // when checked has a boolean value, it is assumed to be a CheckItem
-        		checkHandler: function (item, checked) {
-        			prefs.lineNumbers = checked;
-        			preferences.save();
+        		handler: function (item, checked) {
+        			preferences.save('lineNumbers', checked);
         		}
         	}, {
         		id: 'printMargin',
         		text: lang.printMargin,
         		checked: Boolean(prefs.printMargin), // when checked has a boolean value, it is assumed to be a CheckItem
-        		checkHandler: function (item, checked) {
-        			prefs.printMargin = checked;
-        			preferences.save();
+        		handler: function (item, checked) {
+        			//prefs.printMargin = $(this).prop('checked');
+        			preferences.save('printMargin', checked);
         		}
-        	}, {
+        	}/*, {
         		id: 'fileColumns',
         		text: 'File Columns',
         		checked: Boolean(prefs.fileColumns), // when checked has a boolean value, it is assumed to be a CheckItem
-        		checkHandler: function (item, checked) {
+        		handler: function (item, checked) {
         			prefs.fileColumns = checked;
         			preferences.save();
         		}
-        	}]
+        	}*/]
     	},
     	"help": {
     		text: 'Help',

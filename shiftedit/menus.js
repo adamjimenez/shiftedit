@@ -35,18 +35,6 @@ define(["jquery.menubar"], function () {
                     item.attr('data-match', menu[i].match);
                 }
 
-                if(menu[i].handler) {
-                    item.click(jQuery.proxy(menu[i].handler, undefined, context));
-
-                    //tick the input
-                    item.click(function(){
-                        $(this).find('input').prop("checked", true);
-                        $(el).trigger('blur');
-                        $(context).focus();
-                    });
-
-                }
-
                 if(menu[i].cls) {
                     item.addClass(menu[i].cls);
                 }
@@ -54,11 +42,25 @@ define(["jquery.menubar"], function () {
                 if(menu[i].group) {
                     item.children('a').prepend('<input type="radio" name="'+menu[i].group+'">');
                 }else if(typeof menu[i].checked === "boolean") {
-                    item.children('a').prepend('<input type="checkbox">');
+                    $('<input type="checkbox">').prependTo(item.children('a')).click(function(){return false});
                 }
 
                 if(menu[i].checked) {
-                    item.find('input').attr('checked', 'checked');
+                    item.find('input').prop('checked', true);
+                }
+
+                //trigger the correct handler with the checkbox value
+                if(menu[i].handler) {
+                    item.click(
+                        (function(i, item, context) {
+                            return function() {
+                                var checkbox = $(item).find('input');
+                                checkbox.prop("checked", !checkbox.prop("checked"));
+
+                                jQuery.proxy(menu[i].handler, item, context, checkbox.prop("checked"))();
+                            };
+                        }(i, item, context))
+                    );
                 }
 
                 if(typeof menu[i].items === 'object'){
