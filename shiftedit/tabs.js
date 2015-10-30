@@ -529,7 +529,14 @@ function newTab (e, ui) {
 	panel.find('ul.fileTypes').append(HTML);
 
 	panel.find('a.newfile').click(function() {
-		editors.create("untitled."+this.dataset.filetype, '');
+	    var prefs = preferences.get_prefs();
+
+		var content = '';
+		if( prefs.defaultCode && prefs.defaultCode[this.dataset.filetype] ){
+			content = prefs.defaultCode[this.dataset.filetype];
+		}
+
+		editors.create("untitled."+this.dataset.filetype, content);
 		close(ui.tab);
 	});
 

@@ -1,6 +1,7 @@
-define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout'], function (exports, editors) {
+define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes"], function (exports, editors) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
+var modes = require('app/modes').modes;
 var prefs = storage.get('prefs');
 var layout = require('app/layout');
 var openingFilesBatch = [];
@@ -209,7 +210,7 @@ codeThemes.forEach(function(item){
     label = label.charAt(0).toUpperCase() + label.slice(1);
 
     if(item==='custom') {
-        label += '(<a class="editCustomTheme" href="#">Edit</a>)';
+        label += ' (<a class="editCustomTheme" href="#">Edit</a>)';
     }
 
     themeHTML += '<label>\
@@ -703,7 +704,15 @@ function updateSkin(name){
 }
 
 function save(name, value) {
-    prefs[name] = value;
+    //nested array value
+    parts = name.split('.');
+    name = parts[0];
+
+    if (parts[1]) {
+        prefs[name][parts[1]] = value;
+    } else {
+        prefs[name] = value;
+    }
 
     //skin
     if(name==='skin') {
@@ -719,8 +728,8 @@ function save(name, value) {
         editors.applyPrefs(this);
     });
 
-    if(typeof(value)==='object') {
-        value = JSON.stringify(value);
+    if(typeof(prefs[name])==='object') {
+        value = JSON.stringify(prefs[name]);
     }
 
     $.ajax({
@@ -759,6 +768,11 @@ function open() {
 	    Always\
 	</label>\
 	<h2>Files</h2>\
+	<label>\
+	    Default template<br>\
+	    <select id="defaultCode"></select>\
+	    <button id="editDefaultCode" type="button">Edit</button>\
+	</label>\
 	<label>\
 	    <input type="checkbox" name="restoreTabs" value="1">\
 	    Restore tabs on startup\
@@ -935,10 +949,18 @@ function open() {
         }
     }
 
+    //modes dropdown
+    for( i in modes) {
+        if (modes.hasOwnProperty(i)) {
+            $('#defaultCode').append( '<option value="'+modes[i][2][0]+'">'+modes[i][1]+'</option>' );
+        }
+    }
+    $('#defaultCode').val('html');
+
     //form values
     //var values = $.extend(defaultPrefs, prefs);
 
-    var inputs = $('#prefsForm input, #prefsForm select');
+    var inputs = $('#prefsForm input[name], #prefsForm select[name]');
 
     inputs.each(function() {
         var name = $(this).prop('name');
@@ -973,6 +995,13 @@ function open() {
         //save it
         prefs[name] = val;
         save(name, val);
+    });
+
+    //edit default code
+    $('#editDefaultCode').click(function() {
+        var val = $('#defaultCode').val();
+    	var tab = editors.create('defaultCode.'+val, prefs.defaultCode[val], 0);
+    	tab.data('pref', 'defaultCode.'+val);
     });
 }
 
