@@ -1,9 +1,10 @@
-define(["jquery.contextMenu","app/util",'app/lang','app/tabs','app/prompt','app/site'], function () {
+define(["jquery.contextMenu","app/util",'app/lang','app/tabs','app/prompt','app/site','app/tree'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var tabs = require('app/tabs');
 var site = require('app/site');
 var prompt = require('app/prompt');
+var tree = require('app/tree');
 
 function init() {
     $.contextMenu({
@@ -29,6 +30,19 @@ function init() {
                 case 'saveAll':
                     return tabs.saveAll($(this));
                 case 'revealInTree':
+                    var tab = $(this);
+                    var siteId = tab.data('site');
+
+                    function revealFile() {
+                        return tree.select(tab.data('file'));
+                    }
+
+                    if(site.active()==siteId) {
+                        return revealFile();
+                    }else{
+                        $('#tree').one('refresh.jstree', revealFile);
+                        return site.open(siteId, null);
+                    }
                 break;
                 case 'bookmarkAll':
             		var name = '';
@@ -63,7 +77,7 @@ function init() {
             "save": {name: makeMenuText('Save', 'Ctrl+S')},
             "saveAs": {name: makeMenuText('Save as...', 'Ctrl+Alt+S')},
             "saveAll": {name: makeMenuText('Save all', 'Ctrl+Shift+S')},
-            "revealInTree": {name: "Reveal in file tree", disabled: true},
+            "revealInTree": {name: "Reveal in file tree"},
             "bookmarkAll": {name: "Bookmark all files"}
         }
     });

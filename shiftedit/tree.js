@@ -15,6 +15,41 @@ var uploadStarted =false;
 var reference;
 var inst;
 
+//given a path will select the file
+function select(path) {
+	var inst = $.jstree.reference($('#tree'));
+    var node;
+    var dirPath = '';
+    var parts = (path).split('/');
+    var i = 0;
+
+    function expandPath() {
+        for (; i<parts.length; ) {
+            if(dirPath)
+                dirPath += '/';
+
+            dirPath += parts[i];
+            node = inst.get_node(dirPath);
+
+            if(node){
+                i++;
+                if(!node.state.opened){
+                    return inst.open_node(node, expandPath, false);
+                }
+            }else{
+                //can't find it
+                return false;
+            }
+        }
+
+        //found it
+        inst.deselect_all();
+        inst.select_node(node);
+    }
+
+    expandPath();
+}
+
 function newFolder(data) {
     //data.item.name
 
@@ -1292,7 +1327,8 @@ function setAjaxOptions(siteOptions) {
 return {
     init: init,
     setAjaxOptions: setAjaxOptions,
-    refresh: refresh
+    refresh: refresh,
+    select: select
 };
 
 });
