@@ -552,6 +552,7 @@ function newTab (e, ui) {
 	panel.find('ul.recentFiles').append(HTML);
 
 	panel.find('a.openfile').click(function() {
+	    open($(this).data('file'), $(this).data('site'));
 		close(ui.tab);
 	});
 
@@ -740,7 +741,7 @@ function init() {
         newPanel.closest('.ui-layout-content').scrollTop(newPanel.data("scrollTop"));
 
         //set title etc
-        tabActivate($(ui.Tab));
+        tabActivate($(ui.newTab));
     });
 
     $( "#tree" ).on( "rename", updateTabs );
