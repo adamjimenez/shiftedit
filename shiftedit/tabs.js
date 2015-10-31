@@ -185,6 +185,18 @@ function saveFiles(options) {
     var file = tab.data("file");
     var content = editor.getValue();
 
+    //strip whitespace
+    var prefs = preferences.get_prefs();
+	if (prefs.stripWhitespace) {
+		var lines = content.split("\n");
+		content = '';
+		for (var i in lines) {
+			if (lines.hasOwnProperty(i)) {
+				content += lines[i].replace(/\s+$/, "") + '\n';
+			}
+		}
+	}
+
     //save pref
     if(tab.data('pref')){
         preferences.save(tab.data('pref'), content);
