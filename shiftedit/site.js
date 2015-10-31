@@ -350,7 +350,7 @@ function init() {
     });
 }
 
-function open(siteId, password) {
+function open(siteId, password, callback) {
     currentSite = null;
 
     var site = getSettings(siteId);
@@ -391,6 +391,10 @@ function open(siteId, password) {
 
             //show tree
             $('#tree').show();
+
+            if(callback) {
+                callback();
+            }
         }else{
             if (data.require_password) {
     			loading.stop();
@@ -422,7 +426,7 @@ function open(siteId, password) {
     							}
     							*/
 
-    							open(siteId, password);
+    							open(siteId, password, callback);
 			                break;
     			        }
     			    }
@@ -1262,6 +1266,7 @@ function getAjaxOptions(ajaxUrl) {
 
 exports.init = init;
 exports.load = load;
+exports.open = open;
 exports.active = active;
 exports.getSettings = getSettings;
 exports.getAjaxOptions = getAjaxOptions;
