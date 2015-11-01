@@ -379,6 +379,8 @@ function applyPrefs(tab) {
     var prefs = preferences.get_prefs();
 
 	window.splits[tab.attr('id')].forEach(function (editor) {
+	    setMode(editor, editor.getSession().$modeId.substr(9));
+
 		if (prefs.behaviours) {
 			editor.setBehavioursEnabled(true);
 		}else{
@@ -547,7 +549,8 @@ function create(file, content, siteId, options) {
     	});
 	}
 
-	editor.getSession().setMode("ace/mode/"+mode);
+	//editor.getSession().setMode("ace/mode/"+mode);
+	setMode(editor, mode);
 
 	//FIREPAD
     var firepad = false;
@@ -901,6 +904,46 @@ function create(file, content, siteId, options) {
 
 function setMode(editor, mode) {
     editor.getSession().setMode("ace/mode/" + mode);
+
+	//worker settings
+	if (editor.getSession().$worker) {
+		var options = {};
+		var prefs = preferences.get_prefs();
+
+		switch (mode){
+			case 'javascript':
+				var jslint_options = preferences.jslint_options;
+
+				$.each(jslint_options, function (key, item) {
+					if (prefs['jslint_' + item.name]) {
+						options[item.name] = prefs['jslint_' + item.name];
+					}
+				});
+
+				//console.log(options);
+
+                editor.session.$worker.send("changeOptions",[ options ])
+                // or
+                //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
+			break;
+			case 'css':
+				var csslint_options = preferences.csslint_options;
+
+				var disable_rules = [];
+
+				$.each(csslint_options, function (key, item) {
+					if (!prefs['csslint_' + item.name]) {
+						disable_rules.push(item.name);
+					}
+				});
+				//console.log(disable_rules);
+
+                editor.session.$worker.send("setDisabledRules", [disable_rules])
+                // or
+                //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
+			break;
+		}
+	}
 }
 
 function init() {

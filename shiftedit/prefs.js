@@ -1023,5 +1023,7 @@ exports.getOpeningFilesBatch = function() {
 exports.load = load;
 exports.save = save;
 exports.open = open;
+exports.jslint_options = jslint_options;
+exports.csslint_options = csslint_options;
 
 });
