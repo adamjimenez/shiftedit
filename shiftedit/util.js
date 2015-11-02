@@ -329,11 +329,7 @@ return {
         });
         return paramObj;
     },
-    startsWith: function(haystack, needle) {
-        if(haystack)
-            return needle === "" || haystack.indexOf(needle) === 0;
-    },
-    sha1: function (str) {
+    sha1: function(str) {
         // http://kevin.vanzonneveld.net
         // +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
         // + namespaced by: Michael White (http://getsprink.com)
@@ -459,6 +455,10 @@ return {
 
         temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
         return temp.toLowerCase();
+    },
+    startsWith: function(haystack, needle) {
+        if(haystack)
+            return needle === "" || haystack.indexOf(needle) === 0;
     },
     utf8_encode: function( argString ) {
         // http://kevin.vanzonneveld.net
