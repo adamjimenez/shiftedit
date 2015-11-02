@@ -1,9 +1,12 @@
-define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes"], function (exports, editors) {
+define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading'], function (exports, editors) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var prefs = storage.get('prefs');
 var layout = require('app/layout');
+var util = require('app/util');
+var prompt = require('app/prompt');
+var loading = require('app/loading');
 var openingFilesBatch = [];
 
 var defaultPrefs = {};
@@ -641,6 +644,11 @@ coffeelint_options.forEach(function (item) {
 if(!prefs)
     prefs = {};
 
+// create hash using mater password hash
+function createHash(password) {
+	return util.sha1(storage.get('salt') + password);
+}
+
 function load() {
     return $.getJSON('/api/prefs')
         .then(function (data) {
@@ -658,6 +666,19 @@ function load() {
 
             openingFilesBatch = data.openingFilesBatch;
 			storage.set('prefs', prefs);
+
+			//storage.set('site', site);
+			storage.set('username', data.username);
+			storage.set('user', data.user);
+			storage.set('hash', data.hash);
+			storage.set('salt', data.salt);
+			storage.set('masterPassword', data.masterPassword);
+			storage.set('premier', data.premier);
+			storage.set('edition', data.edition);
+			storage.set('channel', data.channel);
+			storage.set('authToken', data.authToken);
+			storage.set('avatar', data.avatar);
+			storage.set('public_key', data.public_key);
 
 			//load skin
 			if(prefs.skin) {
@@ -873,10 +894,10 @@ function open() {
 	<h2>Security</h2>\
 	<p>A Master Password is used to protect your passwords.</p>\
 	<label>\
-	    <input type="checkbox" name="useMasterPassword" value="1">\
+	    <input type="checkbox" id="useMasterPassword" name="useMasterPassword" value="1">\
 	    Use a master password\
 	</label>\
-	<p><button type="button">Change master password</button></p>\
+	<p><button type="button" id="changeMasterPassword">Change master password</button></p>\
 	<h2>Lint Checking</h2>\
 	<h3>Javascript</h3>\
 	'+ jslintHTML +'<br>\
@@ -1003,6 +1024,155 @@ function open() {
     	var tab = editors.create('defaultCode.'+val, prefs.defaultCode[val], 0);
     	tab.data('pref', 'defaultCode.'+val);
     });
+
+    function changeMasterPassword() {
+        $( "body" ).append('<div id="dialog-changeMasterPasword" title="'+lang.changeMasterPasswordText+'">\
+          <form id="masterPasswordForm">\
+            <p>'+lang.masterPasswordInfoText+'</p>\
+            <p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
+            <p><label for="newMasterPassword">'+lang.enterNewPasswordText+'</label> <input type="password" name="newMasterPassword" id="newMasterPassword"></p>\
+            <p><label for="confirmMasterPassword">'+lang.reenterPasswordText+'</label> <input type="password" name="confirmMasterPassword" id="confirmMasterPassword"></p>\
+            <p>'+lang.masterPasswordRememberText+'</p>\
+          </form>\
+        </div>');
+
+        if(!prefs.useMasterPassword){
+            $('#currentMasterPassword').val('No password set').prop('disabled', true);
+        }
+
+        //open dialog
+        var dialog = $( "#dialog-changeMasterPasword" ).dialog({
+            modal: true,
+            width: 500,
+            close: function( event, ui ) {
+                $( this ).remove();
+            },
+            buttons: {
+                OK: function(){
+                    var values = util.serializeObject($('#masterPasswordForm'));
+
+					var error = '';
+					//check password
+					if (prefs.useMasterPassword) {
+						if (createHash(createHash(values.currentMasterPassword)) != prefs.masterPasswordHash) {
+							error += lang.currentPasswordIncorrectText + '<br>';
+						}
+					}
+					//check password length
+					if (values.newMasterPassword.length < 1) {
+						error += lang.passwordMinLengthText + '<br>';
+					}
+					//check passwords match
+					if (values.newMasterPassword != values.confirmMasterPassword) {
+						error += lang.passwordNotMatchText + '<br>';
+					}
+					if (error) {
+						prompt.alert({title: lang.errorText, msg:error});
+					} else {
+						//create hash
+						var params = {};
+						if (prefs.useMasterPassword) {
+							params.masterPassword = createHash(values.currentMasterPassword);
+							params.masterPasswordHash = createHash(params.masterPassword);
+						}
+						params.useMasterPassword = true;
+						params.newMasterPassword = createHash(values.newMasterPassword);
+
+						loading.fetch('/api/prefs?cmd=save_master_password', {
+						    action: 'saving master password',
+						    data: params,
+						    success: function(data) {
+								storage.set('masterPassword', values.newMasterPassword);
+								prefs.masterPasswordHash = data.masterPasswordHash;
+								prefs.useMasterPassword = true;
+
+								$('#useMasterPassword').prop('checked', true);
+								$('#changeMasterPassword').prop('disabled', false);
+                                $( "#dialog-changeMasterPasword" ).dialog( "close" );
+						    }
+						});
+					}
+                }
+            }
+        });
+    }
+
+    function removeMasterPassword() {
+        $( "body" ).append('<div id="dialog-removeMasterPasword" title="'+lang.removeMasterPasswordText+'">\
+          <form id="removeMasterPasswordForm">\
+            <p>'+lang.removedMasterPasswordText+'</p>\
+            <p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
+            <p><input type="checkbox" name="forceRemovePassword" id="forceRemovePassword" value="1"> <label for="forceRemovePassword">'+lang.forceRemoveMasterPasswordText+'</label></p>\
+          </form>\
+        </div>');
+
+        $('#forceRemovePassword').click(function() {
+            if ($(this).is(':checked')) {
+                $('#currentMasterPassword').prop('disabled', true);
+            } else {
+                $('#currentMasterPassword').prop('disabled', false);
+            }
+        });
+
+        //open dialog
+        var dialog = $( "#dialog-removeMasterPasword" ).dialog({
+            modal: true,
+            width: 500,
+            buttons: {
+                OK: function() {
+                    var values = util.serializeObject($('#removeMasterPasswordForm'));
+					var error = '';
+					//check password
+					if (values.forceRemovePassword != 1) {
+						if (createHash(createHash($('#currentMasterPassword'))) != prefs.masterPasswordHash) {
+							error += lang.currentPasswordIncorrectText;
+						}
+					}
+
+					if (error) {
+						prompt.alert({title:lang.errorText, msg:error});
+					} else {
+						//create hash
+						var params = {};
+						params.masterPassword = createHash(values.currentMasterPassword);
+						params.forceRemovePassword = values.forceRemovePassword;
+
+						loading.fetch('/api/prefs?cmd=save_master_password', {
+						    action: 'removing master password',
+						    data: params,
+						    success: function(data) {
+								prefs.useMasterPassword = false;
+								storage.set('masterPassword', '');
+								prefs.masterPasswordHash = '';
+
+								$('#useMasterPassword').prop('checked', false);
+								$('#changeMasterPassword').prop('disabled', true);
+                                $( "#dialog-removeMasterPasword" ).dialog( "close" );
+                                $( "#dialog-removeMasterPasword" ).remove();
+						    }
+						});
+					}
+                }
+            }
+        });
+    }
+
+    //master password
+    $('#changeMasterPassword').click(changeMasterPassword);
+
+    if(!prefs.useMasterPassword){
+        $('#changeMasterPassword').prop('disabled', true);
+    }
+
+    $('#useMasterPassword').click(function() {
+        if(prefs.useMasterPassword) {
+            removeMasterPassword();
+        }else{
+            changeMasterPassword();
+        }
+
+        return false;
+    });
 }
 
 $('body').on('click', '#openPreferences a', function(e){
@@ -1025,5 +1195,6 @@ exports.save = save;
 exports.open = open;
 exports.jslint_options = jslint_options;
 exports.csslint_options = csslint_options;
+exports.createHash = createHash;
 
 });
