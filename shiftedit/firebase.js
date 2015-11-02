@@ -1,4 +1,4 @@
-define(['app/tabs'],function (tabs) {
+define(['app/tabs','app/preferences'],function (tabs, preferences) {
 
 var connected = false;
 

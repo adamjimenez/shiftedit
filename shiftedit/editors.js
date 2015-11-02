@@ -314,7 +314,7 @@ function addFirepad(tab) {
 		console.log('firepad permission denied');
 
 		removeFirepad();
-		setValue(content);
+		editor.getSession().setValue(content);
 		editor.moveCursorToPosition({column:0, row:0});
 		//loadmask.hide();
 	});
