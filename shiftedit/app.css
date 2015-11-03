@@ -170,35 +170,35 @@ div.buttons {
 /* END PAGING */
 
 /* START TREE */
-#tree { float:left; min-width:319px; border-right:1px solid silver; overflow:auto; padding:0px 0; }
+.jstree { float:left; min-width:319px; border-right:1px solid silver; overflow:auto; padding:0px 0; }
 #data { margin-left:320px; }
 #data textarea { margin:0; padding:0; height:100%; width:100%; border:0; background:white; display:block; line-height:18px; resize:none; }
 #data, #code { font: normal normal normal 12px/18px 'Consolas', monospace !important; }
 
-#tree .folder { background:url('../lib/jstree/file_sprite.png') right bottom no-repeat; }
-#tree .file { background:url('../lib/jstree/file_sprite.png') 0 0 no-repeat; }
-#tree .file-pdf { background-position: -32px 0 }
-#tree .file-as { background-position: -36px 0 }
-#tree .file-c { background-position: -72px -0px }
-#tree .file-iso { background-position: -108px -0px }
-#tree .file-htm, #tree .file-html, #tree .file-xml, #tree .file-xsl { background-position: -126px -0px }
-#tree .file-cf { background-position: -162px -0px }
-#tree .file-cpp { background-position: -216px -0px }
-#tree .file-cs { background-position: -236px -0px }
-#tree .file-sql { background-position: -272px -0px }
-#tree .file-xls, #tree .file-xlsx { background-position: -362px -0px }
-#tree .file-h { background-position: -488px -0px }
-#tree .file-crt, #tree .file-pem, #tree .file-cer { background-position: -452px -18px }
-#tree .file-php { background-position: -108px -18px }
-#tree .file-jpg, #tree .file-jpeg, #tree .file-png, #tree .file-gif, #tree .file-bmp { background-position: -126px -18px }
-#tree .file-ppt, #tree .file-pptx { background-position: -144px -18px }
-#tree .file-rb { background-position: -180px -18px }
-#tree .file-text, #tree .file-txt, #tree .file-md, #tree .file-log, #tree .file-htaccess { background-position: -254px -18px }
-#tree .file-doc, #tree .file-docx { background-position: -362px -18px }
-#tree .file-zip, #tree .file-gz, #tree .file-tar, #tree .file-rar { background-position: -416px -18px }
-#tree .file-js { background-position: -434px -18px }
-#tree .file-css { background-position: -144px -0px }
-#tree .file-fla { background-position: -398px -0px }
+.jstree .folder { background:url('../lib/jstree/file_sprite.png') right bottom no-repeat; }
+.jstree .file { background:url('../lib/jstree/file_sprite.png') 0 0 no-repeat; }
+.jstree .file-pdf { background-position: -32px 0 }
+.jstree .file-as { background-position: -36px 0 }
+.jstree .file-c { background-position: -72px -0px }
+.jstree .file-iso { background-position: -108px -0px }
+.jstree .file-htm, .jstree .file-html, .jstree .file-xml, .jstree .file-xsl { background-position: -126px -0px }
+.jstree .file-cf { background-position: -162px -0px }
+.jstree .file-cpp { background-position: -216px -0px }
+.jstree .file-cs { background-position: -236px -0px }
+.jstree .file-sql { background-position: -272px -0px }
+.jstree .file-xls, .jstree .file-xlsx { background-position: -362px -0px }
+.jstree .file-h { background-position: -488px -0px }
+.jstree .file-crt, .jstree .file-pem, .jstree .file-cer { background-position: -452px -18px }
+.jstree .file-php { background-position: -108px -18px }
+.jstree .file-jpg, .jstree .file-jpeg, .jstree .file-png, .jstree .file-gif, .jstree .file-bmp { background-position: -126px -18px }
+.jstree .file-ppt, .jstree .file-pptx { background-position: -144px -18px }
+.jstree .file-rb { background-position: -180px -18px }
+.jstree .file-text, .jstree .file-txt, .jstree .file-md, .jstree .file-log, .jstree .file-htaccess { background-position: -254px -18px }
+.jstree .file-doc, .jstree .file-docx { background-position: -362px -18px }
+.jstree .file-zip, .jstree .file-gz, .jstree .file-tar, .jstree .file-rar { background-position: -416px -18px }
+.jstree .file-js { background-position: -434px -18px }
+.jstree .file-css { background-position: -144px -0px }
+.jstree .file-fla { background-position: -398px -0px }
 /* END TREE */
 
 .ace_editor {
@@ -591,7 +591,6 @@ div.buttons {
 
 #uploadUrlForm label:first-child{
     min-width: 110px;
-    width: 110px;
     padding: 0;
 }
 
@@ -691,5 +690,21 @@ div.buttons {
 }
 
 .preview_toolbar .custom-combobox, .preview_toolbar .custom-combobox-input{
+    flex: 2;
+}
+
+
+.hbox p{
+    display: flex;
+    vertical-align: middle;
+    align-items: center;
+}
+
+.hbox label:first-child{
+    min-width: 110px;
+    padding: 0;
+}
+
+.flex {
     flex: 2;
 }
