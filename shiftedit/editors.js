@@ -800,8 +800,7 @@ function create(file, content, siteId, options) {
 
     		var text = editor.getSelectedText();
 
-    		if (
-    		text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
+    		if (text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
     			text = text.substr(start.length, text.length - start.length - end.length);
     		} else {
     			text = start + text + end;
