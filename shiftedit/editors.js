@@ -1,4 +1,4 @@
-define(['app/tabs', 'exports', 'app/prefs', 'jquery','ace',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete','ace/split', 'app/site', 'app/firebase', 'app/find'], function (tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/ext-language_tools','ace/ext-split', 'app/site', 'app/firebase', 'app/find'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -13,6 +13,9 @@ var site = require('app/site');
 var firebase = require('app/firebase');
 var Firepad = require('firepad');
 var find = require('app/find');
+
+ace.config.set("packaged", true);
+ace.config.set("basePath", require.toUrl("ace"));
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -36,6 +39,110 @@ function onGutterClick(e, editor) {
 				e.stop();
 			}
 		}
+	}
+}
+
+function onChangeCursor(e, selection) {
+    var editor = tabs.getEditor(this);
+    var session = selection.session;
+	var pos = selection.getSelectionLead();
+	var line = session.getLine(pos.row);
+	var prefix = line.slice(0, pos.column);
+	var value;
+	var convertToRgb = false;
+
+	$('#picker').remove();
+
+	//color picker
+	if (/(#[0-9a-f]*)$/i.test(prefix)) {
+		before = pos.column - RegExp.$1.length;
+
+		if (/(#[0-9a-f]*)/i.test(line.slice(before))) {
+			rawValue = RegExp.$1;
+		}
+
+		value = rawValue;
+
+		if( value.length == 4 ){
+			value = '#'+value[1]+value[1]+value[2]+value[2]+value[3]+value[3];
+		}
+
+		type = 'color';
+	//rgb color picker
+	}else if (/rgb\(([0-9,\s]*)$/i.test(prefix)) {
+		before = pos.column - RegExp.$1.length;
+
+		if (/([0-9,\s]*)/i.test(line.slice(before))) {
+			rawValue = RegExp.$1;
+		}
+
+		rawValue = RegExp.$1;
+
+		value = rawValue.replace(/\s/g,'');
+
+		var rgb = value.split(',');
+		if( rgb.length >= 3 ){
+			value = util.rgbToHex(rgb[0], rgb[1], rgb[2]);
+		}
+
+		type = 'color';
+		convertToRgb = true;
+	}
+
+	if (value) {
+		rawValue = rawValue ? rawValue : value;
+
+		range = {
+			start: {
+				row: pos.row,
+				column: before
+			},
+			end: {
+				row: pos.row,
+				column: before + rawValue.length
+			}
+		};
+
+		//charCoords
+		pos = editor.renderer.textToScreenCoordinates(range.start.row, range.start.column);
+		var offset = $(editor.container).offset();
+		pos.pageX -= offset.left;
+		pos.pageY -= offset.top;
+
+		el = document.createElement('input');
+		el.type = type;
+
+		if (type == 'number') {
+			el.min = parseFloat(value) - 10;
+			el.max = parseFloat(value) + 10;
+			el.step = 1;
+		}
+
+		el.id = 'picker';
+		el.value = value ? value : rawValue;
+
+		//position picker
+		el.style.top = pos.pageY + 20 + "px";
+		el.style.left = pos.pageX +  "px";
+
+		var container = editor.container;
+		container.parentNode.appendChild(el);
+
+		el.onclick = function () {
+			selection.setSelectionRange(range);
+			this.focus();
+		};
+
+		el.onchange = function () {
+			var newValue = this.value;
+			if( convertToRgb ){
+				var rgb = util.hexToRgb(newValue);
+				newValue = rgb.r+', '+rgb.g+', '+rgb.b;
+			}
+
+			selection.setSelectionRange(range);
+			editor.insert(newValue);
+		};
 	}
 }
 
@@ -207,7 +314,7 @@ function addFirepad(tab) {
 		console.log('firepad permission denied');
 
 		removeFirepad();
-		setValue(content);
+		editor.getSession().setValue(content);
 		editor.moveCursorToPosition({column:0, row:0});
 		//loadmask.hide();
 	});
@@ -264,6 +371,96 @@ function addFirepad(tab) {
 		//loadmask.hide();
 
 		restoreState(options.state);
+	});
+}
+
+function applyPrefs(tab) {
+    tab = $(tab);
+    var prefs = preferences.get_prefs();
+
+	window.splits[tab.attr('id')].forEach(function (editor) {
+	    setMode(editor, editor.getSession().$modeId.substr(9));
+
+		if (prefs.behaviours) {
+			editor.setBehavioursEnabled(true);
+		}else{
+			editor.setBehavioursEnabled(false);
+		}
+
+		editor.setDragDelay(0);
+		editor.setHighlightSelectedWord(true);
+
+	    /*
+	    require("ace/ext-emmet");
+		if( prefs.zen ){
+			console.log('loading emmet');
+		    //emmet fka zen
+			editor.setOption("enableEmmet", true);
+		}else{
+			editor.setOption("enableEmmet", false);
+		}
+		*/
+
+		//var beautify = require("ace/ext/beautify");
+		//editor.commands.addCommands(beautify.commands);
+
+		var keybinding = null;
+		switch (prefs.keyBinding) {
+		case 'vim':
+			keybinding = require("ace/keyboard/vim").handler;
+			break;
+		case 'emacs':
+			keybinding = require("ace/keyboard/emacs").handler;
+			break;
+		}
+
+		editor.setKeyboardHandler(keybinding);
+		editor.getSession().setFoldStyle(prefs.codeFolding);
+		editor.getSession().setTabSize(parseInt(prefs.tabSize, 10));
+
+		// set linebreak mode. don't change if using firepad
+		if(
+			['auto','unix','windows'].indexOf(prefs.lineBreak) !== -1 &&
+			!$(tab).data('firepad')
+		){
+		    console.log('Linemode: '+prefs.lineBreak);
+			editor.getSession().getDocument().setNewLineMode(prefs.lineBreak);
+		}
+
+		// set theme
+		var codeTheme = prefs.codeTheme ? prefs.codeTheme : 'dreamweaver';
+		if( codeTheme == 'custom' ){
+			customTheme = prefs.customTheme;
+			var themeObj = {
+				cssClass: 'ace-custom',
+				cssText: customTheme
+			};
+
+			editor.setTheme(themeObj);
+		}else{
+			editor.setTheme("ace/theme/" + codeTheme);
+		}
+
+		if (prefs.fullLineSelection) {
+			editor.setSelectionStyle('line');
+		} else {
+			editor.setSelectionStyle('text');
+		}
+
+		editor.setHighlightActiveLine(prefs.highlightActiveLine);
+		editor.setShowInvisibles(Boolean(prefs.showInvisibles));
+		editor.setOption("scrollPastEnd", Boolean(prefs.scrollPastEnd));
+		editor.renderer.setShowGutter(Boolean(prefs.lineNumbers));
+		editor.renderer.setHScrollBarAlwaysVisible(Boolean(prefs.hScroll));
+		editor.renderer.setVScrollBarAlwaysVisible(true);
+		editor.renderer.setAnimatedScroll(true);
+		editor.getSession().setUseSoftTabs(Boolean(prefs.softTabs));
+		editor.getSession().setUseWrapMode(Boolean(prefs.wordWrap)); //wrap mode causing a problem!
+		//editor.setScrollSpeed(parseInt(prefs.scrollSpeed, 10));
+		editor.renderer.setPrintMarginColumn(parseInt(prefs.printMarginColumn, 10));
+		editor.setShowPrintMargin(Boolean(prefs.printMargin));
+		//editor.container.style.fontFamily = prefs.font;
+		editor.setFontSize(prefs.fontSize + 'px');
 	});
 }
 
@@ -341,7 +538,7 @@ function create(file, content, siteId, options) {
 	var mode = 'text';
 	prefs = preferences.get_prefs();
 
-	if( prefs.fileAssociations[ext] ){
+	if( prefs.fileAssociations && prefs.fileAssociations[ext] ){
 		mode = prefs.fileAssociations[ext];
 	}else{
     	modes.forEach(function (item) {
@@ -352,7 +549,8 @@ function create(file, content, siteId, options) {
     	});
 	}
 
-	editor.getSession().setMode("ace/mode/"+mode);
+	//editor.getSession().setMode("ace/mode/"+mode);
+	setMode(editor, mode);
 
 	//FIREPAD
     var firepad = false;
@@ -360,10 +558,10 @@ function create(file, content, siteId, options) {
 	    firepad = true;
 
 		if( !firebase.isConnected() ){
-			tab.attr('data-firepadPending', 1);
+			tab.attr('data-firepad', 1);
 
 			firebase.connect(function() {
-			    $('li[role=tab][data-firepadPending]').each(function(index){
+			    $('li[role=tab][data-firepad]').each(function(index){
 			        addFirepad($(this));
 			    });
 			});
@@ -392,6 +590,8 @@ function create(file, content, siteId, options) {
 	editor.getSession().on('changeBreakpoint', jQuery.proxy(saveState, tab));
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
+	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
+
     $(tab).on('close', destroy);
 
 	//autocomplete
@@ -600,8 +800,7 @@ function create(file, content, siteId, options) {
 
     		var text = editor.getSelectedText();
 
-    		if (
-    		text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
+    		if (text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
     			text = text.substr(start.length, text.length - start.length - end.length);
     		} else {
     			text = start + text + end;
@@ -694,12 +893,56 @@ function create(file, content, siteId, options) {
 
 	editor.focus();
 
+	applyPrefs(tab);
+
 	//reactivate
 	$(tab).trigger('activate');
+
+	return $(tab);
 }
 
 function setMode(editor, mode) {
     editor.getSession().setMode("ace/mode/" + mode);
+
+	//worker settings
+	if (editor.getSession().$worker) {
+		var options = {};
+		var prefs = preferences.get_prefs();
+
+		switch (mode){
+			case 'javascript':
+				var jslint_options = preferences.jslint_options;
+
+				$.each(jslint_options, function (key, item) {
+					if (prefs['jslint_' + item.name]) {
+						options[item.name] = prefs['jslint_' + item.name];
+					}
+				});
+
+				//console.log(options);
+
+                editor.session.$worker.send("changeOptions",[ options ])
+                // or
+                //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
+			break;
+			case 'css':
+				var csslint_options = preferences.csslint_options;
+
+				var disable_rules = [];
+
+				$.each(csslint_options, function (key, item) {
+					if (!prefs['csslint_' + item.name]) {
+						disable_rules.push(item.name);
+					}
+				});
+				//console.log(disable_rules);
+
+                editor.session.$worker.send("setDisabledRules", [disable_rules])
+                // or
+                //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
+			break;
+		}
+	}
 }
 
 function init() {
@@ -724,5 +967,6 @@ exports.create = create;
 exports.focus = focus;
 exports.refresh = refresh;
 exports.setMode = setMode;
+exports.applyPrefs = applyPrefs;
 
 });

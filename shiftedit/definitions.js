@@ -1,4 +1,4 @@
-define(['app/tabs','app/util', 'jquery','ace'], function (tabs,util) {
+define(['app/tabs','app/util', 'jquery','ace/ace'], function (tabs,util) {
 var TokenIterator = require("ace/token_iterator").TokenIterator;
 
 	//gets defined classes / variables etc

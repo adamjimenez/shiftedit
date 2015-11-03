@@ -1,7 +1,12 @@
-define(['jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang'], function () {
+define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading'], function (exports, editors) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
+var modes = require('app/modes').modes;
 var prefs = storage.get('prefs');
+var layout = require('app/layout');
+var util = require('app/util');
+var prompt = require('app/prompt');
+var loading = require('app/loading');
 var openingFilesBatch = [];
 
 var defaultPrefs = {};
@@ -197,6 +202,23 @@ skins.forEach(function(item){
     skinHTML += '<label>\
 	    <input type="radio" name="skin" value="'+item.name+'">\
 	    '+item.title+'\
+	</label>';
+});
+
+var codeThemes = ['custom', 'ambiance', 'chaos', 'chrome', 'clouds', 'clouds_midnight', 'cobalt', 'crimson_editor', 'dawn', 'dreamweaver', 'eclipse', 'idle_fingers', 'katzenmilch', 'kr_theme', 'kuroir', 'merbivore', 'merbivore_soft', 'mono_industrial', 'monokai', 'pastel_on_dark', 'solarized_dark', 'solarized_light', 'terminal', 'textmate', 'tomorrow', 'tomorrow_night', 'tomorrow_night_blue', 'tomorrow_night_bright', 'tomorrow_night_eighties', 'twilight', 'vibrant_ink', 'xcode'];
+
+var themeHTML = '';
+codeThemes.forEach(function(item){
+    var label = item.replace(/_/g, ' ');
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+
+    if(item==='custom') {
+        label += ' (<a class="editCustomTheme" href="#">Edit</a>)';
+    }
+
+    themeHTML += '<label>\
+	    <input type="radio" name="codeTheme" value="'+item+'">\
+	    '+ label +'\
 	</label>';
 });
 
@@ -622,6 +644,11 @@ coffeelint_options.forEach(function (item) {
 if(!prefs)
     prefs = {};
 
+// create hash using mater password hash
+function createHash(password) {
+	return util.sha1(storage.get('salt') + password);
+}
+
 function load() {
     return $.getJSON('/api/prefs')
         .then(function (data) {
@@ -639,6 +666,19 @@ function load() {
 
             openingFilesBatch = data.openingFilesBatch;
 			storage.set('prefs', prefs);
+
+			//storage.set('site', site);
+			storage.set('username', data.username);
+			storage.set('user', data.user);
+			storage.set('hash', data.hash);
+			storage.set('salt', data.salt);
+			storage.set('masterPassword', data.masterPassword);
+			storage.set('premier', data.premier);
+			storage.set('edition', data.edition);
+			storage.set('channel', data.channel);
+			storage.set('authToken', data.authToken);
+			storage.set('avatar', data.avatar);
+			storage.set('public_key', data.public_key);
 
 			//load skin
 			if(prefs.skin) {
@@ -685,8 +725,32 @@ function updateSkin(name){
 }
 
 function save(name, value) {
-    if(typeof(value)==='object') {
-        value = JSON.stringify(value);
+    //nested array value
+    parts = name.split('.');
+    name = parts[0];
+
+    if (parts[1]) {
+        prefs[name][parts[1]] = value;
+    } else {
+        prefs[name] = value;
+    }
+
+    //skin
+    if(name==='skin') {
+        updateSkin(value);
+    }
+
+    if(name==='customTheme'){
+		$('#ace-custom').remove();
+    }
+
+    //apply change to open editors
+    $('li[data-file]').each(function() {
+        editors.applyPrefs(this);
+    });
+
+    if(typeof(prefs[name])==='object') {
+        value = JSON.stringify(prefs[name]);
     }
 
     $.ajax({
@@ -706,11 +770,15 @@ function save(name, value) {
 
 function open() {
     //create tab
-	var tab = $('.ui-layout-center').tabs('add', 'Preferences', '<div class="prefs">\
+    layout.get().open('east');
+
+	var tab = $('.ui-layout-east').tabs('add', 'Preferences', '<div class="prefs">\
 	<form id="prefsForm">\
 	<h2>General</h2>\
 	<label>Skin</label>\
 	'+skinHTML+'<br>\
+	<label>Code theme</label>\
+	'+themeHTML+'<br>\
 	<label>Prompt on exit</label>\
 	<label>\
 	    <input type="radio" name="promptOnExit" value="unsaved">\
@@ -721,6 +789,11 @@ function open() {
 	    Always\
 	</label>\
 	<h2>Files</h2>\
+	<label>\
+	    Default template<br>\
+	    <select id="defaultCode"></select>\
+	    <button id="editDefaultCode" type="button">Edit</button>\
+	</label>\
 	<label>\
 	    <input type="checkbox" name="restoreTabs" value="1">\
 	    Restore tabs on startup\
@@ -806,10 +879,10 @@ function open() {
 	    <input type="checkbox" name="indentOnPaste" value="1">\
 	    Indent on paste\
 	</label>\
-	<label>\
+	<!--<label>\
 	    <input type="checkbox" name="zen" value="1">\
 	    Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
-	</label>\
+	</label>-->\
 	<label>\
 	    <input type="checkbox" name="behaviours" value="1">\
 	    Auto-close tags, brackets, quotes etc\
@@ -821,10 +894,10 @@ function open() {
 	<h2>Security</h2>\
 	<p>A Master Password is used to protect your passwords.</p>\
 	<label>\
-	    <input type="checkbox" name="useMasterPassword" value="1">\
+	    <input type="checkbox" id="useMasterPassword" name="useMasterPassword" value="1">\
 	    Use a master password\
 	</label>\
-	<p><button type="button">Change master password</button></p>\
+	<p><button type="button" id="changeMasterPassword">Change master password</button></p>\
 	<h2>Lint Checking</h2>\
 	<h3>Javascript</h3>\
 	'+ jslintHTML +'<br>\
@@ -897,10 +970,18 @@ function open() {
         }
     }
 
+    //modes dropdown
+    for( i in modes) {
+        if (modes.hasOwnProperty(i)) {
+            $('#defaultCode').append( '<option value="'+modes[i][2][0]+'">'+modes[i][1]+'</option>' );
+        }
+    }
+    $('#defaultCode').val('html');
+
     //form values
     //var values = $.extend(defaultPrefs, prefs);
 
-    var inputs = $('#prefsForm input, #prefsForm select');
+    var inputs = $('#prefsForm input[name], #prefsForm select[name]');
 
     inputs.each(function() {
         var name = $(this).prop('name');
@@ -932,19 +1013,165 @@ function open() {
             break;
         }
 
-        //skin
-        if(name==='skin') {
-            updateSkin(val);
-        }
-
-        //apply change to open editors
-        $('li[file]').each(function() {
-
-        });
-
         //save it
         prefs[name] = val;
         save(name, val);
+    });
+
+    //edit default code
+    $('#editDefaultCode').click(function() {
+        var val = $('#defaultCode').val();
+    	var tab = editors.create('defaultCode.'+val, prefs.defaultCode[val], 0);
+    	tab.data('pref', 'defaultCode.'+val);
+    });
+
+    function changeMasterPassword() {
+        $( "body" ).append('<div id="dialog-changeMasterPasword" title="'+lang.changeMasterPasswordText+'">\
+          <form id="masterPasswordForm">\
+            <p>'+lang.masterPasswordInfoText+'</p>\
+            <p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
+            <p><label for="newMasterPassword">'+lang.enterNewPasswordText+'</label> <input type="password" name="newMasterPassword" id="newMasterPassword"></p>\
+            <p><label for="confirmMasterPassword">'+lang.reenterPasswordText+'</label> <input type="password" name="confirmMasterPassword" id="confirmMasterPassword"></p>\
+            <p>'+lang.masterPasswordRememberText+'</p>\
+          </form>\
+        </div>');
+
+        if(!prefs.useMasterPassword){
+            $('#currentMasterPassword').val('No password set').prop('disabled', true);
+        }
+
+        //open dialog
+        var dialog = $( "#dialog-changeMasterPasword" ).dialog({
+            modal: true,
+            width: 500,
+            close: function( event, ui ) {
+                $( this ).remove();
+            },
+            buttons: {
+                OK: function(){
+                    var values = util.serializeObject($('#masterPasswordForm'));
+
+					var error = '';
+					//check password
+					if (prefs.useMasterPassword) {
+						if (createHash(createHash(values.currentMasterPassword)) != prefs.masterPasswordHash) {
+							error += lang.currentPasswordIncorrectText + '<br>';
+						}
+					}
+					//check password length
+					if (values.newMasterPassword.length < 1) {
+						error += lang.passwordMinLengthText + '<br>';
+					}
+					//check passwords match
+					if (values.newMasterPassword != values.confirmMasterPassword) {
+						error += lang.passwordNotMatchText + '<br>';
+					}
+					if (error) {
+						prompt.alert({title: lang.errorText, msg:error});
+					} else {
+						//create hash
+						var params = {};
+						if (prefs.useMasterPassword) {
+							params.masterPassword = createHash(values.currentMasterPassword);
+							params.masterPasswordHash = createHash(params.masterPassword);
+						}
+						params.useMasterPassword = true;
+						params.newMasterPassword = createHash(values.newMasterPassword);
+
+						loading.fetch('/api/prefs?cmd=save_master_password', {
+						    action: 'saving master password',
+						    data: params,
+						    success: function(data) {
+								storage.set('masterPassword', values.newMasterPassword);
+								prefs.masterPasswordHash = data.masterPasswordHash;
+								prefs.useMasterPassword = true;
+
+								$('#useMasterPassword').prop('checked', true);
+								$('#changeMasterPassword').prop('disabled', false);
+                                $( "#dialog-changeMasterPasword" ).dialog( "close" );
+						    }
+						});
+					}
+                }
+            }
+        });
+    }
+
+    function removeMasterPassword() {
+        $( "body" ).append('<div id="dialog-removeMasterPasword" title="'+lang.removeMasterPasswordText+'">\
+          <form id="removeMasterPasswordForm">\
+            <p>'+lang.removedMasterPasswordText+'</p>\
+            <p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
+            <p><input type="checkbox" name="forceRemovePassword" id="forceRemovePassword" value="1"> <label for="forceRemovePassword">'+lang.forceRemoveMasterPasswordText+'</label></p>\
+          </form>\
+        </div>');
+
+        $('#forceRemovePassword').click(function() {
+            if ($(this).is(':checked')) {
+                $('#currentMasterPassword').prop('disabled', true);
+            } else {
+                $('#currentMasterPassword').prop('disabled', false);
+            }
+        });
+
+        //open dialog
+        var dialog = $( "#dialog-removeMasterPasword" ).dialog({
+            modal: true,
+            width: 500,
+            buttons: {
+                OK: function() {
+                    var values = util.serializeObject($('#removeMasterPasswordForm'));
+					var error = '';
+					//check password
+					if (values.forceRemovePassword != 1) {
+						if (createHash(createHash($('#currentMasterPassword'))) != prefs.masterPasswordHash) {
+							error += lang.currentPasswordIncorrectText;
+						}
+					}
+
+					if (error) {
+						prompt.alert({title:lang.errorText, msg:error});
+					} else {
+						//create hash
+						var params = {};
+						params.masterPassword = createHash(values.currentMasterPassword);
+						params.forceRemovePassword = values.forceRemovePassword;
+
+						loading.fetch('/api/prefs?cmd=save_master_password', {
+						    action: 'removing master password',
+						    data: params,
+						    success: function(data) {
+								prefs.useMasterPassword = false;
+								storage.set('masterPassword', '');
+								prefs.masterPasswordHash = '';
+
+								$('#useMasterPassword').prop('checked', false);
+								$('#changeMasterPassword').prop('disabled', true);
+                                $( "#dialog-removeMasterPasword" ).dialog( "close" );
+                                $( "#dialog-removeMasterPasword" ).remove();
+						    }
+						});
+					}
+                }
+            }
+        });
+    }
+
+    //master password
+    $('#changeMasterPassword').click(changeMasterPassword);
+
+    if(!prefs.useMasterPassword){
+        $('#changeMasterPassword').prop('disabled', true);
+    }
+
+    $('#useMasterPassword').click(function() {
+        if(prefs.useMasterPassword) {
+            removeMasterPassword();
+        }else{
+            changeMasterPassword();
+        }
+
+        return false;
     });
 }
 
@@ -952,16 +1179,22 @@ $('body').on('click', '#openPreferences a', function(e){
     open();
 });
 
-return {
-    get_prefs: function() {
-        return prefs;
-    },
-    getOpeningFilesBatch: function() {
-        return openingFilesBatch;
-    },
-    load: load,
-    save: save,
-    open: open
+$('body').on('click', '.editCustomTheme', function(e){
+	var tab = editors.create('customTheme.css', prefs.customTheme, 0);
+	tab.data('pref', 'customTheme');
+});
+
+exports.get_prefs = function() {
+    return prefs;
 };
+exports.getOpeningFilesBatch = function() {
+    return openingFilesBatch;
+};
+exports.load = load;
+exports.save = save;
+exports.open = open;
+exports.jslint_options = jslint_options;
+exports.csslint_options = csslint_options;
+exports.createHash = createHash;
 
 });

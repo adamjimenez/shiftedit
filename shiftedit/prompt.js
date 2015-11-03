@@ -10,9 +10,11 @@ define(['app/util'], function (util) {
 
         $( "#dialog-message" ).dialog({
             modal: true,
+            close: function( event, ui ) {
+                $( this ).remove();
+            },
             buttons: {
                 Ok: function() {
-                    $( this ).dialog( "close" );
                     $( "#dialog-message" ).remove();
                 }
             },
@@ -33,20 +35,20 @@ define(['app/util'], function (util) {
 
         $( "#dialog-message" ).dialog({
             modal: true,
+            close: function( event, ui ) {
+                $( this ).remove();
+            },
             buttons: {
                 Yes: function() {
                     $( this ).dialog( "close" );
-                    $( "#dialog-message" ).remove();
                     options.fn('yes');
                 },
                 No: function() {
                     $( this ).dialog( "close" );
-                    $( "#dialog-message" ).remove();
                     options.fn('no');
                 },
                 Cancel: function() {
                     $( this ).dialog( "close" );
-                    $( "#dialog-message" ).remove();
                     options.fn('cancel');
                 }
             }
@@ -61,9 +63,6 @@ define(['app/util'], function (util) {
         };
 
         options = $.extend({}, defaults, options);
-
-        //remove any other dialog
-        $( "#dialog-message" ).remove();
 
         //create dialog markup
         var inputType = options.password ? 'password' : 'text';
@@ -87,7 +86,6 @@ define(['app/util'], function (util) {
         function ok() {
             var value = $('#input').val();
             $( this ).dialog( "close" );
-            $( "#dialog-message" ).remove();
 
             options.fn('ok', value);
         }
@@ -96,12 +94,13 @@ define(['app/util'], function (util) {
         //open dialog
         var dialog = $( "#dialog-message" ).dialog({
             modal: true,
+            close: function( event, ui ) {
+                $( this ).remove();
+            },
             buttons: {
-                OK: options.fn('yes'),
+                OK: ok,
                 Cancel: function() {
                     $( this ).dialog( "close" );
-                    $( "#dialog-message" ).remove();
-
                     options.fn('cancel');
                 }
             }

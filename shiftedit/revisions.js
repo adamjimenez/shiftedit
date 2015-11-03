@@ -1,4 +1,4 @@
-define(['app/loading','app/tabs','jquery','ace','jsdiff'], function (loading, tabs) {
+define(['app/loading','app/tabs','jquery','ace/ace','jsdiff'], function (loading, tabs) {
 
 var revisionsEditor;
 

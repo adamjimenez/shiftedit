@@ -1,15 +1,17 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets'], function (exports) {
     var version = '17.0.0';
     var locale = require("app/lang");
-    var prefs = require("app/prefs");
+    var preferences = require("app/prefs");
 
     locale.load()
     .fail(function () {
         console.error("Cannot load language file");
     })
     .done(
-        prefs.load()
+        preferences.load()
         .done(function () {
+            var prefs = preferences.get_prefs();
+
             // yay!
             var tabs = require("app/tabs");
             tabs.init();
@@ -22,7 +24,10 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 
             site.load()
             .done(function() {
-                //require('app/restore').restoreBatch(prefs.getOpeningFilesBatch());
+                if(prefs.restoreTabs) {
+                    require('app/restore').restoreBatch(preferences.getOpeningFilesBatch());
+                }
+
                 var hash = require("app/hash").load();
             });
 
@@ -31,10 +36,12 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             var recent = require("app/recent");
             recent.load();
             var shortcuts = require("app/shortcuts");
+            shortcuts.load();
             var definitions = require("app/definitions");
             var find = require("app/find");
             var exit = require("app/exit");
             var notes = require("app/notes").init();
+            var snippets = require("app/snippets");
         })
     );
 

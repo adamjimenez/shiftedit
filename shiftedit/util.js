@@ -266,6 +266,14 @@ return {
 
         return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '');
     },
+    hexToRgb: function(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    },
     makeMenuText: function(text, key) {
 		if( !key ){
 			key ='';
@@ -291,6 +299,20 @@ return {
 
 		return $.extend({}, obj1b, obj2b);
 	},
+    rgbToHex: function(r, g, b) {
+        function componentToHex(c) {
+        	c = parseInt(c);
+
+        	if( isNaN(c) ){
+        		return '00';
+        	}
+
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    },
     selectFilename: function(){
         var pos = this.value.lastIndexOf('.');
 
@@ -307,11 +329,7 @@ return {
         });
         return paramObj;
     },
-    startsWith: function(haystack, needle) {
-        if(haystack)
-            return needle === "" || haystack.indexOf(needle) === 0;
-    },
-    sha1: function (str) {
+    sha1: function(str) {
         // http://kevin.vanzonneveld.net
         // +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
         // + namespaced by: Michael White (http://getsprink.com)
@@ -437,6 +455,10 @@ return {
 
         temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
         return temp.toLowerCase();
+    },
+    startsWith: function(haystack, needle) {
+        if(haystack)
+            return needle === "" || haystack.indexOf(needle) === 0;
     },
     utf8_encode: function( argString ) {
         // http://kevin.vanzonneveld.net

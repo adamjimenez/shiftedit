@@ -1,4 +1,4 @@
-define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading"], function (exports) {
+define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'aes'], function (exports) {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
@@ -6,6 +6,8 @@ var lang = require('app/lang').lang;
 var util = require('app/util');
 var ssl = require('app/ssl');
 var loading = require('app/loading');
+var preferences = require('app/prefs');
+var Aes = require('aes');
 
 var sites = [];
 var currentSite = storage.get('currentSite');
@@ -264,14 +266,13 @@ function init() {
         id: 'phpmyadmin',
         text: 'PhpMyAdmin',
         handler: function() {
+            var prefs = preferences.get_prefs();
     		var settings = getSettings(currentSite);
     		var password = settings.db_password;
 
-            /*
-    		if (prefs.useMasterPassword) {
-    			password = Aes.Ctr.decrypt(settings.db_password, localStorage.masterPassword, 256);
+    		if (prefs.useMasterPassword && password) {
+    			password = Aes.Ctr.decrypt(password, storage.get('masterPassword'), 256);
     		}
-    		*/
 
     		// create hidden form
     		var form = $('<form id="pma_form" method="post" target="_blank" action="'+settings.db_phpmyadmin+'">\
@@ -350,7 +351,11 @@ function init() {
     });
 }
 
-function open(siteId, password) {
+function open(siteId, options) {
+    if(!options) {
+        options = {};
+    }
+
     currentSite = null;
 
     var site = getSettings(siteId);
@@ -371,7 +376,8 @@ function open(siteId, password) {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: {
-	        password: password,
+	        password: options.password,
+	        masterPassword: options.masterPassword,
 	        save_password: 1
 	    }
     })
@@ -383,27 +389,30 @@ function open(siteId, password) {
             storage.set('currentSite', currentSite);
 
             //load file tree
-            var options = getAjaxOptions('/api/files?site='+siteId);
-            tree.setAjaxOptions(options);
+            var ajaxOptions = getAjaxOptions('/api/files?site='+siteId);
+            tree.setAjaxOptions(ajaxOptions);
 
             //enable site options
             enableMenuItems(site);
 
             //show tree
             $('#tree').show();
+
+            if(options.callback) {
+                options.callback();
+            }
         }else{
             if (data.require_password) {
     			loading.stop();
 
         		password = site.ftp_pass;
 
-        		/*
+				var prefs = preferences.get_prefs();
         		if (prefs.useMasterPassword) {
         			if (password) {
         				password = (Aes.Ctr.decrypt(password, storage.get('masterPassword'), 256));
         			}
         		}
-        		*/
 
     			prompt.prompt({
     			    title: 'Require server password for '+site.name,
@@ -413,16 +422,33 @@ function open(siteId, password) {
     			    fn: function(btn, password) {
     			        switch(btn) {
     			            case 'ok':
-                                /*
-    							var prefs = prefs.get_prefs();
+    			                options.password = password;
+
+    							var prefs = preferences.get_prefs();
     							if (prefs.useMasterPassword) {
-    								if (params.password) {
-    									params.password = Aes.Ctr.encrypt(params.password, storage.get('masterPassword'), 256);
+    								if (password) {
+    									options.password = Aes.Ctr.encrypt(password, storage.get('masterPassword'), 256);
     								}
     							}
-    							*/
 
-    							open(siteId, password);
+    							open(siteId, options);
+			                break;
+    			        }
+    			    }
+    			});
+            }else if (data.require_master_password) {
+    			loading.stop();
+
+    			prompt.prompt({
+    			    title: lang.requireMasterPasswordText,
+    			    msg: lang.passwordText,
+    			    password: true,
+    			    fn: function(btn, password) {
+    			        switch(btn) {
+    			            case 'ok':
+    							storage.set('masterPassword', preferences.createHash(password));
+    							options.masterPassword = storage.get('masterPassword');
+    							open(siteId, options);
 			                break;
     			        }
     			    }
@@ -646,10 +672,10 @@ function updateCategory() {
 }
 
 function chooseFolder() {
-    var options = getAjaxOptions('/api/files?site=');
-    var params = $.extend({}, options.params, util.serializeObject($('#siteSettings')));
+    var prefs = preferences.get_prefs();
+    var ajaxOptions = getAjaxOptions('/api/files?site=');
+    var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
 
-	/*
 	if (prefs.useMasterPassword) {
 		if (params.ftp_pass) {
 			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
@@ -658,7 +684,6 @@ function chooseFolder() {
 			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
 		}
 	}
-	*/
 
 	delete params.dir;
 	delete params.dir_id;
@@ -670,11 +695,11 @@ function chooseFolder() {
     var folderTree = $('#folderTree').jstree({
     	'core' : {
             'data' : function (node, callback) {
-                if(!options.url){
+                if(!ajaxOptions.url){
                     return false;
                 }
 
-        		$.ajax(options.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+        		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
         		    method: 'POST',
         		    dataType: 'json',
         		    data: params,
@@ -756,17 +781,6 @@ function test() {
         }
     }
 
-    /*
-	if (prefs.useMasterPassword) {
-		if (params.ftp_pass) {
-			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
-		}
-		if (params.db_password) {
-			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
-		}
-	}
-	*/
-
     var ajax;
 	if (!loading.start('Testing site '+site.name, function(){
 		console.log('abort testing site');
@@ -775,11 +789,21 @@ function test() {
 		return;
 	}
 
-    var options = getAjaxOptions('/api/sites?site=');
-    var params = $.extend({}, options.params, util.serializeObject($('#siteSettings')));
+    var ajaxOptions = getAjaxOptions('/api/sites?site=');
+    var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
+
+    var prefs = preferences.get_prefs();
+	if (prefs.useMasterPassword) {
+		if (params.ftp_pass) {
+			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
+		}
+		if (params.db_password) {
+			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
+		}
+	}
 
     ajax = $.ajax({
-        url: options.url+'&cmd=test',
+        url: ajaxOptions.url+'&cmd=test',
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params
@@ -873,6 +897,8 @@ function edit(newSite, duplicate) {
 	} else if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Education' && sites.length >= (5+1)) {
 		return prompt.alert({title: 'Quota exceeded', msg:'Education edition is limited to 5 sites. <a href="/premier" target="_blank">Go Premier</a>'});
 	}
+
+    var prefs = preferences.get_prefs();
 
 	//create dialog BEWARE UGLY LONG STRING!
     $( "body" ).append('<div id="dialog-site" title="Site settings">\
@@ -1025,7 +1051,7 @@ function edit(newSite, duplicate) {
                     </p>\
                     <p>\
                         <label for="name">Username:</label>\
-                        <input type="text" name="db_phpmyadmin" value="" class="text ui-widget-content ui-corner-all">\
+                        <input type="text" name="db_username" value="" class="text ui-widget-content ui-corner-all">\
                     </p>\
                     <p>\
                         <label for="name">Password:</label>\
@@ -1046,7 +1072,7 @@ function edit(newSite, duplicate) {
     };
     var settings = newSite ? defaults : getSettings();
 
-    if(duplicate) {
+    if(duplicate===true) {
         settings.name = 'Copy of '+settings.name;
         settings.id = '';
     }
@@ -1065,6 +1091,17 @@ function edit(newSite, duplicate) {
 		    }
 		}
     }
+
+    //passwords
+	if (prefs.useMasterPassword) {
+	    if(settings.ftp_pass) {
+		    $('input[name=ftp_pass').val(Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256));
+	    }
+
+	    if(settings.db_password) {
+		    $('input[name=db_password]').val(Aes.Ctr.decrypt(settings.db_password, storage.get('masterPassword'), 256));
+	    }
+	}
 
     //select ssh key
     $('#sshKey').click(function(){
@@ -1138,6 +1175,9 @@ function edit(newSite, duplicate) {
     //open dialog
     var dialog = $( "#dialog-site" ).dialog({
         modal: true,
+        close: function( event, ui ) {
+            $( this ).remove();
+        },
         buttons: {
             Connect: test,
             Save: function() {
@@ -1149,11 +1189,23 @@ function edit(newSite, duplicate) {
             		return;
             	}
 
+                var params = util.serializeObject($('#siteSettings'));
+
+                var prefs = preferences.get_prefs();
+            	if (prefs.useMasterPassword) {
+            		if (params.ftp_pass) {
+            			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
+            		}
+            		if (params.db_password) {
+            			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
+            		}
+            	}
+
                 ajax = $.ajax({
                     url: '/api/sites?cmd=save&site='+$('#siteSettings [name=id]').val(),
             	    method: 'POST',
             	    dataType: 'json',
-            	    data: $('#siteSettings').serialize()
+            	    data: params
                 })
                 .then(function (data) {
                     loading.stop();
@@ -1212,7 +1264,7 @@ function getSettings(val) {
         }
     });
 
-    return site;
+    return util.clone(site);
 }
 
 function getAjaxOptions(ajaxUrl) {
@@ -1227,12 +1279,9 @@ function getAjaxOptions(ajaxUrl) {
         		prompt.alert({title:lang.errorText, msg:'Missing web URL'});
         	}
 
-    		//var prefs = get_prefs();
-
     		//fixme prompt for master password
-    		//var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256) : settings.ftp_pass;
-
-    		var pass = settings.ftp_pass;
+    		var prefs = preferences.get_prefs();
+    		var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256) : settings.ftp_pass;
 
     		params = {
     			user: settings.ftp_user,
@@ -1262,6 +1311,7 @@ function getAjaxOptions(ajaxUrl) {
 
 exports.init = init;
 exports.load = load;
+exports.open = open;
 exports.active = active;
 exports.getSettings = getSettings;
 exports.getAjaxOptions = getAjaxOptions;

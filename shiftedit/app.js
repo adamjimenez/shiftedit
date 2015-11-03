@@ -13,23 +13,29 @@ requirejs.config({
         "jquery.menubar": "menubar/jquery.menubar",
         "ui.combobox": "combobox/ui.combobox",
         "jstree": "jstree/jstree",
-        "ace": "ace.20141108/src/ace",
-        "ace/split": 'ace.20141108/src/ext-split',
-        "ace/autocomplete": "ace.20141108/src/ext-language_tools",
+        "ace": "ace.20141108/src",
+        //"ace/split": 'ace.20141108/src/ext-split',
+        //"ace/autocomplete": "ace.20141108/src/ext-language_tools",
         "ace/mode/css/csslint": "ace.20141108/src/worker-css",
+        //"ace/ext/emmet": 'ace.20141108/src/ext-emmet',
         "firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
         "jsdiff": 'jsdiff/diff',
     },
     "shim": {
+        /*
+        "ace/ext/emmet": {
+            deps: ['emmet','ace/ace']
+        },
+        */
         "ace/mode/css/csslint": {
-            deps: ["ace"]
+            deps: ["ace/ace"]
         },
-        "ace/split": {
-            deps: ["ace"]
+        "ace/ext-split": {
+            deps: ["ace/ace"]
         },
-        "ace/autocomplete": {
-            deps: ["ace"]
+        "ace/ext-language_tools": {
+            deps: ["ace/ace"]
         },
         "jquery-ui": {
             exports: "$",
@@ -74,7 +80,7 @@ requirejs.config({
             deps: ['Firepad']
         },
         "firepad": {
-            deps: ['ace']
+            deps: ['ace/ace']
         },
         "app/ssh": {
             deps: ["https://ssh.shiftedit.net/socket.io/socket.io.js",'https://ssh.shiftedit.net/term.js']
