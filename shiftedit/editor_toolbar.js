@@ -143,7 +143,7 @@ var menu = [{
 	handler: function (tab) {
 		revisions.show(tab);
 	}
-}, {
+}, '->', {
 	id: 'syntaxErrorsButton',
 	tooltip: 'Syntax Errors',
 	text: '<i class="fa fa-warning"></i>',
