@@ -346,8 +346,7 @@ function uploadByURl() {
                 <button type="button" class="delete">X</button>\
             </p>\
             <p>\
-                <label>Extract:</label>\
-                <input type="checkbox" name="extract" value="1" disabled>\
+                <label><input type="checkbox" name="extract" value="1" disabled> extract archive</label>\
             </p>\
         </fieldset>\
       </form>\
@@ -383,7 +382,7 @@ function uploadByURl() {
     //open dialog
     var dialog = $( "#dialog-uploadUrl" ).dialog({
         modal: true,
-        width: 400,
+        width: 550,
         height: 300,
         buttons: {
             OK: function() {
