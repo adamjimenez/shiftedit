@@ -685,3 +685,11 @@ div.buttons {
 	display: block;
 	background: white;
 }
+
+.preview_toolbar, .preview_toolbar .custom-combobox{
+    display: flex;
+}
+
+.preview_toolbar .custom-combobox, .preview_toolbar .custom-combobox-input{
+    flex: 2;
+}

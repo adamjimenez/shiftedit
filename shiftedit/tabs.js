@@ -1,4 +1,4 @@
-define(['app/editors', 'app/prefs', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh'], function (editors, preferences, exports) {
+define(['app/editors', 'app/prefs', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview'], function (editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -265,12 +265,14 @@ function saveFiles(options) {
                     tab.data('overwrite', 0);
                     tab.data('mdate', data.last_modified);
 
-                    //continue with next save
                     delete saving[tab.attr('id')];
+                    tab.trigger('save');
 
+                    //continue with next save
                     if (Object.keys(saving).length) {
                         saveFiles(options);
                     }else if (options.callback) {
+                        tab.closest('.ui-tabs').trigger('save');
                         options.callback(tab);
                     }
                 }
