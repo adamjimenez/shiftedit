@@ -10,10 +10,168 @@ var options = {};
 var tree;
 var confirmed = false;
 var r;
-var uploadStarted =false;
+var uploadStarted = false;
+var clipboard = {files:[], site: null};
+var queue = [];
 
 var reference;
 var inst;
+
+function findChild(parent, name) {
+	for( i=0; i<parent.children.length; i++ ){
+	    var node = inst.get_node(parent.children[i]);
+
+	    if(node.text==name) {
+	        return node;
+	    }
+	}
+	return false;
+}
+
+function cut(nodes) {
+    copy(nodes, true);
+}
+
+function copy(nodes, cut) {
+	clipboard.cut = cut ? true : false;
+	clipboard.files = util.clone(nodes);
+	clipboard.site = site.active();
+	console.log('nodes copied');
+}
+
+function findAvailableName(d, text) {
+    //if src and dest folder are the same then rename
+	var i = 0;
+	var newName = text;
+	while(findChild(d, newName)!==false) {
+		i++;
+		var pos = text.indexOf('.');
+		var copyStr = ' - copy ['+i+']';
+
+		if(pos == -1) {
+			newName = text + copyStr;
+		}else{
+			newName = text.substr(0, pos) + copyStr + text.substr(pos, text.length-pos);
+		}
+	}
+
+	return newName;
+}
+
+function paste(node) {
+	if (clipboard.files.length === 0) {
+		return;
+	}
+
+	//get nearest folder
+	var d = node.type == 'default' ? node : inst.get_node(node.parent);
+
+	//get list of files and paste them
+	buildQueue(clipboard.files, d);
+}
+
+function duplicate(nodes) {
+	if(!nodes || nodes.length === 0) {
+		return false;
+	}
+
+    //no dest as we copy to the same folder
+	clipboard.dest = null;
+
+	//get list of files and copy them
+	buildQueue(nodes);
+}
+
+function buildQueue(nodes, d) {
+    var node;
+	if(nodes.length) {
+		node = nodes.shift();
+	} else {
+		//console.log(queue); return;
+		_processQueue(queue);
+		return;
+	}
+
+	var parent = d ? d : inst.get_node(node.parent);
+	var dest = parent.id;
+	var path = node.id;
+	var newName = node.text;
+    if(node.id == dest+'/'+newName) {
+    	newName = findAvailableName(parent, newName);
+	}
+
+	queue.push({
+		path: path,
+		dest: dest+'/'+newName,
+		isDir: (node.type!=='file')
+	});
+
+	if (node.type=='file') {
+		buildQueue(nodes, d);
+	}else{
+		//get file list
+    	var url = options.url;
+    	if(url.indexOf('?')==-1) {
+    		url+='?';
+    	} else {
+    		url+='&';
+    	}
+    	url += 'cmd=list_all';
+
+		loading.fetch(url, {
+			data: {
+				path: path,
+				site: clipboard.site
+			},
+			success: function (data) {
+				for( i=0; i<data.files.length; i++ ){
+					queue.push({
+						path: data.files[i].path,
+						dest: dest +'/' + newName + data.files[i].path.substr(path.length),
+						isDir: data.files[i].isDir
+					});
+				}
+
+				buildQueue(nodes, d);
+			}
+		});
+	}
+}
+
+function _processQueue(queue) {
+	if (queue.length) {
+		var item = queue.shift();
+
+    	var url = options.url;
+    	if(url.indexOf('?')==-1) {
+    		url+='?';
+    	}else{
+    		url+='&';
+    	}
+    	url += 'cmd=paste';
+
+		loading.fetch(url, {
+			data: {
+				dest: item.dest,
+				path: item.path,
+				isDir: item.isDir,
+				site: clipboard.site,
+				cut: clipboard.cut
+			},
+			success: function (result, request) {
+				_processQueue(queue);
+			}
+		});
+	} else {
+		if(clipboard.dest) {
+			tree.jstree(true).refresh_node(clipboard.dest);
+		}else{
+			refresh();
+		}
+
+		loading.stop();
+	}
+}
 
 //given a path will select the file
 function select(path) {
@@ -604,15 +762,12 @@ function getDir(node) {
 function init() {
     var chunkedUploads = false;
     r = new Resumable({
-        //target: _this.url,
         testChunks: false,
         query: {
             cmd: 'upload',
-            chunked: 1,
-            //path: _this.getPath(_this.node)
+            chunked: 1
         },
-        withCredentials: true,
-        //node: _this.node
+        withCredentials: true
     });
 
     r.assignDrop($('#tree'));
@@ -655,7 +810,7 @@ function init() {
 		//clear upload queue so you can upload the same file
 		r.cancel();
 
-		//_this.setUrl(_this.url);
+		//setUrl(url);
         refresh();
 	});
 
@@ -690,7 +845,7 @@ function init() {
 
     tree = $('#tree')
     .jstree({
-    	'core' : {
+    	'core': {
     	    /*
     		'data' : {
     			'url' : '',
@@ -698,7 +853,7 @@ function init() {
     				return { 'id' : node.id };
     			}
     		},*/
-            'data' : function (node, callback) {
+            'data': function (node, callback) {
                 //console.log(node);
 
                 if(!options.url){
@@ -715,7 +870,7 @@ function init() {
         		    }
         		});
             },
-    		'check_callback' : function(o, n, p, i, m) {
+    		'check_callback': function(o, n, p, i, m) {
             	var t = this;
 
     			if(m && m.dnd && m.pos !== 'i') { return false; }
@@ -749,11 +904,11 @@ function init() {
 
     			return true;
     		},
-    		'force_text' : true,
-    		'themes' : {
-    			'responsive' : false,
-    			'variant' : 'small',
-    			'stripes' : true
+    		'force_text': true,
+    		'themes': {
+    			'responsive': false,
+    			'variant': 'small',
+    			'stripes': true
     		}
     	},
     	'sort' : function(a, b) {
@@ -767,65 +922,65 @@ function init() {
     			    "create": {
                         "label": "New",
                         "submenu": {
-							"create_folder" : {
-								"separator_after"	: true,
-								"label"				: "Folder",
-								"action"			: newFolder
+							"create_folder": {
+								"separator_after": true,
+								"label": "Folder",
+								"action": newFolder
 							},
-							"create_html" : {
-								"label"				: "HTML file",
-								"action"			: newFile,
+							"create_html": {
+								"label": "HTML file",
+								"action": newFile,
 								"extension": 'html'
 							},
-							"create_php" : {
-								"label"				: "PHP file",
-								"action"			: newFile,
+							"create_php": {
+								"label": "PHP file",
+								"action": newFile,
 								"extension": 'php'
 							},
-							"create_css" : {
-								"label"				: "CSS file",
-								"action"			: newFile,
+							"create_css": {
+								"label": "CSS file",
+								"action": newFile,
 								"extension": 'css'
 							},
-							"create_js" : {
-								"label"				: "JS file",
-								"action"			: newFile,
+							"create_js": {
+								"label": "JS file",
+								"action": newFile,
 								"extension": 'js'
 							},
-							"create_json" : {
-								"label"				: "JSON file",
-								"action"			: newFile,
+							"create_json": {
+								"label": "JSON file",
+								"action": newFile,
 								"extension": 'json'
 							},
-							"create_htaccess" : {
-								"label"				: "Htaccess file",
-								"action"			: newFile,
+							"create_htaccess": {
+								"label": "Htaccess file",
+								"action": newFile,
 								"extension": 'htaccess',
 								"name": ''
 							},
-							"create_ruby" : {
-								"label"				: "Ruby file",
-								"action"			: newFile,
+							"create_ruby": {
+								"label": "Ruby file",
+								"action": newFile,
 								"extension": 'rb'
 							},
-							"create_python" : {
-								"label"				: "Python file",
-								"action"			: newFile,
+							"create_python": {
+								"label": "Python file",
+								"action": newFile,
 								"extension": 'py'
 							},
-							"create_perl" : {
-								"label"				: "Perl file",
-								"action"			: newFile,
+							"create_perl": {
+								"label": "Perl file",
+								"action": newFile,
 								"extension": 'pl'
 							},
-							"create_text" : {
-								"label"				: "Text file",
-								"action"			: newFile,
+							"create_text": {
+								"label": "Text file",
+								"action": newFile,
 								"extension": 'txt'
 							},
-							"create_xml" : {
-								"label"				: "XML file",
-								"action"			: newFile,
+							"create_xml": {
+								"label": "XML file",
+								"action": newFile,
 								"extension": 'xml'
 							}
 						}
@@ -837,11 +992,11 @@ function init() {
 								"label": "Open",
 								action: open
 							},
-							"open_tab" : {
+							"open_tab": {
 								"label": "Open in new browser tab",
 								action: openTab
 							},
-							"download" : {
+							"download": {
 								"label": "Download",
 								action: downloadFile
 							},
@@ -858,15 +1013,9 @@ function init() {
                                 "separator_before": false,
                                 "separator_after": false,
                                 "label": "Cut",
-    							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
-    								if(inst.is_selected(obj)) {
-    									inst.cut(inst.get_top_selected());
-    								}
-    								else {
-    									inst.cut(obj);
-    								}
+    							"action": function (data) {
+                                    var instance = $.jstree.reference(data.reference);
+                                    cut(instance.get_selected(true));
     							}
                             },
                             "copy": {
@@ -876,29 +1025,23 @@ function init() {
                                 "label": "Copy",
                                 "shortcut": 67,
                                 "shortcut_label": "C",
-    							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
-    								if(inst.is_selected(obj)) {
-    									inst.copy(inst.get_top_selected());
-    								}
-    								else {
-    									inst.copy(obj);
-    								}
+    							"action": function (data) {
+                                    var instance = $.jstree.reference(data.reference);
+                                    copy(instance.get_selected(true));
     							}
                             },
                             "paste": {
                                 "separator_before": false,
                                 "icon": false,
-    							"_disabled"			: function (data) {
-    								return !$.jstree.reference(data.reference).can_paste();
+    							"_disabled": function (data) {
+    								//return !$.jstree.reference(data.reference).can_paste(true);
+    								return (clipboard.files.length===0);
     							},
                                 "separator_after": false,
                                 "label": "Paste",
-    							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
-    								inst.paste(obj);
+    							"action": function (data) {
+                                    var instance = $.jstree.reference(data.reference);
+                                    paste(inst.get_top_selected(true)[0]);
     							}
                             },
                             "rename": {
@@ -906,10 +1049,10 @@ function init() {
                                 "separator_after": false,
                                 "_disabled": false,
                                 "label": "Rename",
-            					"shortcut"			: 113,
-            					"shortcut_label"	: 'F2',
-            					"icon"				: "glyphicon glyphicon-leaf",
-            					"action"			: function (data) {
+            					"shortcut": 113,
+            					"shortcut_label": 'F2',
+            					"icon": "glyphicon glyphicon-leaf",
+            					"action": function (data) {
             						var inst = $.jstree.reference(data.reference),
             							obj = inst.get_node(data.reference);
             						inst.edit(obj);
@@ -923,7 +1066,7 @@ function init() {
                                 "label": "Delete",
                                 "shortcut": 46,
                                 "shortcut_label": "Del",
-            					"action"			: function (data) {
+            					"action": function (data) {
             						var inst = $.jstree.reference(data.reference),
             							obj = inst.get_node(data.reference);
             						if(inst.is_selected(obj)) {
@@ -937,15 +1080,11 @@ function init() {
                             "duplicate": {
                                 "separator_before": false,
                                 "icon": false,
-    							"_disabled": function (data) {
-    								return !$.jstree.reference(data.reference).can_paste();
-    							},
                                 "separator_after": false,
-                                "label": "Paste",
+                                "label": "Duplicate",
     							"action": function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
-    								inst.paste(obj);
+                                    var instance = $.jstree.reference(data.reference);
+                                    duplicate(instance.get_selected(true));
     							}
                             }
                         }
@@ -962,11 +1101,11 @@ function init() {
         						//icon: 'upload',
         						action: upload
         					},
-        					"upload_folder" : {
+        					"upload_folder": {
         						"label": "Folder",
         						action: uploadFolder
         					},
-        					"upload_url" : {
+        					"upload_url": {
         						"label": "URL",
         						action: uploadByURl
         					}
@@ -991,7 +1130,7 @@ function init() {
 						action: downloadZip
 					},
 					"reload": {
-						"label" : "Reload",
+						"label": "Reload",
 						action: refresh
 					},
 					"chmod": {
@@ -1261,7 +1400,6 @@ function init() {
             				node = nodes[i];
 
             				var from = $(tab).data('file');
-            				//var to = tree.getPath(node);
             				var to = node;
             				var path = '';
 
