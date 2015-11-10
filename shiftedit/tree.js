@@ -6,7 +6,7 @@ var prompt = require('app/prompt');
 var tabs = require('app/tabs');
 var loading = require('app/loading');
 var site = require('app/site');
-var options = {};
+var ajaxOptions = {};
 var tree;
 var confirmed = false;
 var r;
@@ -16,6 +16,7 @@ var queue = [];
 
 var reference;
 var inst;
+var treeFn;
 
 function findChild(parent, name) {
 	for( i=0; i<parent.children.length; i++ ){
@@ -110,7 +111,7 @@ function buildQueue(nodes, d) {
 		buildQueue(nodes, d);
 	}else{
 		//get file list
-    	var url = options.url;
+    	var url = ajaxOptions.url;
     	if(url.indexOf('?')==-1) {
     		url+='?';
     	} else {
@@ -142,7 +143,7 @@ function _processQueue(queue) {
 	if (queue.length) {
 		var item = queue.shift();
 
-    	var url = options.url;
+    	var url = ajaxOptions.url;
     	if(url.indexOf('?')==-1) {
     		url+='?';
     	}else{
@@ -252,13 +253,13 @@ function extract(data) {
 		}
 	};
 
-	var url = options.url;
+	var url = ajaxOptions.url;
 	if( url.indexOf('?')==-1 ){
 		url+='?';
 	}else{
 		url+='&';
 	}
-	url += 'cmd=extract&site='+options.site+'&file='+file;
+	url += 'cmd=extract&site='+ajaxOptions.site+'&file='+file;
 
 	loading.start('Extracting ' + file, abortFunction);
 	var source = new EventSource(url, {withCredentials: true});
@@ -306,13 +307,13 @@ function downloadZip(data) {
 	};
 	loading.start('Compressing ' + file, abortFunction);
 
-	var url = options.url;
+	var url = ajaxOptions.url;
 	if( url.indexOf('?')==-1 ){
 		url+='?';
 	}else{
 		url+='&';
 	}
-	url += 'cmd=compress&site='+options.site+'&file='+file;
+	url += 'cmd=compress&site='+ajaxOptions.site+'&file='+file;
 
 	var source = new EventSource(url, {withCredentials: true});
 
@@ -354,7 +355,7 @@ function downloadFile(data) {
 
 	var file = node.id;
 
-    loading.fetch(options.url+'&cmd=download&file='+file, {
+    loading.fetch(ajaxOptions.url+'&cmd=download&file='+file, {
         action: 'downloading file',
         success: function(data) {
             var blob = util.b64toBlob(data.content);
@@ -388,12 +389,12 @@ function processUploads() {
 
         //check exists
         loading.stop();
-        loading.fetch(options.url+'&cmd=file_exists&file='+folder, {
+        loading.fetch(ajaxOptions.url+'&cmd=file_exists&file='+folder, {
             action: 'Checking '+folder,
             success: function(data) {
                 if(data.file_exists===false) {
                     loading.stop();
-                    loading.fetch(options.url+'&cmd=newdir&dir='+folder, {
+                    loading.fetch(ajaxOptions.url+'&cmd=newdir&dir='+folder, {
                         action: 'Uploading '+folder,
                         success: function(data) {
                             processUploads();
@@ -408,7 +409,7 @@ function processUploads() {
         var file = uploadFiles.shift();
 
         loading.stop();
-        loading.fetch(options.url+'&cmd=upload', {
+        loading.fetch(ajaxOptions.url+'&cmd=upload', {
             action: 'uploading '+file.path,
             data: {
                 file: file.path,
@@ -556,7 +557,7 @@ function uploadByURl() {
         		var parent = getDir(node);
         		var path = parent.id;
 
-                loading.fetch(options.url+'&cmd=uploadByURL', {
+                loading.fetch(ajaxOptions.url+'&cmd=uploadByURL', {
                     data: {
                         url: url,
                         path: path
@@ -608,7 +609,7 @@ function open(data) {
 
 	if(selected && selected.length) {
 	    var file = selected.join(':');
-	    tabs.open(file, options.site);
+	    tabs.open(file, site.active());
 	}
 }
 
@@ -621,7 +622,7 @@ function openTab(data) {
         return;
     }
 
-    var settings = site.getSettings(options.site);
+    var settings = site.getSettings(ajaxOptions.site);
 	window.open('//' + location.host + location.pathname + '#' + settings.name + '/' + node.id);
 }
 
@@ -730,7 +731,7 @@ function chmod(data) {
                 var node = getSelected()[0];
                 var mode = $('#chmod-value').val();
 
-                loading.fetch(options.url+'&cmd=chmod&file='+node.id+'&mode='+mode, {
+                loading.fetch(ajaxOptions.url+'&cmd=chmod&file='+node.id+'&mode='+mode, {
                     action: 'chmod file',
                     success: function(data) {
                         node.data.perms = mode;
@@ -828,7 +829,7 @@ function init() {
             r.opts.chunkSize = 20*1024*1024;
         }
 
-        r.opts.target = options.url+'&cmd=upload';
+        r.opts.target = ajaxOptions.url+'&cmd=upload';
         r.opts.withCredentials = true;
 
         var node = getSelected()[0];
@@ -855,20 +856,23 @@ function init() {
     		},*/
             'data': function (node, callback) {
                 //console.log(node);
+                if (treeFn) {
+                    treeFn({node: node, callback: callback});
+                }else{
+                    if(!ajaxOptions.url){
+                        return false;
+                    }
 
-                if(!options.url){
-                    return false;
+            		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+            		    method: 'POST',
+            		    dataType: 'json',
+            		    data: ajaxOptions.params,
+            		    success: function(data) {
+            		        //console.log(data);
+                            callback.call(tree, data.files);
+            		    }
+            		});
                 }
-
-        		$.ajax(options.url+'&cmd=list&path='+encodeURIComponent(node.id), {
-        		    method: 'POST',
-        		    dataType: 'json',
-        		    data: options.params,
-        		    success: function(data) {
-        		        //console.log(data);
-                        callback.call(tree, data.files);
-        		    }
-        		});
             },
     		'check_callback': function(o, n, p, i, m) {
             	var t = this;
@@ -1197,52 +1201,68 @@ function init() {
     			data.instance.refresh();
     		});*/
 
-		$.ajax(options.url+'&cmd=delete&file='+data.node.id, {
-		    method: 'POST',
-		    dataType: 'json',
-		    data: options.params,
-		    /*
-		    data: options.params,
-		    success: function(data) {
-                callback.call(tree, data);
-		    }
-		    */
-		})
-		.fail(function () {
-			data.instance.refresh();
-		});
-    })
-    .on('create_node.jstree', function (e, data) {
-    	$.get(options.url+'&cmd=newfile', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
-    		.done(function (d) {
-    			data.instance.set_id(data.node, d.id);
+        if (treeFn) {
+            treeFn({cmd: 'delete', file: data.node.id});
+        }else{
+    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+data.node.id, {
+    		    method: 'POST',
+    		    dataType: 'json',
+    		    data: ajaxOptions.params,
+    		    /*
+    		    data: ajaxOptions.params,
+    		    success: function(data) {
+                    callback.call(tree, data);
+    		    }
+    		    */
     		})
     		.fail(function () {
     			data.instance.refresh();
     		});
+        }
+    })
+    .on('create_node.jstree', function (e, data) {
+        if (treeFn) {
+            var cmd = (data.node.type=='default') ? 'newdir' : 'newfile';
+            var parent = inst.get_node(data.node.parent);
+            treeFn({cmd: cmd, title: data.node.text, parent: parent.id, callback: function(response) {
+                data.instance.set_id(data.node, response.file);
+            }});
+        }else{
+        	$.get(ajaxOptions.url+'&cmd=newfile', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
+        		.done(function (d) {
+        			data.instance.set_id(data.node, d.id);
+        		})
+        		.fail(function () {
+        			data.instance.refresh();
+        		});
+        }
     })
     .on('rename_node.jstree', function (e, data) {
-        var params = util.clone(options.params);
-        params.oldname = data.node.id;
-        params.newname = util.dirname(params.oldname)+'/'+data.text;
-        params.site = options.site;
+        if (treeFn) {
+            treeFn({cmd: 'rename', file: data.node.id, newname: data.text});
+        }else{
+            var params = util.clone(ajaxOptions.params);
+            params.oldname = data.node.id;
+            params.newname = util.dirname(params.oldname)+'/'+data.text;
+            params.site = ajaxOptions.site;
 
-		$.ajax(options.url+'&cmd=rename', {
-		    method: 'POST',
-		    dataType: 'json',
-		    data: params
-		})
-		.done(function (d) {
-		    if(!d.success){
-		        prompt.alert({title:'Error', msg:d.error});
-		    }else{
-    		    data.instance.set_id(data.node, params.newname);
-		        $('#tree').trigger('rename', params);
-		    }
-    	})
-    	.fail(function () {
-    		data.instance.refresh();
-    	});
+    		$.ajax(ajaxOptions.url+'&cmd=rename', {
+    		    method: 'POST',
+    		    dataType: 'json',
+    		    data: params
+    		})
+    		.done(function (d) {
+    		    if(!d.success){
+    		        prompt.alert({title:'Error', msg:d.error});
+    		    }else{
+        		    data.instance.set_id(data.node, params.newname);
+    		        $('#tree').trigger('rename', params);
+    		    }
+        	})
+        	.fail(function () {
+        		data.instance.refresh();
+        	});
+        }
 
     	//$.get('/app/?cmd=rename_node', { 'id' : data.node.id, 'text' : data.text })
 
@@ -1264,23 +1284,30 @@ function init() {
     	});
 
         function doMove() {
-            var params = util.clone(options.params);
-            params.oldname = data.node.id;
-            params.newname = data.parent+'/'+util.basename(data.node.id);
-            params.site = options.site;
+            function moveCallback() {
+                //data.instance.load_node(data.parent);
+    			data.instance.refresh();
+            }
 
-    		$.ajax(options.url+'&cmd=rename', {
-    		    method: 'POST',
-    		    dataType: 'json',
-    		    data: params
-    		})
-    		.done(function (d) {
-    			//data.instance.load_node(data.parent);
-    			data.instance.refresh();
-    		})
-    		.fail(function () {
-    			data.instance.refresh();
-    		});
+            var parent = inst.get_node(data.parent);
+            if (treeFn) {
+                treeFn({cmd: 'rename', file: data.node.id, newname: data.node.text, parent: parent.id, callback: moveCallback});
+            }else{
+                var params = util.clone(ajaxOptions.params);
+                params.oldname = data.node.id;
+                params.newname = data.parent+'/'+util.basename(data.node.id);
+                params.site = ajaxOptions.site;
+
+        		$.ajax(ajaxOptions.url+'&cmd=rename', {
+        		    method: 'POST',
+        		    dataType: 'json',
+        		    data: params
+        		})
+        		.done(moveCallback)
+        		.fail(function () {
+        			data.instance.refresh();
+        		});
+            }
         }
     })
     .on('copy_node.jstree', function (e, data) {
@@ -1327,7 +1354,7 @@ function init() {
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
     	    var file = data.selected.join(':');
-    	    tabs.open(file, options.site);
+    	    tabs.open(file, ajaxOptions.site);
     	}
     	else {
     		$('#data .content').hide();
@@ -1448,16 +1475,23 @@ function init() {
     inst = $.jstree.reference(reference);
 }
 
+function getNode(file){
+    return tree.jstree(true).get_node(file);
+}
+
 function refresh() {
     tree.jstree(true).refresh();
 }
 
 function setAjaxOptions(siteOptions) {
-    options = siteOptions;
-    tree.jstree(true).settings.core.data.url = options.url;
-
-    //tree.jstree('create_node', '#', {'id' : 'myId', 'text' : 'My Text'}, 'last');
-
+    if(typeof siteOptions == 'function') {
+        ajaxOptions = null;
+        treeFn = siteOptions;
+    } else {
+        ajaxOptions = siteOptions;
+        treeFn = null;
+        tree.jstree(true).settings.core.data.url = ajaxOptions.url;
+    }
     refresh();
 }
 
@@ -1465,7 +1499,8 @@ return {
     init: init,
     setAjaxOptions: setAjaxOptions,
     refresh: refresh,
-    select: select
+    select: select,
+    getNode: getNode
 };
 
 });

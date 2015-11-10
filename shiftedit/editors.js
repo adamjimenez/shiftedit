@@ -471,8 +471,13 @@ function create(file, content, siteId, options) {
         options = {};
     }
 
+    var title = file;
+    if(options.title) {
+        title = options.title;
+    }
+
     //create tab
-	tab = $(".ui-layout-center").tabs('add', file, '<div class="editor_toolbar"></div>\
+	tab = $(".ui-layout-center").tabs('add', title, '<div class="editor_toolbar"></div>\
 	<div class="editor_status" data-currentError="0">\
     <button class="previous" type="button" disabled>\
     <i class="fa fa-arrow-left"></i></button> \
@@ -487,7 +492,8 @@ function create(file, content, siteId, options) {
     tab.addClass('closable');
 	tab.data(file, file);
 	tab.attr('data-file', file);
-	tab.attr('title', file);
+	tab.data(title, title);
+	tab.attr('data-title', title);
 
 	if(siteId) {
 	    tab.data('site', siteId);
@@ -921,7 +927,7 @@ function setMode(editor, mode) {
 
 				//console.log(options);
 
-                editor.session.$worker.send("changeOptions",[ options ])
+                editor.session.$worker.send("changeOptions",[ options ]);
                 // or
                 //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
 			break;
@@ -937,7 +943,7 @@ function setMode(editor, mode) {
 				});
 				//console.log(disable_rules);
 
-                editor.session.$worker.send("setDisabledRules", [disable_rules])
+                editor.session.$worker.send("setDisabledRules", [disable_rules]);
                 // or
                 //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
 			break;

@@ -84,6 +84,9 @@ requirejs.config({
         },
         "app/ssh": {
             deps: ["https://ssh.shiftedit.net/socket.io/socket.io.js",'https://ssh.shiftedit.net/term.js']
+        },
+        "app/gdrive": {
+            deps: ["https://apis.google.com/js/client.js"]
         }
     }
 });
