@@ -13,10 +13,10 @@ var r;
 var uploadStarted = false;
 var clipboard = {files:[], site: null};
 var queue = [];
-
 var reference;
 var inst;
 var treeFn;
+var singleClickOpen = false;
 
 function findChild(parent, name) {
 	for( i=0; i<parent.children.length; i++ ){
@@ -1345,6 +1345,13 @@ function init() {
             }
         }
     })
+    .on('click','a',function (e, data) {
+        if(singleClickOpen){
+            open({
+                reference: this
+            });
+        }
+    })
     .on('dblclick','a',function (e, data) {
         open({
             reference: this
@@ -1495,13 +1502,18 @@ function setAjaxOptions(siteOptions) {
     refresh();
 }
 
+function setSingleClickOpen(value) {
+    singleClickOpen = value;
+}
+
 return {
     init: init,
     setAjaxOptions: setAjaxOptions,
     refresh: refresh,
     select: select,
     getNode: getNode,
-    findChild: findChild
+    findChild: findChild,
+    setSingleClickOpen: setSingleClickOpen
 };
 
 });
