@@ -1,15 +1,15 @@
-  .custom-combobox {
+.custom-combobox {
     position: relative;
     display: inline-block;
-  }
-  .custom-combobox-toggle {
-    position: absolute;
+}
+.custom-combobox-toggle {
+    position: absolute !important;
     top: 0;
     bottom: 0;
     margin-left: -1px;
     padding: 0;
-  }
-  .custom-combobox-input {
+}
+.custom-combobox-input {
     margin: 0;
     padding: 5px 10px;
-  }
+}
