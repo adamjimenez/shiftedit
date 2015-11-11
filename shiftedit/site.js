@@ -1,4 +1,4 @@
-define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'aes'], function (exports) {
+define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'aes', 'app/gdrive'], function (exports) {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
@@ -7,7 +7,9 @@ var util = require('app/util');
 var ssl = require('app/ssl');
 var loading = require('app/loading');
 var preferences = require('app/prefs');
+var gdrive = require('app/gdrive');
 var Aes = require('aes');
+var directFn;
 
 var sites = [];
 var currentSite = storage.get('currentSite');
@@ -371,6 +373,21 @@ function open(siteId, options) {
 		return;
 	}
 
+    if(['GDrive','GDriveLimited'].indexOf(site.server_type)!=-1) {
+        gdrive.fullAccess = (site.server_type === 'GDrive');
+
+		gdrive.authorise(function(){
+		    loading.stop();
+            tree.setAjaxOptions(gdrive.directFn);
+            enableMenuItems(site);
+            $('#tree').show();
+            directFn = gdrive.directFn;
+		});
+
+        return;
+    }
+
+    directFn = null;
     ajax = $.ajax({
         url: '/api/sites?site='+siteId,
 	    method: 'POST',
@@ -640,6 +657,20 @@ function updateCategory() {
         categories[category].forEach(function(field){
             $('#'+field).show();
         });
+
+        if( ['GDrive', 'GDriveLimited', 'Dropbox', 'AmazonS3'].indexOf(category) !== -1 ){
+            $('[name=serverTypeItem][value=Cloud]').attr("checked", "checked").button('refresh');
+
+            if( ['GDrive', 'GDriveLimited'].indexOf(category) !== -1 ){
+                $('[name=cloud][value=GDrive]').attr("checked", "checked").button('refresh');
+            } else {
+                $('[name=cloud][value=' + category + ']').attr("checked", "checked").button('refresh');
+            }
+        } else if( ['AJAX', 'WebDAV'].indexOf(category) !== -1 ) {
+            $('[name=serverTypeItem][value=Other]').attr("checked", "checked").button('refresh');
+        } else {
+            $('[name=serverTypeItem][value=' + category + ']').attr("checked", "checked").button('refresh');
+        }
     }
 
     //domain placeholder
@@ -695,18 +726,22 @@ function chooseFolder() {
     var folderTree = $('#folderTree').jstree({
     	'core' : {
             'data' : function (node, callback) {
-                if(!ajaxOptions.url){
-                    return false;
-                }
+                if( ['GDrive', 'GDriveLimited'].indexOf(params.server_type) !== -1 ){
+                    gdrive.directFn({node: node, callback: callback});
+                }else{
+                    if(!ajaxOptions.url){
+                        return false;
+                    }
 
-        		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
-        		    method: 'POST',
-        		    dataType: 'json',
-        		    data: params,
-        		    success: function(data) {
-                        callback.call(tree, data.files);
-        		    }
-        		});
+            		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+            		    method: 'POST',
+            		    dataType: 'json',
+            		    data: params,
+            		    success: function(data) {
+                            callback.call(tree, data.files);
+            		    }
+            		});
+                }
             }
     	}
     });
@@ -728,15 +763,18 @@ function chooseFolder() {
 						parent = node;
 					}
 
-					setSiteValues({
-					    dir: node.id,
-					    dir_id: node.id
-					});
+					var dir = node.id;
 
 					//set web url for gdrive (https://googledrive.com/host/0B716ywBKT84AMXBENXlnYmJISlE/GoogleDriveHosting.html)
 					if( params.server_type == 'GDrive' || params.server_type == 'GDriveLimited' ){
-						Ext.getCmp('formSettings').getForm().findField('web_url').setValue('https://googledrive.com/host/'+node.get('id')+'/');
+						$('input[name=web_url]').val('https://googledrive.com/host/'+node.id+'/');
+						dir = node.text;
 					}
+
+					setSiteValues({
+					    dir: dir,
+					    dir_id: node.id
+					});
 				}
 
                 $( this ).dialog( "close" );
@@ -750,23 +788,10 @@ function chooseFolder() {
     });
 
 	if(params.server_type == 'GDrive' || params.server_type == 'GDriveLimited'){
-		chooseFolderTree.getStore().setProxy({
-			type: 'direct',
-			directFn: gdrive.treeFn,
-			paramOrder: 'id',
-			reader:{
-				type:'json',
-			}
-		});
-
-		chooseFolderTree.directFn = gdrive.directFn;
-
         gdrive.fullAccess = (params.server_type === 'GDrive');
-		gdrive.authorise(function(){
-		    chooseFolderTree.reload();
-		});
-	}else{
-		//chooseFolderTree.reload();
+    	gdrive.authorise(function(){
+    	    folderTree.jstree(true).refresh();
+    	});
 	}
 }
 
@@ -1022,6 +1047,7 @@ function edit(newSite, duplicate) {
                     </p>\
                     <p id="dir_container">\
                         <label for="name">Path:</label>\
+                        <input type="hidden" name="dir_id" value="">\
                         <input type="text" name="dir" value="" class="text ui-widget-content ui-corner-all">\
                         <button type="button" id="chooseFolder">Choose</button>\
                     </p>\
@@ -1172,6 +1198,7 @@ function edit(newSite, duplicate) {
 
     updateCategory();
 
+
     //open dialog
     var dialog = $( "#dialog-site" ).dialog({
         modal: true,
@@ -1315,5 +1342,6 @@ exports.open = open;
 exports.active = active;
 exports.getSettings = getSettings;
 exports.getAjaxOptions = getAjaxOptions;
+exports.getdirectFn = function(){ return directFn; };
 
 });

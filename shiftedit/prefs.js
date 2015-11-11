@@ -1,4 +1,4 @@
-define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading'], function (exports, editors) {
+define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree'], function (exports, editors) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
@@ -7,6 +7,7 @@ var layout = require('app/layout');
 var util = require('app/util');
 var prompt = require('app/prompt');
 var loading = require('app/loading');
+var tree = require('app/tree');
 var openingFilesBatch = [];
 
 var defaultPrefs = {};
@@ -742,6 +743,10 @@ function save(name, value) {
 
     if(name==='customTheme'){
 		$('#ace-custom').remove();
+    }
+
+    if(name==='singleClickOpen'){
+		tree.setSingleClickOpen(value);
     }
 
     //apply change to open editors

@@ -19,6 +19,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             editors.init();
             var tree = require("app/tree");
             tree.init();
+            tree.setSingleClickOpen(prefs.singleClickOpen);
             var site = require("app/site");
             site.init();
 

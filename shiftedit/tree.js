@@ -6,14 +6,173 @@ var prompt = require('app/prompt');
 var tabs = require('app/tabs');
 var loading = require('app/loading');
 var site = require('app/site');
-var options = {};
+var ajaxOptions = {};
 var tree;
 var confirmed = false;
 var r;
-var uploadStarted =false;
-
+var uploadStarted = false;
+var clipboard = {files:[], site: null};
+var queue = [];
 var reference;
 var inst;
+var treeFn;
+var singleClickOpen = false;
+
+function findChild(parent, name) {
+	for( i=0; i<parent.children.length; i++ ){
+	    var node = inst.get_node(parent.children[i]);
+
+	    if(node.text==name) {
+	        return node;
+	    }
+	}
+	return false;
+}
+
+function cut(nodes) {
+    copy(nodes, true);
+}
+
+function copy(nodes, cut) {
+	clipboard.cut = cut ? true : false;
+	clipboard.files = util.clone(nodes);
+	clipboard.site = site.active();
+	console.log('nodes copied');
+}
+
+function findAvailableName(d, text) {
+    //if src and dest folder are the same then rename
+	var i = 0;
+	var newName = text;
+	while(findChild(d, newName)!==false) {
+		i++;
+		var pos = text.indexOf('.');
+		var copyStr = ' - copy ['+i+']';
+
+		if(pos == -1) {
+			newName = text + copyStr;
+		}else{
+			newName = text.substr(0, pos) + copyStr + text.substr(pos, text.length-pos);
+		}
+	}
+
+	return newName;
+}
+
+function paste(node) {
+	if (clipboard.files.length === 0) {
+		return;
+	}
+
+	//get nearest folder
+	var d = node.type == 'default' ? node : inst.get_node(node.parent);
+
+	//get list of files and paste them
+	buildQueue(clipboard.files, d);
+}
+
+function duplicate(nodes) {
+	if(!nodes || nodes.length === 0) {
+		return false;
+	}
+
+    //no dest as we copy to the same folder
+	clipboard.dest = null;
+
+	//get list of files and copy them
+	buildQueue(nodes);
+}
+
+function buildQueue(nodes, d) {
+    var node;
+	if(nodes.length) {
+		node = nodes.shift();
+	} else {
+		//console.log(queue); return;
+		_processQueue(queue);
+		return;
+	}
+
+	var parent = d ? d : inst.get_node(node.parent);
+	var dest = parent.id;
+	var path = node.id;
+	var newName = node.text;
+    if(node.id == dest+'/'+newName) {
+    	newName = findAvailableName(parent, newName);
+	}
+
+	queue.push({
+		path: path,
+		dest: dest+'/'+newName,
+		isDir: (node.type!=='file')
+	});
+
+	if (node.type=='file') {
+		buildQueue(nodes, d);
+	}else{
+		//get file list
+    	var url = ajaxOptions.url;
+    	if(url.indexOf('?')==-1) {
+    		url+='?';
+    	} else {
+    		url+='&';
+    	}
+    	url += 'cmd=list_all';
+
+		loading.fetch(url, {
+			data: {
+				path: path,
+				site: clipboard.site
+			},
+			success: function (data) {
+				for( i=0; i<data.files.length; i++ ){
+					queue.push({
+						path: data.files[i].path,
+						dest: dest +'/' + newName + data.files[i].path.substr(path.length),
+						isDir: data.files[i].isDir
+					});
+				}
+
+				buildQueue(nodes, d);
+			}
+		});
+	}
+}
+
+function _processQueue(queue) {
+	if (queue.length) {
+		var item = queue.shift();
+
+    	var url = ajaxOptions.url;
+    	if(url.indexOf('?')==-1) {
+    		url+='?';
+    	}else{
+    		url+='&';
+    	}
+    	url += 'cmd=paste';
+
+		loading.fetch(url, {
+			data: {
+				dest: item.dest,
+				path: item.path,
+				isDir: item.isDir,
+				site: clipboard.site,
+				cut: clipboard.cut
+			},
+			success: function (result, request) {
+				_processQueue(queue);
+			}
+		});
+	} else {
+		if(clipboard.dest) {
+			tree.jstree(true).refresh_node(clipboard.dest);
+		}else{
+			refresh();
+		}
+
+		loading.stop();
+	}
+}
 
 //given a path will select the file
 function select(path) {
@@ -94,13 +253,13 @@ function extract(data) {
 		}
 	};
 
-	var url = options.url;
+	var url = ajaxOptions.url;
 	if( url.indexOf('?')==-1 ){
 		url+='?';
 	}else{
 		url+='&';
 	}
-	url += 'cmd=extract&site='+options.site+'&file='+file;
+	url += 'cmd=extract&site='+ajaxOptions.site+'&file='+file;
 
 	loading.start('Extracting ' + file, abortFunction);
 	var source = new EventSource(url, {withCredentials: true});
@@ -148,13 +307,13 @@ function downloadZip(data) {
 	};
 	loading.start('Compressing ' + file, abortFunction);
 
-	var url = options.url;
+	var url = ajaxOptions.url;
 	if( url.indexOf('?')==-1 ){
 		url+='?';
 	}else{
 		url+='&';
 	}
-	url += 'cmd=compress&site='+options.site+'&file='+file;
+	url += 'cmd=compress&site='+ajaxOptions.site+'&file='+file;
 
 	var source = new EventSource(url, {withCredentials: true});
 
@@ -196,7 +355,7 @@ function downloadFile(data) {
 
 	var file = node.id;
 
-    loading.fetch(options.url+'&cmd=download&file='+file, {
+    loading.fetch(ajaxOptions.url+'&cmd=download&file='+file, {
         action: 'downloading file',
         success: function(data) {
             var blob = util.b64toBlob(data.content);
@@ -230,12 +389,12 @@ function processUploads() {
 
         //check exists
         loading.stop();
-        loading.fetch(options.url+'&cmd=file_exists&file='+folder, {
+        loading.fetch(ajaxOptions.url+'&cmd=file_exists&file='+folder, {
             action: 'Checking '+folder,
             success: function(data) {
                 if(data.file_exists===false) {
                     loading.stop();
-                    loading.fetch(options.url+'&cmd=newdir&dir='+folder, {
+                    loading.fetch(ajaxOptions.url+'&cmd=newdir&dir='+folder, {
                         action: 'Uploading '+folder,
                         success: function(data) {
                             processUploads();
@@ -250,7 +409,7 @@ function processUploads() {
         var file = uploadFiles.shift();
 
         loading.stop();
-        loading.fetch(options.url+'&cmd=upload', {
+        loading.fetch(ajaxOptions.url+'&cmd=upload', {
             action: 'uploading '+file.path,
             data: {
                 file: file.path,
@@ -398,7 +557,7 @@ function uploadByURl() {
         		var parent = getDir(node);
         		var path = parent.id;
 
-                loading.fetch(options.url+'&cmd=uploadByURL', {
+                loading.fetch(ajaxOptions.url+'&cmd=uploadByURL', {
                     data: {
                         url: url,
                         path: path
@@ -450,7 +609,7 @@ function open(data) {
 
 	if(selected && selected.length) {
 	    var file = selected.join(':');
-	    tabs.open(file, options.site);
+	    tabs.open(file, site.active());
 	}
 }
 
@@ -463,7 +622,7 @@ function openTab(data) {
         return;
     }
 
-    var settings = site.getSettings(options.site);
+    var settings = site.getSettings(ajaxOptions.site);
 	window.open('//' + location.host + location.pathname + '#' + settings.name + '/' + node.id);
 }
 
@@ -572,7 +731,7 @@ function chmod(data) {
                 var node = getSelected()[0];
                 var mode = $('#chmod-value').val();
 
-                loading.fetch(options.url+'&cmd=chmod&file='+node.id+'&mode='+mode, {
+                loading.fetch(ajaxOptions.url+'&cmd=chmod&file='+node.id+'&mode='+mode, {
                     action: 'chmod file',
                     success: function(data) {
                         node.data.perms = mode;
@@ -604,15 +763,12 @@ function getDir(node) {
 function init() {
     var chunkedUploads = false;
     r = new Resumable({
-        //target: _this.url,
         testChunks: false,
         query: {
             cmd: 'upload',
-            chunked: 1,
-            //path: _this.getPath(_this.node)
+            chunked: 1
         },
-        withCredentials: true,
-        //node: _this.node
+        withCredentials: true
     });
 
     r.assignDrop($('#tree'));
@@ -655,7 +811,7 @@ function init() {
 		//clear upload queue so you can upload the same file
 		r.cancel();
 
-		//_this.setUrl(_this.url);
+		//setUrl(url);
         refresh();
 	});
 
@@ -673,7 +829,7 @@ function init() {
             r.opts.chunkSize = 20*1024*1024;
         }
 
-        r.opts.target = options.url+'&cmd=upload';
+        r.opts.target = ajaxOptions.url+'&cmd=upload';
         r.opts.withCredentials = true;
 
         var node = getSelected()[0];
@@ -690,7 +846,7 @@ function init() {
 
     tree = $('#tree')
     .jstree({
-    	'core' : {
+    	'core': {
     	    /*
     		'data' : {
     			'url' : '',
@@ -698,24 +854,27 @@ function init() {
     				return { 'id' : node.id };
     			}
     		},*/
-            'data' : function (node, callback) {
+            'data': function (node, callback) {
                 //console.log(node);
+                if (treeFn) {
+                    treeFn({node: node, callback: callback});
+                }else{
+                    if(!ajaxOptions.url){
+                        return false;
+                    }
 
-                if(!options.url){
-                    return false;
+            		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+            		    method: 'POST',
+            		    dataType: 'json',
+            		    data: ajaxOptions.params,
+            		    success: function(data) {
+            		        //console.log(data);
+                            callback.call(tree, data.files);
+            		    }
+            		});
                 }
-
-        		$.ajax(options.url+'&cmd=list&path='+encodeURIComponent(node.id), {
-        		    method: 'POST',
-        		    dataType: 'json',
-        		    data: options.params,
-        		    success: function(data) {
-        		        //console.log(data);
-                        callback.call(tree, data.files);
-        		    }
-        		});
             },
-    		'check_callback' : function(o, n, p, i, m) {
+    		'check_callback': function(o, n, p, i, m) {
             	var t = this;
 
     			if(m && m.dnd && m.pos !== 'i') { return false; }
@@ -749,11 +908,11 @@ function init() {
 
     			return true;
     		},
-    		'force_text' : true,
-    		'themes' : {
-    			'responsive' : false,
-    			'variant' : 'small',
-    			'stripes' : true
+    		'force_text': true,
+    		'themes': {
+    			'responsive': false,
+    			'variant': 'small',
+    			'stripes': true
     		}
     	},
     	'sort' : function(a, b) {
@@ -767,65 +926,65 @@ function init() {
     			    "create": {
                         "label": "New",
                         "submenu": {
-							"create_folder" : {
-								"separator_after"	: true,
-								"label"				: "Folder",
-								"action"			: newFolder
+							"create_folder": {
+								"separator_after": true,
+								"label": "Folder",
+								"action": newFolder
 							},
-							"create_html" : {
-								"label"				: "HTML file",
-								"action"			: newFile,
+							"create_html": {
+								"label": "HTML file",
+								"action": newFile,
 								"extension": 'html'
 							},
-							"create_php" : {
-								"label"				: "PHP file",
-								"action"			: newFile,
+							"create_php": {
+								"label": "PHP file",
+								"action": newFile,
 								"extension": 'php'
 							},
-							"create_css" : {
-								"label"				: "CSS file",
-								"action"			: newFile,
+							"create_css": {
+								"label": "CSS file",
+								"action": newFile,
 								"extension": 'css'
 							},
-							"create_js" : {
-								"label"				: "JS file",
-								"action"			: newFile,
+							"create_js": {
+								"label": "JS file",
+								"action": newFile,
 								"extension": 'js'
 							},
-							"create_json" : {
-								"label"				: "JSON file",
-								"action"			: newFile,
+							"create_json": {
+								"label": "JSON file",
+								"action": newFile,
 								"extension": 'json'
 							},
-							"create_htaccess" : {
-								"label"				: "Htaccess file",
-								"action"			: newFile,
+							"create_htaccess": {
+								"label": "Htaccess file",
+								"action": newFile,
 								"extension": 'htaccess',
 								"name": ''
 							},
-							"create_ruby" : {
-								"label"				: "Ruby file",
-								"action"			: newFile,
+							"create_ruby": {
+								"label": "Ruby file",
+								"action": newFile,
 								"extension": 'rb'
 							},
-							"create_python" : {
-								"label"				: "Python file",
-								"action"			: newFile,
+							"create_python": {
+								"label": "Python file",
+								"action": newFile,
 								"extension": 'py'
 							},
-							"create_perl" : {
-								"label"				: "Perl file",
-								"action"			: newFile,
+							"create_perl": {
+								"label": "Perl file",
+								"action": newFile,
 								"extension": 'pl'
 							},
-							"create_text" : {
-								"label"				: "Text file",
-								"action"			: newFile,
+							"create_text": {
+								"label": "Text file",
+								"action": newFile,
 								"extension": 'txt'
 							},
-							"create_xml" : {
-								"label"				: "XML file",
-								"action"			: newFile,
+							"create_xml": {
+								"label": "XML file",
+								"action": newFile,
 								"extension": 'xml'
 							}
 						}
@@ -837,11 +996,11 @@ function init() {
 								"label": "Open",
 								action: open
 							},
-							"open_tab" : {
+							"open_tab": {
 								"label": "Open in new browser tab",
 								action: openTab
 							},
-							"download" : {
+							"download": {
 								"label": "Download",
 								action: downloadFile
 							},
@@ -858,15 +1017,9 @@ function init() {
                                 "separator_before": false,
                                 "separator_after": false,
                                 "label": "Cut",
-    							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
-    								if(inst.is_selected(obj)) {
-    									inst.cut(inst.get_top_selected());
-    								}
-    								else {
-    									inst.cut(obj);
-    								}
+    							"action": function (data) {
+                                    var instance = $.jstree.reference(data.reference);
+                                    cut(instance.get_selected(true));
     							}
                             },
                             "copy": {
@@ -876,29 +1029,23 @@ function init() {
                                 "label": "Copy",
                                 "shortcut": 67,
                                 "shortcut_label": "C",
-    							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
-    								if(inst.is_selected(obj)) {
-    									inst.copy(inst.get_top_selected());
-    								}
-    								else {
-    									inst.copy(obj);
-    								}
+    							"action": function (data) {
+                                    var instance = $.jstree.reference(data.reference);
+                                    copy(instance.get_selected(true));
     							}
                             },
                             "paste": {
                                 "separator_before": false,
                                 "icon": false,
-    							"_disabled"			: function (data) {
-    								return !$.jstree.reference(data.reference).can_paste();
+    							"_disabled": function (data) {
+    								//return !$.jstree.reference(data.reference).can_paste(true);
+    								return (clipboard.files.length===0);
     							},
                                 "separator_after": false,
                                 "label": "Paste",
-    							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
-    								inst.paste(obj);
+    							"action": function (data) {
+                                    var instance = $.jstree.reference(data.reference);
+                                    paste(inst.get_top_selected(true)[0]);
     							}
                             },
                             "rename": {
@@ -906,10 +1053,10 @@ function init() {
                                 "separator_after": false,
                                 "_disabled": false,
                                 "label": "Rename",
-            					"shortcut"			: 113,
-            					"shortcut_label"	: 'F2',
-            					"icon"				: "glyphicon glyphicon-leaf",
-            					"action"			: function (data) {
+            					"shortcut": 113,
+            					"shortcut_label": 'F2',
+            					"icon": "glyphicon glyphicon-leaf",
+            					"action": function (data) {
             						var inst = $.jstree.reference(data.reference),
             							obj = inst.get_node(data.reference);
             						inst.edit(obj);
@@ -923,7 +1070,7 @@ function init() {
                                 "label": "Delete",
                                 "shortcut": 46,
                                 "shortcut_label": "Del",
-            					"action"			: function (data) {
+            					"action": function (data) {
             						var inst = $.jstree.reference(data.reference),
             							obj = inst.get_node(data.reference);
             						if(inst.is_selected(obj)) {
@@ -937,15 +1084,11 @@ function init() {
                             "duplicate": {
                                 "separator_before": false,
                                 "icon": false,
-    							"_disabled": function (data) {
-    								return !$.jstree.reference(data.reference).can_paste();
-    							},
                                 "separator_after": false,
-                                "label": "Paste",
+                                "label": "Duplicate",
     							"action": function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
-    								inst.paste(obj);
+                                    var instance = $.jstree.reference(data.reference);
+                                    duplicate(instance.get_selected(true));
     							}
                             }
                         }
@@ -962,11 +1105,11 @@ function init() {
         						//icon: 'upload',
         						action: upload
         					},
-        					"upload_folder" : {
+        					"upload_folder": {
         						"label": "Folder",
         						action: uploadFolder
         					},
-        					"upload_url" : {
+        					"upload_url": {
         						"label": "URL",
         						action: uploadByURl
         					}
@@ -991,7 +1134,7 @@ function init() {
 						action: downloadZip
 					},
 					"reload": {
-						"label" : "Reload",
+						"label": "Reload",
 						action: refresh
 					},
 					"chmod": {
@@ -1058,52 +1201,68 @@ function init() {
     			data.instance.refresh();
     		});*/
 
-		$.ajax(options.url+'&cmd=delete&file='+data.node.id, {
-		    method: 'POST',
-		    dataType: 'json',
-		    data: options.params,
-		    /*
-		    data: options.params,
-		    success: function(data) {
-                callback.call(tree, data);
-		    }
-		    */
-		})
-		.fail(function () {
-			data.instance.refresh();
-		});
-    })
-    .on('create_node.jstree', function (e, data) {
-    	$.get(options.url+'&cmd=newfile', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
-    		.done(function (d) {
-    			data.instance.set_id(data.node, d.id);
+        if (treeFn) {
+            treeFn({cmd: 'delete', file: data.node.id});
+        }else{
+    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+data.node.id, {
+    		    method: 'POST',
+    		    dataType: 'json',
+    		    data: ajaxOptions.params,
+    		    /*
+    		    data: ajaxOptions.params,
+    		    success: function(data) {
+                    callback.call(tree, data);
+    		    }
+    		    */
     		})
     		.fail(function () {
     			data.instance.refresh();
     		});
+        }
+    })
+    .on('create_node.jstree', function (e, data) {
+        if (treeFn) {
+            var cmd = (data.node.type=='default') ? 'newdir' : 'newfile';
+            var parent = inst.get_node(data.node.parent);
+            treeFn({cmd: cmd, title: data.node.text, parent: parent.id, callback: function(response) {
+                data.instance.set_id(data.node, response.file);
+            }});
+        }else{
+        	$.get(ajaxOptions.url+'&cmd=newfile', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
+        		.done(function (d) {
+        			data.instance.set_id(data.node, d.id);
+        		})
+        		.fail(function () {
+        			data.instance.refresh();
+        		});
+        }
     })
     .on('rename_node.jstree', function (e, data) {
-        var params = util.clone(options.params);
-        params.oldname = data.node.id;
-        params.newname = util.dirname(params.oldname)+'/'+data.text;
-        params.site = options.site;
+        if (treeFn) {
+            treeFn({cmd: 'rename', file: data.node.id, newname: data.text});
+        }else{
+            var params = util.clone(ajaxOptions.params);
+            params.oldname = data.node.id;
+            params.newname = util.dirname(params.oldname)+'/'+data.text;
+            params.site = ajaxOptions.site;
 
-		$.ajax(options.url+'&cmd=rename', {
-		    method: 'POST',
-		    dataType: 'json',
-		    data: params
-		})
-		.done(function (d) {
-		    if(!d.success){
-		        prompt.alert({title:'Error', msg:d.error});
-		    }else{
-    		    data.instance.set_id(data.node, params.newname);
-		        $('#tree').trigger('rename', params);
-		    }
-    	})
-    	.fail(function () {
-    		data.instance.refresh();
-    	});
+    		$.ajax(ajaxOptions.url+'&cmd=rename', {
+    		    method: 'POST',
+    		    dataType: 'json',
+    		    data: params
+    		})
+    		.done(function (d) {
+    		    if(!d.success){
+    		        prompt.alert({title:'Error', msg:d.error});
+    		    }else{
+        		    data.instance.set_id(data.node, params.newname);
+    		        $('#tree').trigger('rename', params);
+    		    }
+        	})
+        	.fail(function () {
+        		data.instance.refresh();
+        	});
+        }
 
     	//$.get('/app/?cmd=rename_node', { 'id' : data.node.id, 'text' : data.text })
 
@@ -1125,23 +1284,30 @@ function init() {
     	});
 
         function doMove() {
-            var params = util.clone(options.params);
-            params.oldname = data.node.id;
-            params.newname = data.parent+'/'+util.basename(data.node.id);
-            params.site = options.site;
+            function moveCallback() {
+                //data.instance.load_node(data.parent);
+    			data.instance.refresh();
+            }
 
-    		$.ajax(options.url+'&cmd=rename', {
-    		    method: 'POST',
-    		    dataType: 'json',
-    		    data: params
-    		})
-    		.done(function (d) {
-    			//data.instance.load_node(data.parent);
-    			data.instance.refresh();
-    		})
-    		.fail(function () {
-    			data.instance.refresh();
-    		});
+            var parent = inst.get_node(data.parent);
+            if (treeFn) {
+                treeFn({cmd: 'rename', file: data.node.id, newname: data.node.text, parent: parent.id, callback: moveCallback});
+            }else{
+                var params = util.clone(ajaxOptions.params);
+                params.oldname = data.node.id;
+                params.newname = data.parent+'/'+util.basename(data.node.id);
+                params.site = ajaxOptions.site;
+
+        		$.ajax(ajaxOptions.url+'&cmd=rename', {
+        		    method: 'POST',
+        		    dataType: 'json',
+        		    data: params
+        		})
+        		.done(moveCallback)
+        		.fail(function () {
+        			data.instance.refresh();
+        		});
+            }
         }
     })
     .on('copy_node.jstree', function (e, data) {
@@ -1179,6 +1345,13 @@ function init() {
             }
         }
     })
+    .on('click','a',function (e, data) {
+        if(singleClickOpen){
+            open({
+                reference: this
+            });
+        }
+    })
     .on('dblclick','a',function (e, data) {
         open({
             reference: this
@@ -1188,7 +1361,7 @@ function init() {
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
     	    var file = data.selected.join(':');
-    	    tabs.open(file, options.site);
+    	    tabs.open(file, ajaxOptions.site);
     	}
     	else {
     		$('#data .content').hide();
@@ -1261,7 +1434,6 @@ function init() {
             				node = nodes[i];
 
             				var from = $(tab).data('file');
-            				//var to = tree.getPath(node);
             				var to = node;
             				var path = '';
 
@@ -1310,24 +1482,38 @@ function init() {
     inst = $.jstree.reference(reference);
 }
 
+function getNode(file){
+    return tree.jstree(true).get_node(file);
+}
+
 function refresh() {
     tree.jstree(true).refresh();
 }
 
 function setAjaxOptions(siteOptions) {
-    options = siteOptions;
-    tree.jstree(true).settings.core.data.url = options.url;
-
-    //tree.jstree('create_node', '#', {'id' : 'myId', 'text' : 'My Text'}, 'last');
-
+    if(typeof siteOptions == 'function') {
+        ajaxOptions = null;
+        treeFn = siteOptions;
+    } else {
+        ajaxOptions = siteOptions;
+        treeFn = null;
+        tree.jstree(true).settings.core.data.url = ajaxOptions.url;
+    }
     refresh();
+}
+
+function setSingleClickOpen(value) {
+    singleClickOpen = value;
 }
 
 return {
     init: init,
     setAjaxOptions: setAjaxOptions,
     refresh: refresh,
-    select: select
+    select: select,
+    getNode: getNode,
+    findChild: findChild,
+    setSingleClickOpen: setSingleClickOpen
 };
 
 });

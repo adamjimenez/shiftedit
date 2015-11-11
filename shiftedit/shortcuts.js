@@ -1,6 +1,15 @@
 define(['app/tabs','app/find', 'jquery'], function (tabs, find) {
     var shortcuts = [];
-	var defaultShortcuts = [{ //close ctrl-alt+n
+	var defaultShortcuts = [{ //escape
+		key: 27,
+		ctrl: false,
+		alt: false,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			$('#shortcutsSheet').remove();
+		}
+	}, { //close ctrl-alt+n
 		key: 78,
 		ctrl: false,
 		alt: true,
