@@ -1,4 +1,4 @@
-define(['app/editors', 'app/prefs', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/tree'], function (editors, preferences, exports) {
+define(['app/editors', 'app/prefs', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/tree', 'coffee-script'], function (editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -9,9 +9,10 @@ var modes = require('app/modes').modes;
 var recent = require('app/recent');
 var tree = require('app/tree');
 var closing = [];
-var saving = {};
+var saving = [];
 var opening = {};
 var autoSaveTimer;
+var CoffeeScript = require('coffee-script');
 
 function active() {
     return $('.ui-layout-center .ui-tabs-active');
@@ -177,32 +178,63 @@ function openFiles(callback) {
 }
 
 function save(tab, options) {
-    saving[tab.attr('id')] = tab;
-    saveFiles(options);
+    //saving[tab.attr('id')] = tab;
+    var found = false;
+    saving.forEach(function(item) {
+        if(item.id === tab.attr('id')){
+            found = true;
+            return;
+        }
+    });
+
+    if(!found) {
+        saving.push({
+            id: tab.attr('id'),
+            tab: tab
+        });
+        saveFiles(options);
+    }
 }
 
 function saveFiles(options) {
-    if (!Object.keys(saving).length)
+    if (!saving.length)
         return;
 
     if (!options) {
         options = {};
     }
 
-    var tab = saving[Object.keys(saving)[0]];
+    var item = saving.shift();
 
     console.log('save');
 
-    var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    var editor = getEditor(tab);
+    var content;
+    var tab;
+    var siteId;
+    var title;
+    var file;
+    var mdate;
+    if (item.tab) {
+        tab = item.tab;
+        siteId = tab.data("site");
+        title = tab.data("title");
+        var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+        var editor = getEditor(tab);
+        mdate = tab.data("mdate");
 
-    if(!editor){
-        console.error('editor instance not found');
-        return false;
+        if(!editor){
+            console.error('editor instance not found');
+            return false;
+        }
+
+        file = tab.data("file");
+        content = editor.getValue();
+    } else if (item.content) {
+        siteId = item.site;
+        title = item.title;
+        content = item.content;
+        mdate = -1;
     }
-
-    var file = tab.data("file");
-    var content = editor.getValue();
 
     //strip whitespace
     var prefs = preferences.get_prefs();
@@ -216,22 +248,22 @@ function saveFiles(options) {
 		}
 	}
 
-    //save pref
-    if(tab.data('pref')){
-        preferences.save(tab.data('pref'), content);
-        setEdited(tab, false);
-        delete saving[tab.attr('id')];
-        return;
+    if (tab) {
+        //save pref
+        if(tab.data('pref')){
+            preferences.save(tab.data('pref'), content);
+            setEdited(tab, false);
+            return;
+        }
+
+        //save as if new file
+        if(!tab.data("site") || !tab.data("file")) {
+            saveAs(tab, options);
+            return;
+        }
     }
 
-    //save as if new file
-    if(!tab.data("site") || !tab.data("file")) {
-        saveAs(tab, options);
-        delete saving[tab.attr('id')];
-        return;
-    }
-
-    var ajaxOptions = site.getAjaxOptions("/api/files?site="+tab.data("site"));
+    var ajaxOptions = site.getAjaxOptions("/api/files?site="+siteId);
 
     var params = util.clone(ajaxOptions.params);
     params.content = content;
@@ -241,7 +273,6 @@ function saveFiles(options) {
 	if (!loading.start('Saving ' + tab.data('title'), function(){
 		console.log('abort saving files');
 		ajax.abort();
-		saving = {};
 	})) {
 		console.log('in queued save');
 		return;
@@ -269,35 +300,56 @@ function saveFiles(options) {
                             break;
                             case 'no':
                             case 'cancel':
-                                delete saving[tab.attr('id')];
                             break;
                        }
                     }
                 });
             }else{
-                setEdited(tab, false);
-                tab.data('overwrite', 0);
-                tab.data('mdate', data.last_modified);
+                if (tab) {
+                    setEdited(tab, false);
+                    tab.data('overwrite', 0);
+                    tab.data('mdate', data.last_modified);
+                    tab.trigger('save');
 
-                delete saving[tab.attr('id')];
-                tab.trigger('save');
+                    if (data.file) {
+                        tab.attr('data-file', data.file);
+                        tab.data('file', data.file);
+                    }
+                }
 
-                if (data.file) {
-                    tab.attr('data-file', data.file);
-                    tab.data('file', data.file);
+                //compile coffee
+                if (prefs.compileCoffeeScript && util.fileExtension==='coffee') {
+                    var title = tab.data('title');
+                    var pos = title.indexOf('.');
+                    title = title.substr(0, pos) + '.js';
+                    var parent = tree.getNode(tree.getNode(tab.data('file')).parent).id;
+                    content = CoffeeScript.compile(content);
+                    var node = tree.findChild(parent, title);
+                    var file;
+                    if(node) {
+                        file = node.text;
+                    }
+
+                    saving.push({
+                        title: title,
+                        file: file,
+                        parent: parent,
+                        content: content
+                    });
                 }
 
                 //continue with next save
-                if (Object.keys(saving).length) {
+                if (saving.length) {
                     saveFiles(options);
                 }else if (options.callback) {
-                    tab.closest('.ui-tabs').trigger('save');
+                    if (tab) {
+                        tab.closest('.ui-tabs').trigger('save');
+                    }
                     options.callback(tab);
                 }
             }
         } else {
             prompt.alert({title:lang.failedText, msg:'Error saving file' + ': ' + data.error});
-            saving = {};
         }
     }
 
@@ -306,16 +358,16 @@ function saveFiles(options) {
 	    directFn({
 	        cmd: 'save',
 	        file: file,
-	        title: tab.data('title'),
+	        title: title,
             content: content,
 	        callback: saveCallback,
-	        mdate: tab.data("mdate"),
+	        mdate: mdate,
 	        confirmed: confirmed,
 	        minify: minify,
 	        parent: options.parent
 	    });
 	} else {
-    	ajax = $.ajax(ajaxOptions.url+"&cmd=save&file="+file+"&mdate="+tab.data("mdate")+"&confirmed="+confirmed+"&minify="+minify, {
+    	ajax = $.ajax(ajaxOptions.url+"&cmd=save&file="+file+"&mdate="+mdate+"&confirmed="+confirmed+"&minify="+minify, {
     	    method: 'POST',
     	    dataType: 'json',
     	    data: params,
@@ -324,7 +376,6 @@ function saveFiles(options) {
         }).fail(function() {
             loading.stop();
     		prompt.alert({title:lang.failedText, msg:'Error saving file'});
-    		saving = {};
         });
 	}
 }
@@ -342,7 +393,31 @@ function saveAs(tab, options) {
 		value: tab.attr('data-title'),
 		buttons: 'YESNOCANCEL',
 		fn: function (btn, file) {
-            	    console.log(options)
+        	function fileExistsCallback(data) {
+                loading.stop();
+
+    		    if (!data.success) {
+    		        prompt.alert({title:lang.failedText, msg:'Error checking file: ' + data.error});
+    	            opening = {};
+    		    } else {
+    		        if(data.file_exists) {
+    		            prompt.confirm({
+    		                title: 'Confirm',
+    		                msg: '<strong>'+file+'</strong> exists, overwrite?',
+    		                fn: function(btn) {
+    		                    switch(btn) {
+    		                        case 'yes':
+    		                            doSaveAs(tab, file, options);
+    		                        break;
+    		                    }
+    		                }
+    		            });
+    		        } else {
+    		            doSaveAs(tab, file, options);
+    		        }
+                }
+        	}
+
 			if (btn == "ok") {
 			    //check if filename exists
             	if (!loading.start('Check file exists', function(){
@@ -355,37 +430,12 @@ function saveAs(tab, options) {
                 var site = require('app/site');
             	var siteId = site.active();
 
-            	function fileExistsCallback(data) {
-                    loading.stop();
-
-        		    if (!data.success) {
-        		        prompt.alert({title:lang.failedText, msg:'Error checking file: ' + data.error});
-        	            opening = {};
-        		    } else {
-        		        if(data.file_exists) {
-        		            prompt.confirm({
-        		                title: 'Confirm',
-        		                msg: '<strong>'+file+'</strong> exists, overwrite?',
-        		                fn: function(btn) {
-        		                    switch(btn) {
-        		                        case 'yes':
-        		                            doSaveAs(tab, file, options);
-        		                        break;
-        		                    }
-        		                }
-        		            });
-        		        } else {
-        		            doSaveAs(tab, file, options);
-        		        }
-                    }
-            	}
-
             	var directFn = site.getdirectFn();
             	if(directFn) {
             	    var node = tree.getNode(tab.attr('data-file'));
             	    //console.log(node);
 
-            	    var parent = tree.getNode(node.parent)
+            	    var parent = tree.getNode(node.parent);
             	    options.parent = parent.id;
             	    //console.log(parent);
 
@@ -402,7 +452,7 @@ function saveAs(tab, options) {
     	                dataType: 'json'
     			    })
                     .then(function (data) {
-                        fileExistsCallback()
+                        fileExistsCallback();
                     }).fail(function() {
                         loading.stop();
                 		prompt.alert({title:lang.failedText, msg:'Error checking site'});
@@ -416,7 +466,6 @@ function saveAs(tab, options) {
 		}
     });
 }
-
 
 function doSaveAs(tab, file, options) {
     setTitle(tab, file);

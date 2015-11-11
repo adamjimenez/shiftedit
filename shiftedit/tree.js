@@ -1500,7 +1500,8 @@ return {
     setAjaxOptions: setAjaxOptions,
     refresh: refresh,
     select: select,
-    getNode: getNode
+    getNode: getNode,
+    findChild: findChild
 };
 
 });
