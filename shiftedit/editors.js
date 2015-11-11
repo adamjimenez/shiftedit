@@ -374,6 +374,59 @@ function addFirepad(tab) {
 	});
 }
 
+_autoIndentOnPaste = function(editor, noidea, e) {
+    var session = editor.getSession();
+    var pos = editor.getSelectionRange().start;
+    var line = session.getLine(pos.row);
+    var tabSize = session.getTabSize();
+
+    var col = pos.column;
+    for (var i = 0; i < pos.column; i++) {
+        if (line[i] === "\t") {
+            col += (tabSize - 1);
+        }
+    }
+    var tabAsSpaces = "";
+    for (i = 0; i < tabSize; i++) {
+        tabAsSpaces += " ";
+    }
+    var text = e.text.replace(/\t/gm, tabAsSpaces);
+    var lines = text.split("\n");
+    var regexp = /\S/;
+    var min = -1;
+    var index;
+    for (i = 1; i < lines.length; i++) {
+        index = lines[i].search(regexp);
+        if (index !== -1 && (index < min || min === -1)) {
+            min = index;
+        }
+    }
+    var adjust = col - min;
+    if (min > -1 && adjust !== 0) {
+        if (adjust < 0) {
+            for (i = 1; i < lines.length; i++) {
+                lines[i] = lines[i].substring(-adjust);
+            }
+        } else if (adjust > 0) {
+            var add = "";
+            for (i = 0; i < adjust; i++) {
+                add += " ";
+            }
+
+            for (i = 1; i < lines.length; i++) {
+                lines[i] = add + lines[i];
+            }
+        }
+    }
+
+    lines[0] = lines[0].substring(lines[0].search(regexp));
+    e.text = lines.join("\n");
+    if (!session.getUseSoftTabs()) {
+        regexp = new RegExp(tabAsSpaces, "gm");
+        e.text = e.text.replace(regexp, "\t");
+    }
+};
+
 function applyPrefs(tab) {
     tab = $(tab);
     var prefs = preferences.get_prefs();
@@ -389,6 +442,14 @@ function applyPrefs(tab) {
 
 		editor.setDragDelay(0);
 		editor.setHighlightSelectedWord(true);
+
+        if (prefs.indentOnPaste) {
+            editor.on("paste", function(e) {
+                _autoIndentOnPaste(editor, session, e);
+            });
+        } else {
+            editor.removeAllListeners("paste");
+        }
 
 	    /*
 	    require("ace/ext-emmet");
