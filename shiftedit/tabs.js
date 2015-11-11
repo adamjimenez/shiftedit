@@ -275,6 +275,9 @@ function saveFiles(options) {
 	}
 
     var minify = options.minify ? 1 : 0;
+	if( prefs.saveWithMinified && ['css', 'js'].indexOf(fileExtension)!==-1 ){
+		minify = 1;
+	}
 
     var ajax;
 	if (!loading.start('Saving ' + tab.data('title'), function(){
