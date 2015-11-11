@@ -267,6 +267,13 @@ function saveFiles(options) {
 
     var params = util.clone(ajaxOptions.params);
     params.content = content;
+
+	//compile LESS
+	var fileExtension = util.fileExtension(title);
+	if( prefs.compileLESS && ['less', 'scss'].indexOf(fileExtension)!==-1 ){
+		params.compile = true;
+	}
+
     var minify = options.minify ? 1 : 0;
 
     var ajax;
@@ -318,20 +325,20 @@ function saveFiles(options) {
                 }
 
                 //compile coffee
-                if (prefs.compileCoffeeScript && util.fileExtension==='coffee') {
-                    var title = tab.data('title');
-                    var pos = title.indexOf('.');
-                    title = title.substr(0, pos) + '.js';
+                if (prefs.compileCoffeeScript && util.fileExtension(title)==='coffee') {
+                    var newTitle = tab.data('title');
+                    var pos = newTitle.indexOf('.');
+                    newTitle = newTitle.substr(0, pos) + '.js';
                     var parent = tree.getNode(tree.getNode(tab.data('file')).parent).id;
                     content = CoffeeScript.compile(content);
-                    var node = tree.findChild(parent, title);
+                    var node = tree.findChild(parent, newTitle);
                     var file;
                     if(node) {
                         file = node.text;
                     }
 
                     saving.push({
-                        title: title,
+                        title: newTitle,
                         file: file,
                         parent: parent,
                         content: content
