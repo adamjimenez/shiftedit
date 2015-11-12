@@ -1,4 +1,4 @@
-define(['app/editors', 'app/prefs', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/tree', 'coffee-script'], function (editors, preferences, exports) {
+define(['app/editors', 'app/prefs', 'exports', "ui.tabs.paging","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script'], function (editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -594,12 +594,13 @@ function checkEdited (e, ui) {
     }
 }
 
-function afterClose(e, uo) {
+function afterClose(e, ui) {
     if(closing.length) {
         closing.splice(0, 1);
         close(closing[0]);
     }else{
         recordOpenFiles();
+        $(ui.tab).closest('.ui-tabs').trigger('close');
     }
 }
 
@@ -648,6 +649,7 @@ function newTab (e, ui) {
 					    <li><a href="#">New Site</a></li>\
 						<li><a href="#" class="preview">Preview</a></li>\
 						<li><a href="#" class="ssh">SSH</a></li>\
+						<li><a href="#" class="diff">File Compare</a></li>\
 					</ul>\
 				</div>\
 			</div>\

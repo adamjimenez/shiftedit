@@ -74,6 +74,7 @@ function open() {
     //revision panel
 	var container = $('#revisionDiff')[0];
 	revisionsEditor = ace.edit(container);
+	revisionsEditor.setReadOnly(true);
 
 	$( "#revisionFile" ).change(function() {
 	    //load revisions
@@ -111,7 +112,7 @@ function open() {
 			for (i=0; i < diff.length; i++) {
 				diffContent += diff[i].value;
 			}
-			revisionsEditor.setValue(content);
+			revisionsEditor.setValue(diffContent);
 			revisionsEditor.moveCursorToPosition({column:0, row:0});
 
 			for (i=0; i < diff.length; i++) {
@@ -141,7 +142,7 @@ function open() {
 				index += diff[i].value.length;
 			}
 		}else{
-			revisionsEditor.setValue(selections[0].data.content);
+			revisionsEditor.setValue(content);
 			revisionsEditor.moveCursorToPosition({column:0, row:0});
 		}
 	});

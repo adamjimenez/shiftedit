@@ -1,4 +1,4 @@
-define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/ext-language_tools','ace/ext-split', 'app/site', 'app/firebase', 'app/find'], function (ace, tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/ext-language_tools','ace/ext-split', 'app/site', 'app/firebase', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -13,6 +13,7 @@ var site = require('app/site');
 var firebase = require('app/firebase');
 var Firepad = require('firepad');
 var find = require('app/find');
+var storage = require('app/storage');
 
 ace.config.set("packaged", true);
 ace.config.set("basePath", require.toUrl("ace"));
@@ -327,7 +328,7 @@ function addFirepad(tab) {
 	tab.data('firepad', firepad);
 
 	// Create FirepadUserList (with our desired userId)
-	firepadUserList = FirepadUserList.fromDiv(firepadRef.child('users'), localStorage.user, localStorage.username, editor);
+	firepadUserList = FirepadUserList.fromDiv(firepadRef.child('users'), storage.get('user'), storage.get('username'), editor);
 	tab.data('firepadUserList', firepadUserList);
 
 	//// Initialize contents
@@ -964,6 +965,8 @@ function create(file, content, siteId, options) {
 
 	//reactivate
 	$(tab).trigger('activate');
+
+    $(tab).closest('.ui-tabs').trigger('open');
 
 	return $(tab);
 }
