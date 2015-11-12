@@ -167,6 +167,10 @@ div.buttons {
 .ui-tabs-paging-disabled {
 	visibility: hidden;
 }
+
+.ui-tabs-nav .ui-icon {
+    display: inline-block;
+}
 /* END PAGING */
 
 /* START TREE */

@@ -513,7 +513,7 @@ function setEdited(tab, edited) {
 
 	if(edited) {
 	    //change title
-	    tab.children('.ui-tabs-anchor').text(tab.data('title')+'*');
+	    tab.children('.ui-tabs-anchor').contents().last().replaceWith(tab.data('title')+'*');
 	    tab.trigger('change');
 
 	    //autosave
@@ -529,7 +529,7 @@ function setEdited(tab, edited) {
 	    }
 	} else {
 	    //change title
-	    tab.children('.ui-tabs-anchor').text(tab.data('title'));
+	    tab.children('.ui-tabs-anchor').contents().last().replaceWith(tab.data('title'));
 	}
 }
 
