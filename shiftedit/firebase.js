@@ -1,4 +1,4 @@
-define(['app/tabs','app/prefs'],function (tabs, preferences) {
+define(['app/tabs','app/prefs', 'app/storage'],function (tabs, preferences, storage) {
 
 var connected = false;
 
@@ -6,7 +6,7 @@ connect = function (callback) {
 	//firebase login - put this someplace else
 	var dataRef = new Firebase("https://shiftedit.firebaseio.com/");
 	// Log me in.
-	dataRef.auth(localStorage.authToken, function(error) {
+	dataRef.auth(storage.get('authToken'), function(error) {
 		if(error) {
 			console.log("Firebase login failed", error);
 
