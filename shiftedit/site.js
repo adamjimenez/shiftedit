@@ -373,15 +373,26 @@ function open(siteId, options) {
 		return;
 	}
 
+	function openCallback() {
+        storage.set('currentSite', currentSite);
+
+        enableMenuItems(site);
+        $('#tree').show();
+
+        //highlight active tabs
+        var color = util.strToHex(siteId);
+        $('#siteStyle-'+siteId).remove();
+        $('<style id="siteStyle-'+siteId+'">.site-' + siteId + '{background:' + color + ';}</style>').appendTo('head');
+	}
+
     if(['GDrive','GDriveLimited'].indexOf(site.server_type)!=-1) {
         gdrive.fullAccess = (site.server_type === 'GDrive');
 
 		gdrive.authorise(function(){
 		    loading.stop();
             tree.setAjaxOptions(gdrive.directFn);
-            enableMenuItems(site);
-            $('#tree').show();
             directFn = gdrive.directFn;
+            openCallback();
 		});
 
         return;
@@ -403,21 +414,15 @@ function open(siteId, options) {
         //console.log(data);
 
         if(data.success){
-            storage.set('currentSite', currentSite);
-
             //load file tree
             var ajaxOptions = getAjaxOptions('/api/files?site='+siteId);
             tree.setAjaxOptions(ajaxOptions);
 
-            //enable site options
-            enableMenuItems(site);
-
-            //show tree
-            $('#tree').show();
-
             if(options.callback) {
                 options.callback();
             }
+
+            openCallback();
         }else{
             if (data.require_password) {
     			loading.stop();

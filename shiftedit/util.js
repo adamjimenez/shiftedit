@@ -1,6 +1,6 @@
-define(['app/modes'], function () {
+define(['app/modes', 'md5'], function (modes, md5) {
 
-var modes = require('app/modes').modes;
+modes = require('app/modes').modes;
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -625,6 +625,9 @@ return {
 
         temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
         return temp.toLowerCase();
+    },
+    strToHex: function(str) {
+        return '#' + md5(str).slice(0, 6);
     },
     startsWith: function(haystack, needle) {
         if(haystack)

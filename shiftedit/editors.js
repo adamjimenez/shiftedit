@@ -549,7 +549,7 @@ function create(file, content, siteId, options) {
     <span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
 	</div>\
 	\
-	<div class="editor"></div>');
+	<div class="editor"></div>', 'site-'+siteId);
 
     tab.addClass('closable');
 	tab.data(file, file);
