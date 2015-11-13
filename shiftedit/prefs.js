@@ -774,10 +774,19 @@ function save(name, value) {
 }
 
 function open() {
+    //check if already open
+    var tab = $('li[data-type=prefs]');
+
+    if(tab.length) {
+        var tabpanel = tab.closest('.ui-tabs');
+        tabpanel.tabs("option", "active", tab.index());
+        return;
+    }
+
     //create tab
     layout.get().open('east');
 
-	var tab = $('.ui-layout-east').tabs('add', 'Preferences', '<div class="prefs">\
+	tab = $('.ui-layout-east').tabs('add', 'Preferences', '<div class="prefs">\
 	<form id="prefsForm">\
 	<h2>General</h2>\
 	<label>Skin</label>\
@@ -967,6 +976,8 @@ function open() {
 	</label>\
 	</form>\
 	</div>');
+
+	tab.attr('data-type', 'prefs');
 
     //encoding dropdown
     for(var i in charsets) {

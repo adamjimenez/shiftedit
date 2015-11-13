@@ -1,4 +1,4 @@
-define([], function () {
+define(['app/prefs'], function (preferences) {
 	var modes = [
 		//picks
 		['html', 'HTML', ['html', 'htm', 'tpl', 'twig'], 'text/html'],
@@ -47,6 +47,24 @@ define([], function () {
 	];
 
     return {
-        modes: modes
+        modes: modes,
+        find: function(ext) {
+        	//check default file associations
+        	var mode = 'text';
+        	prefs = preferences.get_prefs();
+
+        	if( prefs.fileAssociations && prefs.fileAssociations[ext] ){
+        		mode = prefs.fileAssociations[ext];
+        	}else{
+            	modes.forEach(function (item) {
+            		if (item[2].indexOf(ext) !== -1) {
+            			mode = item[0];
+            			return;
+            		}
+            	});
+        	}
+
+        	return mode;
+        }
     };
 });
