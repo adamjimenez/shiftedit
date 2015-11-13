@@ -912,7 +912,7 @@ function init () {
     		handler: function () {
     			window.open('premier');
     		},
-    		hidden: (storage.get('premier') == 'true')
+    		hidden: storage.get('premier')
     	}
 
     };
