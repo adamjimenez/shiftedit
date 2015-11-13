@@ -294,7 +294,6 @@ function init () {
     			id: 'revisionHistory',
     			text: lang.revisionHistoryText,
     			disabled: true,
-    			hidden: true,
     			target: 'file'
     		},/*
     		{
@@ -766,8 +765,7 @@ function init () {
     	'chat': {
     		id: 'chatButton',
     		tooltip: 'Chat',
-    		text: '<i class="fa fa-comment"></i>',
-    		hidden: true
+    		text: '<i class="fa fa-comment"></i>'
     	},
 
     	'share': {
