@@ -49,18 +49,22 @@
     <!-- add wrapper that layout will auto-size to 'fill space' -->
     <div class="ui-layout-content">
         <div id="tabs-filetree">
-            <div id="sitebar">
-                <select id="sites">
-                </select>
-            </div>
+            <div class="vbox">
+                <div class="hbox">
+                    <div id="sitebar" class="flex">
+                        <select id="sites">
+                        </select>
+                    </div>
 
-            <button id="refresh_site"></button>
+                    <button id="refresh_site"></button>
 
-            <button id="siteNenuBtn"></button>
-            <ul id="siteMenu"></ul>
+                    <button id="siteNenuBtn"></button>
+                    <ul id="siteMenu"></ul>
+                </div>
 
-            <div id="tabs-filetree">
-    			<div id="tree"></div>
+                <div id="tabs-filetree" class="flex">
+        			<div id="tree"></div>
+                </div>
             </div>
         </div>
 

@@ -738,7 +738,21 @@ div.buttons {
     flex-direction: column;
 }
 
+.hbox {
+    display: flex;
+    align-content: stretch;
+}
+
 .editor{
     flex-grow: 1;
     position: relative;
+}
+
+/* stretch site dropdown */
+#sitebar span{
+    display: block;
+}
+
+#sitebar .custom-combobox-input{
+    width: calc(100% - 64px);
 }
