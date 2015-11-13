@@ -635,15 +635,15 @@ function newTab (e, ui) {
 
     panel.append('\
 			<div class="newTab">\
-				<div class="column" style="display:block; width:25%; float:left;">\
+				<div class="column">\
 					<h5>Create</h5>\
 					<ul class="fileTypes"></ul>\
 				</div>\
-				<div class="column" style="display:block; width:25%; float:left; margin:10px;">\
+				<div class="column">\
 					<h5>Recent</h5>\
 					<ul class="recentFiles"></ul>\
 				</div>\
-				<div class="column" style="display:block; width:25%; float:left; margin:10px;">\
+				<div class="column">\
 					<h5>Other</h5>\
 					<ul class="other">\
 					    <li><a href="#">New Site</a></li>\
@@ -683,7 +683,7 @@ function newTab (e, ui) {
 	HTML = '';
 	for (i in recentFiles) {
 		if (recentFiles.hasOwnProperty(i)) {
-			HTML += '<li><a href="#" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + recentFiles[i].file+ '</a></li>';
+			HTML += '<li><a href="#" title="'+recentFiles[i].file+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + recentFiles[i].file+ '</a></li>';
 		}
 	}
 
