@@ -887,6 +887,7 @@ function init() {
 
     //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
     tabs.find( ".ui-tabs-nav" ).sortable({
+        distance: 10,
         connectWith: '.ui-tabs-nav',
         receive: function (event, ui) {
             var receiver = $(this).parent(),
