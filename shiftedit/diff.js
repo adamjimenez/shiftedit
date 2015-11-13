@@ -1,4 +1,4 @@
-define(['app/tabs', 'app/layout', 'jquery','ace/ace','jsdiff'], function (tabs, layout) {
+define(['app/tabs', 'app/layout', 'app/modes', 'app/util', 'jquery','ace/ace','jsdiff'], function (tabs, layout, modes, util) {
 
 var updateTimer;
 
@@ -64,6 +64,15 @@ function select() {
 	var editor = ace.edit(container);
 	var session = editor.getSession();
 	var markers = session.getMarkers();
+
+	//set mode
+	var ext = util.fileExtension(tab1.attr('data-file'));
+
+	//check default file associations
+	var mode = modes.find(ext);
+
+	//editor.getSession().setMode("ace/mode/"+mode);
+    session.setMode("ace/mode/" + mode);
 
 	for (var i in markers) {
         if (markers.hasOwnProperty(i)) {
