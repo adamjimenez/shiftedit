@@ -11,6 +11,7 @@ function init() {
     myLayout = $('body').layout({
         resizable: true,
     	west__size:			300,
+    	west__minSize:			300,
     	east__size:			300,
     	south__size:		300,
     	south__initClosed:	true,
