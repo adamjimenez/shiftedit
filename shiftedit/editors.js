@@ -513,7 +513,7 @@ function applyPrefs(tab) {
 		editor.setShowInvisibles(Boolean(prefs.showInvisibles));
 		editor.setOption("scrollPastEnd", Boolean(prefs.scrollPastEnd));
 		editor.renderer.setShowGutter(Boolean(prefs.lineNumbers));
-		editor.renderer.setHScrollBarAlwaysVisible(Boolean(prefs.hScroll));
+		editor.renderer.setHScrollBarAlwaysVisible(false);
 		editor.renderer.setVScrollBarAlwaysVisible(true);
 		editor.renderer.setAnimatedScroll(true);
 		editor.getSession().setUseSoftTabs(Boolean(prefs.softTabs));
@@ -539,7 +539,7 @@ function create(file, content, siteId, options) {
     }
 
     //create tab
-	tab = $(".ui-layout-center").tabs('add', title, '<div class="editor_toolbar"></div>\
+	tab = $(".ui-layout-center").tabs('add', title, '<div class="vbox"><div class="editor_toolbar"></div>\
 	<div class="editor_status" data-currentError="0">\
     <button class="previous" type="button" disabled>\
     <i class="fa fa-arrow-left"></i></button> \
@@ -548,8 +548,7 @@ function create(file, content, siteId, options) {
     <button class="fix" type="button" disabled>Fix</button> \
     <span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
 	</div>\
-	\
-	<div class="editor"></div>', 'site-'+siteId);
+	<div class="editor"></div></div>', 'site-'+siteId);
 
     tab.addClass('closable');
 	tab.data(file, file);
@@ -578,7 +577,7 @@ function create(file, content, siteId, options) {
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 
 	// Splitting
-	var container = panel.children('.editor')[0];
+	var container = panel.find('.editor')[0];
 	//editor = ace.edit(container);
 
 	var Split = require("ace/split").Split;

@@ -286,15 +286,6 @@ div.buttons {
 	background-position: 4px center;
 }
 
-.editor{
-    position: relative;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 100%;
-}
-
 #quickOpenSearch, #quickOpenFile{
     width: 100%;
 }
@@ -738,4 +729,16 @@ div.buttons {
     width:25%;
     float:left;
     margin: 10px;
+}
+
+.vbox {
+    display: flex;
+    height: 100%;
+    align-content: stretch;
+    flex-direction: column;
+}
+
+.editor{
+    flex-grow: 1;
+    position: relative;
 }
