@@ -4,6 +4,11 @@ load = function () {
 	var hash = window.location.hash.substr(1);
 	console.log('hash: '+ hash);
 
+	//protect from xss
+	if(hash.indexOf('<')!==-1){
+	    return;
+	}
+
 	var files = hash.split('|');
 	files.forEach(function(path){
 		var pos = path.indexOf('/');

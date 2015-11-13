@@ -1,4 +1,4 @@
-define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/modes"], function (util, menus, tabs, editors, preferences) {
+define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/resize", "app/modes"], function (util, menus, tabs, editors, preferences, resize) {
 var modes = require('app/modes').modes;
 
 var changeMode = function(tab) {
@@ -151,6 +151,7 @@ var menu = [{
 	handler: function (tab) {
 	    var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 	    $(panel).find('.editor_status').toggle();
+	    resize.resize();
 	}
 }];
 

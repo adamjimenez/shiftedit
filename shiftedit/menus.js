@@ -67,6 +67,10 @@ define(["jquery.menubar"], function () {
                     var submenu = $('<ul></ul').appendTo(item);
                     build(submenu, menu[i].items);
                 }
+
+                if(menu[i].hidden) {
+                    item.hide();
+                }
             }
         }
     }
