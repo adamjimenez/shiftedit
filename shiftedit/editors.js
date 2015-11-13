@@ -2,7 +2,7 @@ define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
-var modes = require('app/modes').modes;
+var modes = require('app/modes');
 var editor;
 var editor_toolbar = require('app/editor_toolbar');
 var editor_contextmenu = require('app/editor_contextmenu');
@@ -602,19 +602,7 @@ function create(file, content, siteId, options) {
 	var ext = util.fileExtension(file);
 
 	//check default file associations
-	var mode = 'text';
-	prefs = preferences.get_prefs();
-
-	if( prefs.fileAssociations && prefs.fileAssociations[ext] ){
-		mode = prefs.fileAssociations[ext];
-	}else{
-    	modes.forEach(function (item) {
-    		if (item[2].indexOf(ext) !== -1) {
-    			mode = item[0];
-    			return;
-    		}
-    	});
-	}
+	var mode = modes.find(ext);
 
 	//editor.getSession().setMode("ace/mode/"+mode);
 	setMode(editor, mode);
