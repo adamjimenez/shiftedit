@@ -699,7 +699,7 @@ function updateSkin(name){
 
     var settings = {
         themepath: 'https://ajax.googleapis.com/ajax/libs/jqueryui/',
-        jqueryuiversion: '1.8.10',
+        jqueryuiversion: '1.11.4',
     };
 
     if (!url) {
