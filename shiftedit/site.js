@@ -532,7 +532,13 @@ function load() {
             $( "#sites" ).children('option').remove();
 
             $.each(sites, function( index, site ) {
-                $( "#sites" ).append( '<option value="'+site.id+'">'+site.name+'</option>' );
+                var icon = '';
+                if (site.shared) {
+                    //shared = '<i class="fa fa-share-alt" style="position: absolute; right: 0; top: 25%;"></i>';
+                    icon = 'fa fa-share-alt';
+                }
+
+                $( "#sites" ).append( '<option data-icon="'+icon+'" value="'+site.id+'">' + site.name + '</option>' );
             });
 
             if(currentSite) {
