@@ -13,3 +13,10 @@
     margin: 0;
     padding: 5px 10px;
 }
+
+.ui-autocomplete .ui-menu-item i {
+    position: absolute;
+    right: 0;
+    top: 25%;
+    padding: 0 5px;
+}
