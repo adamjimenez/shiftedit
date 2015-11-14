@@ -756,3 +756,8 @@ div.buttons {
 #sitebar .custom-combobox-input{
     width: calc(100% - 64px);
 }
+
+#tabs-filetree{
+    width: 100%;
+    overflow: scroll;
+}
