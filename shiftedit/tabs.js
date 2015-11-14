@@ -1,4 +1,4 @@
-define(['app/editors', 'app/prefs', 'exports', "ui.tabs.overflow","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script'], function (editors, preferences, exports) {
+define(['app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script'], function (editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -862,7 +862,7 @@ function init() {
     //console.log(tabs);
 
     // initialize overflow
-    $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('overflow');
+    $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('overflowResize');
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsremove', afterClose);
     $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
