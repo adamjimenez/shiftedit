@@ -924,7 +924,13 @@ function init() {
         items: "li:not(.button)",
         //allow dragging out of panel Adam Jimenez
         sort: function(e, ui) {
-            ui.item.appendTo(document.body);
+            if (ui.item.parent().prop("tagName")!=='BODY') {
+                ui.item.appendTo('body');
+                ui.item.css('width', 'auto');
+                ui.item.css('height', 'auto');
+            }
+
+            ui.helper.offset(ui.offset);
         }
     });
 }
