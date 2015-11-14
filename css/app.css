@@ -47,6 +47,10 @@ li[role=tab] {
 	margin: 1px .2em 0 0;
 	padding: 0;
 	font-family: Verdana,Arial,sans-serif;
+	overflow: hidden;
+	width: 200px;
+	font-size: 12px;
+	display: flex;
 }
 li[role=tab] a {
 	font-size:		1em !important;
@@ -60,6 +64,14 @@ li[role=tab] a {
 li[role=tab], .ui-tabs .ui-tabs-nav li.ui-tabs-active .ui-tabs-anchor, .ui-tabs .ui-tabs-nav li .ui-tabs-anchor{
 	cursor: hand;
 }
+li[role=tab] .ui-tabs-anchor{
+    flex: 1;
+    overflow: hidden;
+}
+
+.ui-layout-west li[role=tab]{
+    width: 30px;
+}
 
 .ui-tabs-anchor{
     float: left;
@@ -67,6 +79,11 @@ li[role=tab], .ui-tabs .ui-tabs-nav li.ui-tabs-active .ui-tabs-anchor, .ui-tabs 
 
 .ui-tabs .ui-tabs-panel{
     background: initial;
+}
+
+li.button {
+    width: 30px;
+    max-width: 30px;
 }
 
 /*
