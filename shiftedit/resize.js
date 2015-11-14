@@ -17,7 +17,6 @@ function resize() {
 
 function init() {
     $(window).on('resize activate', resize);
-    $('.ui-layout-pane').on('layoutpaneonresize', resize);
 }
 
 return {

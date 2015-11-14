@@ -34,6 +34,9 @@ function init() {
     // so call resizeAll to 'correct' any header/footer heights affected
     // NOTE: this is only necessary because we are changing CSS *AFTER LOADING* using themeSwitcher
     //setTimeout( myLayout.resizeAll, 1000 ); /* allow time for browser to re-render with new theme */
+
+    //send resize events to window
+    $('.ui-layout-pane').on('layoutpaneonresize', function() { $(window).trigger('resize'); });
 }
 
 exports.init = init;
