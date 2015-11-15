@@ -31,8 +31,9 @@ function init() {
     	//east__onresize:		$.layout.callbacks.resizePaneAccordions
     });
 
-    myLayout.allowOverflow("north");
-    myLayout.allowOverflow("west");
+    $('body').on('menufocus focusin', '.ui-layout-pane', function() {
+    	myLayout.allowOverflow($(this));
+    });
 
     // if a new theme is applied, it could change the height of some content,
     // so call resizeAll to 'correct' any header/footer heights affected
