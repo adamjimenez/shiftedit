@@ -855,13 +855,23 @@ function init() {
     			}
     		},*/
             'data': function (node, callback) {
-                //console.log(node);
+	            //console.log(node);
+
                 if (treeFn) {
-                    treeFn({node: node, callback: callback});
+                    treeFn({node: node, callback: callback, tree:$('#tree')});
                 }else{
                     if(!ajaxOptions.url){
                         return false;
                     }
+
+		            if(node.id==='#') {
+		            	return callback.call(tree, {
+		            		children: true,
+		            		id: '#root',
+		            		text: ajaxOptions.dir,
+		            		type: 'folder'
+		            	});
+		            }
 
             		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
             		    method: 'POST',
@@ -1356,6 +1366,10 @@ function init() {
         open({
             reference: this
         });
+    }).on('refresh.jstree', function(e, data){
+    	//expand root node
+    	var rootNode = getNode('#').children[0];
+    	inst.open_node(rootNode);
     })
     /*
     .on('changed.jstree', function (e, data) {
