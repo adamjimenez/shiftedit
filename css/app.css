@@ -149,7 +149,7 @@ li[role=tab] .ui-icon {
 }
 
 /* START TREE */
-.jstree { float:left; min-width:319px; border-right:1px solid silver; overflow:auto; padding:0px 0; }
+.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }
 .jstree .folder { background:url('../lib/jstree/file_sprite.png') right bottom no-repeat; }
 .jstree .file { background:url('../lib/jstree/file_sprite.png') 0 0 no-repeat; }
 .jstree .file-pdf { background-position: -32px 0 }
