@@ -74,7 +74,7 @@ requirejs.config({
             deps: ["jquery"]
         },
         "app/firebase": {
-            deps: ["http://cdn.firebase.com/v0/firebase.js",'firepad','firepad-userlist']
+            deps: ["https://cdn.firebase.com/v0/firebase.js",'firepad','firepad-userlist']
         },
         "firebase": {
             deps: ['Firepad']
