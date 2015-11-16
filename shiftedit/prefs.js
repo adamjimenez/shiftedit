@@ -11,7 +11,7 @@ var tree = require('app/tree');
 var openingFilesBatch = [];
 
 var defaultPrefs = {};
-defaultPrefs.skin = 'smoothness';
+defaultPrefs.skin = 'mint-choc';
 defaultPrefs.defaultCode = JSON.stringify({
 	html: "<!DOCTYPE HTML>\n\
 <html>\n\
@@ -39,7 +39,6 @@ defaultPrefs.defaultCode = JSON.stringify({
 defaultPrefs.encoding = 'UTF-8';
 defaultPrefs.imageEditor = 'pixlr';
 defaultPrefs.unknownTarget = '_blank';
-defaultPrefs.theme = 'mint-choc'; //Grey
 defaultPrefs.tabSize = 2;
 defaultPrefs.lineBreak = 'auto'; //windows unix
 defaultPrefs.font = "Courier New";
@@ -699,6 +698,19 @@ function updateSkin(name){
     var url;
     var currentStyle = [];
 	var themepath = 'css';
+
+	//check skin is valid
+	var found = false;
+	skins.forEach(function(item) {
+		if (item.name===name) {
+			found = true;
+			return;
+		}
+	});
+
+	if(!found) {
+		name = prefs.skin;
+	}
 
     if (!url) {
         var urlPrefix = themepath + "/themes/";
