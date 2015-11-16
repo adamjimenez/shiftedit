@@ -444,7 +444,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
         <input type="checkbox" id="regex" title="Regular expression"><label for="regex"><i class="icon-regex"></i></label>\
         <input type="checkbox" id="caseSensitive" title="Case sensitive"><label for="caseSensitive"><i class="icon-case-sensitive"></i></label>\
         <input type="checkbox" id="wholeWord" title="Whole words"><label for="wholeWord"><i class="icon-whole-word"></i></label>\
-        <span class="spacer"></span>\
+        <span class="flex"></span>\
         <span id="findStatus">no results</span>\
         <button type="button" id="findNextBtn"><i class="fa fa-chevron-down"></i></button>\
         <button type="button" id="findPrevBtn"><i class="fa fa-chevron-up"></i></button>\
