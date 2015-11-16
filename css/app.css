@@ -139,6 +139,12 @@ li[role=tab] .ui-icon {
 	text-decoration: none;
 }
 
+.ui-autocomplete{
+	max-height: 300px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
 /* dialogs */
 .ui-dialog{
 	padding: 0 !important;
