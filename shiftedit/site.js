@@ -67,12 +67,7 @@ function init() {
         }
     });
 
-    $( "#refresh_site" ).button({
-        icons: {
-           primary: "ui-icon-refresh"
-        },
-        text: false
-    })
+    $( "#refresh_site" ).button()
     .click(function() {
         tree.refresh();
     });
@@ -327,12 +322,7 @@ function init() {
 
     var menu = $("#siteMenu").menu().hide();
 
-    $("#siteNenuBtn").button({
-        icons: {
-            primary: "ui-icon-gear"
-        },
-        text: false
-    })
+    $("#siteNenuBtn").button()
     .click(function() {
         // Make use of the general purpose show and position operations
         // open and place the menu where we want.
