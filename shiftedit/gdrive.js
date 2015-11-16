@@ -6,7 +6,7 @@ var boundary = '-------314159265358979323846';
 var delimiter = "\r\n--" + boundary + "\r\n";
 var close_delim = "\r\n--" + boundary + "--";
 
-fullAccess = true;
+var fullAccess = true;
 
 function authorise(callback) {
     var SCOPES;
@@ -21,8 +21,6 @@ function authorise(callback) {
         function handleAuthResult(authResult) {
             if (authResult && !authResult.error) {
                 // Access token has been successfully retrieved, requests can be sent to the API.
-                console.log(authResult);
-
                 access_token = authResult.access_token;
 
                 gapi.client.load('drive', 'v2', callback);
@@ -373,24 +371,27 @@ function directFn(options) {
 		break;
 		default:
 			//console.error('unknown command: '+options.cmd);
-			treeFn(options.node, options.callback);
+			treeFn(options);
 		break;
 	}
 }
 
-function treeFn(file, callback, proxy) {
+function treeFn(options) {
 	//remove root from path
-	/*
-	if( file == '' ){
-		file = settings.dir_id ? settings.dir_id : 'root';
-	}
-	*/
-
-	var dirPath = file.id;
+	var dirPath = options.node.id;
 	var path = dirPath;
-	if(path == '#') {
-	    path = 'root';
-	}
+
+    if(path==='#') {
+		path = options.tree.data('dir_id') ? options.tree.data('dir_id') : 'root';
+		text = options.tree.data('dir') ? options.tree.data('dir') : ' ';
+
+    	return options.callback.call(options.tree, {
+    		children: true,
+    		id: path,
+    		text: text,
+    		type: 'folder'
+    	});
+    }
 
     var entries = [];
     var retrievePageOfFiles = function(request, result) {
@@ -453,7 +454,7 @@ function treeFn(file, callback, proxy) {
                     return 0;
                 });
 */
-                callback.call($('#tree'), nodes);
+                options.callback.call(options.tree, nodes);
             }
         });
     };
@@ -490,10 +491,11 @@ treeFn.directCfg = {
 	}
 };
 
-
-
     return {
         directFn: directFn,
-        authorise: authorise
+        authorise: authorise,
+        setFullAccess: function(val) {
+        	fullAccess = val;
+        }
     };
 });

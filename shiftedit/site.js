@@ -67,12 +67,7 @@ function init() {
         }
     });
 
-    $( "#refresh_site" ).button({
-        icons: {
-           primary: "ui-icon-refresh"
-        },
-        text: false
-    })
+    $( "#refresh_site" ).button()
     .click(function() {
         tree.refresh();
     });
@@ -327,12 +322,7 @@ function init() {
 
     var menu = $("#siteMenu").menu().hide();
 
-    $("#siteNenuBtn").button({
-        icons: {
-            primary: "ui-icon-gear"
-        },
-        text: false
-    })
+    $("#siteNenuBtn").button()
     .click(function() {
         // Make use of the general purpose show and position operations
         // open and place the menu where we want.
@@ -386,7 +376,9 @@ function open(siteId, options) {
 	}
 
     if(['GDrive','GDriveLimited'].indexOf(site.server_type)!=-1) {
-        gdrive.fullAccess = (site.server_type === 'GDrive');
+        gdrive.setFullAccess(site.server_type === 'GDrive');
+        $('#tree').data('dir', site.dir);
+        $('#tree').data('dir_id', site.dir_id);
 
 		gdrive.authorise(function(){
 		    loading.stop();
@@ -738,7 +730,7 @@ function chooseFolder() {
     	'core' : {
             'data' : function (node, callback) {
                 if( ['GDrive', 'GDriveLimited'].indexOf(params.server_type) !== -1 ){
-                    gdrive.directFn({node: node, callback: callback});
+                    gdrive.directFn({node: node, callback: callback, tree: $('#folderTree')});
                 }else{
                     if(!ajaxOptions.url){
                         return false;
@@ -754,11 +746,27 @@ function chooseFolder() {
             		});
                 }
             }
-    	}
+    	},
+    	'types' : {
+    		'default' : { 'icon' : 'folder' },
+    		'file' : { 'valid_children' : [], 'icon' : 'file' }
+    	},
+    	'sort' : function(a, b) {
+    		return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
+    	},
+    	'plugins' : [
+    	    'sort','types'
+    	]
+    }).on('refresh.jstree', function(e, data){
+    	//expand root node
+		var inst = $.jstree.reference($('#folderTree'));
+    	var rootNode = $('#folderTree').jstree(true).get_node('#').children[0];
+    	inst.open_node(rootNode);
     });
 
     $( "#dialog-choose-folder" ).dialog({
         modal: true,
+        minHeight: 200,
         buttons: {
             OK: function() {
                 var reference = folderTree;
@@ -1342,6 +1350,7 @@ function getAjaxOptions(ajaxUrl) {
 
     return {
         site: settings.id,
+        dir: settings.dir,
         url: ajaxUrl,
         params: params
     };

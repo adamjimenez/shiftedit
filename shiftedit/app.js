@@ -65,7 +65,7 @@ requirejs.config({
             exports: "$",
             deps: ["jquery-ui"]
         },
-        "ui.tabs.overflow": {
+        "ui.tabs.overflowResize": {
             exports: "$",
             deps: ["jquery-ui", "ui.tabs.addTab", "ui.tabs.closable"]
         },
