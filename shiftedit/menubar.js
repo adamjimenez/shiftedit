@@ -894,7 +894,7 @@ function init () {
     		items: [{
     			text: lang.updateDetailsText,
     			handler: function () {
-    				window.open('update-details');
+    				window.open('/update-details');
     			}
     		}, {
     			text: lang.logOutText,
