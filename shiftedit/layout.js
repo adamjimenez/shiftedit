@@ -23,7 +23,9 @@ function init() {
             resizable: false,
             spacing_open: 0,
             spacing_closed: 0,
-            minSize: 34
+            minSize: 30,
+            size: 30,
+            maxSize: 30
         },
         stateManagement__enabled:	true
     	// RESIZE Accordion widget when panes resize
