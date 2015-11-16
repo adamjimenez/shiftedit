@@ -845,6 +845,9 @@ function quickOpen() {
         height: 300
     });
 
+    //make sure quick open is focused
+    setTimeout(function(){ $('#quickOpenSearch').focus(); }, 100);
+
     //prevent form submit
     form = dialog.find( "form" ).on( "submit", function( event ) {
         event.preventDefault();
