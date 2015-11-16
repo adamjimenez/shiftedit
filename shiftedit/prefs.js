@@ -39,7 +39,7 @@ defaultPrefs.defaultCode = JSON.stringify({
 defaultPrefs.encoding = 'UTF-8';
 defaultPrefs.imageEditor = 'pixlr';
 defaultPrefs.unknownTarget = '_blank';
-defaultPrefs.theme = 'DarkOrange'; //Grey
+defaultPrefs.theme = 'mint-choc'; //Grey
 defaultPrefs.tabSize = 2;
 defaultPrefs.lineBreak = 'auto'; //windows unix
 defaultPrefs.font = "Courier New";
@@ -101,22 +101,26 @@ defaultPrefs.notes = '';
 defaultPrefs.find = '{}';
 
 var skins = [{
-	title: "Default",
+	title: "Dark Orange",
+	name: "dark-orange",
+	icon: "theme_90_smoothness.png"
+}/*, { //tree issues
+	title: "Grey",
 	name: "smoothness",
 	icon: "theme_90_smoothness.png"
-} ,{
+}*//*, {
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
-}, {
+}/*, { //tree issues
 	title: "Blitzer",
 	name: "blitzer",
 	icon: "theme_90_blitzer.png"
-}, {
+}*//*, {
 	title: "Cupertino",
 	name: "cupertino",
 	icon: "theme_90_cupertino.png"
-}, {
+}*/, {
 	title: "Dark Hive",
 	name: "dark-hive",
 	icon: "theme_90_dark_hive.png"
@@ -128,19 +132,19 @@ var skins = [{
 	title: "Eggplant",
 	name: "eggplant",
 	icon: "theme_90_eggplant.png"
-}, {
+}/*, {
 	title: "Excite Bike",
 	name: "excite-bike",
 	icon: "theme_90_excite_bike.png"
-}, {
+}/*, { //tree issues
 	title: "Flick",
 	name: "flick",
 	icon: "theme_90_flick.png"
-}, {
+}*//*, {
 	title: "Hot Sneaks",
 	name: "hot-sneaks",
 	icon: "theme_90_hot_sneaks.png"
-}, {
+}*/, {
 	title: "Humanity",
 	name: "humanity",
 	icon: "theme_90_humanity.png"
@@ -152,11 +156,11 @@ var skins = [{
 	title: "Mint Choc",
 	name: "mint-choc",
 	icon: "theme_90_mint_choco.png"
-}, {
+}/*, {
 	title: "Overcast",
 	name: "overcast",
 	icon: "theme_90_overcast.png"
-}, {
+}*/, {
 	title: "Pepper Grinder",
 	name: "pepper-grinder",
 	icon: "theme_90_pepper_grinder.png"
@@ -168,11 +172,11 @@ var skins = [{
 	title: "South Street",
 	name: "south-street",
 	icon: "theme_90_south_street.png"
-}, {
+}/*, {
 	title: "Start",
 	name: "start",
 	icon: "theme_90_start_menu.png"
-}, {
+}*/, {
 	title: "Sunny",
 	name: "sunny",
 	icon: "theme_90_sunny.png"
@@ -694,30 +698,58 @@ function load() {
 function updateSkin(name){
     var url;
     var currentStyle = [];
-
-    //name = 'blitzer';
-
-    var settings = {
-        themepath: 'https://ajax.googleapis.com/ajax/libs/jqueryui/',
-        jqueryuiversion: '1.11.4',
-    };
+	var themepath = 'css';
 
     if (!url) {
-        var urlPrefix = settings.themepath + settings.jqueryuiversion + "/themes/";
+        var urlPrefix = themepath + "/themes/";
         url = urlPrefix + name + "/jquery-ui.css";
-        currentStyle = $('link[href^="' + urlPrefix + '"]').first();
+        currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
     }
 
-    if (currentStyle.length) {
-        currentStyle[0].href = url;
-    } else {
-        var style = $("<link/>")
-        .attr("type","text/css")
-        .attr("rel","stylesheet")
-        .attr("href", url);
+    var style = $("<link/>")
+    .attr("type","text/css")
+    .attr("rel","stylesheet")
+    .attr("href", url);
 
-        style.appendTo("head");
-    }
+    style.appendTo("head");
+
+    style.load(function(){
+	    //set resizer color
+	    var borderColor = $('.ui-widget-header').css('border-color');
+		$('.ui-layout-resizer').css('background', borderColor);
+
+	    //var activeColor = $('.ui-widget-header').css('border-color');
+	    //var hoverColor = $('.ui-widget-header').css('border-color');
+
+	    var div = $('<div class="ui-state-highlight"></div>').appendTo('body');
+	    var activeBackground = div.css('background-color');
+	    var activeColor = div.css('color');
+	    var activeBorderColor = div.css('border-color');
+
+	    div.remove();
+
+	    div = $('<div class="ui-state-focus"></div>').appendTo('body');
+	    var hoverBackground = div.css('background-color');
+	    var hoverColor = div.css('color');
+	    var hoverBorderColor = div.css('border-color');
+	    div.remove();
+
+        $('#themeStyle').remove();
+        $('<style id="themeStyle">\
+		.jstree-default .jstree-clicked{\
+			background: '+activeBackground+' !important;\
+			color: '+activeColor+' !important;\
+			border: 0 solid '+activeBorderColor+';\
+		}\
+		\
+		.jstree-default .jstree-hovered{\
+			background: '+hoverBackground+';\
+			color: '+hoverColor+';\
+			border: 0 solid '+hoverBorderColor+';\
+		}\
+        </style>').appendTo('head');
+
+    });
 
     /*
     $.cookie(settings.cookiename, data.name,

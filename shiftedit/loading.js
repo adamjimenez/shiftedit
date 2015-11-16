@@ -22,7 +22,7 @@ function start(action, abortFunction) {
 		}
 
 		serverProgress = $('#serverProgress');
-		serverProgress.html('<strong>' + action + '&nbsp;&nbsp; <a href="#" class="abort">cancel</a></strong>');
+		serverProgress.html('<strong class="ui-state-highlight">' + action + '&nbsp;&nbsp; <a href="#" class="abort">cancel</a></strong>');
 		serverProgress.show();
 		timer = setInterval(title, 1000);
 

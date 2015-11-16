@@ -2,6 +2,25 @@ body{
 	font-size: 12px;
 }
 
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #bbb;
+    border-radius: 4px;
+    box-shadow: inset 0 0 1px 1px black;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
+}
+
 /* START LAYOUT */
 .ui-layout-container .ui-layout-pane {
 	padding: 0;
@@ -11,7 +30,6 @@ body{
 .ui-layout-content {
 	border-top: 0 !important; /* tab-buttons above this DIV already has a border-bottom */
 	padding: 0;
-	overflow: hidden;
 }
 
 /* show tree menu */
@@ -101,6 +119,7 @@ div.buttons {
 
 li[role=tab] .ui-icon {
     display: inline-block;
+    margin-right: 5px;
 }
 
 /* Menubar */
@@ -190,7 +209,7 @@ li[role=tab] .ui-icon {
 }
 
 #serverProgress strong{
-    background: #f9edbe;
+    /*background: #f9edbe;*/
     padding: 5px;
     border-radius: 5px;
     border: 1px solid #f0c36d;
@@ -202,7 +221,7 @@ li[role=tab] .ui-icon {
 	left: 0;
 	width: calc(100% - 20px);
 	height: calc(100% - 20px);
-	background: black;
+	background: #000;
 	color: white;
 	overflow: auto;
 	z-index: 10;
@@ -212,16 +231,22 @@ li[role=tab] .ui-icon {
 }
 /* syntax errors */
 .editor_status{
-	background: #C8E2F9;
+	/*background: #C8E2F9;*/
 	font-size: 11px;
-	padding: 2px 5px 5px;
+	padding: 2px;
 	overflow: none;
 	white-space: nowrap;
 }
 
+.editor_status button span{
+	font-size: 10px;
+}
+
+/*
 .editor_status_alert{
 	background: #eef09f;
 }
+*/
 
 .editor_status button[disabled]{
     opacity: 0.5;
@@ -547,7 +572,7 @@ li[role=tab] .ui-icon {
 }
 
 .prefs{
-    padding: 0 5px;
+    padding: 0 10px;
     padding-bottom: 20px;
 }
 
@@ -696,4 +721,12 @@ li[role=tab] .ui-icon {
 	padding: 2px 0;
     width: 100%;
     overflow: scroll;
+}
+
+.jstree-default .jstree-clicked{
+	background: none;
+}
+
+.jstree-default .jstree-hovered{
+	background: none;
 }

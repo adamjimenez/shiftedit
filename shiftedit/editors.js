@@ -545,7 +545,7 @@ function create(file, content, siteId, options) {
     <i class="fa fa-arrow-left"></i></button> \
     <button class="next" type="button" disabled>\
     <i class="fa fa-arrow-right"></i></button> \
-    <button class="fix" type="button" disabled>Fix</button> \
+    <!--<button class="fix" type="button" disabled>Fix</button>--> \
     <span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
 	</div>\
 	<div class="editor"></div></div>', 'site-'+siteId);
@@ -575,6 +575,7 @@ function create(file, content, siteId, options) {
 
 	//fixme panels can be in other tabarea
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	panel.css('overflow', 'hidden');
 
 	// Splitting
 	var container = panel.find('.editor')[0];
@@ -594,9 +595,15 @@ function create(file, content, siteId, options) {
 	var session = editor.getSession();
 
 	//syntax bar handlers
-	panel.find('.previous').click(jQuery.proxy(syntax_errors.previous, tab));
+    panel.find('.previous').button()
+    .click(function() {
+        jQuery.proxy(syntax_errors.previous, tab);
+    });
 
-	panel.find('.next').click(jQuery.proxy(syntax_errors.next, tab));
+    panel.find('.next').button()
+    .click(function() {
+        jQuery.proxy(syntax_errors.next, tab);
+    });
 
 	//set mode
 	var ext = util.fileExtension(file);

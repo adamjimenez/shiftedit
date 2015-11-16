@@ -72,7 +72,7 @@ function update() {
     var errors = session.getAnnotations();
     if (!errors.length) {
         $(panel).find('.status').html(lang.noSyntaxErrorsText);
-        $('editor_status').removeClass('editor_status_alert');
+        $('editor_status').removeClass('ui-state-highlight');
         $('editor_status').find('button').attr('disabled', 'disabled');
         return;
     }
@@ -116,7 +116,7 @@ function show() {
     $(editor_status).find('.status').html('[' + (currentError + 1) + '/' + errors.length + '] ' + error +
     ' on <a href="#" class="line" data-line="' + line + '">line ' + line + '</a>');
 
-    $(editor_status).addClass('editor_status_alert');
+    $(editor_status).addClass('ui-state-highlight');
 
     // go to line
     $(editor_status).find('.line').click(function() {

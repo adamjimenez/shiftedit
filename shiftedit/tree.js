@@ -1370,7 +1370,15 @@ function init() {
     	//expand root node
     	var rootNode = getNode('#').children[0];
     	inst.open_node(rootNode);
-    })
+    })/*.on('hover_node.jstree', function(e, data){
+    	inst.get_node(data.node, true).addClass('ui-state-hover');
+    }).on('dehover_node.jstree', function(e, data){
+    	inst.get_node(data.node, true).removeClass('ui-state-hover');
+    }).on('select_node.jstree', function(e, data){
+    	inst.get_node(data.node, true).addClass('ui-state-highlight');
+    }).on('deselect_node.jstree', function(e, data){
+    	inst.get_node(data.node, true).removeClass('ui-state-highlight');
+    })*/
     /*
     .on('changed.jstree', function (e, data) {
     	if(data && data.selected && data.selected.length) {
