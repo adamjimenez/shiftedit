@@ -1,4 +1,4 @@
-define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree'], function (exports, editors) {
+define(['exports', 'app/editors', 'app/tabs', 'jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree'], function (exports, editors, tabs) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
@@ -1236,6 +1236,15 @@ function open() {
 }
 
 $('body').on('click', '#openPreferences a', function(e){
+    open();
+});
+
+$('body').on('click', 'a.preferences', function(e){
+    var tabpanel = $(this).closest('.ui-tabs');
+    var id = $(this).closest('[role=tabpanel]').attr('id');
+    var tab = $('[aria-controls='+id+']');
+    tabs.close(tab);
+
     open();
 });
 

@@ -650,6 +650,7 @@ function newTab (e, ui) {
 						<li><a href="#" class="preview">Preview</a></li>\
 						<li><a href="#" class="ssh">SSH</a></li>\
 						<li><a href="#" class="diff">File Compare</a></li>\
+						<li><a href="#" class="preferences">Preferences</a></li>\
 					</ul>\
 				</div>\
 			</div>\
