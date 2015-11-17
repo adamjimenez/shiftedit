@@ -10,30 +10,29 @@ function init() {
     $.contextMenu({
         selector: '.ui-tabs-nav li.closable',
         callback: function(key, opt){
-        	var tab = $(this);
-        	var siteId;
+            var tab = $(this);
+            var siteId;
 
             switch(key) {
                 case 'new':
                     $(this).closest(".ui-tabs").tabs('add');
                 break;
                 case 'reload':
-                	var tabpanel = tab.closest(".ui-tabs");
+                    var tabpanel = tab.closest(".ui-tabs");
 
-                	function reloadTab() {
-                		console.log('yo')
-                    	tabs.open(file, siteId);
-                	}
+                    function reloadTab() {
+                        tabs.open(file, siteId);
+                    }
 
-                	tabpanel.one('close', reloadTab);
-                	tab.one('closeCancel', function() {
-                		tabpanel.off('close', reloadTab);
-                	});
+                    tabpanel.one('close', reloadTab);
+                    tab.one('closeCancel', function() {
+                        tabpanel.off('close', reloadTab);
+                    });
 
-                   	var file = tab.data('file');
-                   	siteId = tab.data('site');
+					var file = tab.data('file');
+					siteId = tab.data('site');
                     if (file && siteId) {
-                    	tabs.close(tab);
+                        tabs.close(tab);
                     }
                 break;
                 case 'close':
@@ -66,20 +65,20 @@ function init() {
                     }
                 break;
                 case 'bookmarkAll':
-            		var name = '';
-            		var link = location.protocol+'//'+location.host+location.pathname+'#';
+                    var name = '';
+                    var link = location.protocol+'//'+location.host+location.pathname+'#';
 
-            		$('li[role="tab"][data-site][data-file]:not(.button)').each(function() {
-            		    var siteId = $(this).data('site');
-            		    var file = $(this).data('file');
-            		    var settings = site.getSettings(siteId);
+                    $('li[role="tab"][data-site][data-file]:not(.button)').each(function() {
+                        var siteId = $(this).data('site');
+                        var file = $(this).data('file');
+                        var settings = site.getSettings(siteId);
 
-            			link += settings.name + '/' + file + '|';
-            			name += file + ', ';
-            		});
+                        link += settings.name + '/' + file + '|';
+                        name += file + ', ';
+                    });
 
-            		link = link.substr(0, (link.length - 1));
-            		name = name.substr(0, (name.length - 2));
+                    link = link.substr(0, (link.length - 1));
+                    name = name.substr(0, (name.length - 2));
 
                     return prompt.alert({
                         title: 'Bookmark all files',
