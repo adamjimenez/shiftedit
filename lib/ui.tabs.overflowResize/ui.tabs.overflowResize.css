@@ -1,0 +1,27 @@
+li[role=tab] {
+	white-space: nowrap;
+	margin: 1px .2em 0 0;
+	padding: 0;
+	overflow: hidden;
+	width: 200px;
+	font-size: 12px;
+	display: flex;
+	margin-right: 0 !important;
+}
+
+li[role=tab] a {
+	font-size: 1em !important;
+	padding: 4px 1.5ex 3px !important;
+}
+
+li[role=tab] .ui-tabs-anchor{
+	flex: 1;
+	overflow: hidden;
+	outline: 0;
+}
+
+li.button {
+	width: 30px;
+	max-width: 30px;
+    height: 26px;
+}

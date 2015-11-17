@@ -21,6 +21,7 @@ requirejs.config({
         "firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
         "jsdiff": 'jsdiff/diff',
+        "ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize'
     },
     "shim": {
         /*
