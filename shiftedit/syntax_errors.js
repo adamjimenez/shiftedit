@@ -72,8 +72,8 @@ function update() {
     var errors = session.getAnnotations();
     if (!errors.length) {
         $(panel).find('.status').html(lang.noSyntaxErrorsText);
-        $('editor_status').removeClass('ui-state-highlight');
-        $('editor_status').find('button').attr('disabled', 'disabled');
+        $('.editor_status').removeClass('ui-state-highlight');
+        $('.editor_status').find('button').attr('disabled', 'disabled');
         return;
     }
 
