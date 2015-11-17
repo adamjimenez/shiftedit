@@ -623,6 +623,7 @@ function closeTabsRight (tab) {
 function newTab (e, ui) {
     //show new tab page
     var tab = $(ui.tab);
+
     if(!tab.attr('data-newtab')){
         return;
     }
@@ -630,8 +631,8 @@ function newTab (e, ui) {
     tab.addClass('closable');
 
     var editors = require('app/editors');
-
-    var panel = $(ui.panel);
+	var panelId = tab.attr( "aria-controls" );
+    var panel = $( "#"+panelId );
 
     panel.append('\
 			<div class="newTab">\
@@ -894,34 +895,31 @@ function init() {
         distance: 10,
         connectWith: '.ui-tabs-nav',
         receive: function (event, ui) {
-            var receiver = $(this).parent(),
-                sender = $(ui.sender[0]).parent(),
-                tab = ui.item[0],
-                tab$ = $(ui.item[0]),
+            var receiver = $(this).parent();
+            var sender = $(ui.sender[0]).parent();
+            var tab = $(ui.item[0]);
             // Find the id of the associated panel
-                panelId = tab$.attr( "aria-controls" ),
-                insertBefore = document.elementFromPoint(event.pageX,event.pageY);
+            var panelId = tab.attr( "aria-controls" );
+            var insertBefore = document.elementFromPoint(event.pageX, event.pageY);
 
-            tab$ = $(tab$.removeAttr($.makeArray(tab.attributes).
-                          map(function(item){ return item.name;}).
-                          join(' ')).remove());
-            tab$.find('a').removeAttr('id tabindex role class');
-            //console.log(insertBefore, tab);
-            //console.log(insertBefore.parentElement == tab);
-            if(insertBefore.parentElement == tab){
+            if(insertBefore.parentElement == tab[0]){
                 insertBefore = document.elementFromPoint(event.pageX + insertBefore.offsetWidth, event.pageY);
-                //console.log('ins', insertBefore);
             }
-            //console.log($(insertBefore).closest('li[role="tab"]').get());
-            insertBefore = $(insertBefore).closest('li[role="tab"]').get(0);
-            //console.log(insertBefore);
-            if(insertBefore)
-                tab$.insertBefore(insertBefore);
-            else
-                $(this).append(tab$);
 
-            $($( "#" + panelId ).remove()).appendTo(receiver);
+            insertBefore = $(insertBefore).closest('li[role="tab"]').get(0);
+
+            if(insertBefore)
+                tab.insertBefore(insertBefore);
+            else
+                $(this).append(tab);
+
+            //move panel
+            receiver.find('.ui-layout-content')[0].appendChild(document.getElementById(panelId));
+
             tabs.tabs('refresh');
+
+            //activate tab
+            receiver.tabs("option", "active", tab.index());
         },
 
         //don't drag "add tab" button
