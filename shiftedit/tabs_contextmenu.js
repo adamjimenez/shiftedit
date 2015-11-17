@@ -10,9 +10,31 @@ function init() {
     $.contextMenu({
         selector: '.ui-tabs-nav li.closable',
         callback: function(key, opt){
+        	var tab = $(this);
+        	var siteId;
+
             switch(key) {
                 case 'new':
                     $(this).closest(".ui-tabs").tabs('add');
+                break;
+                case 'reload':
+                	var tabpanel = tab.closest(".ui-tabs");
+
+                	function reloadTab() {
+                		console.log('yo')
+                    	tabs.open(file, siteId);
+                	}
+
+                	tabpanel.one('close', reloadTab);
+                	tab.one('closeCancel', function() {
+                		tabpanel.off('close', reloadTab);
+                	});
+
+                   	var file = tab.data('file');
+                   	siteId = tab.data('site');
+                    if (file && siteId) {
+                    	tabs.close(tab);
+                    }
                 break;
                 case 'close':
                     return tabs.close($(this));
@@ -30,8 +52,7 @@ function init() {
                 case 'saveAll':
                     return tabs.saveAll($(this));
                 case 'revealInTree':
-                    var tab = $(this);
-                    var siteId = tab.data('site');
+                    siteId = tab.data('site');
 
                     function revealFile() {
                         return tree.select(tab.data('file'));
@@ -69,6 +90,7 @@ function init() {
         },
         items: {
             "new": {name: makeMenuText(lang.newText + '...', 'Alt+N')},
+            "reload": {name: makeMenuText('Reload', '')},
             "close": {name: makeMenuText('Close Tab', 'Alt+W')},
             "sep1": "---------",
             "closeOtherTabs": {name: "Close other tabs"},

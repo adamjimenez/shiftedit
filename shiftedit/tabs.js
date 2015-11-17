@@ -73,6 +73,7 @@ function openFiles(callback) {
     //check if file already open
     var index = $(".ui-layout-center li[data-file='"+file+"'][data-site='"+siteId+"']").index();
     if(index!==-1){
+    	console.log('file already open');
         $(".ui-layout-center").tabs("option", "active", index);
         delete opening[siteId+'|'+file];
         return;
@@ -581,13 +582,12 @@ function checkEdited (e, ui) {
 				} else if (btn == 'cancel') {
 				    //focus editor
 				    closing = [];
+        			$(ui.tab).trigger('closeCancel');
 				}
 			}
         });
         return false;
     }else{
-        $(ui.tab).trigger('close');
-
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
