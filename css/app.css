@@ -1,5 +1,6 @@
 body{
 	font-size: 12px;
+	margin: 0;
 }
 
 textarea{
@@ -713,4 +714,41 @@ li[role=tab] .ui-icon {
 
 .jstree-default .jstree-hovered{
 	background: none;
+}
+
+/* splashscreen */
+#splash{
+	z-index: 100;
+	color: #ccc;
+	font-size: 20px;
+	font-family: Verdana, Geneva, sans-serif;
+	background: #222;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#splash .status{
+	font-size:16px;
+}
+
+#splash .slow{
+	position:absolute;
+	bottom:40px;
+	right:50px;
+}
+
+#splash .slow a{
+	color: #ccc;
+}
+
+#splash .progress{
+	width: 300px;
+	display: inline-block;
 }

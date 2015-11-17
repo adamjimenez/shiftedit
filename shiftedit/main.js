@@ -1,15 +1,20 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash'], function (exports) {
     var version = '17.0.0';
     var locale = require("app/lang");
     var preferences = require("app/prefs");
+    var splash = require("app/splash");
 
+    splash.update('loading strings..');
     locale.load()
     .fail(function () {
         console.error("Cannot load language file");
-		location.href='/login';
+        location.href='/login';
     })
     .done(
-        preferences.load()
+        function() {
+            splash.update('loading preferences..');
+            return preferences.load();
+        }()
         .done(function () {
             var prefs = preferences.get_prefs();
 
@@ -24,6 +29,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             var site = require("app/site");
             site.init();
 
+            splash.update('loading sites..');
             site.load()
             .done(function() {
                 if(prefs.restoreTabs) {
@@ -46,6 +52,8 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             var snippets = require("app/snippets");
             var resize = require("app/resize");
             resize.init();
+
+            splash.close();
         })
     );
 
