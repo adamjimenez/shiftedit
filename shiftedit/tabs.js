@@ -887,6 +887,13 @@ function init() {
         tabActivate($(ui.newTab));
     });
 
+    //activate on mousedown
+    $('body').on('mousedown', 'li[role=tab]', function() {
+    	var tab = $(this);
+    	var tabpanel = tab.closest('.ui-tabs');
+    	$(".ui-layout-center").tabs("option", "active", tab.index());
+    });
+
     $( "#tree" ).on( "rename", updateTabs );
     //$(document).on("rename", "#tree", updateTabs);
 
