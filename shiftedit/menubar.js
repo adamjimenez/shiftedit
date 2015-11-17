@@ -899,7 +899,7 @@ function init () {
     		}, {
     			text: lang.logOutText,
     			handler: function () {
-    				location.href = 'logout';
+    				location.href = '/logout';
     			}
     		}]
     	},
@@ -908,7 +908,7 @@ function init () {
     		id: 'goPremier',
     		text: (storage.get('edition') == 'Trial' ? 'Trial Period' : 'Go Premier'),
     		handler: function () {
-    			window.open('premier');
+    			window.open('/premier');
     		},
     		hidden: storage.get('premier')
     	}
