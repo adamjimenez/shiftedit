@@ -6,6 +6,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
     locale.load()
     .fail(function () {
         console.error("Cannot load language file");
+		location.href='/login';
     })
     .done(
         preferences.load()
