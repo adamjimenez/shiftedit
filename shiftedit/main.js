@@ -1,5 +1,5 @@
 define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash'], function (exports) {
-    var version = '17.0.0';
+    var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
     var locale = require("app/lang");
     var preferences = require("app/prefs");
     var splash = require("app/splash");
