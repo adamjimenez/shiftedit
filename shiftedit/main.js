@@ -16,6 +16,10 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             return preferences.load();
         }()
         .done(function () {
+        	var layout = require("app/layout");
+    		layout.init();
+        })
+        .done(function () {
             var prefs = preferences.get_prefs();
 
             // yay!
@@ -39,8 +43,6 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
                 var hash = require("app/hash").load();
             });
 
-            var layout = require("app/layout");
-            layout.init();
             var recent = require("app/recent");
             recent.load();
             var shortcuts = require("app/shortcuts");
