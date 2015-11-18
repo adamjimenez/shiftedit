@@ -1,14 +1,16 @@
 define(['jquery-ui'], function () {
-    $( "#progressbar" ).progressbar({
+	/*
+    $( ".splash .progressbar" ).progressbar({
         value: false
     });
+    */
 
     return {
         update: function(str) {
-            $('#splash .status').text(str);
+            $('.splash .status').text(str);
         },
         close: function() {
-            $('#splash').fadeOut(300, function() { $(this).remove(); });
+            $('.splash').fadeOut(300, function() { $(this).remove(); });
         }
     };
 });

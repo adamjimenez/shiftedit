@@ -1,3 +1,11 @@
+@import url("../lib/layout-default-latest.css");
+@import url("../lib/jquery-ui.css");
+@import url("../lib/menubar/jquery.menubar.css");
+@import url("../lib/contextMenu/jquery.contextMenu.css");
+@import url("../lib/combobox/ui.combobox.css");
+@import url("../lib/jstree/themes/default/style.css");
+@import url("../lib/ui.tabs.overflowResize/ui.tabs.overflowResize.css");
+
 body{
 	font-size: 12px;
 	margin: 0;
@@ -717,7 +725,7 @@ li[role=tab] .ui-icon {
 }
 
 /* splashscreen */
-#splash{
+.splash{
 	z-index: 100;
 	color: #ccc;
 	font-size: 20px;
@@ -734,21 +742,25 @@ li[role=tab] .ui-icon {
     justify-content: center;
 }
 
-#splash .status{
+.splash .status{
 	font-size:16px;
 }
 
-#splash .slow{
+.splash .slow{
 	position:absolute;
 	bottom:40px;
 	right:50px;
 }
 
-#splash .slow a{
+.splash .slow a{
 	color: #ccc;
 }
 
-#splash .progress{
+.splash .progress{
 	width: 300px;
 	display: inline-block;
+}
+
+.splash .progressbar{
+	opacity: 0.2;
 }
