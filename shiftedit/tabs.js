@@ -537,9 +537,10 @@ function setEdited(tab, edited) {
 function setTitle(tab, title) {
 	//tab.data('file', file);
 	//tab.attr('data-file', file);
+	tab.data('title', title);
 	tab.attr('data-title', title);
-    tab.attr('title', title);
-    tab.children('.ui-tabs-anchor').text(title);
+    tab.children('.ui-tabs-anchor').attr('title', title);
+    tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(title));
 }
 
 function recordOpenFiles() {
@@ -963,4 +964,5 @@ $('body').on('click', 'a.openfile', function() {
     exports.recordOpenFiles = recordOpenFiles;
     exports.next = next;
     exports.prev = prev;
+    exports.setTitle = setTitle;
 });

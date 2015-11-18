@@ -98,7 +98,7 @@ div.buttons {
 /* END LAYOUT */
 
 /* Tabs */
-.ui-tabs-active a {
+li[role=tab] a {
    padding: 2px 9px 1px;
    margin-bottom: -1px;
    overflow: visible;
@@ -107,6 +107,8 @@ div.buttons {
 li[role=tab] .ui-icon {
     display: inline-block;
     margin-right: 5px;
+    margin-top: 2px;
+    vertical-align: bottom;
 }
 
 /* Menubar */

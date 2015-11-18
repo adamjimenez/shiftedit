@@ -9,9 +9,10 @@ li[role=tab] {
 	margin-right: 0 !important;
 }
 
-li[role=tab] a {
+li[role=tab] a.ui-tabs-anchor {
 	font-size: 1em !important;
-	padding: 4px 1.5ex 3px !important;
+	padding: 6px 7px 4px !important;
+	font-weight: normal;
 }
 
 li[role=tab] .ui-tabs-anchor{
@@ -24,4 +25,13 @@ li.button {
 	width: 30px;
 	max-width: 30px;
     height: 26px;
+}
+
+li[role=tab] a.tabCloseButton {
+	margin: 5px 0;
+	opacity: 0.5;
+}
+
+li[role=tab] a.tabCloseButton:hover {
+	opacity: 1;
 }

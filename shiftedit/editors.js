@@ -557,8 +557,7 @@ function create(file, content, siteId, options) {
     tab.addClass('closable');
 	tab.data(file, file);
 	tab.attr('data-file', file);
-	tab.data(title, title);
-	tab.attr('data-title', title);
+	tabs.setTitle(tab, title);
 
 	if(siteId) {
 	    tab.data('site', siteId);
