@@ -1,4 +1,4 @@
-define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/ext-language_tools','ace/ext-split', 'app/site', 'app/firebase', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-split', 'app/site', 'app/firebase', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -11,12 +11,16 @@ var autocomplete = require('app/autocomplete');
 var Autocomplete = require("ace/autocomplete").Autocomplete;
 var site = require('app/site');
 var firebase = require('app/firebase');
-var Firepad = require('firepad');
+var Firepad = window.Firepad;
 var find = require('app/find');
 var storage = require('app/storage');
 
-ace.config.set("packaged", true);
-ace.config.set("basePath", require.toUrl("ace"));
+//ace.config.set("packaged", true);
+//ace.config.set("basePath", require.toUrl("ace"));
+
+ace.config.set("modePath", "//shiftedit.s3.amazonaws.com/lib/ace");
+ace.config.set("workerPath", "//shiftedit.s3.amazonaws.com/lib/ace");
+ace.config.set("themePath", "//shiftedit.s3.amazonaws.com/lib/ace");
 
 function onChange(e) {
     var tabs = require("app/tabs");
