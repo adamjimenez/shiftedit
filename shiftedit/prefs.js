@@ -697,7 +697,7 @@ function load() {
 function updateSkin(name){
     var url;
     var currentStyle = [];
-	var themepath = 'css';
+	var themepath = '//shiftedit.s3.amazonaws.com/css';
 
 	//check skin is valid
 	var found = false;
