@@ -1,4 +1,4 @@
-define(['app/tabs','app/find', 'jquery'], function (tabs, find) {
+define(['app/tabs','app/find', 'app/prefs', 'jquery'], function (tabs, find, preferences) {
     var shortcuts = [];
 	var defaultShortcuts = [{ //escape
 		key: 27,
@@ -120,7 +120,7 @@ define(['app/tabs','app/find', 'jquery'], function (tabs, find) {
 		scope: this,
 		stopEvent: true,
 		fn: function (key, e) {
-			preferences.edit();
+			preferences.open();
 		}
 	},
 	{ //refresh view shift+F5
