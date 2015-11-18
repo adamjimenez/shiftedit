@@ -11,7 +11,7 @@ define(['jquery'], function () {
 			});
 
 			$('.newVersion .dismiss').click(function() {
-				$('.newVersion').remove();
+				$('.newVersion').fadeOut(300, function() { $(this).remove(); });
 			});
 		}, false);
 		if (window.applicationCache.status == 1) {
