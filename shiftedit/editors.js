@@ -1,4 +1,4 @@
-define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-split', 'app/site', 'app/firebase', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -11,7 +11,7 @@ var autocomplete = require('app/autocomplete');
 var Autocomplete = require("ace/autocomplete").Autocomplete;
 var site = require('app/site');
 var firebase = require('app/firebase');
-var Firepad = window.Firepad;
+var Firepad = require('firepad/firepad');
 var find = require('app/find');
 var storage = require('app/storage');
 

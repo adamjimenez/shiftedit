@@ -18,7 +18,7 @@ requirejs.config({
         "ace/autocomplete": "ace.20141108/src/ext-language_tools",
         "ace/mode/css/csslint": "ace.20141108/src/worker-css",
         //"ace/ext/emmet": 'ace.20141108/src/ext-emmet',
-        "firepad": 'firepad/firepad',
+        //"firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
         "jsdiff": 'jsdiff/diff',
         "ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize'
@@ -77,14 +77,15 @@ requirejs.config({
         "app/firebase": {
             deps: [
             	//"https://cdn.firebase.com/v0/firebase.js",
-            	'firepad',
+            	'firepad/firepad',
+            	'firepad/firebase',
             	'firepad-userlist'
             ]
         },
-        "firebase": {
-            deps: ['Firepad']
+        "firepad/firebase": {
+            deps: ['Firepad/firepad','ace/ace']
         },
-        "firepad": {
+        "firepad/firepad": {
             deps: ['ace/ace']
         },
         "app/ssh": {
