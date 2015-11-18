@@ -764,3 +764,24 @@ li[role=tab] .ui-icon {
 .splash .progressbar{
 	opacity: 0.2;
 }
+
+.newVersion{
+	position: absolute;
+	width: 260px;
+	right: 20px;
+	bottom: 20px;
+	z-index: 100;
+}
+
+.newVersion .inner{
+	position: relative;
+	padding: 20px;
+	opacity: 0.8;
+	text-align: center;
+}
+
+.newVersion .dismiss{
+	position: absolute;
+	top: 2px;
+	right: 2px;
+}

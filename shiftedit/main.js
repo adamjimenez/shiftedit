@@ -1,4 +1,4 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache'], function (exports) {
     var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
     var locale = require("app/lang");
     var preferences = require("app/prefs");
