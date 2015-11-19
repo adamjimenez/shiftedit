@@ -1,4 +1,4 @@
-define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/resize", "app/modes"], function (util, menus, tabs, editors, preferences, resize) {
+define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/resize", "app/site", "app/designs", "app/revisions", "app/modes"], function (util, menus, tabs, editors, preferences, revisions, resize, site, designs) {
 var modes = require('app/modes').modes;
 
 var changeMode = function(tab) {
@@ -68,15 +68,44 @@ var menu = [{
 	handler: function (button) {
 		tabs.getEditor(tab).redo();
 	}
-}, /*{
+}, {
 	id: 'codeButton',
 	text: '<i class="fa fa-picture-o"></i>',
 	tooltip: 'Design View',
 	enableToggle: true,
 	handler: function (button) {
-		toggleView(this.pressed);
+	    var panel = $(this).closest('.ui-tabs-panel');
+		var tab = $('[aria-controls='+panel.attr('id')+']');
+	    var editor = tabs.getEditor(tab);
+
+		if (tab.data('view')==='code') {
+			panel.find('.editor_status').hide();
+			panel.find('.editor').hide();
+			panel.find('.design').show();
+
+			tab.data('view', 'design');
+			tab.attr('data-view', 'design');
+
+			//initiated?
+			if(!tab.data('design-ready')) {
+				var designs = require('app/designs');
+				designs.create(tab);
+			} else {
+				var inst = tinymce.get(panel.find('.design textarea').attr('id'));
+				inst.setContent(editor.getValue());
+			}
+		} else {
+			panel.find('.editor_status').show();
+			panel.find('.design').hide();
+			panel.find('.editor').show();
+
+			tab.data('view', 'code');
+			tab.attr('data-view', 'code');
+		}
+
+		$(tab).trigger('activate');
 	}
-},*/ {
+}, {
 	id: 'codeSplit',
 	text: '<i class="fa fa-columns"></i>',
 	tooltip: 'Split',

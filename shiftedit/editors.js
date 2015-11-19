@@ -1,4 +1,4 @@
-define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -552,12 +552,16 @@ function create(file, content, siteId, options) {
     <!--<button class="fix" type="button" disabled>Fix</button>--> \
     <span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
 	</div>\
-	<div class="editor"></div></div>', 'site-'+siteId);
+	<div class="editor"></div><div class="design flex" style="display: none;"></div></div>', 'site-'+siteId);
 
     tab.addClass('closable');
 	tab.data(file, file);
 	tab.attr('data-file', file);
+
 	tabs.setTitle(tab, title);
+
+    tab.data('view', 'code');
+    tab.attr('data-view', 'code');
 
 	if(siteId) {
 	    tab.data('site', siteId);

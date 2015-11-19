@@ -59,9 +59,6 @@ textarea{
 	font-size: 1em !important;
 	padding: 0 !important;
 }
-li[role=tab], .ui-tabs .ui-tabs-nav li.ui-tabs-active .ui-tabs-anchor, .ui-tabs .ui-tabs-nav li .ui-tabs-anchor{
-	cursor: hand;
-}
 
 .ui-layout-west li[role=tab]{
     width: 30px;
@@ -786,4 +783,8 @@ li[role=tab] .ui-icon {
 	position: absolute;
 	top: 2px;
 	right: 2px;
+}
+
+.ui-dialog {
+	z-index: 100000 !important; /*higher than tinymce*/
 }
