@@ -514,7 +514,7 @@ function setEdited(tab, edited) {
 
 	if(edited) {
 	    //change title
-	    tab.children('.ui-tabs-anchor').contents().last().replaceWith('*'+tab.data('title'));
+	    tab.children('.ui-tabs-anchor').contents().last().replaceWith('*'+util.basename(tab.data('title')));
 	    tab.trigger('change');
 
 	    //autosave
@@ -530,7 +530,7 @@ function setEdited(tab, edited) {
 	    }
 	} else {
 	    //change title
-	    tab.children('.ui-tabs-anchor').contents().last().replaceWith(tab.data('title'));
+	    tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(tab.data('title')));
 	}
 }
 
@@ -862,8 +862,8 @@ function init() {
     tabs_contextmenu.init();
 
     // TABS - sortable
-    $( ".ui-layout-west" ).tabs();
-    var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({closable: true, addTab:true});
+    $( ".ui-layout-west" ).tabs({event: 'mousedown'});
+    var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({closable: true, addTab:true, event: 'mousedown'});
 
     //console.log(tabs);
 
@@ -888,19 +888,13 @@ function init() {
         tabActivate($(ui.newTab));
     });
 
-    //activate on mousedown
-    $('body').on('mousedown', 'li[role=tab]', function() {
-    	var tab = $(this);
-    	var tabpanel = tab.closest('.ui-tabs');
-    	$(".ui-layout-center").tabs("option", "active", tab.index());
-    });
-
     $( "#tree" ).on( "rename", updateTabs );
     //$(document).on("rename", "#tree", updateTabs);
 
     //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
     tabs.find( ".ui-tabs-nav" ).sortable({
         distance: 10,
+        //revert: true,
         connectWith: '.ui-tabs-nav',
         receive: function (event, ui) {
             var receiver = $(this).parent();
