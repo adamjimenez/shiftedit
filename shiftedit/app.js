@@ -74,11 +74,8 @@ requirejs.config({
             exports: "$",
             deps: ["jquery"]
         },
-        "firepad/firebase": {
-            deps: ['Firepad/firepad','ace/ace']
-        },
         "firepad/firepad": {
-            deps: ['ace/ace']
+            deps: ['ace/ace', 'firepad/firebase']
         },
         "firepad-userlist": {
             deps: ['firepad/firebase']
