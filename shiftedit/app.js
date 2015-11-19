@@ -74,19 +74,14 @@ requirejs.config({
             exports: "$",
             deps: ["jquery"]
         },
-        "app/firebase": {
-            deps: [
-            	//"https://cdn.firebase.com/v0/firebase.js",
-            	'firepad/firepad',
-            	'firepad/firebase',
-            	'firepad-userlist'
-            ]
-        },
         "firepad/firebase": {
             deps: ['Firepad/firepad','ace/ace']
         },
         "firepad/firepad": {
             deps: ['ace/ace']
+        },
+        "firepad-userlist": {
+            deps: ['firepad/firebase']
         },
         "app/ssh": {
             deps: [
