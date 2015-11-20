@@ -1167,11 +1167,12 @@ function init() {
     		}
     	},
         grid: {
+        	isThemeroller: true,
             resizable: true,
             columns: [
-                {width: 50, header: "Name"},
+                {width: 'auto', header: "Name"},
                 {
-                    width: 30,
+                    width: 100,
                     header: "Modified",
                     value: "modified",
                     format: function(v) {
@@ -1183,7 +1184,7 @@ function init() {
         			}
                 },
                 {
-                    width: 30,
+                    width: 50,
                     header: "Size",
                     value: "size",
                     format: function(size) {
@@ -1197,11 +1198,13 @@ function init() {
         				return ''+Math.round(size)+'BKMGT'.substr(si, 1);
         			}
                 },
-                {width: 30, header: "Permissions", value: "perms"}
+                {width: 50, header: "Permissions", value: "perms"}
             ]
         },
     	'plugins' : [
-    	    'state','dnd','sort','types','contextmenu','unique'//,'grid'
+    	    'state','dnd','sort','types','contextmenu','unique'
+    	    //,'themeroller' //theme roller plugin no longer exists..?
+    	    //,'grid'
     	]
     })
     .on('delete_node.jstree', function (e, data) {

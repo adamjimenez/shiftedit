@@ -167,6 +167,10 @@ li[role=tab] .ui-icon {
 .jstree .file-css { background-position: -144px 0 }
 .jstree .file-fla { background-position: -398px 0 }
 
+.jstree-grid-header-regular{
+	background-color: transparent !important;
+}
+
 .vakata-context .vakata-contextmenu-shortcut{
     display: inline;
     opacity: 1;
