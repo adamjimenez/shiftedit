@@ -653,7 +653,7 @@ function init () {
             		var edition = storage.get('edition') ? storage.get('edition') : '';
             		var title = 'ShiftEdit';
             		var version = main.getVersion();
-            		var html = version + ' ' + edition + '\
+            		var html = 'Version: '+version+'<br>Edition: ' + edition + '\
             		    <br><br>Copyright &copy; 2007-'+year+' ShiftCreate Limited. All Rights Reserved.<br>\
             		    ShiftEdit is made possible thanks to the following open source projects:<br><br> \
         				<table width="100%">\
@@ -894,12 +894,12 @@ function init () {
     		items: [{
     			text: lang.updateDetailsText,
     			handler: function () {
-    				window.open('update-details');
+    				window.open('/update-details');
     			}
     		}, {
     			text: lang.logOutText,
     			handler: function () {
-    				location.href = 'logout';
+    				location.href = '/logout';
     			}
     		}]
     	},
@@ -908,7 +908,7 @@ function init () {
     		id: 'goPremier',
     		text: (storage.get('edition') == 'Trial' ? 'Trial Period' : 'Go Premier'),
     		handler: function () {
-    			window.open('premier');
+    			window.open('/premier');
     		},
     		hidden: storage.get('premier')
     	}

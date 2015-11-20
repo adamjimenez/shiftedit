@@ -1,0 +1,107 @@
+li[role=tab] {
+  white-space: nowrap;
+  margin: 1px .2em 0 0;
+  padding: 0;
+  overflow: hidden;
+  width: 200px;
+  font-size: 12px;
+  display: flex;
+  margin-right: 0 !important;
+  outline: 0;
+}
+
+li[role=tab] a {
+  font-size: 1em !important;
+}
+
+li[role=tab] .ui-tabs-anchor{
+  flex: 1;
+  overflow: hidden;
+  outline: 0;
+}
+
+li.button {
+  width: 0;
+  max-width: 0;
+}
+
+ul.ui-tabs-nav{
+  margin: 0;
+  list-style-type : none;
+  line-height : 35px;
+  max-height: 35px;
+  overflow: hidden;
+  display: inline-block;
+  padding-right: 20px;
+  background: none;
+  background-image: none;
+  border: 0;
+  width: 100%;
+}
+
+ul.ui-tabs-nav > li.ui-tabs-active{
+  z-index: 2;
+}
+
+ul.ui-tabs-nav > li.ui-tabs-active:before{
+  border-color : transparent transparent transparent transparent;
+}
+
+ul.ui-tabs-nav > li.ui-tabs-active:after{
+  border-color : transparent transparent transparent transparent;
+}
+
+ul.ui-tabs-nav > li{
+  float : right;
+  margin : 5px -10px 0 !important;
+  border-top-right-radius: 25px 170px;
+  border-top-left-radius: 20px 90px;
+  padding : 0 30px 0 25px !important;
+  height: 170px;
+  position : relative;
+  box-shadow: 0 10px 20px rgba(0,0,0,.5);
+  max-width : 200px;
+  line-height: 20px;
+}
+
+ul.ui-tabs-nav > li > a{
+  display: inline-block;
+  max-width:100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+ul.ui-tabs-nav > li:before, ul.ui-tabs-nav > li:after{
+  content : '';
+  background : transparent;
+  height: 20px;
+  width: 20px;
+  border-radius: 100%;
+  border-width: 10px;
+  top: 0px;
+  border-style : solid;
+  position : absolute;
+}
+
+ul.ui-tabs-nav > li:before{
+  border-color : transparent transparent transparent transparent;
+  -webkit-transform : rotate(48deg);
+  left: -23px;
+}
+
+ul.ui-tabs-nav > li:after{
+  border-color : transparent transparent transparent transparent;
+  -webkit-transform : rotate(-48deg);
+  right: -17px;
+}
+
+.ui-sortable-helper{
+  height: 30px !important;
+}
+
+/* Clear Fix took for HTML 5 Boilerlate*/
+
+.clearfix:before, .clearfix:after { content: ""; display: table; }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; }

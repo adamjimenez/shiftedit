@@ -15,12 +15,13 @@ requirejs.config({
         "jstree": "jstree/jstree",
         "ace": "ace.20141108/src",
         //"ace/split": 'ace.20141108/src/ext-split',
-        //"ace/autocomplete": "ace.20141108/src/ext-language_tools",
+        "ace/autocomplete": "ace.20141108/src/ext-language_tools",
         "ace/mode/css/csslint": "ace.20141108/src/worker-css",
         //"ace/ext/emmet": 'ace.20141108/src/ext-emmet',
-        "firepad": 'firepad/firepad',
+        //"firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
         "jsdiff": 'jsdiff/diff',
+        "ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize'
     },
     "shim": {
         /*
@@ -34,7 +35,7 @@ requirejs.config({
         "ace/ext-split": {
             deps: ["ace/ace"]
         },
-        "ace/ext-language_tools": {
+        "ace/autocomplete": {
             deps: ["ace/ace"]
         },
         "jquery-ui": {
@@ -73,25 +74,27 @@ requirejs.config({
             exports: "$",
             deps: ["jquery"]
         },
-        "app/firebase": {
-            deps: ["http://cdn.firebase.com/v0/firebase.js",'firepad','firepad-userlist']
+        "firepad/firebase": {
+            deps: ['Firepad/firepad','ace/ace']
         },
-        "firebase": {
-            deps: ['Firepad']
-        },
-        "firepad": {
+        "firepad/firepad": {
             deps: ['ace/ace']
         },
+        "firepad-userlist": {
+            deps: ['firepad/firebase']
+        },
         "app/ssh": {
-            deps: ["https://ssh.shiftedit.net/socket.io/socket.io.js",'https://ssh.shiftedit.net/term.js']
+            deps: [
+            	//"https://ssh.shiftedit.net/socket.io/socket.io.js",'https://ssh.shiftedit.net/term.js'
+            ]
         },
         "app/gdrive": {
-            deps: ["https://apis.google.com/js/client.js"]
+            deps: [
+            	//"https://apis.google.com/js/client.js"
+            ]
         }
     }
 });
 
-// Start loading the main app file. Put all of
-// your application logic in there.
-window.shiftedit = {};
+// Start loading the main app file
 requirejs(['app/main']);

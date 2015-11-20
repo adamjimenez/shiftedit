@@ -1,4 +1,4 @@
-define(['exports', 'app/editors','jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree'], function (exports, editors) {
+define(['exports', 'app/editors', 'app/tabs', 'jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree'], function (exports, editors, tabs) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
@@ -11,7 +11,7 @@ var tree = require('app/tree');
 var openingFilesBatch = [];
 
 var defaultPrefs = {};
-defaultPrefs.skin = 'smoothness';
+defaultPrefs.skin = 'mint-choc';
 defaultPrefs.defaultCode = JSON.stringify({
 	html: "<!DOCTYPE HTML>\n\
 <html>\n\
@@ -39,7 +39,6 @@ defaultPrefs.defaultCode = JSON.stringify({
 defaultPrefs.encoding = 'UTF-8';
 defaultPrefs.imageEditor = 'pixlr';
 defaultPrefs.unknownTarget = '_blank';
-defaultPrefs.theme = 'mint-choc'; //Grey
 defaultPrefs.tabSize = 2;
 defaultPrefs.lineBreak = 'auto'; //windows unix
 defaultPrefs.font = "Courier New";
@@ -57,7 +56,7 @@ defaultPrefs.scrollSpeed = 2;
 defaultPrefs.printMargin = false;
 defaultPrefs.hScroll = true;
 defaultPrefs.printMarginColumn = 80;
-defaultPrefs.codeTheme = 'tomorrow_night'; //default
+defaultPrefs.codeTheme = 'twilight'; //default
 defaultPrefs.autocomplete = true;
 defaultPrefs.colorPicker = true;
 defaultPrefs.numberPicker = true;
@@ -698,7 +697,20 @@ function load() {
 function updateSkin(name){
     var url;
     var currentStyle = [];
-	var themepath = 'css';
+	var themepath = '//shiftedit.s3.amazonaws.com/css';
+
+	//check skin is valid
+	var found = false;
+	skins.forEach(function(item) {
+		if (item.name===name) {
+			found = true;
+			return;
+		}
+	});
+
+	if(!found) {
+		name = prefs.skin;
+	}
 
     if (!url) {
         var urlPrefix = themepath + "/themes/";
@@ -1224,6 +1236,15 @@ function open() {
 }
 
 $('body').on('click', '#openPreferences a', function(e){
+    open();
+});
+
+$('body').on('click', 'a.preferences', function(e){
+    var tabpanel = $(this).closest('.ui-tabs');
+    var id = $(this).closest('[role=tabpanel]').attr('id');
+    var tab = $('[aria-controls='+id+']');
+    tabs.close(tab);
+
     open();
 });
 

@@ -1,5 +1,18 @@
+@import url("../lib/layout-default-latest.css");
+@import url("../lib/jquery-ui.css");
+@import url("../lib/menubar/jquery.menubar.css");
+@import url("../lib/contextMenu/jquery.contextMenu.css");
+@import url("../lib/combobox/ui.combobox.css");
+@import url("../lib/jstree/themes/default/style.css");
+@import url("../lib/ui.tabs.overflowResize/ui.tabs.overflowResize.css");
+
 body{
 	font-size: 12px;
+	margin: 0;
+}
+
+textarea{
+	background-image: none !important;
 }
 
 ::-webkit-scrollbar {
@@ -42,32 +55,9 @@ body{
 }
 
 /* TAB-THEME ADJUSTMENTS */
-li[role=tab] {
-	white-space: nowrap;
-	list-style: none;
-	margin: 1px .2em 0 0;
-	padding: 0;
-	overflow: hidden;
-	width: 200px;
-	font-size: 12px;
-	display: flex;
-}
-li[role=tab] a {
-	font-size: 1em !important;
-	padding: 4px 1px 3px 1.5ex !important;
-	line-height: 1.3;
-	outline: 0;
-}
 .ui-tabs-panel {
 	font-size: 1em !important;
 	padding: 0 !important;
-}
-li[role=tab], .ui-tabs .ui-tabs-nav li.ui-tabs-active .ui-tabs-anchor, .ui-tabs .ui-tabs-nav li .ui-tabs-anchor{
-	cursor: hand;
-}
-li[role=tab] .ui-tabs-anchor{
-    flex: 1;
-    overflow: hidden;
 }
 
 .ui-layout-west li[role=tab]{
@@ -80,12 +70,6 @@ li[role=tab] .ui-tabs-anchor{
 
 .ui-tabs .ui-tabs-panel{
     background: initial;
-}
-
-li.button {
-    width: 30px;
-    max-width: 30px;
-    height: 26px;
 }
 
 /*
@@ -111,7 +95,7 @@ div.buttons {
 /* END LAYOUT */
 
 /* Tabs */
-.ui-tabs-active a {
+li[role=tab] a {
    padding: 2px 9px 1px;
    margin-bottom: -1px;
    overflow: visible;
@@ -120,6 +104,8 @@ div.buttons {
 li[role=tab] .ui-icon {
     display: inline-block;
     margin-right: 5px;
+    margin-top: 2px;
+    vertical-align: bottom;
 }
 
 /* Menubar */
@@ -139,6 +125,12 @@ li[role=tab] .ui-icon {
 	text-decoration: none;
 }
 
+.ui-autocomplete{
+	max-height: 300px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
 /* dialogs */
 .ui-dialog{
 	padding: 0 !important;
@@ -149,7 +141,7 @@ li[role=tab] .ui-icon {
 }
 
 /* START TREE */
-.jstree { float:left; min-width:319px; border-right:1px solid silver; overflow:auto; padding:0px 0; }
+.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }
 .jstree .folder { background:url('../lib/jstree/file_sprite.png') right bottom no-repeat; }
 .jstree .file { background:url('../lib/jstree/file_sprite.png') 0 0 no-repeat; }
 .jstree .file-pdf { background-position: -32px 0 }
@@ -729,4 +721,70 @@ li[role=tab] .ui-icon {
 
 .jstree-default .jstree-hovered{
 	background: none;
+}
+
+/* splashscreen */
+.splash{
+	z-index: 100;
+	color: #ccc;
+	font-size: 20px;
+	font-family: Verdana, Geneva, sans-serif;
+	background: #222;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.splash .status{
+	font-size:16px;
+}
+
+.splash .slow{
+	position:absolute;
+	bottom:40px;
+	right:50px;
+}
+
+.splash .slow a{
+	color: #ccc;
+}
+
+.splash .progress{
+	width: 300px;
+	display: inline-block;
+}
+
+.splash .progressbar{
+	opacity: 0.2;
+}
+
+.newVersion{
+	position: absolute;
+	width: 260px;
+	right: 20px;
+	bottom: 20px;
+	z-index: 100;
+}
+
+.newVersion .inner{
+	position: relative;
+	padding: 20px;
+	opacity: 0.8;
+	text-align: center;
+}
+
+.newVersion .dismiss{
+	position: absolute;
+	top: 2px;
+	right: 2px;
+}
+
+.ui-dialog {
+	z-index: 100000 !important; /*higher than tinymce*/
 }

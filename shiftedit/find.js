@@ -435,7 +435,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
         <input type="radio" id="findInRemote" name="findIn" value="remote"><label for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
     </div>\
     <div class="row">\
-        <textarea id="find" name="find"></textarea>\
+        <textarea id="find" name="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
     </div>\
     <div id="findprogress"></div>\
     <div id="findResults">\
@@ -451,7 +451,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
     </div>\
     <p></p>\
     <div class="row">\
-        <textarea id="replace" name="replace"></textarea>\
+        <textarea id="replace" name="replace" class="ui-widget ui-state-default ui-corner-all"></textarea>\
     </div>\
     <div id="replaceButtons" class="row">\
         <button type="button" id="replaceBtn">Replace</button>\

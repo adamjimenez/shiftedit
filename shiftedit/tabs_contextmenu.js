@@ -10,9 +10,30 @@ function init() {
     $.contextMenu({
         selector: '.ui-tabs-nav li.closable',
         callback: function(key, opt){
+            var tab = $(this);
+            var siteId;
+
             switch(key) {
                 case 'new':
                     $(this).closest(".ui-tabs").tabs('add');
+                break;
+                case 'reload':
+                    var tabpanel = tab.closest(".ui-tabs");
+
+                    function reloadTab() {
+                        tabs.open(file, siteId);
+                    }
+
+                    tabpanel.one('close', reloadTab);
+                    tab.one('closeCancel', function() {
+                        tabpanel.off('close', reloadTab);
+                    });
+
+					var file = tab.data('file');
+					siteId = tab.data('site');
+                    if (file && siteId) {
+                        tabs.close(tab);
+                    }
                 break;
                 case 'close':
                     return tabs.close($(this));
@@ -30,8 +51,7 @@ function init() {
                 case 'saveAll':
                     return tabs.saveAll($(this));
                 case 'revealInTree':
-                    var tab = $(this);
-                    var siteId = tab.data('site');
+                    siteId = tab.data('site');
 
                     function revealFile() {
                         return tree.select(tab.data('file'));
@@ -45,20 +65,20 @@ function init() {
                     }
                 break;
                 case 'bookmarkAll':
-            		var name = '';
-            		var link = location.protocol+'//'+location.host+location.pathname+'#';
+                    var name = '';
+                    var link = location.protocol+'//'+location.host+location.pathname+'#';
 
-            		$('li[role="tab"][data-site][data-file]:not(.button)').each(function() {
-            		    var siteId = $(this).data('site');
-            		    var file = $(this).data('file');
-            		    var settings = site.getSettings(siteId);
+                    $('li[role="tab"][data-site][data-file]:not(.button)').each(function() {
+                        var siteId = $(this).data('site');
+                        var file = $(this).data('file');
+                        var settings = site.getSettings(siteId);
 
-            			link += settings.name + '/' + file + '|';
-            			name += file + ', ';
-            		});
+                        link += settings.name + '/' + file + '|';
+                        name += file + ', ';
+                    });
 
-            		link = link.substr(0, (link.length - 1));
-            		name = name.substr(0, (name.length - 2));
+                    link = link.substr(0, (link.length - 1));
+                    name = name.substr(0, (name.length - 2));
 
                     return prompt.alert({
                         title: 'Bookmark all files',
@@ -69,6 +89,7 @@ function init() {
         },
         items: {
             "new": {name: makeMenuText(lang.newText + '...', 'Alt+N')},
+            "reload": {name: makeMenuText('Reload', '')},
             "close": {name: makeMenuText('Close Tab', 'Alt+W')},
             "sep1": "---------",
             "closeOtherTabs": {name: "Close other tabs"},

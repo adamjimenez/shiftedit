@@ -1,14 +1,24 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize'], function (exports) {
-    var version = '17.0.0';
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache'], function (exports) {
+    var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
     var locale = require("app/lang");
     var preferences = require("app/prefs");
+    var splash = require("app/splash");
 
+    splash.update('loading strings..');
     locale.load()
     .fail(function () {
         console.error("Cannot load language file");
+        location.href='/login';
     })
     .done(
-        preferences.load()
+        function() {
+            splash.update('loading preferences..');
+            return preferences.load();
+        }()
+        .done(function () {
+        	var layout = require("app/layout");
+    		layout.init();
+        })
         .done(function () {
             var prefs = preferences.get_prefs();
 
@@ -23,6 +33,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             var site = require("app/site");
             site.init();
 
+            splash.update('loading sites..');
             site.load()
             .done(function() {
                 if(prefs.restoreTabs) {
@@ -32,8 +43,6 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
                 var hash = require("app/hash").load();
             });
 
-            var layout = require("app/layout");
-            layout.init();
             var recent = require("app/recent");
             recent.load();
             var shortcuts = require("app/shortcuts");
@@ -45,6 +54,8 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             var snippets = require("app/snippets");
             var resize = require("app/resize");
             resize.init();
+
+            splash.close();
         })
     );
 

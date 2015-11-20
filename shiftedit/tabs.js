@@ -73,6 +73,7 @@ function openFiles(callback) {
     //check if file already open
     var index = $(".ui-layout-center li[data-file='"+file+"'][data-site='"+siteId+"']").index();
     if(index!==-1){
+    	console.log('file already open');
         $(".ui-layout-center").tabs("option", "active", index);
         delete opening[siteId+'|'+file];
         return;
@@ -513,7 +514,7 @@ function setEdited(tab, edited) {
 
 	if(edited) {
 	    //change title
-	    tab.children('.ui-tabs-anchor').contents().last().replaceWith('*'+tab.data('title'));
+	    tab.children('.ui-tabs-anchor').contents().last().replaceWith('*'+util.basename(tab.data('title')));
 	    tab.trigger('change');
 
 	    //autosave
@@ -529,16 +530,17 @@ function setEdited(tab, edited) {
 	    }
 	} else {
 	    //change title
-	    tab.children('.ui-tabs-anchor').contents().last().replaceWith(tab.data('title'));
+	    tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(tab.data('title')));
 	}
 }
 
 function setTitle(tab, title) {
 	//tab.data('file', file);
 	//tab.attr('data-file', file);
+	tab.data('title', title);
 	tab.attr('data-title', title);
-    tab.attr('title', title);
-    tab.children('.ui-tabs-anchor').text(title);
+    tab.children('.ui-tabs-anchor').attr('title', title);
+    tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(title));
 }
 
 function recordOpenFiles() {
@@ -581,13 +583,12 @@ function checkEdited (e, ui) {
 				} else if (btn == 'cancel') {
 				    //focus editor
 				    closing = [];
+        			$(ui.tab).trigger('closeCancel');
 				}
 			}
         });
         return false;
     }else{
-        $(ui.tab).trigger('close');
-
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
@@ -623,6 +624,7 @@ function closeTabsRight (tab) {
 function newTab (e, ui) {
     //show new tab page
     var tab = $(ui.tab);
+
     if(!tab.attr('data-newtab')){
         return;
     }
@@ -630,8 +632,8 @@ function newTab (e, ui) {
     tab.addClass('closable');
 
     var editors = require('app/editors');
-
-    var panel = $(ui.panel);
+	var panelId = tab.attr( "aria-controls" );
+    var panel = $( "#"+panelId );
 
     panel.append('\
 			<div class="newTab">\
@@ -650,6 +652,7 @@ function newTab (e, ui) {
 						<li><a href="#" class="preview">Preview</a></li>\
 						<li><a href="#" class="ssh">SSH</a></li>\
 						<li><a href="#" class="diff">File Compare</a></li>\
+						<li><a href="#" class="preferences">Preferences</a></li>\
 					</ul>\
 				</div>\
 			</div>\
@@ -859,8 +862,8 @@ function init() {
     tabs_contextmenu.init();
 
     // TABS - sortable
-    $( ".ui-layout-west" ).tabs();
-    var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({closable: true, addTab:true});
+    $( ".ui-layout-west" ).tabs({event: 'mousedown'});
+    var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({closable: true, addTab:true, event: 'mousedown'});
 
     //console.log(tabs);
 
@@ -891,36 +894,34 @@ function init() {
     //connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
     tabs.find( ".ui-tabs-nav" ).sortable({
         distance: 10,
+        //revert: true,
         connectWith: '.ui-tabs-nav',
         receive: function (event, ui) {
-            var receiver = $(this).parent(),
-                sender = $(ui.sender[0]).parent(),
-                tab = ui.item[0],
-                tab$ = $(ui.item[0]),
+            var receiver = $(this).parent();
+            var sender = $(ui.sender[0]).parent();
+            var tab = $(ui.item[0]);
             // Find the id of the associated panel
-                panelId = tab$.attr( "aria-controls" ),
-                insertBefore = document.elementFromPoint(event.pageX,event.pageY);
+            var panelId = tab.attr( "aria-controls" );
+            var insertBefore = document.elementFromPoint(event.pageX, event.pageY);
 
-            tab$ = $(tab$.removeAttr($.makeArray(tab.attributes).
-                          map(function(item){ return item.name;}).
-                          join(' ')).remove());
-            tab$.find('a').removeAttr('id tabindex role class');
-            //console.log(insertBefore, tab);
-            //console.log(insertBefore.parentElement == tab);
-            if(insertBefore.parentElement == tab){
+            if(insertBefore.parentElement == tab[0]){
                 insertBefore = document.elementFromPoint(event.pageX + insertBefore.offsetWidth, event.pageY);
-                //console.log('ins', insertBefore);
             }
-            //console.log($(insertBefore).closest('li[role="tab"]').get());
-            insertBefore = $(insertBefore).closest('li[role="tab"]').get(0);
-            //console.log(insertBefore);
-            if(insertBefore)
-                tab$.insertBefore(insertBefore);
-            else
-                $(this).append(tab$);
 
-            $($( "#" + panelId ).remove()).appendTo(receiver);
+            insertBefore = $(insertBefore).closest('li[role="tab"]').get(0);
+
+            if(insertBefore)
+                tab.insertBefore(insertBefore);
+            else
+                $(this).append(tab);
+
+            //move panel
+            receiver.find('.ui-layout-content')[0].appendChild(document.getElementById(panelId));
+
             tabs.tabs('refresh');
+
+            //activate tab
+            receiver.tabs("option", "active", tab.index());
         },
 
         //don't drag "add tab" button
@@ -957,4 +958,5 @@ $('body').on('click', 'a.openfile', function() {
     exports.recordOpenFiles = recordOpenFiles;
     exports.next = next;
     exports.prev = prev;
+    exports.setTitle = setTitle;
 });

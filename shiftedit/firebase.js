@@ -1,4 +1,4 @@
-define(['app/tabs','app/prefs', 'app/storage'],function (tabs, preferences, storage) {
+define(['app/tabs','app/prefs', 'app/storage', 'firepad/firebase'],function (tabs, preferences, storage) {
 
 var connected = false;
 

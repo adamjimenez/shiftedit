@@ -24,6 +24,8 @@ function setSiteValues(obj) {
         }
     }
 }
+
+window.shiftedit = {};
 window.shiftedit.setSiteValues = setSiteValues;
 
 function enableMenuItems(site) {
