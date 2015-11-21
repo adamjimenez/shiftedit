@@ -798,3 +798,15 @@ li[role=tab] .ui-icon {
 	overflow-y: auto;
 	max-height: 400px;
 }
+
+#args{
+	position: absolute;
+	z-index: 100;
+	font-size: 12px;
+	border: 1px solid #000;
+	padding: 2px;
+	background-color: #ffffe1;
+	display: inline-block;
+	white-space: nowrap;
+	color: #000;
+}

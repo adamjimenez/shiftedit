@@ -1,33 +1,4 @@
 define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], function (util, php, wordpress) {
-
-	var html_tags = ['!doctype','a','abbr','acronym','address','applet','area','article','aside','audio','b','base','basefont','bdo','bgsound','big','blink','blockquote','body','br','button','canvas','caption','center','cite','code','col','colgroup','command','comment','datalist','dd','del','dfn','dir','div','dl','dt','em','embed','fieldset','figcaption','figure','font','footer','form','frame','frameset','h1','h2','h3','h4','h5','h6','head','header','hgroup','hr','html','i','iframe','ilayer','img','input','ins','isindex','kbd','keygen','label','layer','legend','li','link','listing','map','mark','marquee','menu','meta','meter','multicol','nav','nextid','nobr','noembed','noframes','nolayer','noscript','object','ol','optgroup','option','output','p','param','plaintext','pre','progress','q','rb','rbc','rp','rt','rtc','ruby','s','samp','script','section','select','small','source','spacer','span','strike','strong','style','sub','summary','sup','table','tbody','td','textarea','tfoot','th','thead','time','tr','tt','u','ul','var','wbr','video','wbr','xml','xmp'];
-
-	function commonAttributes(obj) {
-		var result = {};
-		var n;
-		// if you pass custom attributes, add them first so they show up first
-		if (obj){
-			for (n in obj){
-			    if( obj.hasOwnProperty(n) ){
-				    result[n] = obj[n];
-			    }
-			}
-		}
-		// second, add the common attributes
-		var common = {"id": 2, "class": 2, "style": 2, "title": 2 };
-		for (n in common) {
-		    if( common.hasOwnProperty(n) ){
-			    result[n] = 2;
-		    }
-		}
-			// return the function that results the results
-		return function() {
-			// did you know that you can dynamically check for some arbitrary condition,
-			// and return 0 in order for this resultset NOT to show up?
-			return result;
-		}();
-	}
-
 	phpDictionary = php.functions;
 
 	wordpressFunctions = wordpress.functions;
@@ -382,461 +353,6 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
       "last-child": 1
 	};
 
-    // tags = 1, attributes = 2, values = 3
-    var xmlDictionary =
-    {
-      // tags should return 1
-      "html": 1,
-      "head": 1,
-		"meta": {
-			"name": {"description": 1, "keywords": 1},
-			"content": {"text/html; charset=UTF-8": 1},
-			"http-equiv": {"content-type": 1 }
-		},
-		"link": {
-			"type": {"text/css": 1, "image/png": 1, "image/jpeg": 1, "image/gif": 1},
-			"rel": {"stylesheet": 1, "icon": 1},
-			"href": 2,
-			"media": {"all": 1, "screen": 1, "print": 1 }
-		},
-		"style": {
-			"type": {"text/css": 1},
-			"media": {"all": 1, "screen": 1, "print": 1 }
-		},
-		"title": 1,
-		"option": {
-		"value": 2,
-		"selected": {"selected": 1 }
-	},
-	"optgroup": {
-		"label": 2
-	},
-
-      // but if they have some attributes to suggest, they don't need to return 1
-      // and simply return an object with those attributes, returning 2
-      "script": {
-        // however, this attribute wants to return values, so again it returns an
-        // object, containing values that are marked as 1
-        "type": {"text/javascript": 1},
-        "src": 2
-      },
-      // body returns all common attributes, but shows "onload" as first suggestion
-      "body": {
-        "onload": 2
-	},
-      "a": {
-		"name": 2,
-        "href": 2,
-        "target": {"_blank": 1, "top": 1},
-        "rel": {"nofollow": 1, "alternate": 1, "author": 1, "bookmark": 1, "help": 1, "license": 1, "next": 1, "noreferrer": 1, "prefetch": 1, "prev": 1, "search": 1, "tag": 1 }
-      },
-      "img": {
-        "src": 2,
-        "alt": 2,
-        "width": 2,
-        "height": 2
-      },
-      "form": {
-        "method": {"get": 1, "post": 1},
-        "action": 2,
-        "enctype": {"multipart/form-data": 1, "application/x-www-form-urlencoded": 1},
-        "onsubmit": 2,
-        "target": {"_blank": 1, "top": 1 }
-      },
-      "input": {
-        "type": {
-			"text": 1,
-			"password": 1,
-			"hidden": 1,
-			"checkbox": 1,
-			"submit": 1,
-			"radio": 1,
-			"file": 1,
-			"button": 1,
-			"reset": 1,
-			"image": 1 ,
-			"color": 1,
-			"date": 1,
-			"datetime": 1,
-			"datetime-local": 1,
-			"email": 1,
-			"month": 1,
-			"number": 1,
-			"range": 1,
-			"search": 1,
-			"tel": 1,
-			"time": 1,
-			"url": 1,
-			"week": 1
-		},
-        "name": 2,
-        "value": 2,
-        "placeholder": 2,
-        "checked": {"checked": 1},
-        "maxlength": 2,
-        "multiple": {"multiple": 1},
-        "disabled": {"disabled": 1},
-        "readonly": {"readonly": 1},
-        "size": 2,
-        "step": 2,
-        "onchange": 2,
-        "onfocus": 2,
-        "onblur": 2,
-        "autocomplete": {"on": 1, "off": 1},
-        "autofocus": {"autofocus": 1},
-        "form": 2,
-        "formaction": 2,
-        "formenctype":  {"application/x-www-form-urlencoded": 1, "multipart/form-data": 1, "text/plain": 1},
-        "formmethod":  {"get": 1, "post": 1},
-        "formnovalidate":  {"formnovalidate": 1},
-        "formtarget":  {"_blank": 1, "_self": 1, "_parent": 1, "_top": 1},
-        "height": 2,
-        "list": 2,
-        "max": 2,
-        "min": 2,
-        "pattern": 2,
-        "required": {"required": 1},
-        "width": 2
-      },
-      "select": {
-        "name": 2,
-        "size": 2,
-        "multiple": {"multiple": 1},
-        "disabled": {"disabled": 1},
-        "readonly": {"readonly": 1},
-        "onchange": 2
-      },
-      "label": {
-        "for": 2
-      },
-      "textarea": {
-        "name": 2, "cols": 2, "rows": 2,
-        "placeholder": 2,
-        "wrap": {"on": 1, "off": 1, "hard": 1, "soft": 1},
-        "disabled": {"disabled": 1},
-        "readonly": {"readonly": 1},
-        "autofocus": {"autofocus": 1},
-        "form": 2,
-        "maxlength": 2,
-        "required": {"required": 1},
-      },
-      "button": {
-        "onclick": 2,
-        "type": {"button": 1, "submit": 1},
-		 "title": 2
-      },
-      "keygen": {
-        "onclick": 2,
-        "challenge": {"challenge": 1},
-        "disabled": {"disabled": 1},
-        "keytype": {"rsa": 1, "dsa": 1, "ec": 1},
-		 "name": 2
-      },
-      "table": {
-        "border": {"0": 1},
-        "cellpadding": {"0": 1},
-        "cellspacing": {"0": 1},
-        "width": 2, "height": 2,
-        "summary": 2
-      },
-      "th": {
-        "colspan": 2,
-        "rowspan": 2,
-        "width": 2,
-        "height": 2,
-        "valign": {"top": 1, "bottom": 1, "baseline": 1, "middle": 1 }
-      },
-      "td": {
-        "colspan": 2,
-        "rowspan": 2,
-        "width": 2,
-        "height": 2,
-        "valign": {"top": 1, "bottom": 1, "baseline": 1, "middle": 1 }
-      },
-      "iframe": {
-        "src": 2,
-        "frameborder": {"0": 1},
-		"allowfullscreen": {"true": 1, "false": 1},
-		"sandbox": {"allow-same-origin": 1, "allow-top-navigation": 1, "allow-forms": 1, "allow-scripts": 1},
-		"seamless": {"seamless": 1},
-        "srcdoc": 2,
-      },
-      "audio": {
-        "src": 2,
-        "autoplay": {"autoplay": 1},
-		"controls": {"controls": 1},
-		"loop": {"loop": 1},
-		"muted": {"muted": 1},
-		"preload": {"auto": 1, "metadata": 1, "none": 1 }
-      },
-      "video": {
-        "src": 2,
-        "autoplay": {"autoplay": 1},
-		"controls": {"controls": 1},
-		"width": 2,
-		"height": 2,
-		"loop": {"loop": 1},
-		"muted": {"muted": 1},
-		"poster": 2,
-		"preload": {"auto": 1, "metadata": 1, "none": 1}
-      }
-    };
-
-	var entityDictionary = {
-		'&Aacute;':1,
-		'&aacute;':1,
-		'&Acirc;':1,
-		'&acirc;':1,
-		'&acute;':1,
-		'&AElig;':1,
-		'&aelig;':1,
-		'&Agrave;':1,
-		'&agrave;':1,
-		'&alefsym;':1,
-		'&Alpha;':1,
-		'&alpha;':1,
-		'&amp;':1,
-		'&and;':1,
-		'&ang;':1,
-		'&Aring;':1,
-		'&aring;':1,
-		'&asymp;':1,
-		'&Atilde;':1,
-		'&atilde;':1,
-		'&Auml;':1,
-		'&auml;':1,
-		'&bdquo;':1,
-		'&Beta;':1,
-		'&beta;':1,
-		'&brvbar;':1,
-		'&bull;':1,
-		'&cap;':1,
-		'&Ccedil;':1,
-		'&ccedil;':1,
-		'&cedil;':1,
-		'&cent;':1,
-		'&Chi;':1,
-		'&chi;':1,
-		'&circ;':1,
-		'&clubs;':1,
-		'&cong;':1,
-		'&copy;':1,
-		'&crarr;':1,
-		'&cup;':1,
-		'&curren;':1,
-		'&Dagger;':1,
-		'&dagger;':1,
-		'&dArr;':1,
-		'&darr;':1,
-		'&deg;':1,
-		'&Delta;':1,
-		'&delta;':1,
-		'&diams;':1,
-		'&divide;':1,
-		'&Eacute;':1,
-		'&eacute;':1,
-		'&Ecirc;':1,
-		'&ecirc;':1,
-		'&Egrave;':1,
-		'&egrave;':1,
-		'&empty;':1,
-		'&emsp;':1,
-		'&ensp;':1,
-		'&Epsilon;':1,
-		'&epsilon;':1,
-		'&equiv;':1,
-		'&Eta;':1,
-		'&eta;':1,
-		'&ETH;':1,
-		'&eth;':1,
-		'&Euml;':1,
-		'&euml;':1,
-		'&euro;':1,
-		'&exist;':1,
-		'&fnof;':1,
-		'&forall;':1,
-		'&frac12;':1,
-		'&frac14;':1,
-		'&frac34;':1,
-		'&frasl;':1,
-		'&Gamma;':1,
-		'&gamma;':1,
-		'&ge;':1,
-		'&gt;':1,
-		'&hArr;':1,
-		'&harr;':1,
-		'&hearts;':1,
-		'&hellip;':1,
-		'&Iacute;':1,
-		'&iacute;':1,
-		'&Icirc;':1,
-		'&icirc;':1,
-		'&iexcl;':1,
-		'&Igrave;':1,
-		'&igrave;':1,
-		'&image;':1,
-		'&infin;':1,
-		'&int;':1,
-		'&Iota;':1,
-		'&iota;':1,
-		'&iquest;':1,
-		'&isin;':1,
-		'&Iuml;':1,
-		'&iuml;':1,
-		'&Kappa;':1,
-		'&kappa;':1,
-		'&Lambda;':1,
-		'&lambda;':1,
-		'&lang;':1,
-		'&laquo;':1,
-		'&lArr;':1,
-		'&larr;':1,
-		'&lceil;':1,
-		'&ldquo;':1,
-		'&le;':1,
-		'&lfloor;':1,
-		'&lowast;':1,
-		'&loz;':1,
-		'&lrm;':1,
-		'&lsaquo;':1,
-		'&lsquo;':1,
-		'&lt;':1,
-		'&macr;':1,
-		'&mdash;':1,
-		'&micro;':1,
-		'&middot;':1,
-		'&minus;':1,
-		'&Mu;':1,
-		'&mu;':1,
-		'&nabla;':1,
-		'&nbsp;':1,
-		'&ndash;':1,
-		'&ne;':1,
-		'&ni;':1,
-		'&not;':1,
-		'&notin;':1,
-		'&nsub;':1,
-		'&Ntilde;':1,
-		'&ntilde;':1,
-		'&Nu;':1,
-		'&nu;':1,
-		'&Oacute;':1,
-		'&oacute;':1,
-		'&Ocirc;':1,
-		'&ocirc;':1,
-		'&OElig;':1,
-		'&oelig;':1,
-		'&Ograve;':1,
-		'&ograve;':1,
-		'&oline;':1,
-		'&Omega;':1,
-		'&omega;':1,
-		'&Omicron;':1,
-		'&omicron;':1,
-		'&oplus;':1,
-		'&or;':1,
-		'&ordf;':1,
-		'&ordm;':1,
-		'&Oslash;':1,
-		'&oslash;':1,
-		'&Otilde;':1,
-		'&otilde;':1,
-		'&otimes;':1,
-		'&Ouml;':1,
-		'&ouml;':1,
-		'&para;':1,
-		'&part;':1,
-		'&permil;':1,
-		'&perp;':1,
-		'&Phi;':1,
-		'&phi;':1,
-		'&Pi;':1,
-		'&pi;':1,
-		'&piv;':1,
-		'&plusmn;':1,
-		'&pound;':1,
-		'&Prime;':1,
-		'&prime;':1,
-		'&prod;':1,
-		'&prop;':1,
-		'&Psi;':1,
-		'&psi;':1,
-		'&quot;':1,
-		'&radic;':1,
-		'&rang;':1,
-		'&raquo;':1,
-		'&rArr;':1,
-		'&rarr;':1,
-		'&rceil;':1,
-		'&rdquo;':1,
-		'&real;':1,
-		'&reg;':1,
-		'&rfloor;':1,
-		'&Rho;':1,
-		'&rho;':1,
-		'&rlm;':1,
-		'&rsaquo;':1,
-		'&rsquo;':1,
-		'&sbquo;':1,
-		'&Scaron;':1,
-		'&scaron;':1,
-		'&sdot;':1,
-		'&sect;':1,
-		'&shy;':1,
-		'&Sigma;':1,
-		'&sigma;':1,
-		'&sigmaf;':1,
-		'&sim;':1,
-		'&spades;':1,
-		'&sub;':1,
-		'&sube;':1,
-		'&sum;':1,
-		'&sup;':1,
-		'&sup1;':1,
-		'&sup2;':1,
-		'&sup3;':1,
-		'&supe;':1,
-		'&szlig;':1,
-		'&Tau;':1,
-		'&tau;':1,
-		'&there4;':1,
-		'&Theta;':1,
-		'&theta;':1,
-		'&thetasym;':1,
-		'&thinsp;':1,
-		'&THORN;':1,
-		'&thorn;':1,
-		'&tilde;':1,
-		'&times;':1,
-		'&trade;':1,
-		'&Uacute;':1,
-		'&uacute;':1,
-		'&uArr;':1,
-		'&uarr;':1,
-		'&Ucirc;':1,
-		'&ucirc;':1,
-		'&Ugrave;':1,
-		'&ugrave;':1,
-		'&uml;':1,
-		'&upsih;':1,
-		'&Upsilon;':1,
-		'&upsilon;':1,
-		'&Uuml;':1,
-		'&uuml;':1,
-		'&weierp;':1,
-		'&Xi;':1,
-		'&xi;':1,
-		'&Yacute;':1,
-		'&yacute;':1,
-		'&yen;':1,
-		'&Yuml;':1,
-		'&yuml;':1,
-		'&Zeta;':1,
-		'&zeta;':1,
-		'&zwj;':1,
-		'&zwnj;':1
-	};
-
 	var phpVarDictionary = {
 		'$_COOKIE': {
 			type: 'php_array'
@@ -893,12 +409,6 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
 			type: 'php_array'
 		},
 	};
-
-    for (var i = 0; i < html_tags.length; i++){
-		xmlDictionary[html_tags[i]] = commonAttributes(xmlDictionary[html_tags[i]]);
-	}
-
-	html_tags = html_tags;
 
 	run = function(editor, session, pos, prefix, callback){
         var panel = $(editor.container).closest("[role=tabpanel]");
@@ -1128,7 +638,6 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
 
 				var arg_start = i;
 				var suffix = def.slice(arg_start+1, def.length);
-
 				if( /([,\)])/.exec(suffix) ){
 					var arg_end = /([,\)])/.exec(suffix).index+1;
 
@@ -1188,9 +697,11 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
 				items = cssDictionary;
 			}
 		//html entity
+		/*
 		}else if ( /&[A-z]*$/i.test(line) ) {
 			subject = 'html_entity';
 			items = entityDictionary;
+		*/
 		//js function dom
 		} else if ( subject === 'js_function' && func == 'getElementById' && type == 'string' ) {
 			subject = 'css_id';
@@ -1271,6 +782,7 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
 			subject = 'html_attribute_value';
 			attribute = RegExp.$1;
 
+			/*
 			//classes
 			if( xmlDictionary.hasOwnProperty(tagName) ){
 				xmlDictionary[tagName].class = css_classes;
@@ -1280,6 +792,17 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
 					items = xmlDictionary[tagName][attribute];
 				}
 			}
+			*/
+
+			switch (attribute) {
+				case 'class':
+					items = css_classes;
+				break;
+				case 'id':
+					items = dom_ids;
+				break;
+			}
+		/*
 		// attribute name
 		}else if( tokenState === 'tag_stuff' && /\s([\w]*)$/i.test(line)){
 			subject = 'html_attribute_name';
@@ -1288,6 +811,7 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
 		}else if( /<(\w*)$/i.test( line ) ){
 			subject = 'html_tag';
 			items = xmlDictionary;
+		*/
 		}else if( forced && lang == 'php' && type !== 'comment' ){
 			subject = 'php_function';
 			functions = util.merge(phpDictionary, php_functions);
@@ -1374,10 +898,6 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
     				snippet = items[i][0];
     			}
 
-    			if(subject==='html_entity'){
-    				value = value.substr(1);
-    			}
-
     			if( value.indexOf('$0')!==-1 ){
     			    snippet = value;
     			    caption = value.replace('$0', '');
@@ -1419,7 +939,6 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
 
 		return options;
 	};
-
 
     return {
         run: run
