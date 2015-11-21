@@ -68,7 +68,7 @@ function add() {
 
 		var ref = new Firebase(firebaseUrl);
 
-		var recentRef = ref.limit(20);
+		var recentRef = ref.limitToLast(20);
 		groups[firebaseUrl] = ref;
 		group = firebaseUrl;
 		selectedGroup = group;

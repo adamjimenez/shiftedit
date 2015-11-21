@@ -6,7 +6,7 @@ connect = function (callback) {
 	//firebase login - put this someplace else
 	var dataRef = new Firebase("https://shiftedit.firebaseio.com/");
 	// Log me in.
-	dataRef.auth(storage.get('authToken'), function(error) {
+	dataRef.authWithCustomToken(storage.get('authToken'), function(error) {
 		if(error) {
 			console.log("Firebase login failed", error);
 

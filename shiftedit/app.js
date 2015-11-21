@@ -13,11 +13,11 @@ requirejs.config({
         "jquery.menubar": "menubar/jquery.menubar",
         "ui.combobox": "combobox/ui.combobox",
         "jstree": "jstree/jstree",
-        "ace": "ace.20141108/src",
-        //"ace/split": 'ace.20141108/src/ext-split',
-        "ace/autocomplete": "ace.20141108/src/ext-language_tools",
-        "ace/mode/css/csslint": "ace.20141108/src/worker-css",
-        //"ace/ext/emmet": 'ace.20141108/src/ext-emmet',
+        "ace": "ace.20151029/src",
+        //"ace/split": 'ace.20151029/src/ext-split',
+        "ace/autocomplete": "ace.20151029/src/ext-language_tools",
+        "ace/mode/css/csslint": "ace.20151029/src/worker-css",
+        //"ace/ext/emmet": 'ace.20151029/src/ext-emmet',
         //"firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
         "jsdiff": 'jsdiff/diff',
@@ -74,11 +74,8 @@ requirejs.config({
             exports: "$",
             deps: ["jquery"]
         },
-        "firepad/firebase": {
-            deps: ['Firepad/firepad','ace/ace']
-        },
         "firepad/firepad": {
-            deps: ['ace/ace']
+            deps: ['ace/ace', 'firepad/firebase']
         },
         "firepad-userlist": {
             deps: ['firepad/firebase']

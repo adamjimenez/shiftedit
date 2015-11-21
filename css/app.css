@@ -167,6 +167,10 @@ li[role=tab] .ui-icon {
 .jstree .file-css { background-position: -144px 0 }
 .jstree .file-fla { background-position: -398px 0 }
 
+.jstree-grid-header-regular{
+	background-color: transparent !important;
+}
+
 .vakata-context .vakata-contextmenu-shortcut{
     display: inline;
     opacity: 1;
@@ -787,4 +791,22 @@ li[role=tab] .ui-icon {
 
 .ui-dialog {
 	z-index: 100000 !important; /*higher than tinymce*/
+}
+
+.ui-menubar .ui-menu{
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 400px;
+}
+
+#args{
+	position: absolute;
+	z-index: 100;
+	font-size: 12px;
+	border: 1px solid #000;
+	padding: 2px;
+	background-color: #ffffe1;
+	display: inline-block;
+	white-space: nowrap;
+	color: #000;
 }

@@ -18,9 +18,11 @@ var storage = require('app/storage');
 //ace.config.set("packaged", true);
 //ace.config.set("basePath", require.toUrl("ace"));
 
-ace.config.set("modePath", "//shiftedit.s3.amazonaws.com/lib/ace");
-ace.config.set("workerPath", "//shiftedit.s3.amazonaws.com/lib/ace");
-ace.config.set("themePath", "//shiftedit.s3.amazonaws.com/lib/ace");
+var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20151029';
+
+ace.config.set("modePath", acePath);
+ace.config.set("workerPath", acePath);
+ace.config.set("themePath", acePath);
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -57,6 +59,7 @@ function onChangeCursor(e, selection) {
 	var convertToRgb = false;
 
 	$('#picker').remove();
+	$('#args').remove();
 
 	//color picker
 	if (/(#[0-9a-f]*)$/i.test(prefix)) {
@@ -676,15 +679,14 @@ function create(file, content, siteId, options) {
 		enableLiveAutocompletion: true
 	});
 
-
     window.shiftedit.defs[$(tab).attr('id')] = {
         'definitions': {},
 	    'definitionRanges': {}
     };
+
 	var shifteditCompleter = {
 	    getCompletions: function(editor, session, pos, prefix, callback) {
 	        var completions = autocomplete.run(editor, session, pos, prefix, callback);
-	        //console.log(completions);
 
 	        if (completions) {
 	        	callback(null, completions);
@@ -701,7 +703,16 @@ function create(file, content, siteId, options) {
 
 	//var language_tools = require("ace/ext/language_tools");
 	//editor.completers = [language_tools.keyWordCompleter];
-	editor.completers = [shifteditCompleter];
+
+	//hack to remove keyword completer
+	for (var i in editor.completers){
+		if (editor.completers[i].getCompletions.toString().indexOf('wordScore')!==-1) {
+			editor.completers.splice(i, 1);
+			console.log('deleted');
+		}
+	}
+
+	editor.completers.push(shifteditCompleter);
 
 	//shortcuts
 	editor.commands.addCommand({
