@@ -598,6 +598,9 @@ function create(file, content, siteId, options) {
 	editor.setTheme("ace/theme/monokai");
 	editor.split = split;
 
+	//disable warning
+	editor.$blockScrolling = Infinity;
+
 	//split isn't properly implemented in Ace so we have to use globals :|
 	if(!window.splits) window.splits = {};
 	window.splits[tab.attr('id')] = split;
