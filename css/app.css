@@ -379,9 +379,11 @@ li[role=tab] .ui-icon {
     font-weight: bold;
 }
 
+/*
 .chats .selected{
     background: #ccc;
 }
+*/
 
 .messagePanel{
     flex-grow: 1;
