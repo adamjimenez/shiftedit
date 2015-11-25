@@ -1,4 +1,5 @@
-define(['app/loading','app/tabs','jquery','ace/ace','jsdiff'], function (loading, tabs) {
+define(['app/loading','app/tabs', 'app/prefs', 'app/util', "app/modes", "jquery-ui",'ace/ace','jsdiff'], function (loading, tabs, preferences, util) {
+var modes = require('app/modes');
 
 var revisionsEditor;
 
@@ -14,6 +15,7 @@ function load(siteId, file) {
                 .data('content', item.content);
             });
             $( "#revisionFile" ).val(file);
+            $( "#revisionFile" ).selectmenu('refresh');
 
             $.each(data.revisions, function( index, item ) {
                 $( '<option value="'+item.id+'">' + item.date + ' ' + item.author + '</option>' ).appendTo( "#revision" )
@@ -76,10 +78,35 @@ function open() {
 	revisionsEditor = ace.edit(container);
 	revisionsEditor.setReadOnly(true);
 
-	$( "#revisionFile" ).change(function() {
-	    //load revisions
-        load(siteId, $(this).val());
+	/*
+	// set theme
+	var prefs = preferences.get_prefs();
+	var codeTheme = prefs.codeTheme ? prefs.codeTheme : 'dreamweaver';
+	if( codeTheme == 'custom' ){
+		customTheme = prefs.customTheme;
+		var themeObj = {
+			cssClass: 'ace-custom',
+			cssText: customTheme
+		};
+
+		revisionsEditor.setTheme(themeObj);
+	}else{
+		revisionsEditor.setTheme("ace/theme/" + codeTheme);
+	}
+
+	//set mode
+	var ext = util.fileExtension(file);
+	var mode = modes.find(ext);
+	revisionsEditor.getSession().setMode("ace/mode/"+mode);
+	*/
+
+	$( "#revisionFile" ).selectmenu({
+		select: function() {
+		    //load revisions
+		    load(siteId, $(this).val());
+		}
 	});
+
 	$( "#revision" ).change(function() {
 	    var content = $( "#revision option:selected" ).data('content');
 	    var tab = tabs.active();
@@ -89,7 +116,6 @@ function open() {
 		//remove markers
 		var session = revisionsEditor.getSession();
 		var markers = session.getMarkers();
-
 		for (var i in markers) {
             if (markers.hasOwnProperty(i)) {
 			    session.removeMarker(i);
