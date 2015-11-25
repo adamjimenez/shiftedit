@@ -380,7 +380,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 	}
 
 	function toggleFields() {
-		findIn = $('#findForm input[name=findIn]:checked').val()
+		findIn = $('#findForm input[name=findIn]:checked').val();
 
 		if (['remote'].indexOf(findIn) !== -1) {
 			$('#replace').hide();

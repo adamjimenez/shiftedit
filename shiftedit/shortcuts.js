@@ -26,15 +26,7 @@ define(['app/tabs','app/find', 'app/prefs', 'jquery'], function (tabs, find, pre
 		fn: function (key, e) {
 			tabs.open();
 		}
-	}, /*{ //save ctrl-s
-		key: 83,
-		ctrl: true,
-		scope: this,
-		stopEvent: true,
-		fn: function (key, e) {
-			tabs.save();
-		}
-	},*/ { //saveAll ctrl-shift-s
+	}, { //saveAll ctrl-shift-s
 		key: 83,
 		ctrl: true,
 		shift: true,
