@@ -1,11 +1,10 @@
-define(['app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'jquery'], function (tabs, prompt, lang, loading, site) {
+define(['app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/storage', 'jquery'], function (tabs, prompt, lang, loading, site, storage) {
     lang = lang.lang;
 /**
  * Tab
  */
 
 if( typeof Terminal !== 'undefined' ){
-
 	var EventEmitter = Terminal.EventEmitter
 	  , inherits = Terminal.inherits
 	  , on = Terminal.on
@@ -31,28 +30,12 @@ if( typeof Terminal !== 'undefined' ){
 	 */
 
 	tty.open = function() {
-		var resource = 'socket.io';
-
 		tty.socket = io.connect('https://ssh.shiftedit.net', {
-			resource: resource,
-			query: "token="+localStorage.authToken
+			resource: 'socket.io',
+			query: "token="+storage.get('authToken')
 		});
 
         tty.terms = {};
-
-        /*
-        tty.elements = {
-            root: document.documentElement,
-            body: document.body,
-            h1: document.getElementsByTagName('h1')[0],
-            open: document.getElementById('open')
-        };
-
-        root = tty.elements.root;
-        body = tty.elements.body;
-        h1 = tty.elements.h1;
-        open = tty.elements.open;
-        */
 
         tty.socket.on('connect', function() {
             tty.reset();
@@ -65,8 +48,9 @@ if( typeof Terminal !== 'undefined' ){
 	    });
 
 	    tty.socket.on('kill', function(id) {
+		  	prompt.alert({title:'Disconnected', msg: 'The connection has closed.'});
+
     		console.log('ssh killed');
-    		//Ext.getCmp('ssh').collapse();
 
     		//var title = $('#ssh').title;
     		//$('[data-ssh='+this.index+']').attr('title', title+=' - disconnected');
@@ -118,24 +102,6 @@ if( typeof Terminal !== 'undefined' ){
     		tty.socket.emit = emit;
 	    });
 
-        // We would need to poll the os on the serverside
-        // anyway. there's really no clean way to do this.
-        // This is just easier to do on the
-        // clientside, rather than poll on the
-        // server, and *then* send it to the client.
-        /*
-        setInterval(function() {
-        var i = tty.windows.length;
-        while (i--) {
-          if (!tty.windows[i].focused) continue;
-          tty.windows[i].focused.pollProcessName();
-        }
-        }, 2 * 1000);*/
-
-        // Keep windows maximized.
-        on(window, 'resize', function() {
-        });
-
         tty.emit('load');
         tty.emit('open');
 	};
@@ -173,13 +139,17 @@ if( typeof Terminal !== 'undefined' ){
         var shellArgs = address;
 
         this.socket.emit('create', cols, rows, shellArgs, function(err, data) {
-        //refresh panel
-        //ssh.session.resize();
+	        //refresh panel
+	        //ssh.session.resize();
 
-        if (err) return self._destroy();
-            self.pty = data.pty;
+        	if (err) return self._destroy();
+
+        	console.log(self)
+
+            //self.pty = data.pty;
             self.id = data.id;
             tty.terms[self.id] = self;
+            return;
             self.setProcessName(data.process);
             self.emit('open');
         });
@@ -234,24 +204,21 @@ if( typeof Terminal !== 'undefined' ){
 		    return;
 		}
 
-		cols = Math.floor($('[data-ssh='+this.index+']').width() / 6);
-		rows = Math.floor($('[data-ssh='+this.index+']').height() / 14)-1;
-
-		console.log('ssh resized '+cols+'x'+rows);
-		/*
-		console.log(this.index);
-		console.log(cols);
-		console.log(rows);
-		*/
-
-		if( cols<5 || rows<5 ){
-			return;
-		}
-
-		//this.socket.emit('resize', this.id, cols, rows);
+		this.socket.emit('resize', this.id, cols, rows);
 		this._resize(cols, rows);
 		this.emit('resize', cols, rows);
 	};
+
+	Tab.prototype.doResize = function(){
+		var term = tty.terms[this.id];
+
+		cols = Math.floor($(this.element).parent().width() / 7);
+		rows = Math.floor($(this.element).parent().height() / 13);
+
+		console.log('resize '+cols+'x'+rows);
+
+	    this.resize(cols, rows);
+	}
 
 	Tab.prototype.__destroy = Tab.prototype.destroy;
 
@@ -396,7 +363,7 @@ function create(tabpanel){
 	index++;
 
     //create tab
-	tab = $(tabpanel).tabs('add', 'SSH', '<div id="sshContainer'+index+'" style="width:100%;height:100%;"></div>');
+	tab = $(tabpanel).tabs('add', 'SSH', '<div id="sshContainer'+index+'" class="sshContainer" style="width:100%;height:100%;"></div>');
 
 	tab.attr('data-ssh', index);
 	tab.attr('title', 'Secure Shell');
@@ -407,7 +374,7 @@ function create(tabpanel){
 function new_session(tab, host, username, port){
 	var session = new Tab('-p '+port+' '+username+'@'+host, index);
 	session.focus();
-	session.resize();
+	session.doResize();
 
 	tab.data('session', session);
 }
@@ -446,25 +413,23 @@ function open(tabpanel){
     //import site dialog
     $( "body" ).append('<div id="dialog-ssh" class="ui-front" title="SSH connection">\
       <form id="ssh">\
-        <fieldset>\
-            <p>\
-                <label>Profile:</label>\
-                <select id="sshName" name="sshName"></select>\
-                <button type="button" class="delete">X</button>\
-            </p>\
-            <p>\
-                <label>Username:</label>\
-                <input type="text" name="username">\
-            </p>\
-            <p>\
-                <label>Host:</label>\
-                <input type="text" name="host">\
-            </p>\
-            <p>\
-                <label>Port:</label>\
-                <input type="number" name="port" value="22">\
-            </p>\
-        </fieldset>\
+		<p>\
+		    <label>Profile:</label>\
+		    <select id="sshName" name="sshName"></select>\
+		    <button type="button" class="delete">X</button>\
+		</p>\
+		<p>\
+		    <label>Username:</label>\
+		    <input type="text" name="username" class="ui-widget ui-state-default ui-corner-all">\
+		</p>\
+		<p>\
+		    <label>Host:</label>\
+		    <input type="text" name="host" class="ui-widget ui-state-default ui-corner-all">\
+		</p>\
+		<p>\
+		    <label>Port:</label>\
+		    <input type="number" name="port" value="22" class="ui-widget ui-state-default ui-corner-all">\
+		</p>\
       </form>\
     </div>');
 
@@ -479,7 +444,8 @@ function open(tabpanel){
     });
     loadProfiles();
 
-    $('#ssh .delete').click(function() {
+    $('#ssh .delete').button()
+    .click(function() {
         var name = $('#sshName').val();
 
         if(!name)
@@ -503,6 +469,9 @@ function open(tabpanel){
         modal: true,
         width: 400,
         height: 300,
+        close: function( event, ui ) {
+            $( this ).remove();
+        },
         buttons: {
             OK: function() {
 				var name = $('#sshName').combobox('val');

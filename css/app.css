@@ -458,6 +458,11 @@ li[role=tab] .ui-icon {
     left: 40px;
 }
 
+.sshContainer{
+	overflow: hidden;
+	background: #000;
+}
+
 /* TERMINAL */
 .terminal {
 	border: #000 solid 5px;
