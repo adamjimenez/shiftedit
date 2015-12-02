@@ -76,6 +76,9 @@ function openFiles(callback) {
     	console.log('file already open');
         $(".ui-layout-center").tabs("option", "active", index);
         delete opening[siteId+'|'+file];
+
+		if (callback)
+            callback(active());
         return;
     }
 
@@ -100,7 +103,6 @@ function openFiles(callback) {
         var type = util.fileExtension(title);
 
         loading.stop();
-	    //console.log(d);
 
 	    if (!data.success) {
 	        prompt.alert({title:lang.failedText, msg:'Error opening file' + ': ' + data.error});
@@ -701,7 +703,7 @@ function newTab (e, ui) {
 }
 
 //event listener
-function tabActivate( tab ) {
+function tabActivate(tab) {
     var file = tab.data('file');
     var siteId = tab.data('site');
     var title = file ? file : 'ShiftEdit';

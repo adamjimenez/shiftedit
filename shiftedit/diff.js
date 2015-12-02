@@ -65,20 +65,20 @@ function select() {
 	var session = editor.getSession();
 	var markers = session.getMarkers();
 
+	/*
 	//set mode
 	var ext = util.fileExtension(tab1.attr('data-file'));
 
 	//check default file associations
 	var mode = modes.find(ext);
 
-	//editor.getSession().setMode("ace/mode/"+mode);
     session.setMode("ace/mode/" + mode);
-
 	for (var i in markers) {
         if (markers.hasOwnProperty(i)) {
 		    session.removeMarker(i);
         }
 	}
+	*/
 
 	// don't diff big files or the browser will crash
 	if( content1.length < 100000 ){

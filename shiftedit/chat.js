@@ -28,7 +28,6 @@ function send(msg) {
 		msg = msg.replace(/#(\d+)/g, '#'+siteId+'/'+file+":$1");
 	}
 
-	//todo
 	var message = {
 		userId: userId,
 		name: username,
@@ -72,6 +71,7 @@ function add() {
 		groups[firebaseUrl] = ref;
 		group = firebaseUrl;
 		selectedGroup = group;
+		select(group);
 		chats[group]='';
 
 		//delete older than 7 days
@@ -99,8 +99,12 @@ function add() {
 			//insert line breaks
 			message.message = message.message.replace(/\n/g, '<br />');
 
+			function replaceFileLink(string, siteId, file, line){
+				return '<a href="#'+site.getSettings(parseInt(siteId)).name+'/'+file+':'+line+'">'+file+':'+line+'</a>';
+			}
+
 			//insert hash links
-			message.message = message.message.replace(/#([^\s]+)/g, '<a href="#'+"$1"+'">'+"$1"+'</a>');
+			message.message = message.message.replace(/#([0-9]+)\/([^\s]+):([0-9]+)/g, replaceFileLink);
 
 			// will display time in 10:30:23 format
 			var time = util.date('M j, g:i A', message.timestamp/1000);
@@ -155,7 +159,7 @@ function init() {
         </div>\
         <div class="messagePanel">\
             <div id="messages"></div>\
-            <textarea id="message" disabled autofocus></textarea>\
+            <textarea id="message" class="ui-widget ui-state-default ui-corner-all" disabled autofocus></textarea>\
         </div>\
     </div>');
 
@@ -210,8 +214,8 @@ function close() {
 
 function select() {
     var li = $(this).parent();
-    li.parent().children().removeClass('selected');
-    li.addClass('selected');
+    li.parent().children().removeClass('ui-state-focus');
+    li.addClass('ui-state-focus');
     li.removeClass('unread');
 
     selectedGroup = li.data('url');

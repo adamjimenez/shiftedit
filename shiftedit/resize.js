@@ -15,6 +15,13 @@ function doResize() {
 			inst.theme.resizeTo(container.width(), container.height()-110);
 		}
     });
+
+    //active file tabs
+    $('.ui-tabs-active[data-ssh]').each(function() {
+        var session = tab.data('session');
+        if(session)
+        	session.doResize();
+    });
 }
 
 function resize() {

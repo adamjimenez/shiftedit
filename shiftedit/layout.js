@@ -45,6 +45,7 @@ function init() {
 	                    <ul id="siteMenu"></ul>\
 	                </div>\
 	                <div id="tree-container" class="flex">\
+                		<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all">\
 	        			<div id="tree"></div>\
 	                </div>\
 	            </div>\
@@ -75,7 +76,7 @@ function init() {
         resizable: true,
         //showOverflowOnHover: true,
     	west__size:			300,
-    	west__minSize:			300,
+    	west__minSize:			200,
     	east__size:			300,
     	south__size:		300,
     	south__initClosed:	true,

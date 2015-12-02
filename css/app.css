@@ -141,7 +141,7 @@ li[role=tab] .ui-icon {
 }
 
 /* START TREE */
-.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }
+/*.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }*/
 .jstree .folder { background:url('../lib/jstree/file_sprite.png') right bottom no-repeat; }
 .jstree .file { background:url('../lib/jstree/file_sprite.png') 0 0 no-repeat; }
 .jstree .file-pdf { background-position: -32px 0 }
@@ -167,6 +167,11 @@ li[role=tab] .ui-icon {
 .jstree .file-css { background-position: -144px 0 }
 .jstree .file-fla { background-position: -398px 0 }
 
+/* force tree grid height to 100% */
+.jstree-grid-wrapper{
+	display: table-cell;
+}
+
 .jstree-grid-header-regular{
 	background-color: transparent !important;
 }
@@ -182,6 +187,11 @@ li[role=tab] .ui-icon {
 
 .vakata-context ul {
     z-index: 2;
+}
+
+.filter{
+	width: 100%;
+	display: block;
 }
 /* END TREE */
 
@@ -379,9 +389,11 @@ li[role=tab] .ui-icon {
     font-weight: bold;
 }
 
+/*
 .chats .selected{
     background: #ccc;
 }
+*/
 
 .messagePanel{
     flex-grow: 1;
@@ -454,6 +466,11 @@ li[role=tab] .ui-icon {
 #ssh .delete{
     position: relative;
     left: 40px;
+}
+
+.sshContainer{
+	overflow: hidden;
+	background: #000;
 }
 
 /* TERMINAL */

@@ -22,7 +22,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-},{
+}, {
 	id: 'expandSelection',
 	text: makeMenuText(lang.expandSelection, 'Ctrl+Shift+E'),
 	handler: function () {
@@ -32,7 +32,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-}, '-',{
+}, '-', {
 	id: 'applyHTMLComment',
 	text: lang.applyHTMLComment,
 	handler: function () {
@@ -42,7 +42,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-},{
+}, {
 	id: 'applySlashStarComment',
 	text: lang.applySlashStarComment,
 	handler: function () {
@@ -52,7 +52,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-},{
+}, {
 	id: 'applySlashComment',
 	text: lang.applySlashComment,
 	handler: function () {
@@ -62,7 +62,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-}, '-',{
+}, '-', {
 	id: 'convertSingleQuotes',
 	text: lang.convertSingleQuotes,
 	handler: function () {
@@ -72,7 +72,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-},{
+}, {
 	id: 'convertDoubleQuotes',
 	text: lang.convertDoubleQuotes,
 	handler: function () {
@@ -82,7 +82,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-},{
+}, {
 	id: 'convertTabs',
 	text: 'Convert Tabs To Spaces',
 	handler: function () {
@@ -92,7 +92,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-},{
+}, {
 	id: 'convertSpaces',
 	text: lang.convertSpaces,
 	handler: function () {
@@ -102,7 +102,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-},{
+}, {
 	id: 'addLineBreaks',
 	text: lang.addLineBreaks,
 	handler: function () {
@@ -112,7 +112,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-}, '-',{
+}, '-', {
 	id: 'convertToUppercase',
 	text: lang.convertToUppercase,
 	handler: function () {
@@ -122,7 +122,7 @@ var selectionMenuItems = [{
 	},
 	disabled: true,
     target: 'file'
-},{
+}, {
 	id: 'convertToLowercase',
 	text: lang.convertToLowercase,
 	handler: function () {
@@ -163,7 +163,6 @@ function toggleOptions(target) {
     }
 }
 
-//console.log(prefs);
 function init () {
     prefs = preferences.get_prefs();
 
@@ -200,21 +199,17 @@ function init () {
     			handler: function () {
     				$('.ui-layout-center').tabs('add');
     			}
-    		},
-    		{
+    		}, {
     			text: makeMenuText(lang.open + '...', 'Ctrl+O'),
     			handler: function () {
     				tabs.open();
     			}
-    		},
-    		{
+    		}, {
     			text: 'Upload',
     			handler: function(){
     			    $('#upload').click();
     			}
-    		},
-            '-',
-    	    {
+    		}, '-', {
     		    id: 'save',
     		    text: makeMenuText(lang.saveText, 'Ctrl+S'),
     			handler: function () {
@@ -222,8 +217,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    	    },
-    		{
+    	    }, {
     			id: 'saveAs',
     			text: makeMenuText(lang.saveAsText + '...'),
     			handler: function () {
@@ -231,8 +225,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'saveAll',
     			text: makeMenuText(lang.saveAllText + '...', 'Ctrl+Shift+S'),
     			handler: function () {
@@ -240,8 +233,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'minify',
     			text: lang.minify,
     			handler: function () {
@@ -252,17 +244,14 @@ function init () {
     			disabled: true,
     			target: 'file',
     			match: 'js|css'
-    		},
-    		{
+    		}, {
     			id: 'download',
     			text: makeMenuText('Download', ''),
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-
             		var content = editor.getValue();
             		var filename = util.basename(tab.attr('data-file'));
-
             		var blob = new Blob([content]);
             		var evt = document.createEvent("HTMLEvents");
             		evt.initEvent("click");
@@ -270,13 +259,11 @@ function init () {
             		var a = document.createElement('a');
             		a.download = filename;
             		a.href = URL.createObjectURL(blob);
-
             		a.dispatchEvent(evt);
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'revertToOriginal',
     			text: 'Revert to Saved',
     			handler: function () {
@@ -289,8 +276,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'revisionHistory',
     			text: lang.revisionHistoryText,
     			disabled: true,
@@ -325,8 +311,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		}, '-',
-    		{
+    		}, '-', {
     			id: 'toggleBreakpoint',
     			text: makeMenuText('Toggle Breakpoint', 'Alt+B'),
     			handler: function () {
@@ -336,8 +321,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'nextBreakpoint',
     			text: makeMenuText('Next Breakpoint', 'Ctrl+B'),
     			handler: function () {
@@ -348,8 +332,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'prevBreakpoint',
     			text: makeMenuText('Previous Breakpoint', 'Ctrl+Shift+B'),
     			handler: function () {
@@ -360,8 +343,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'clearBreakpoints',
     			text: makeMenuText('Clear Breakpoints'),
     			handler: function () {
@@ -371,8 +353,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		}, '-',
-    		{
+    		}, '-', {
     			id: 'toggleComment',
     			text: makeMenuText(lang.toggleComment, 'Ctrl+/'),
     			handler: function () {
@@ -382,8 +363,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'jumpToMatching',
     			text: makeMenuText('Jump to Matching', 'Ctrl+P'),
     			handler: function () {
@@ -394,8 +374,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		{
+    		}, {
     			id: 'selectToMatching',
     			text: makeMenuText('Select to Matching', 'Ctrl+Shift+P'),
     			handler: function () {
@@ -406,9 +385,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},
-    		'-',
-    		{
+    		}, '-', {
     			id: 'selection',
     			text: lang.selection,
     			disabled: true,
@@ -427,7 +404,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},{
+    		}, {
     			id: 'copyLinesDown',
     			text: makeMenuText(lang.copyLinesDown, 'Shift+Alt+Down'),
     			handler: function () {
@@ -437,7 +414,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},{
+    		}, {
     			id: 'moveLinesUp',
     			text: makeMenuText(lang.moveLinesUp, 'Alt+Up'),
     			handler: function () {
@@ -447,7 +424,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},{
+    		}, {
     			id: 'moveLinesDown',
     			text: makeMenuText(lang.moveLinesDown, 'Alt+Down'),
     			handler: function () {
@@ -457,7 +434,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		},{
+    		}, {
     			id: 'deleteLines',
     			text: makeMenuText(lang.deleteLines, 'Ctrl+D'),
     			handler: function () {
@@ -467,7 +444,7 @@ function init () {
     			},
     			disabled: true,
     			target: 'file'
-    		}, '-',{
+    		}, '-', {
     			id: 'addSemicolon',
     			text: makeMenuText(lang.addSemicolon, 'Ctrl+;'),
     			handler: function () {
@@ -622,29 +599,29 @@ function init () {
     			handler: function() {
 		            window.open('/docs/');
     			}
-    		},{
+    		}, {
     			id: 'feedback',
     			text: lang.feedback,
     			handler: function() {
 		            window.open('/contact');
     			}
-    		},{
+    		}, {
     			id: 'mailingList',
     			text: lang.mailingList,
     			handler: function() {
 		            window.open('http://groups.google.co.uk/group/shiftedit?hl=en"');
     			}
-    		},{
+    		}, {
     			id: 'changelog',
     			text: lang.changelog,
     			handler: function() {
 		            window.open('/changelog');
     			}
-    		},{
+    		}, {
     			id: 'keyboardShortcuts',
     			text: makeMenuText('Shortcuts', 'Ctrl+/'),
     			handler: shortcuts.show
-    		},{
+    		}, {
     			id: 'about',
     			text: lang.aboutShiftEdit,
     			handler: function() {

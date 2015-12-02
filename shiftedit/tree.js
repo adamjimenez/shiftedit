@@ -1169,8 +1169,12 @@ function init() {
         grid: {
         	isThemeroller: true,
             resizable: true,
+            stateful: true,
             columns: [
-                {width: 'auto', header: "Name"},
+                {
+                	//width: 'auto',
+                	header: "Name"
+                },
                 {
                     width: 100,
                     header: "Modified",
@@ -1198,13 +1202,11 @@ function init() {
         				return ''+Math.round(size)+'BKMGT'.substr(si, 1);
         			}
                 },
-                {width: 50, header: "Permissions", value: "perms"}
+                {width: 90, header: "Permissions", value: "perms"}
             ]
         },
     	'plugins' : [
-    	    'state','dnd','sort','types','contextmenu','unique'
-    	    //,'themeroller' //theme roller plugin no longer exists..?
-    	    //,'grid'
+    	    'state','dnd','sort','types','contextmenu','unique','search','grid'
     	]
     })
     .on('delete_node.jstree', function (e, data) {
@@ -1256,7 +1258,12 @@ function init() {
         }else{
             var params = util.clone(ajaxOptions.params);
             params.oldname = data.node.id;
-            params.newname = util.dirname(params.oldname)+'/'+data.text;
+            params.newname = data.text;
+            var dir = util.dirname(params.oldname);
+            if(dir) {
+            	params.newname = dir + '/' + params.newname;
+            }
+            //params.newname = util.dirname(params.oldname)+'/'+data.text;
             params.site = ajaxOptions.site;
 
     		$.ajax(ajaxOptions.url+'&cmd=rename', {
@@ -1332,11 +1339,23 @@ function init() {
     		.fail(function () {
     			data.instance.refresh();
     		});
-    }).on('keydown.jstree', '.jstree-anchor', function (e) {
+    })
+    .on('keydown.jstree', '.jstree-anchor', function (e) {
         if($('.jstree-rename-input').length){
             return;
         }
 
+	    var keycode = e.keyCode;
+
+        //escape
+        if (keycode===27) {
+        	$('.filter').val('').hide();
+			$('#tree').jstree(true).search('', true, true);
+        	$('#tree').focus();
+        	return;
+        }
+
+		//shortcuts
         var reference = this;
         var instance = $.jstree.reference(this);
         var selected = instance.get_selected();
@@ -1357,6 +1376,21 @@ function init() {
                 }
             }
         }
+
+        //treefilter
+	    var valid =
+	        (keycode > 47 && keycode < 58)   || // number keys
+	        keycode == 32                    || // spacebar
+	        keycode == 8                     || // backspace
+	        (keycode > 64 && keycode < 91)   || // letter keys
+	        (keycode > 95 && keycode < 112)  || // numpad keys
+	        (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
+	        (keycode > 218 && keycode < 223);   // [\]' (in order)
+
+	    if(valid) {
+        	$('.filter').show();
+	    	$('.filter').focus();
+	    }
     })
     .on('click','a',function (e, data) {
         if(singleClickOpen){
@@ -1393,6 +1427,39 @@ function init() {
     		$('#data .default').html('Select a file from the tree.').show();
     	}
     })*/;
+
+    //treefilter
+	var to = false;
+	$('.filter').keyup(function (e) {
+		if(to) {
+			clearTimeout(to);
+		}
+		to = setTimeout(function () {
+			var v = $('.filter').val();
+			$('#tree').jstree(true).search(v, true, true);
+		}, 250);
+	});
+
+	$('.filter').keydown(function (e) {
+		var keycode = e.keyCode;
+	    var valid =
+	        (keycode > 47 && keycode < 58)   || // number keys
+	        keycode == 32                    || // spacebar
+	        keycode == 8                     || // backspace
+	        (keycode > 64 && keycode < 91)   || // letter keys
+	        (keycode > 95 && keycode < 112)  || // numpad keys
+	        (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
+	        (keycode > 218 && keycode < 223);   // [\]' (in order)
+
+	    //$('#tree a.jstree-clicked').focus();
+
+	    if(!valid) {
+	    	e.namespace = 'jstree';
+	    	e.target = $('#tree a.jstree-clicked')[0];
+	    	$('#tree a.jstree-clicked').trigger(e);
+	    	return false;
+	    }
+	});
 
     //only select filename part on rename
     $(document).on("focus", '.jstree-rename-input', util.selectFilename);

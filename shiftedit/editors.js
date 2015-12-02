@@ -162,7 +162,6 @@ function saveState() {
 		console.log('save state');
 
 		var session = editor.getSession();
-
 		var folds = session.getAllFolds().map(function (fold) {
 			return {
 				start: fold.start,
@@ -172,9 +171,7 @@ function saveState() {
 		});
 
 		var sel = session.getSelection();
-
 		var breakpoints = [];
-
 		for( i=0; i<session.$breakpoints.length; i++ ){
 			if( session.$breakpoints[i] ){
 				breakpoints.push(i);
@@ -329,7 +326,7 @@ function addFirepad(tab) {
 
 	// Create Firepad.
 	firepad = Firepad.fromACE(firepadRef, editor, {
-		userId: localStorage.user
+		userId: storage.get('user')
 	});
 
 	tab.data('firepad', firepad);
@@ -347,7 +344,7 @@ function addFirepad(tab) {
 			//firepad.setText(content);
 			tabs.setEdited(tab, true);
 		}else if(editor.getValue() === options.content){
-			tabs.setEdited(tab.false);
+			tabs.setEdited(tab, false);
 		}
 
 		//move cursor to start
@@ -597,6 +594,9 @@ function create(file, content, siteId, options) {
 	editor = split.getEditor(0);
 	editor.setTheme("ace/theme/monokai");
 	editor.split = split;
+
+	//disable warning
+	editor.$blockScrolling = Infinity;
 
 	//split isn't properly implemented in Ace so we have to use globals :|
 	if(!window.splits) window.splits = {};
