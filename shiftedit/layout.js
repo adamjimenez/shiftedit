@@ -45,6 +45,7 @@ function init() {
 	                    <ul id="siteMenu"></ul>\
 	                </div>\
 	                <div id="tree-container" class="flex">\
+                		<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all">\
 	        			<div id="tree"></div>\
 	                </div>\
 	            </div>\
