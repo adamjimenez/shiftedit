@@ -855,8 +855,6 @@ function init() {
     			}
     		},*/
             'data': function (node, callback) {
-	            //console.log(node);
-
                 if (treeFn) {
                     treeFn({node: node, callback: callback, tree:$('#tree')});
                 }else{
@@ -873,12 +871,39 @@ function init() {
 		            	});
 		            }
 
-            		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+					//backcompat old turbo mode
+					var params = util.clone(ajaxOptions.params);
+					if(node.id!=='#root')
+						params.path = encodeURIComponent(node.id);
+
+            		$.ajax(ajaxOptions.url+'&cmd=get&path='+encodeURIComponent(node.id), {
             		    method: 'POST',
             		    dataType: 'json',
-            		    data: ajaxOptions.params,
+            		    data: params,
             		    success: function(data) {
-            		        //console.log(data);
+            		    	//backcompat old turbo mode
+            		    	if(!data)
+            		    		return;
+
+            		    	if(!data.files) {
+            		    		var files = [];
+            		    		data.forEach(function(item){
+            		    			files.push({
+            		    				children: (!item.leaf),
+            		    				data: {
+            		    					perms: item.perms,
+            		    					modified: item.modified,
+            		    					size: item.size
+            		    				},
+            		    				icon: (item.leaf ? 'file' : 'folder'),
+            		    				id: item.id,
+            		    				text: item.text,
+            		    				type: (item.leaf ? 'file' : 'folder')
+            		    			});
+            		    		});
+            		    		data.files = files;
+            		    	}
+
                             callback.call(tree, data.files);
             		    }
             		});
