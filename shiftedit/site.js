@@ -10,10 +10,8 @@ var preferences = require('app/prefs');
 var gdrive = require('app/gdrive');
 var Aes = require('aes');
 var directFn;
-
 var sites = [];
 var currentSite = storage.get('currentSite');
-
 var combobox;
 
 function setSiteValues(obj) {
@@ -119,7 +117,7 @@ function init() {
                     $("li[data-site='"+currentSite+"']").attr('data-site', '');
 
                     //disable file tree
-                    $('#tree').hide();
+                    $('#tree-container').hide();
 
                     //disable site options
                     disableMenuItems();
@@ -127,7 +125,7 @@ function init() {
                     currentSite = 0;
 
                     //refresh combo
-                    $( "#sites" ).combobox('val');
+                    $( "#sites" ).combobox('val', '');
                     load();
                 }
             });
@@ -352,8 +350,12 @@ function open(siteId, options) {
 
     currentSite = null;
 
+    //hide tree
+    $('#tree-container').hide();
+
     var site = getSettings(siteId);
     currentSite = siteId;
+    enableMenuItems(site);
 
     var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
@@ -368,7 +370,6 @@ function open(siteId, options) {
 	function openCallback() {
         storage.set('currentSite', currentSite);
 
-        enableMenuItems(site);
         $('#tree').show();
 
         //highlight active tabs
@@ -384,9 +385,9 @@ function open(siteId, options) {
 
 		gdrive.authorise(function(){
 		    loading.stop();
+		    $('#tree-container').show();
             tree.setAjaxOptions(gdrive.directFn);
             directFn = gdrive.directFn;
-            openCallback();
 		});
 
         return;
@@ -411,12 +412,11 @@ function open(siteId, options) {
             //load file tree
             var ajaxOptions = getAjaxOptions('/api/files?site='+siteId);
             tree.setAjaxOptions(ajaxOptions);
+	    	$('#tree-container').show();
 
             if(options.callback) {
                 options.callback();
             }
-
-            openCallback();
         }else{
             if (data.require_password) {
     			loading.stop();
@@ -1078,8 +1078,10 @@ function edit(newSite, duplicate) {
                     </p>\
                     <p id="turbo_mode_container">\
                         <label for="name">Turbo mode:</label>\
+                        <label>\
                         <input type="checkbox" name="turbo" value="1" class="text ui-widget-content ui-corner-all" >\
                         Uploads a PHP proxy file for faster connections.\
+                        </label>\
                     </p>\
                     <p id="gdrivelimited">\
                         <label for="name">Limited access:</label>\
@@ -1151,11 +1153,11 @@ function edit(newSite, duplicate) {
 	}
 
     //select ssh key
-    $('#sshKey').click(function(){
+    $('#sshKey').button().click(function(){
         $(this).select();
     });
 
-    $('#chooseFolder').click(chooseFolder);
+    $('#chooseFolder').button().click(chooseFolder);
 
     //"Other" split button
     $('#otherMenu').menu().hide();
@@ -1196,7 +1198,7 @@ function edit(newSite, duplicate) {
     });
     loadRepos(settings.git_url);
 
-    $( "#showPassword,#showDbPassword" ).click(function(){
+    $( "#showPassword, #showDbPassword" ).button().click(function(){
         var input = ($( this ).prev());
         if(input.attr('type')==='text') {
             input.attr('type', 'password');

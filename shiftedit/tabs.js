@@ -167,10 +167,14 @@ function openFiles(callback) {
 	        callback: openCallback
 	    });
 	} else {
+		//backcompat turbo mode
+		var params = util.clone(options.params);
+		params.file = fileId;
+
     	ajax = $.ajax(options.url+'&cmd=open&file=' + fileId, {
     	    method: 'POST',
     	    dataType: 'json',
-    	    data: options.params,
+    	    data: params,
             success: openCallback
     	}, 'json').fail(function() {
             loading.stop();
@@ -380,6 +384,12 @@ function saveFiles(options) {
 	        parent: options.parent
 	    });
 	} else {
+		//backcompat turbo mode
+		params.file = file;
+		params.mdate = mdate;
+		params.confirmed = confirmed;
+		params.minify = minify;
+
     	ajax = $.ajax(ajaxOptions.url+"&cmd=save&file="+file+"&mdate="+mdate+"&confirmed="+confirmed+"&minify="+minify, {
     	    method: 'POST',
     	    dataType: 'json',

@@ -49,6 +49,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
             shortcuts.load();
             var definitions = require("app/definitions");
             var find = require("app/find");
+            find.init();
             var exit = require("app/exit");
             var notes = require("app/notes").init();
             var snippets = require("app/snippets");

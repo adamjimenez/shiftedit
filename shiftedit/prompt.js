@@ -24,16 +24,16 @@ define(['app/util'], function (util) {
     }
 
     function confirm(options) {
-        $( "#dialog-message" ).remove();
+        $( "#dialog-confirm" ).remove();
 
-        $( "body" ).append('<div id="dialog-message" title="'+options.title+'">\
+        $( "body" ).append('<div id="dialog-confirm" title="'+options.title+'">\
   <p>\
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>\
     '+options.msg+'\
   </p>\
 </div>');
 
-        $( "#dialog-message" ).dialog({
+        $( "#dialog-confirm" ).dialog({
             modal: true,
             close: function( event, ui ) {
                 $( this ).remove();
@@ -67,15 +67,13 @@ define(['app/util'], function (util) {
         //create dialog markup
         var inputType = options.password ? 'password' : 'text';
 
-        $( "body" ).append('<div id="dialog-message" title="'+options.title+'">\
+        $( "body" ).append('<div id="dialog-prompt" title="'+options.title+'">\
   <form>\
-    <fieldset>\
       <label for="name">'+options.msg+'</label>\
       <input type="'+inputType+'" name="input" id="input" value="'+options.value+'" class="text ui-widget-content ui-corner-all" required>\
  \
       <!-- Allow form submission with keyboard without duplicating the dialog button -->\
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
-    </fieldset>\
   </form>\
 </div>');
 
@@ -89,10 +87,10 @@ define(['app/util'], function (util) {
 
             options.fn('ok', value);
         }
-        $( "#dialog-message" ).submit(ok);
+        $( "#dialog-prompt" ).submit(ok);
 
         //open dialog
-        var dialog = $( "#dialog-message" ).dialog({
+        var dialog = $( "#dialog-prompt" ).dialog({
             modal: true,
             close: function( event, ui ) {
                 $( this ).remove();

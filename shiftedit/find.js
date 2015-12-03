@@ -427,67 +427,70 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		return;
 	}
 
-    $('<form id="findForm">\
-    <div id="findInRadio" class="row">\
-        <input type="radio" id="findInSelection" name="findIn" value="selection"><label for="findInSelection" title="Find in selection"><i class="fa fa-file-text-o"></i></label>\
-        <input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label for="findInCurrent" title="Find in current document"><i class="fa fa-file-o"></i></label>\
-        <input type="radio" id="findInOpen" name="findIn" value="open"><label for="findInOpen" title="Find in open documents"><i class="fa fa-files-o"></i></label>\
-        <input type="radio" id="findInRemote" name="findIn" value="remote"><label for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
-    </div>\
-    <div class="row">\
-        <textarea id="find" name="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
-    </div>\
-    <div id="findprogress"></div>\
-    <div id="findResults">\
-    </div>\
-    <div id="findButtons" class="row">\
-        <input type="checkbox" id="regex" title="Regular expression"><label for="regex"><i class="icon-regex"></i></label>\
-        <input type="checkbox" id="caseSensitive" title="Case sensitive"><label for="caseSensitive"><i class="icon-case-sensitive"></i></label>\
-        <input type="checkbox" id="wholeWord" title="Whole words"><label for="wholeWord"><i class="icon-whole-word"></i></label>\
-        <span class="flex"></span>\
-        <span id="findStatus">no results</span>\
-        <button type="button" id="findNextBtn"><i class="fa fa-chevron-down"></i></button>\
-        <button type="button" id="findPrevBtn"><i class="fa fa-chevron-up"></i></button>\
-    </div>\
-    <p></p>\
-    <div class="row">\
-        <textarea id="replace" name="replace" class="ui-widget ui-state-default ui-corner-all"></textarea>\
-    </div>\
-    <div id="replaceButtons" class="row">\
-        <button type="button" id="replaceBtn">Replace</button>\
-        <button type="button" id="replaceAllBtn">Replace all</button>\
-    </div>\
-</form>').appendTo('#tabs-find');
+	function init() {
+	    $('<form id="findForm">\
+	    <div id="findInRadio" class="row">\
+	        <input type="radio" id="findInSelection" name="findIn" value="selection"><label for="findInSelection" title="Find in selection"><i class="fa fa-file-text-o"></i></label>\
+	        <input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label for="findInCurrent" title="Find in current document"><i class="fa fa-file-o"></i></label>\
+	        <input type="radio" id="findInOpen" name="findIn" value="open"><label for="findInOpen" title="Find in open documents"><i class="fa fa-files-o"></i></label>\
+	        <input type="radio" id="findInRemote" name="findIn" value="remote"><label for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
+	    </div>\
+	    <div class="row">\
+	        <textarea id="find" name="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
+	    </div>\
+	    <div id="findprogress"></div>\
+	    <div id="findResults">\
+	    </div>\
+	    <div id="findButtons" class="row">\
+	        <input type="checkbox" id="regex" title="Regular expression"><label for="regex"><i class="icon-regex"></i></label>\
+	        <input type="checkbox" id="caseSensitive" title="Case sensitive"><label for="caseSensitive"><i class="icon-case-sensitive"></i></label>\
+	        <input type="checkbox" id="wholeWord" title="Whole words"><label for="wholeWord"><i class="icon-whole-word"></i></label>\
+	        <span class="flex"></span>\
+	        <span id="findStatus">no results</span>\
+	        <button type="button" id="findNextBtn"><i class="fa fa-chevron-down"></i></button>\
+	        <button type="button" id="findPrevBtn"><i class="fa fa-chevron-up"></i></button>\
+	    </div>\
+	    <p></p>\
+	    <div class="row">\
+	        <textarea id="replace" name="replace" class="ui-widget ui-state-default ui-corner-all"></textarea>\
+	    </div>\
+	    <div id="replaceButtons" class="row">\
+	        <button type="button" id="replaceBtn">Replace</button>\
+	        <button type="button" id="replaceAllBtn">Replace all</button>\
+	    </div>\
+	</form>').appendTo('#tabs-find');
 
-    $( "#findInRadio" ).buttonset();
-    $( "#findForm button, #findForm input[type=checkbox]" ).button();
-    $('#findprogress').progressbar({
-      disabled: true,
-      value: false
-    }).hide();
+	    $( "#findInRadio" ).buttonset();
+	    $( "#findForm button, #findForm input[type=checkbox]" ).button();
+	    $('#findprogress').progressbar({
+	      disabled: true,
+	      value: false
+	    }).hide();
 
-    autosize($('#findForm textarea'));
+	    autosize($('#findForm textarea'));
 
-    //listeners
-    $('#findForm [name=find]').keypress(function(e) {
-        if(!e.ctrlKey && e.keyCode==13) {
-            e.preventDefault();
-            return nextSearch();
-        }
-    });
-    $('#findForm [name=find]').keyup(keyUp);
-    $('#findNextBtn').click(nextSearch);
-    $('#findPrevBtn').click(previousSearch);
-    $('#replaceBtn').click(searchReplace);
-    $('#replaceAllBtn').click(searchReplaceAll);
-    $( "#findForm button, #findForm input[type=checkbox]" ).change(update);
-    $( "#findForm input[type=radio]" ).change(toggleFields);
+	    //listeners
+	    $('#findForm [name=find]').keypress(function(e) {
+	        if(!e.ctrlKey && e.keyCode==13) {
+	            e.preventDefault();
+	            return nextSearch();
+	        }
+	    });
+	    $('#findForm [name=find]').keyup(keyUp);
+	    $('#findNextBtn').click(nextSearch);
+	    $('#findPrevBtn').click(previousSearch);
+	    $('#replaceBtn').click(searchReplace);
+	    $('#replaceAllBtn').click(searchReplaceAll);
+	    $( "#findForm button, #findForm input[type=checkbox]" ).change(update);
+	    $( "#findForm input[type=radio]" ).change(toggleFields);
 
-	$('body').on('activate', 'li', function() {
-	    update(null, true);
-	});
+		$('body').on('activate', 'li', function() {
+		    update(null, true);
+		});
+	}
 
     return {
+        init: init,
         open: open
     };
 });
