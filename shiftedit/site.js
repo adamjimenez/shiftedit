@@ -117,7 +117,7 @@ function init() {
                     $("li[data-site='"+currentSite+"']").attr('data-site', '');
 
                     //disable file tree
-                    $('#tree').hide();
+                    $('#tree-container').hide();
 
                     //disable site options
                     disableMenuItems();
@@ -125,7 +125,7 @@ function init() {
                     currentSite = 0;
 
                     //refresh combo
-                    $( "#sites" ).combobox('val');
+                    $( "#sites" ).combobox('val', '');
                     load();
                 }
             });
@@ -350,6 +350,9 @@ function open(siteId, options) {
 
     currentSite = null;
 
+    //hide tree
+    $('#tree-container').hide();
+
     var site = getSettings(siteId);
     currentSite = siteId;
     enableMenuItems(site);
@@ -382,6 +385,7 @@ function open(siteId, options) {
 
 		gdrive.authorise(function(){
 		    loading.stop();
+		    $('#tree-container').show();
             tree.setAjaxOptions(gdrive.directFn);
             directFn = gdrive.directFn;
 		});
@@ -408,6 +412,7 @@ function open(siteId, options) {
             //load file tree
             var ajaxOptions = getAjaxOptions('/api/files?site='+siteId);
             tree.setAjaxOptions(ajaxOptions);
+	    	$('#tree-container').show();
 
             if(options.callback) {
                 options.callback();
