@@ -226,14 +226,16 @@ function newFile(data) {
 	var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
 
     var extension = data.item.extension;
-    var newName = data.item.name ? data.item.name : 'untitled';
+    var prefix = data.item.name ? data.item.name : 'untitled';
+    var newName = prefix + '.' + extension;
 
 	var i = 0;
 	while( parent.children.indexOf(newName) !== -1 ){
 		i++;
-		newName = newName + i + '.' + extension;
+		newName = prefix + i + '.' + extension;
 	}
-	inst.create_node(parent, { type : "file", text: 'untitled.'+extension }, "last", function (new_node) {
+
+	inst.create_node(parent, { type : "file", text: newName }, "last", function (new_node) {
 		setTimeout(function () { inst.edit(new_node); }, 0);
 	});
 }
@@ -881,7 +883,14 @@ function init() {
             		    dataType: 'json',
             		    data: params,
             		    success: function(data) {
+            		    	if(data.error) {
+            		    		prompt.alert({title:'Error', msg:data.error});
+            		    		return;
+            		    	}
+
+
             		    	//backcompat old turbo mode
+            		    	//console.log(data)
             		    	if(!data)
             		    		return;
 
@@ -925,16 +934,51 @@ function init() {
                     	    fn: function(btn) {
                     	        switch(btn){
                     	            case 'yes':
-                    	                //console.log(o, n, p, i, m);
                     	                confirmed = true;
-                    	                t.delete_node(n);
+
+								    	function doDelete(node) {
+									        if (treeFn) {
+									            treeFn({cmd: 'delete', file: node.id, callback: callback});
+									        }else{
+									    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+node.id, {
+									    		    method: 'POST',
+									    		    dataType: 'json',
+									    		    data: ajaxOptions.params,
+									    		    success: function(r) {
+									    		    	if(r.success) {
+									    		    		callback();
+									    		    	}
+									    		    }
+									    		})
+									    		.fail(function () {
+								    				confirmed = false;
+									    			prompt.alert({title:'Delete Failed', msg: 'Could not connect'});
+									    			t.refresh();
+									    		});
+									        }
+								    	}
+
+								    	queue = t.get_selected(true);
+								    	var node;
+								    	var callback = function() {
+							    			if(node)
+							    				t.delete_node(node);
+
+								    		if(queue.length) {
+										   		node = queue.shift();
+										    	doDelete(node);
+								    		}
+								    	};
+								    	callback();
                     	            break;
                     	        }
                     	    }
                     	});
         			    return false;
                 	}else{
-                	    confirmed = false;
+                		if(!queue.length) {
+                	    	confirmed = false;
+                		}
                 	    return true;
                 	}
 
@@ -1235,30 +1279,6 @@ function init() {
     	]
     })
     .on('delete_node.jstree', function (e, data) {
-        /*
-    	$.get('?operation=delete_node', { 'id' : data.node.id })
-    		.fail(function () {
-    			data.instance.refresh();
-    		});*/
-
-        if (treeFn) {
-            treeFn({cmd: 'delete', file: data.node.id});
-        }else{
-    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+data.node.id, {
-    		    method: 'POST',
-    		    dataType: 'json',
-    		    data: ajaxOptions.params,
-    		    /*
-    		    data: ajaxOptions.params,
-    		    success: function(data) {
-                    callback.call(tree, data);
-    		    }
-    		    */
-    		})
-    		.fail(function () {
-    			data.instance.refresh();
-    		});
-        }
     })
     .on('create_node.jstree', function (e, data) {
         if (treeFn) {
@@ -1268,13 +1288,38 @@ function init() {
                 data.instance.set_id(data.node, response.file);
             }});
         }else{
-        	$.get(ajaxOptions.url+'&cmd=newfile', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
-        		.done(function (d) {
-        			data.instance.set_id(data.node, d.id);
-        		})
-        		.fail(function () {
-        			data.instance.refresh();
-        		});
+        	//backcompat turbo mode
+        	var path = data.node.text;
+			if(data.node.parent!=='#root') {
+				path = data.node.parent + '/' + path;
+			}
+
+        	var params = util.clone(ajaxOptions.params);
+        	params.file = path; //backcompat turbo mode
+
+        	var id = '';
+        	if(data.node.parent!=='#root'){
+        		id = data.node.parent;
+        	}
+
+        	$.ajax(ajaxOptions.url+'&cmd=newfile&type='+data.node.type+'&id='+id+'&text='+data.node.text, {
+    		    method: 'POST',
+    		    dataType: 'json',
+    		    data: params
+        	})
+    		.done(function (d) {
+    			var id = d.id;
+
+    			//backcompat turbo mode
+    			if(!id) {
+    				id = path;
+    			}
+
+    			data.instance.set_id(data.node, id);
+    		})
+    		.fail(function () {
+    			data.instance.refresh();
+    		});
         }
     })
     .on('rename_node.jstree', function (e, data) {
