@@ -139,7 +139,10 @@ var skins = [{
 	title: "Flick",
 	name: "flick",
 	icon: "theme_90_flick.png"
-}*//*, {
+}*/, {
+	title: "Gray",
+	name: "gray"
+}/*, {
 	title: "Hot Sneaks",
 	name: "hot-sneaks",
 	icon: "theme_90_hot_sneaks.png"
