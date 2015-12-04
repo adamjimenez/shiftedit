@@ -747,7 +747,12 @@ function chooseFolder() {
             		    }
             		});
                 }
-            }
+            },
+    		'themes': {
+    			'responsive': false,
+    			'variant': 'small',
+    			'stripes': true
+    		}
     	},
     	'types' : {
     		'default' : { 'icon' : 'folder' },
@@ -799,12 +804,13 @@ function chooseFolder() {
 				}
 
                 $( this ).dialog( "close" );
-                $( "#dialog-choose-folder" ).remove();
             },
             Cancel: function() {
                 $( this ).dialog( "close" );
-                $( "#dialog-choose-folder" ).remove();
             }
+        },
+        close: function( event, ui ) {
+            $( this ).remove();
         }
     });
 
