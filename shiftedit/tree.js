@@ -610,8 +610,9 @@ function open(data) {
     }
 
 	if(selected && selected.length) {
-	    var file = selected.join(':');
-	    tabs.open(file, site.active());
+	    selected.forEach(function(file) {
+	    	tabs.open(file, site.active());
+	    });
 	}
 }
 
@@ -1073,6 +1074,7 @@ function init() {
                         "submenu": {
 							"open" : {
 								"label": "Open",
+                                "shortcut": 13,
 								action: open
 							},
 							"open_tab": {
@@ -1410,27 +1412,110 @@ function init() {
     			data.instance.refresh();
     		});
     })
+    .unbind('keydown.jstree')
     .on('keydown.jstree', '.jstree-anchor', function (e) {
         if($('.jstree-rename-input').length){
             return;
         }
 
+		var size, o, i;
 	    var keycode = e.keyCode;
+        var reference = this;
+        var inst = $.jstree.reference(this);
 
-        //escape
-        if (keycode===27) {
-        	$('.filter').val('').hide();
-			$('#tree').jstree(true).search('', true, true);
-        	$('#tree').focus();
-        	return;
+
+        switch(keycode) {
+        	//escape
+        	case 27:
+	        	$('.filter').val('').hide();
+				$('#tree').jstree(true).search('', true, true);
+	        	$('#tree').focus();
+        		return;
+			case 38: // up
+				e.preventDefault();
+				o = inst.get_prev_dom(e.currentTarget);
+				if(o && o.length) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node(o.children('.jstree-anchor').focus());
+				}
+        		return;
+			case 40: // down
+				e.preventDefault();
+				o = inst.get_next_dom(e.currentTarget);
+				if(o && o.length) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node(o.children('.jstree-anchor').focus());
+				}
+        		return;
+			case 36: // home
+				e.preventDefault();
+				o = inst._firstChild(inst.get_container_ul()[0]);
+				if(o) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node($(o).children('.jstree-anchor').filter(':visible').focus());
+				}
+				return;
+			case 35: // end
+				e.preventDefault();
+				if(!e.shiftKey) {
+					inst.deselect_all();
+				}
+				inst.select_node(inst.element.find('.jstree-anchor').filter(':visible').last().focus());
+				return;
+			case 33: // page up
+				e.preventDefault();
+				size = Math.floor(inst.element.height() / $(e.currentTarget).height());
+
+                o = $(e.currentTarget);
+                for (i = 0; i<size; i++) {
+                	if (inst.get_prev_dom(o).length) {
+                		o = inst.get_prev_dom(o);
+						if(e.shiftKey) {
+							inst.select_node(o);
+						}
+                	}
+                }
+
+				if(o.children('.jstree-anchor').length) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node(o.children('.jstree-anchor').focus());
+				}
+				return;
+			case 34: // page down
+				e.preventDefault();
+				size = Math.floor(inst.element.height() / $(e.currentTarget).height());
+
+                o = $(e.currentTarget);
+                for (i = 0; i<size; i++) {
+                	if (inst.get_next_dom(o).length) {
+                		o = inst.get_next_dom(o);
+						if(e.shiftKey) {
+							inst.select_node(o);
+						}
+                	}
+                }
+
+				if(o.children('.jstree-anchor').length) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node(o.children('.jstree-anchor').focus());
+				}
+				return;
         }
 
 		//shortcuts
-        var reference = this;
-        var instance = $.jstree.reference(this);
-        var selected = instance.get_selected();
-        var items = instance.settings.contextmenu.items(selected);
-        for(var i in items){
+        var selected = inst.get_selected();
+        var items = inst.settings.contextmenu.items(selected);
+        for(i in items){
             if (items.hasOwnProperty(i)) {
                 if(items[i].shortcut === e.which) {
                     items[i].action({reference:reference});
