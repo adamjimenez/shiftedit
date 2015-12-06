@@ -738,11 +738,53 @@ function chooseFolder() {
                         return false;
                     }
 
-            		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+		            if(node.id==='#') {
+		            	return callback.call($('#folderTree'), {
+		            		children: true,
+		            		id: '#root',
+		            		text: ajaxOptions.dir,
+		            		type: 'folder'
+		            	});
+		            }
+
+					//backcompat old turbo mode
+					params.path = '';
+					if(node.id!=='#root')
+						params.path = encodeURIComponent(node.id);
+
+            		$.ajax(ajaxOptions.url+'&cmd=get&path='+params.path, {
             		    method: 'POST',
             		    dataType: 'json',
             		    data: params,
             		    success: function(data) {
+            		    	if(data.error) {
+            		    		prompt.alert({title:'Error', msg:data.error});
+            		    		return;
+            		    	}
+
+            		    	//backcompat old turbo mode
+            		    	if(!data)
+            		    		return;
+
+            		    	if(!data.files) {
+            		    		var files = [];
+            		    		data.forEach(function(item){
+            		    			files.push({
+            		    				children: (!item.leaf),
+            		    				data: {
+            		    					perms: item.perms,
+            		    					modified: item.modified,
+            		    					size: item.size
+            		    				},
+            		    				icon: (item.leaf ? 'file' : 'folder'),
+            		    				id: item.id,
+            		    				text: item.text,
+            		    				type: (item.leaf ? 'file' : 'folder')
+            		    			});
+            		    		});
+            		    		data.files = files;
+            		    	}
+
                             callback.call(tree, data.files);
             		    }
             		});
@@ -764,7 +806,7 @@ function chooseFolder() {
     	'plugins' : [
     	    'sort','types'
     	]
-    }).on('refresh.jstree', function(e, data){
+    }).on('loaded.jstree', function(e, data) {
     	//expand root node
 		var inst = $.jstree.reference($('#folderTree'));
     	var rootNode = $('#folderTree').jstree(true).get_node('#').children[0];
@@ -790,6 +832,11 @@ function chooseFolder() {
 					}
 
 					var dir = node.id;
+					if(dir.substr(0,1)==='#') {
+						dir = node.text;
+					}
+
+					var dir_id = dir;
 
 					//set web url for gdrive (https://googledrive.com/host/0B716ywBKT84AMXBENXlnYmJISlE/GoogleDriveHosting.html)
 					if( params.server_type == 'GDrive' || params.server_type == 'GDriveLimited' ){
@@ -799,7 +846,7 @@ function chooseFolder() {
 
 					setSiteValues({
 					    dir: dir,
-					    dir_id: node.id
+					    dir_id: dir_id
 					});
 				}
 

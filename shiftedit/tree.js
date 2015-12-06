@@ -876,10 +876,11 @@ function init() {
 
 					//backcompat old turbo mode
 					var params = util.clone(ajaxOptions.params);
+					params.path = '';
 					if(node.id!=='#root')
 						params.path = encodeURIComponent(node.id);
 
-            		$.ajax(ajaxOptions.url+'&cmd=get&path='+encodeURIComponent(node.id), {
+            		$.ajax(ajaxOptions.url+'&cmd=get&path='+params.path, {
             		    method: 'POST',
             		    dataType: 'json',
             		    data: params,
@@ -889,9 +890,7 @@ function init() {
             		    		return;
             		    	}
 
-
             		    	//backcompat old turbo mode
-            		    	//console.log(data)
             		    	if(!data)
             		    		return;
 
