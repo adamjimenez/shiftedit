@@ -27,7 +27,7 @@ window.shiftedit = {};
 window.shiftedit.setSiteValues = setSiteValues;
 
 function enableMenuItems(site) {
-    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'download'];
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions'];
 
     if(site.db_phpmyadmin)
         items.push('phpmyadmin');
@@ -44,7 +44,7 @@ function enableMenuItems(site) {
 }
 
 function disableMenuItems() {
-    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'download', 'phpmyadmin', 'ssh', 'reboot'];
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions', 'phpmyadmin', 'ssh', 'reboot'];
 
     items.forEach(function(item){
         $('#'+item).removeClass('ui-state-disabled');
@@ -253,7 +253,7 @@ function init() {
         },
         disabled: true
     }, {
-        id: 'download',
+        id: 'downloadRevisions',
         text: 'Download revisions',
         handler: function() {
 	        window.open('_ajax/download_revisions.php?site='+currentSite);
