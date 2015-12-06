@@ -95,6 +95,10 @@ function buildQueue(nodes, d) {
 
 	var parent = d ? d : inst.get_node(node.parent);
 	var dest = parent.id;
+	if (dest.substr(0,1)==='#') {
+		dest = '';
+	}
+
 	var path = node.id;
 	var newName = node.text;
     if(node.id == dest+'/'+newName) {
@@ -152,6 +156,7 @@ function _processQueue(queue) {
     	url += 'cmd=paste';
 
 		loading.fetch(url, {
+			action: 'Putting '+item.dest,
 			data: {
 				dest: item.dest,
 				path: item.path,
@@ -531,8 +536,8 @@ function uploadByURl() {
             return;
 
         loading.fetch('/api/uploadurls?cmd=delete', {
-            data: {url: url},
             action: 'Deleting upload url',
+            data: {url: url},
             success: function(data) {
                 combo.combobox('val', '');
                 loadUploadUrls();
@@ -560,11 +565,11 @@ function uploadByURl() {
         		var path = parent.id;
 
                 loading.fetch(ajaxOptions.url+'&cmd=uploadByURL', {
+                    action: 'uploading '+url,
                     data: {
                         url: url,
                         path: path
                     },
-                    action: 'uploading '+url,
                     success: function(data) {
                         //add node if it doesn't exist
                         var node = tree.jstree(true).get_node(data.file);
@@ -586,8 +591,8 @@ function uploadByURl() {
         				//save url
         				/*
                         loading.fetch('/api/uploadurls', {
-                            data: {url: url},
                             action: 'saving url '+url
+                            data: {url: url},
                         });
                         */
                     },
@@ -948,6 +953,7 @@ function init() {
 									    		    	if(r.success) {
 									    		    		callback();
 									    		    	}
+									    				t.delete_node(node);
 									    		    }
 									    		})
 									    		.fail(function () {
