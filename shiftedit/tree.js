@@ -95,6 +95,10 @@ function buildQueue(nodes, d) {
 
 	var parent = d ? d : inst.get_node(node.parent);
 	var dest = parent.id;
+	if (dest.substr(0,1)==='#') {
+		dest = '';
+	}
+
 	var path = node.id;
 	var newName = node.text;
     if(node.id == dest+'/'+newName) {
@@ -152,6 +156,7 @@ function _processQueue(queue) {
     	url += 'cmd=paste';
 
 		loading.fetch(url, {
+			action: 'Putting '+item.dest,
 			data: {
 				dest: item.dest,
 				path: item.path,
@@ -226,14 +231,16 @@ function newFile(data) {
 	var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
 
     var extension = data.item.extension;
-    var newName = data.item.name ? data.item.name : 'untitled';
+    var prefix = data.item.name ? data.item.name : 'untitled';
+    var newName = prefix + '.' + extension;
 
 	var i = 0;
 	while( parent.children.indexOf(newName) !== -1 ){
 		i++;
-		newName = newName + i + '.' + extension;
+		newName = prefix + i + '.' + extension;
 	}
-	inst.create_node(parent, { type : "file", text: 'untitled.'+extension }, "last", function (new_node) {
+
+	inst.create_node(parent, { type : "file", text: newName }, "last", function (new_node) {
 		setTimeout(function () { inst.edit(new_node); }, 0);
 	});
 }
@@ -529,8 +536,8 @@ function uploadByURl() {
             return;
 
         loading.fetch('/api/uploadurls?cmd=delete', {
-            data: {url: url},
             action: 'Deleting upload url',
+            data: {url: url},
             success: function(data) {
                 combo.combobox('val', '');
                 loadUploadUrls();
@@ -558,11 +565,11 @@ function uploadByURl() {
         		var path = parent.id;
 
                 loading.fetch(ajaxOptions.url+'&cmd=uploadByURL', {
+                    action: 'uploading '+url,
                     data: {
                         url: url,
                         path: path
                     },
-                    action: 'uploading '+url,
                     success: function(data) {
                         //add node if it doesn't exist
                         var node = tree.jstree(true).get_node(data.file);
@@ -584,8 +591,8 @@ function uploadByURl() {
         				//save url
         				/*
                         loading.fetch('/api/uploadurls', {
-                            data: {url: url},
                             action: 'saving url '+url
+                            data: {url: url},
                         });
                         */
                     },
@@ -608,8 +615,9 @@ function open(data) {
     }
 
 	if(selected && selected.length) {
-	    var file = selected.join(':');
-	    tabs.open(file, site.active());
+	    selected.forEach(function(file) {
+	    	tabs.open(file, site.active());
+	    });
 	}
 }
 
@@ -873,14 +881,20 @@ function init() {
 
 					//backcompat old turbo mode
 					var params = util.clone(ajaxOptions.params);
+					params.path = '';
 					if(node.id!=='#root')
 						params.path = encodeURIComponent(node.id);
 
-            		$.ajax(ajaxOptions.url+'&cmd=get&path='+encodeURIComponent(node.id), {
+            		$.ajax(ajaxOptions.url+'&cmd=get&path='+params.path, {
             		    method: 'POST',
             		    dataType: 'json',
             		    data: params,
             		    success: function(data) {
+            		    	if(data.error) {
+            		    		prompt.alert({title:'Error', msg:data.error});
+            		    		return;
+            		    	}
+
             		    	//backcompat old turbo mode
             		    	if(!data)
             		    		return;
@@ -925,16 +939,52 @@ function init() {
                     	    fn: function(btn) {
                     	        switch(btn){
                     	            case 'yes':
-                    	                //console.log(o, n, p, i, m);
                     	                confirmed = true;
-                    	                t.delete_node(n);
+
+								    	function doDelete(node) {
+									        if (treeFn) {
+									            treeFn({cmd: 'delete', file: node.id, callback: callback});
+									        }else{
+									    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+node.id, {
+									    		    method: 'POST',
+									    		    dataType: 'json',
+									    		    data: ajaxOptions.params,
+									    		    success: function(r) {
+									    		    	if(r.success) {
+									    		    		callback();
+									    		    	}
+									    				t.delete_node(node);
+									    		    }
+									    		})
+									    		.fail(function () {
+								    				confirmed = false;
+									    			prompt.alert({title:'Delete Failed', msg: 'Could not connect'});
+									    			t.refresh();
+									    		});
+									        }
+								    	}
+
+								    	queue = t.get_selected(true);
+								    	var node;
+								    	var callback = function() {
+							    			if(node)
+							    				t.delete_node(node);
+
+								    		if(queue.length) {
+										   		node = queue.shift();
+										    	doDelete(node);
+								    		}
+								    	};
+								    	callback();
                     	            break;
                     	        }
                     	    }
                     	});
         			    return false;
                 	}else{
-                	    confirmed = false;
+                		if(!queue.length) {
+                	    	confirmed = false;
+                		}
                 	    return true;
                 	}
 
@@ -1029,6 +1079,7 @@ function init() {
                         "submenu": {
 							"open" : {
 								"label": "Open",
+                                "shortcut": 13,
 								action: open
 							},
 							"open_tab": {
@@ -1235,30 +1286,6 @@ function init() {
     	]
     })
     .on('delete_node.jstree', function (e, data) {
-        /*
-    	$.get('?operation=delete_node', { 'id' : data.node.id })
-    		.fail(function () {
-    			data.instance.refresh();
-    		});*/
-
-        if (treeFn) {
-            treeFn({cmd: 'delete', file: data.node.id});
-        }else{
-    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+data.node.id, {
-    		    method: 'POST',
-    		    dataType: 'json',
-    		    data: ajaxOptions.params,
-    		    /*
-    		    data: ajaxOptions.params,
-    		    success: function(data) {
-                    callback.call(tree, data);
-    		    }
-    		    */
-    		})
-    		.fail(function () {
-    			data.instance.refresh();
-    		});
-        }
     })
     .on('create_node.jstree', function (e, data) {
         if (treeFn) {
@@ -1268,13 +1295,38 @@ function init() {
                 data.instance.set_id(data.node, response.file);
             }});
         }else{
-        	$.get(ajaxOptions.url+'&cmd=newfile', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
-        		.done(function (d) {
-        			data.instance.set_id(data.node, d.id);
-        		})
-        		.fail(function () {
-        			data.instance.refresh();
-        		});
+        	//backcompat turbo mode
+        	var path = data.node.text;
+			if(data.node.parent!=='#root') {
+				path = data.node.parent + '/' + path;
+			}
+
+        	var params = util.clone(ajaxOptions.params);
+        	params.file = path; //backcompat turbo mode
+
+        	var id = '';
+        	if(data.node.parent!=='#root'){
+        		id = data.node.parent;
+        	}
+
+        	$.ajax(ajaxOptions.url+'&cmd=newfile&type='+data.node.type+'&id='+id+'&text='+data.node.text, {
+    		    method: 'POST',
+    		    dataType: 'json',
+    		    data: params
+        	})
+    		.done(function (d) {
+    			var id = d.id;
+
+    			//backcompat turbo mode
+    			if(!id) {
+    				id = path;
+    			}
+
+    			data.instance.set_id(data.node, id);
+    		})
+    		.fail(function () {
+    			data.instance.refresh();
+    		});
         }
     })
     .on('rename_node.jstree', function (e, data) {
@@ -1365,27 +1417,110 @@ function init() {
     			data.instance.refresh();
     		});
     })
+    .unbind('keydown.jstree')
     .on('keydown.jstree', '.jstree-anchor', function (e) {
         if($('.jstree-rename-input').length){
             return;
         }
 
+		var size, o, i;
 	    var keycode = e.keyCode;
+        var reference = this;
+        var inst = $.jstree.reference(this);
 
-        //escape
-        if (keycode===27) {
-        	$('.filter').val('').hide();
-			$('#tree').jstree(true).search('', true, true);
-        	$('#tree').focus();
-        	return;
+
+        switch(keycode) {
+        	//escape
+        	case 27:
+	        	$('.filter').val('').hide();
+				$('#tree').jstree(true).search('', true, true);
+	        	$('#tree').focus();
+        		return;
+			case 38: // up
+				e.preventDefault();
+				o = inst.get_prev_dom(e.currentTarget);
+				if(o && o.length) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node(o.children('.jstree-anchor').focus());
+				}
+        		return;
+			case 40: // down
+				e.preventDefault();
+				o = inst.get_next_dom(e.currentTarget);
+				if(o && o.length) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node(o.children('.jstree-anchor').focus());
+				}
+        		return;
+			case 36: // home
+				e.preventDefault();
+				o = inst._firstChild(inst.get_container_ul()[0]);
+				if(o) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node($(o).children('.jstree-anchor').filter(':visible').focus());
+				}
+				return;
+			case 35: // end
+				e.preventDefault();
+				if(!e.shiftKey) {
+					inst.deselect_all();
+				}
+				inst.select_node(inst.element.find('.jstree-anchor').filter(':visible').last().focus());
+				return;
+			case 33: // page up
+				e.preventDefault();
+				size = Math.floor(inst.element.height() / $(e.currentTarget).height());
+
+                o = $(e.currentTarget);
+                for (i = 0; i<size; i++) {
+                	if (inst.get_prev_dom(o).length) {
+                		o = inst.get_prev_dom(o);
+						if(e.shiftKey) {
+							inst.select_node(o);
+						}
+                	}
+                }
+
+				if(o.children('.jstree-anchor').length) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node(o.children('.jstree-anchor').focus());
+				}
+				return;
+			case 34: // page down
+				e.preventDefault();
+				size = Math.floor(inst.element.height() / $(e.currentTarget).height());
+
+                o = $(e.currentTarget);
+                for (i = 0; i<size; i++) {
+                	if (inst.get_next_dom(o).length) {
+                		o = inst.get_next_dom(o);
+						if(e.shiftKey) {
+							inst.select_node(o);
+						}
+                	}
+                }
+
+				if(o.children('.jstree-anchor').length) {
+					if(!e.shiftKey) {
+						inst.deselect_all();
+					}
+					inst.select_node(o.children('.jstree-anchor').focus());
+				}
+				return;
         }
 
 		//shortcuts
-        var reference = this;
-        var instance = $.jstree.reference(this);
-        var selected = instance.get_selected();
-        var items = instance.settings.contextmenu.items(selected);
-        for(var i in items){
+        var selected = inst.get_selected();
+        var items = inst.settings.contextmenu.items(selected);
+        for(i in items){
             if (items.hasOwnProperty(i)) {
                 if(items[i].shortcut === e.which) {
                     items[i].action({reference:reference});
