@@ -76,8 +76,8 @@ function create() {
         }
     });
 
-    $('.refreshButton').click(refresh);
-    $('.runButton').click(function() {
+    $('.refreshButton').button().click(refresh);
+    $('.runButton').button().click(function() {
         var tab = tabs.active();
 
         if(tab) {
