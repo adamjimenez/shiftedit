@@ -883,9 +883,9 @@ function init() {
 					var params = util.clone(ajaxOptions.params);
 					params.path = '';
 					if(node.id!=='#root')
-						params.path = encodeURIComponent(node.id);
+						params.path = node.id;
 
-            		$.ajax(ajaxOptions.url+'&cmd=get&path='+params.path, {
+            		$.ajax(ajaxOptions.url+'&cmd=get&path='+encodeURIComponent(params.path), {
             		    method: 'POST',
             		    dataType: 'json',
             		    data: params,
