@@ -78,7 +78,7 @@ function openFiles(callback) {
         delete opening[siteId+'|'+file];
 
 		if (callback)
-            callback(active());
+            callback(active(), false);
         return;
     }
 
@@ -154,7 +154,7 @@ function openFiles(callback) {
                 recordOpenFiles();
 
                 if (callback)
-                    callback(tab);
+                    callback(tab, true);
             }
 	    }
 	}
@@ -756,7 +756,7 @@ function quickOpen() {
   <form>\
     <fieldset>\
         <input type="text" name="input" id="quickOpenSearch" value="" class="text ui-widget-content ui-corner-all" autocomplete="off" autofocus><br>\
-        <select id="quickOpenFile" size="10"></select>\
+        <select id="quickOpenFile" size="10" class="ui-widget ui-state-default ui-corner-all"></select>\
       <!-- Allow form submission with keyboard without duplicating the dialog button -->\
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
     </fieldset>\
@@ -972,3 +972,5 @@ $('body').on('click', 'a.openfile', function() {
     exports.prev = prev;
     exports.setTitle = setTitle;
 });
+
+

@@ -852,7 +852,7 @@ function open() {
 	<h2>Files</h2>\
 	<label>\
 	    Default template<br>\
-	    <select id="defaultCode"></select>\
+	    <select id="defaultCode" class="ui-widget ui-state-default ui-corner-all"></select>\
 	    <button id="editDefaultCode" type="button">Edit</button>\
 	</label>\
 	<label>\
@@ -885,7 +885,7 @@ function open() {
 	</label><br>\
 	<label>\
 	    Default encoding<br>\
-	    <select name="encoding"></select>\
+	    <select name="encoding" class="ui-widget ui-state-default ui-corner-all"></select>\
 	</label>\
 	\
 	<h2>Editor</h2>\
@@ -908,7 +908,7 @@ function open() {
 	</label><br>\
 	<label>\
 	    Tab size<br>\
-	    <select name="tabSize">\
+	    <select name="tabSize" class="ui-widget ui-state-default ui-corner-all">\
 	        <option>2</option>\
 	        <option>3</option>\
 	        <option>4</option>\
@@ -930,11 +930,11 @@ function open() {
 	</label><br>\
 	<label>\
 	    Font size\
-	    <input type="number" name="fontSize" value="">\
+	    <input type="number" name="fontSize" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label>\
 	<label>\
 	    Print margin column\
-	    <input type="number" name="printMarginColumn" value="">\
+	    <input type="number" name="printMarginColumn" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label><br>\
 	<label>\
 	    <input type="checkbox" name="indentOnPaste" value="1">\
@@ -1082,7 +1082,7 @@ function open() {
     });
 
     //edit default code
-    $('#editDefaultCode').click(function() {
+    $('#editDefaultCode').button().click(function() {
         var val = $('#defaultCode').val();
     	var tab = editors.create('defaultCode.'+val, prefs.defaultCode[val], 0);
     	tab.data('pref', 'defaultCode.'+val);
@@ -1221,7 +1221,7 @@ function open() {
     }
 
     //master password
-    $('#changeMasterPassword').click(changeMasterPassword);
+    $('#changeMasterPassword').button().click(changeMasterPassword);
 
     if(!prefs.useMasterPassword){
         $('#changeMasterPassword').prop('disabled', true);
@@ -1270,3 +1270,4 @@ exports.csslint_options = csslint_options;
 exports.createHash = createHash;
 
 });
+
