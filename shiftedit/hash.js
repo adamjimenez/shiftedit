@@ -24,10 +24,12 @@ load = function () {
     		}
 
     		var settings = site.getSettings(siteName);
-	        tabs.open(file, settings.id, function(tab) {
-	        	var editor = tabs.getEditor(tab);
-	        	editor.gotoLine(line);
-	        	editor.focus();
+	        tabs.open(file, settings.id, function(tab, firstOpen) {
+	        	if(firstOpen) {
+		        	var editor = tabs.getEditor(tab);
+		        	editor.gotoLine(line);
+		        	editor.focus();
+	        	}
 	        });
 		}
 	});
