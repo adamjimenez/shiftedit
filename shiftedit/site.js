@@ -359,6 +359,7 @@ function open(siteId, options) {
     currentSite = siteId;
     storage.set('currentSite', currentSite);
     enableMenuItems(site);
+    $( "#sites" ).combobox('val', currentSite);
 
     var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
