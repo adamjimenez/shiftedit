@@ -110,29 +110,6 @@ function openFiles(callback) {
 	    } else {
 			$('#data .content').hide();
 			switch(type) {
-				case 'text':
-				case 'txt':
-				case 'md':
-				case 'htaccess':
-				case 'log':
-				case 'sql':
-				case 'php':
-				case 'js':
-				case 'json':
-				case 'css':
-				case 'html':
-					//console.log('load');
-					editors.create(file, data.content, options.site, data);
-					recent.add(file, options.site);
-
-					/*
-					var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-					var editor = ace.edit(panel.children('div')[0]);
-					editor.setTheme("ace/theme/monokai");
-					editor.getSession().setMode("ace/mode/php");
-					editor.getSession().getDocument().setValue(d.content);
-					*/
-				break;
 				case 'png':
 				case 'jpg':
 				case 'jpeg':
@@ -143,6 +120,8 @@ function openFiles(callback) {
 				break;
 				default:
 					//$('#data .default').html(d.content).show();
+					editors.create(file, data.content, options.site, data);
+					recent.add(file, options.site);
 				break;
 			}
 
@@ -241,6 +220,18 @@ function saveFiles(options) {
         title = item.title;
         content = item.content;
         mdate = -1;
+    }
+
+    //switch site if need be
+    if (siteId!==site.active()) {
+    	saving.unshift(item);
+
+    	site.open(siteId, {
+    		callback: function() {
+    			saveFiles();
+    		}
+    	});
+    	return;
     }
 
     //strip whitespace
@@ -972,5 +963,7 @@ $('body').on('click', 'a.openfile', function() {
     exports.prev = prev;
     exports.setTitle = setTitle;
 });
+
+
 
 
