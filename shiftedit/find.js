@@ -14,6 +14,10 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 	}
 
 	function findAll(editor, options){
+		if(!editor) {
+			return;
+		}
+
 		var Search = require("ace/search").Search;
 		var search = new Search().set(options);
 		return search.findAll(editor.getSession());
@@ -39,8 +43,8 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 	}
 
 	function replaceAll(editor, find, replace) {
-		if (!editor) {
-			return false;
+		if(!editor) {
+			return;
 		}
 
 		if (tab.view === 'design') {
@@ -145,6 +149,10 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 			});
 
 			editor = tabs.getEditor(active);
+
+			if(!editor) {
+				return;
+			}
 
 			if (num_results) {
 				//highlight next result
@@ -494,3 +502,5 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
         open: open
     };
 });
+
+
