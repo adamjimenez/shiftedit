@@ -143,9 +143,11 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 			//search file tabs
 			files.each(function(){
 			    editor = tabs.getEditor(this);
-			    id = $(this).attr('id');
-				results[id] = findAll(editor, options);
-				num_results += results[id].length;
+			    if (editor) {
+			    	id = $(this).attr('id');
+					results[id] = findAll(editor, options);
+					num_results += results[id].length;
+			    }
 			});
 
 			editor = tabs.getEditor(active);
@@ -502,5 +504,6 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
         open: open
     };
 });
+
 
 
