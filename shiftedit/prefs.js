@@ -929,11 +929,11 @@ function open() {
 	    Windows\
 	</label><br>\
 	<label>\
-	    Font size\
+	    Font size<br>\
 	    <input type="number" name="fontSize" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label>\
 	<label>\
-	    Print margin column\
+	    Print margin column<br>\
 	    <input type="number" name="printMarginColumn" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label><br>\
 	<label>\
@@ -1270,4 +1270,5 @@ exports.csslint_options = csslint_options;
 exports.createHash = createHash;
 
 });
+
 
