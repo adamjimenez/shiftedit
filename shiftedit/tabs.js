@@ -78,7 +78,7 @@ function openFiles(callback) {
         delete opening[siteId+'|'+file];
 
 		if (callback)
-            callback(active());
+            callback(active(), false);
         return;
     }
 
@@ -110,29 +110,6 @@ function openFiles(callback) {
 	    } else {
 			$('#data .content').hide();
 			switch(type) {
-				case 'text':
-				case 'txt':
-				case 'md':
-				case 'htaccess':
-				case 'log':
-				case 'sql':
-				case 'php':
-				case 'js':
-				case 'json':
-				case 'css':
-				case 'html':
-					//console.log('load');
-					editors.create(file, data.content, options.site, data);
-					recent.add(file, options.site);
-
-					/*
-					var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-					var editor = ace.edit(panel.children('div')[0]);
-					editor.setTheme("ace/theme/monokai");
-					editor.getSession().setMode("ace/mode/php");
-					editor.getSession().getDocument().setValue(d.content);
-					*/
-				break;
 				case 'png':
 				case 'jpg':
 				case 'jpeg':
@@ -143,6 +120,8 @@ function openFiles(callback) {
 				break;
 				default:
 					//$('#data .default').html(d.content).show();
+					editors.create(file, data.content, options.site, data);
+					recent.add(file, options.site);
 				break;
 			}
 
@@ -154,7 +133,7 @@ function openFiles(callback) {
                 recordOpenFiles();
 
                 if (callback)
-                    callback(tab);
+                    callback(tab, true);
             }
 	    }
 	}
@@ -241,6 +220,18 @@ function saveFiles(options) {
         title = item.title;
         content = item.content;
         mdate = -1;
+    }
+
+    //switch site if need be
+    if (siteId!==site.active()) {
+    	saving.unshift(item);
+
+    	site.open(siteId, {
+    		callback: function() {
+    			saveFiles();
+    		}
+    	});
+    	return;
     }
 
     //strip whitespace
@@ -756,7 +747,7 @@ function quickOpen() {
   <form>\
     <fieldset>\
         <input type="text" name="input" id="quickOpenSearch" value="" class="text ui-widget-content ui-corner-all" autocomplete="off" autofocus><br>\
-        <select id="quickOpenFile" size="10"></select>\
+        <select id="quickOpenFile" size="10" class="ui-widget ui-state-default ui-corner-all"></select>\
       <!-- Allow form submission with keyboard without duplicating the dialog button -->\
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
     </fieldset>\
@@ -972,3 +963,7 @@ $('body').on('click', 'a.openfile', function() {
     exports.prev = prev;
     exports.setTitle = setTitle;
 });
+
+
+
+

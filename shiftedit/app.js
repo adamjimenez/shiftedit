@@ -24,11 +24,9 @@ requirejs.config({
         "ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize'
     },
     "shim": {
-        /*
-        "ace/ext/emmet": {
-            deps: ['emmet','ace/ace']
+        "ace/ext-emmet": {
+            deps: ['ace/ace','emmet']
         },
-        */
         "ace/mode/css/csslint": {
             deps: ["ace/ace"]
         },
@@ -95,3 +93,4 @@ requirejs.config({
 
 // Start loading the main app file
 requirejs(['app/main']);
+

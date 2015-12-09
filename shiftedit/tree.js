@@ -837,7 +837,7 @@ function init() {
             r.opts.chunkSize = 20*1024*1024;
         }
 
-        r.opts.target = ajaxOptions.url+'&cmd=upload';
+        r.opts.target = ajaxOptions.url+'&cmd=upload&chunked=1';
         r.opts.withCredentials = true;
 
         var node = getSelected()[0];
@@ -883,9 +883,9 @@ function init() {
 					var params = util.clone(ajaxOptions.params);
 					params.path = '';
 					if(node.id!=='#root')
-						params.path = encodeURIComponent(node.id);
+						params.path = node.id;
 
-            		$.ajax(ajaxOptions.url+'&cmd=get&path='+params.path, {
+            		$.ajax(ajaxOptions.url+'&cmd=get&path='+encodeURIComponent(params.path), {
             		    method: 'POST',
             		    dataType: 'json',
             		    data: params,
@@ -1288,28 +1288,33 @@ function init() {
     .on('delete_node.jstree', function (e, data) {
     })
     .on('create_node.jstree', function (e, data) {
+        var cmd = (data.node.type=='default') ? 'newdir' : 'newfile';
         if (treeFn) {
-            var cmd = (data.node.type=='default') ? 'newdir' : 'newfile';
             var parent = inst.get_node(data.node.parent);
             treeFn({cmd: cmd, title: data.node.text, parent: parent.id, callback: function(response) {
                 data.instance.set_id(data.node, response.file);
             }});
         }else{
+        	var params = util.clone(ajaxOptions.params);
+
         	//backcompat turbo mode
         	var path = data.node.text;
 			if(data.node.parent!=='#root') {
 				path = data.node.parent + '/' + path;
 			}
+        	params.file = path;
 
-        	var params = util.clone(ajaxOptions.params);
-        	params.file = path; //backcompat turbo mode
+        	if(data.node.type=='default') {
+        		params.dir = data.node.text;
+        	}
+        	//end backcompat
 
         	var id = '';
         	if(data.node.parent!=='#root'){
         		id = data.node.parent;
         	}
 
-        	$.ajax(ajaxOptions.url+'&cmd=newfile&type='+data.node.type+'&id='+id+'&text='+data.node.text, {
+        	$.ajax(ajaxOptions.url+'&cmd='+cmd+'&type='+data.node.type+'&id='+id+'&text='+data.node.text, {
     		    method: 'POST',
     		    dataType: 'json',
     		    data: params
@@ -1769,3 +1774,6 @@ return {
 };
 
 });
+
+
+

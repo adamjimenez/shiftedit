@@ -708,10 +708,18 @@ function init () {
         				</tr>\
         				<tr>\
         					<td>\
-        						<a href="https://www.jstree.com/" target="_blank">JSTree</a>\
+        						<a href="https://www.jstree.com/" target="_blank">jsTree</a>\
         					</td>\
         					<td>\
         						<a href="https://raw.githubusercontent.com/vakata/jstree/master/LICENSE-MIT" target="_blank">License</a>\
+        					</td>\
+        				</tr>\
+        				<tr>\
+        					<td>\
+        						<a href="https://github.com/deitch/jstree-grid" target="_blank">jsTreeGrid</a>\
+        					</td>\
+        					<td>\
+        						<a href="https://raw.githubusercontent.com/deitch/jstree-grid/master/LICENSE" target="_blank">License</a>\
         					</td>\
         				</tr>\
         				<tr>\
@@ -730,7 +738,7 @@ function init () {
             		    title: title,
             		    msg: html,
             		    width: 500,
-            		    height: 490
+            		    height: 520
             		});
     			}
     		}]

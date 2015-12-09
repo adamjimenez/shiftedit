@@ -27,7 +27,7 @@ window.shiftedit = {};
 window.shiftedit.setSiteValues = setSiteValues;
 
 function enableMenuItems(site) {
-    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'download'];
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions'];
 
     if(site.db_phpmyadmin)
         items.push('phpmyadmin');
@@ -44,7 +44,7 @@ function enableMenuItems(site) {
 }
 
 function disableMenuItems() {
-    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'download', 'phpmyadmin', 'ssh', 'reboot'];
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions', 'phpmyadmin', 'ssh', 'reboot'];
 
     items.forEach(function(item){
         $('#'+item).removeClass('ui-state-disabled');
@@ -54,6 +54,8 @@ function disableMenuItems() {
 function init() {
     combobox = $( "#sites" ).combobox({
         forceSelection: true,
+        selectOnFocus: true,
+        selectFirst: true,
         select: function (event, ui) {
             //connect to site
             open(ui.item.value);
@@ -253,7 +255,7 @@ function init() {
         },
         disabled: true
     }, {
-        id: 'download',
+        id: 'downloadRevisions',
         text: 'Download revisions',
         handler: function() {
 	        window.open('_ajax/download_revisions.php?site='+currentSite);
@@ -355,7 +357,9 @@ function open(siteId, options) {
 
     var site = getSettings(siteId);
     currentSite = siteId;
+    storage.set('currentSite', currentSite);
     enableMenuItems(site);
+    $( "#sites" ).combobox('val', currentSite);
 
     var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
@@ -368,17 +372,27 @@ function open(siteId, options) {
 	}
 
 	function openCallback() {
-        storage.set('currentSite', currentSite);
-
-        $('#tree').show();
+    	$('#tree-container').show();
 
         //highlight active tabs
         var color = util.strToHex(siteId);
         $('#siteStyle-'+siteId).remove();
         $('<style id="siteStyle-'+siteId+'">.site-' + siteId + '{background:' + color + ';}</style>').appendTo('head');
+
+        if(options.callback) {
+            options.callback();
+        }
 	}
 
-    if(['GDrive','GDriveLimited'].indexOf(site.server_type)!=-1) {
+    if(site.server_type == 'AJAX' || site.turbo == 1){
+        var ajaxOptions = getAjaxOptions();
+		console.log('connecting to: '+ajaxOptions.ajaxUrl);
+        tree.setAjaxOptions(ajaxOptions);
+		loading.stop();
+		openCallback();
+		return;
+	//} else if(settings.server_type == 'GDriveJS'){
+	} else if(['GDrive','GDriveLimited'].indexOf(site.server_type)!=-1) {
         gdrive.setFullAccess(site.server_type === 'GDrive');
         $('#tree').data('dir', site.dir);
         $('#tree').data('dir_id', site.dir_id);
@@ -389,7 +403,6 @@ function open(siteId, options) {
             tree.setAjaxOptions(gdrive.directFn);
             directFn = gdrive.directFn;
 		});
-
         return;
     }
 
@@ -412,15 +425,9 @@ function open(siteId, options) {
             //load file tree
             var ajaxOptions = getAjaxOptions('/api/files?site='+siteId);
             tree.setAjaxOptions(ajaxOptions);
-	    	$('#tree-container').show();
-
-            if(options.callback) {
-                options.callback();
-            }
+			openCallback();
         }else{
             if (data.require_password) {
-    			loading.stop();
-
         		password = site.ftp_pass;
 
 				var prefs = preferences.get_prefs();
@@ -453,8 +460,6 @@ function open(siteId, options) {
     			    }
     			});
             }else if (data.require_master_password) {
-    			loading.stop();
-
     			prompt.prompt({
     			    title: lang.requireMasterPasswordText,
     			    msg: lang.passwordText,
@@ -1040,12 +1045,12 @@ function edit(newSite, duplicate) {
                             <span id="stackRadio">\
                                 <input type="radio" name="stack" value="php" id="stackRadio1">\
                                 <label for="stackRadio1" checled>\
-                                    <img src="/images/logos/php.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="32" width="32"><br>\
                                     PHP\
                                 </label>\
                                 <input type="radio" name="stack" value="nodejs" id="stackRadio2">\
                                 <label for="stackRadio2">\
-                                    <img src="/images/logos/nodejs.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/nodejs.svg" height="32" width="32"><br>\
                                     Node.js\
                                 </label>\
                             </span>\
@@ -1063,17 +1068,17 @@ function edit(newSite, duplicate) {
                             <span id="cloudRadio">\
                                 <input type="radio" name="cloud" value="Dropbox" id="cloudRadio1">\
                                 <label for="cloudRadio1">\
-                                    <img src="/images/logos/dropbox.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/dropbox.svg" height="32" width="32"><br>\
                                     Dropbox\
                                 </label>\
                                 <input type="radio" name="cloud" value="GDrive" id="cloudRadio2">\
                                 <label for="cloudRadio2">\
-                                    <img src="/images/logos/googledrive.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/googledrive.svg" height="32" width="32"><br>\
                                     Google Drive\
                                 </label>\
                                 <input type="radio" name="cloud" value="AmazonS3" id="cloudRadio3">\
                                 <label for="cloudRadio3">\
-                                    <img src="/images/logos/amazons3.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/amazons3.svg" height="32" width="32"><br>\
                                     Amazon S3\
                                 </label>\
                             </span>\
@@ -1422,3 +1427,4 @@ exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
 
 });
+

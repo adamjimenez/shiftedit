@@ -1,4 +1,4 @@
-define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -456,8 +456,6 @@ function applyPrefs(tab) {
             editor.removeAllListeners("paste");
         }
 
-	    /*
-	    require("ace/ext-emmet");
 		if( prefs.zen ){
 			console.log('loading emmet');
 		    //emmet fka zen
@@ -465,7 +463,6 @@ function applyPrefs(tab) {
 		}else{
 			editor.setOption("enableEmmet", false);
 		}
-		*/
 
 		//var beautify = require("ace/ext/beautify");
 		//editor.commands.addCommands(beautify.commands);
@@ -706,9 +703,9 @@ function create(file, content, siteId, options) {
 
 	//hack to remove keyword completer
 	for (var i in editor.completers){
-		if (editor.completers[i].getCompletions.toString().indexOf('wordScore')!==-1) {
+		if (editor.completers[i].getCompletions.toString().indexOf('getCompletions')!==-1) {
 			editor.completers.splice(i, 1);
-			console.log('deleted');
+			console.log('deleted '+i);
 		}
 	}
 
@@ -1052,3 +1049,4 @@ exports.setMode = setMode;
 exports.applyPrefs = applyPrefs;
 
 });
+
