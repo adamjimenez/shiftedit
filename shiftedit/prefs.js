@@ -940,10 +940,10 @@ function open() {
 	    <input type="checkbox" name="indentOnPaste" value="1">\
 	    Indent on paste\
 	</label>\
-	<!--<label>\
+	<label>\
 	    <input type="checkbox" name="zen" value="1">\
 	    Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
-	</label>-->\
+	</label>\
 	<label>\
 	    <input type="checkbox" name="behaviours" value="1">\
 	    Auto-close tags, brackets, quotes etc\
@@ -1270,5 +1270,6 @@ exports.csslint_options = csslint_options;
 exports.createHash = createHash;
 
 });
+
 
 
