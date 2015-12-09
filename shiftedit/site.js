@@ -1045,12 +1045,12 @@ function edit(newSite, duplicate) {
                             <span id="stackRadio">\
                                 <input type="radio" name="stack" value="php" id="stackRadio1">\
                                 <label for="stackRadio1" checled>\
-                                    <img src="/images/logos/php.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="32" width="32"><br>\
                                     PHP\
                                 </label>\
                                 <input type="radio" name="stack" value="nodejs" id="stackRadio2">\
                                 <label for="stackRadio2">\
-                                    <img src="/images/logos/nodejs.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/nodejs.svg" height="32" width="32"><br>\
                                     Node.js\
                                 </label>\
                             </span>\
@@ -1068,17 +1068,17 @@ function edit(newSite, duplicate) {
                             <span id="cloudRadio">\
                                 <input type="radio" name="cloud" value="Dropbox" id="cloudRadio1">\
                                 <label for="cloudRadio1">\
-                                    <img src="/images/logos/dropbox.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/dropbox.svg" height="32" width="32"><br>\
                                     Dropbox\
                                 </label>\
                                 <input type="radio" name="cloud" value="GDrive" id="cloudRadio2">\
                                 <label for="cloudRadio2">\
-                                    <img src="/images/logos/googledrive.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/googledrive.svg" height="32" width="32"><br>\
                                     Google Drive\
                                 </label>\
                                 <input type="radio" name="cloud" value="AmazonS3" id="cloudRadio3">\
                                 <label for="cloudRadio3">\
-                                    <img src="/images/logos/amazons3.svg" height="32" width="32"><br>\
+                                    <img src="https://shiftedit.s3.amazonaws.com/images/logos/amazons3.svg" height="32" width="32"><br>\
                                     Amazon S3\
                                 </label>\
                             </span>\
@@ -1427,3 +1427,4 @@ exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
 
 });
+
