@@ -110,6 +110,11 @@ function show() {
 
     //show current error
     var currentError = parseInt($(editor_status).attr('data-currentError'));
+
+    if(!errors[currentError]){
+    	return;
+    }
+
     var error = errors[currentError].text;
     var line = errors[currentError].row + 1;
 
