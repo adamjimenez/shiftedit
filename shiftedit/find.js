@@ -101,7 +101,6 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		//count all results
 		if (needle) {
 		    var files = [];
-
 			var start;
 			var end;
 			var editor;
@@ -169,7 +168,6 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 				}
 
 				var range = editor.getSelectionRange();
-
 				var selectionChanged = false;
 
 				if (
@@ -257,6 +255,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 					current = -1;
 				}
 				$("#findStatus").text((current + 1) + ' of ' + num_results);
+				editor.find(needle, options);
 				return num_results;
 			} else {
 				$("#findStatus").text('no results');
@@ -504,6 +503,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
         open: open
     };
 });
+
 
 
 
