@@ -282,7 +282,7 @@ function addFirepad(tab) {
 	console.log('adding firepad');
 
 	//TODO loading mask
-
+	var editor = tabs.getEditor(tab);
     var options = {};
     var content = tab.data('original');
 	if( typeof content === 'string' ){
@@ -291,7 +291,6 @@ function addFirepad(tab) {
 
 	var siteId = tab.attr('data-site');
 	var file = tab.attr('data-file');
-
 	var doc_name = siteId + '/' + file;
 	doc_name = doc_name.split('.').join('_');
 
@@ -306,6 +305,11 @@ function addFirepad(tab) {
 
 	firepadRef = new Firebase(url+doc_name);
 	tab.data('firepadRef', firepadRef);
+
+	// Create Firepad.
+	firepad = Firepad.fromACE(firepadRef, editor, {
+		userId: storage.get('user')
+	});
 
 	//remove on dispose
 	firepadRef.on('value', function(snapshot) {
@@ -324,22 +328,24 @@ function addFirepad(tab) {
 		//loadmask.hide();
 	});
 
-	// Create Firepad.
-	firepad = Firepad.fromACE(firepadRef, editor, {
-		userId: storage.get('user')
-	});
-
 	tab.data('firepad', firepad);
+	tab.data('options', options);
 
 	// Create FirepadUserList (with our desired userId)
 	firepadUserList = FirepadUserList.fromDiv(firepadRef.child('users'), storage.get('user'), storage.get('username'), editor);
 	tab.data('firepadUserList', firepadUserList);
 
 	//// Initialize contents
-	firepad.on('ready', function() {
+	firepad.on('ready', $.proxy(function() {
+		var tab = this;
+		var firepad = tab.data('firepad');
+		var editor = tabs.getEditor(tab);
+		var options = tab.data('options');
+		var firepadRef = tab.data('firepadRef');
+
 		if( firepad.isHistoryEmpty() ){
 			firepad.setText(content);
-			editor.session.getUndoManager().reset();
+			editor.getSession().getUndoManager().reset();
 		}else if( typeof content === 'string' && editor.getValue() !== options.content ){
 			//firepad.setText(content);
 			tabs.setEdited(tab, true);
@@ -376,7 +382,7 @@ function addFirepad(tab) {
 		//loadmask.hide();
 
 		restoreState(options.state);
-	});
+	}, tab));
 }
 
 _autoIndentOnPaste = function(editor, noidea, e) {
@@ -1049,4 +1055,5 @@ exports.setMode = setMode;
 exports.applyPrefs = applyPrefs;
 
 });
+
 
