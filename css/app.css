@@ -824,11 +824,13 @@ li[role=tab] .ui-icon {
 	z-index: 100000 !important; /*higher than tinymce*/
 }
 
+/*
 .ui-menubar .ui-menu{
 	overflow-x: hidden;
 	overflow-y: auto;
 	max-height: 400px;
 }
+*/
 
 #args{
 	position: absolute;
