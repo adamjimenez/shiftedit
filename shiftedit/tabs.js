@@ -745,12 +745,10 @@ function quickOpen() {
     //construct dialog
     $( "body" ).append('<div id="dialog-message" title="Quick open">\
   <form>\
-    <fieldset>\
-        <input type="text" name="input" id="quickOpenSearch" value="" class="text ui-widget-content ui-corner-all" autocomplete="off" autofocus><br>\
-        <select id="quickOpenFile" size="10" class="ui-widget ui-state-default ui-corner-all"></select>\
-      <!-- Allow form submission with keyboard without duplicating the dialog button -->\
-      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
-    </fieldset>\
+	<input type="text" name="input" id="quickOpenSearch" value="" class="text ui-widget-content ui-corner-all" autocomplete="off" autofocus><br>\
+	<select id="quickOpenFile" size="14" class="ui-widget ui-state-default ui-corner-all"></select>\
+	<!-- Allow form submission with keyboard without duplicating the dialog button -->\
+	<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
   </form>\
 </div>');
 
@@ -784,6 +782,12 @@ function quickOpen() {
                 }
 
                 next.prop('selected', true);
+                return false;
+            case 35: //end
+                $('#quickOpenFile option:selected').nextAll().last().prop('selected', true);
+                return false;
+            case 36: //home
+                $('#quickOpenFile option:selected').prevAll().last().prop('selected', true);
                 return false;
             case 13: //enter
                 pickSelected();
@@ -963,6 +967,8 @@ $('body').on('click', 'a.openfile', function() {
     exports.prev = prev;
     exports.setTitle = setTitle;
 });
+
+
 
 
 
