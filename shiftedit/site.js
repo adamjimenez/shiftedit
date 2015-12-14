@@ -386,7 +386,7 @@ function open(siteId, options) {
 
     if(site.server_type == 'AJAX' || site.turbo == 1){
         var ajaxOptions = getAjaxOptions();
-		console.log('connecting to: '+ajaxOptions.ajaxUrl);
+		console.log("connecting to: "+ajaxOptions.url);
         tree.setAjaxOptions(ajaxOptions);
 		loading.stop();
 		openCallback();
@@ -1427,4 +1427,5 @@ exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
 
 });
+
 
