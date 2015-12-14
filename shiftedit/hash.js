@@ -1,7 +1,15 @@
 define(['app/tabs', 'app/site'], function (tabs, site) {
 
+var value = '';
+
 load = function () {
 	var hash = window.location.hash.substr(1);
+	hash = decodeURIComponent(hash);
+
+	if(value === hash){
+		return;
+	}
+
 	console.log('hash: '+ hash);
 
 	//protect from xss
@@ -35,9 +43,20 @@ load = function () {
 	});
 };
 
-window.onhashchange = load;
+set = function(hash) {
+    if(hash!=window.location.hash){
+    	value = hash;
+
+    	console.log('set hash: #'+ value);
+        window.location.hash = '#'+value;
+    }
+}
+
+$(window).on( 'hashchange', load );
 
 return {
-    load: load
+    load: load,
+    set: set
 };
 });
+

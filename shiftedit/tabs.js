@@ -1,4 +1,4 @@
-define(['app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script'], function (editors, preferences, exports) {
+define(['app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script', 'app/hash'], function (editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -8,9 +8,10 @@ var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var recent = require('app/recent');
 var tree = require('app/tree');
+var hash = require('app/hash');
 var closing = [];
 var saving = [];
-var opening = {};
+var opening = [];
 var autoSaveTimer;
 var CoffeeScript = require('coffee-script');
 
@@ -57,25 +58,43 @@ function open(file, siteId, callback) {
     if(!file)
         return quickOpen();
 
-    opening[siteId+'|'+file] = 1;
-    openFiles(callback);
+    if(!siteId) {
+    	console.log('no site id');
+    	nad.nad
+    	return;
+    }
+
+    var found = false;
+    opening.forEach(function(item) {
+        if(item.id === tab.attr('id')){
+            found = true;
+            return;
+        }
+    });
+
+    if(!found) {
+		opening.push({
+			siteId: siteId,
+			file: file
+	    });
+	    openFiles(callback);
+    }
 }
 
 function openFiles(callback) {
-    if (!Object.keys(opening).length)
+    if (!opening.length)
         return;
 
-    var arr = Object.keys(opening)[0].split('|');
-    var siteId = arr[0];
-    var fileId = arr[1];
+	var item = opening.shift();
+    var siteId = item.siteId;
+    var fileId = item.file;
     var file = fileId;
 
     //check if file already open
-    var index = $(".ui-layout-center li[data-file='"+file+"'][data-site='"+siteId+"']").index();
-    if(index!==-1){
+    var li = $("li[data-file='"+file+"'][data-site='"+siteId+"']");
+    if(li.length && li.index()!==-1){
     	console.log('file already open');
-        $(".ui-layout-center").tabs("option", "active", index);
-        delete opening[siteId+'|'+file];
+        li.closest('.ui-tabs').tabs("option", "active", li.index());
 
 		if (callback)
             callback(active(), false);
@@ -88,7 +107,7 @@ function openFiles(callback) {
 	if (!loading.start('Opening ' + file, function(){
 		console.log('abort opening files');
 		ajax.abort();
-		opening = {};
+		opening = [];
 	})) {
 		console.log('in queue');
 		return;
@@ -106,7 +125,7 @@ function openFiles(callback) {
 
 	    if (!data.success) {
 	        prompt.alert({title:lang.failedText, msg:'Error opening file' + ': ' + data.error});
-            opening = {};
+            opening = [];
 	    } else {
 			$('#data .content').hide();
 			switch(type) {
@@ -125,9 +144,7 @@ function openFiles(callback) {
 				break;
 			}
 
-            delete opening[siteId+'|'+fileId];
-
-            if (Object.keys(opening).length) {
+            if (opening.length) {
                 openFiles(callback);
             }else{
                 recordOpenFiles();
@@ -158,7 +175,7 @@ function openFiles(callback) {
     	}, 'json').fail(function() {
             loading.stop();
     		prompt.alert({title:lang.failedText, msg:'Error opening file'});
-    		opening = {};
+    		opening = [];
         });
 	}
 }
@@ -412,7 +429,7 @@ function saveAs(tab, options) {
 
     		    if (!data.success) {
     		        prompt.alert({title:lang.failedText, msg:'Error checking file: ' + data.error});
-    	            opening = {};
+    	            opening = [];
     		    } else {
     		        if(data.file_exists) {
     		            prompt.confirm({
@@ -711,18 +728,15 @@ function tabActivate(tab) {
     document.title = title;
 
     //hash
-    var hash = '#';
+    var hashVal = '';
     if(siteId){
         settings = site.getSettings(siteId);
-        hash += settings.name + '/';
+        hashVal += settings.name + '/';
     }
 
-    hash += file ? tab.data('file') : 'newfile';
+    hashVal += file ? tab.data('file') : 'newfile';
 
-    if(hash!=window.location.hash){
-        console.log('change hash');
-        window.location.hash = hash;
-    }
+	hash.set(hashVal);
 
     var editor = getEditor(tab);
     if (editor)
@@ -967,6 +981,7 @@ $('body').on('click', 'a.openfile', function() {
     exports.prev = prev;
     exports.setTitle = setTitle;
 });
+
 
 
 
