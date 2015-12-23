@@ -843,3 +843,9 @@ li[role=tab] .ui-icon {
 	white-space: nowrap;
 	color: #000;
 }
+
+.user .ui-button-text{
+	text-shadow: 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black;
+	-webkit-font-smoothing: antialiased
+}
+
