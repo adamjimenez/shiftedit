@@ -90,6 +90,13 @@ function openFiles(callback) {
     var fileId = item.file;
     var file = fileId;
 
+    if(!siteId || !fileId) {
+    	console.trace('file open error');
+    	console.log(opening);
+    	console.log(item);
+    	return false;
+    }
+
     //check if file already open
     var li = $("li[data-file='"+file+"'][data-site='"+siteId+"']");
     if(li.length && li.index()!==-1){
@@ -981,10 +988,5 @@ $('body').on('click', 'a.openfile', function() {
     exports.prev = prev;
     exports.setTitle = setTitle;
 });
-
-
-
-
-
 
 
