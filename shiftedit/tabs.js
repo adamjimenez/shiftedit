@@ -268,6 +268,8 @@ function saveFiles(options) {
 				content += lines[i].replace(/\s+$/, "") + '\n';
 			}
 		}
+		//remove trailing line break
+		content = content.substr(0, content.length-1);
 	}
 
     if (tab) {
