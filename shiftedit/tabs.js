@@ -231,6 +231,9 @@ function saveFiles(options) {
         var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
         var editor = getEditor(tab);
         mdate = tab.data("mdate");
+        if(!mdate) {
+        	mdate = -1;
+        }
 
         if(!editor){
             console.error('editor instance not found');
@@ -440,6 +443,10 @@ function saveAs(tab, options) {
     		        prompt.alert({title:lang.failedText, msg:'Error checking file: ' + data.error});
     	            opening = [];
     		    } else {
+    		    	options.callback = function() {
+    		    		tree.refresh();
+    		    	}
+
     		        if(data.file_exists) {
     		            prompt.confirm({
     		                title: 'Confirm',
@@ -492,7 +499,7 @@ function saveAs(tab, options) {
     	                dataType: 'json'
     			    })
                     .then(function (data) {
-                        fileExistsCallback();
+                        fileExistsCallback(data);
                     }).fail(function() {
                         loading.stop();
                 		prompt.alert({title:lang.failedText, msg:'Error checking site'});
@@ -509,7 +516,8 @@ function saveAs(tab, options) {
 
 function doSaveAs(tab, file, options) {
     setTitle(tab, file);
-    tab.attr('data-file', '');
+    tab.data('file', file);
+    tab.attr('data-file', file);
 
     var site = require('app/site');
 	var siteId = site.active();
