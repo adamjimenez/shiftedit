@@ -723,7 +723,7 @@ function newTab (e, ui) {
 	HTML = '';
 	for (i in recentFiles) {
 		if (recentFiles.hasOwnProperty(i)) {
-			HTML += '<li><a href="#" title="'+recentFiles[i].file+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + recentFiles[i].file+ '</a></li>';
+			HTML += '<li><a href="#" title="'+recentFiles[i].file+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + util.basename(recentFiles[i].file)+ '</a></li>';
 		}
 	}
 
