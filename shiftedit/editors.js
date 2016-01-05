@@ -707,6 +707,7 @@ function create(file, content, siteId, options) {
 	//var language_tools = require("ace/ext/language_tools");
 	//editor.completers = [language_tools.keyWordCompleter];
 
+	/*
 	//hack to remove keyword completer
 	for (var i in editor.completers){
 		if (editor.completers[i].getCompletions.toString().indexOf('getCompletions')!==-1) {
@@ -714,8 +715,10 @@ function create(file, content, siteId, options) {
 			console.log('deleted '+i);
 		}
 	}
-
 	editor.completers.push(shifteditCompleter);
+	*/
+
+	editor.completers = [shifteditCompleter];
 
 	//shortcuts
 	editor.commands.addCommand({
