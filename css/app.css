@@ -337,6 +337,10 @@ li[role=tab] .ui-icon {
     width: 70px;
 }
 
+#siteTabs li {
+	width: auto;
+}
+
 #cloudRadio .ui-button{
     width: 100px;
 }

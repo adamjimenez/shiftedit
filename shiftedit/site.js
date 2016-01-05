@@ -1017,6 +1017,7 @@ function edit(newSite, duplicate) {
         	<ul>\
         	    <li><a href="#tabs-site">Site</a></li>\
         	    <li><a href="#tabs-database">Database</a></li>\
+        	    <li><a href="#tabs-autocomplete">Autocomplete</a></li>\
         	</ul>\
             <div>\
                 <div id="tabs-site">\
@@ -1164,6 +1165,16 @@ function edit(newSite, duplicate) {
                         <label for="name">Password:</label>\
                         <input type="password" name="db_password" value="" class="text ui-widget-content ui-corner-all">\
                         <button type="button" id="showDbPassword">Show</button>\
+                    </p>\
+                </div>\
+                <div id="tabs-autocomplete">\
+                    <p>\
+                        <label for="name">Wordpress:</label>\
+                        <input type="checkbox" name="ac_wordpress" value="1" class="text ui-widget-content ui-corner-all">\
+                    </p>\
+                    <p>\
+                        <label for="name">Custom completions:</label>\
+                        <input type="text" name="ac_custom" value="" placeholder="e.g. http://domain.com/completions.json" class="text ui-widget-content ui-corner-all">\
                     </p>\
                 </div>\
             </div>\

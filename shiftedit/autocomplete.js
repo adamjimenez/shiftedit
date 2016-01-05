@@ -1,7 +1,14 @@
-define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], function (util, php, wordpress) {
+define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], function (site, util, php, wordpress) {
 	phpDictionary = php.functions;
 
-	wordpressFunctions = wordpress.functions;
+	var wpFunctions = wordpress.functions;
+	wordpressFunctions = {};
+
+	for (var i in wpFunctions) {
+	    if(wpFunctions.hasOwnProperty(i)) {
+			wordpressFunctions[i] = [wpFunctions[i], '', 'wordpress'];
+	    }
+	}
 
 	var jqueryDictionary = {
 		"add": "(selector)"
@@ -425,6 +432,20 @@ define(['app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], f
 		var siteDefinitions = {};
 		var className = '';
 		var functions = {};
+
+		if(tab.data('site')) {
+			var settings = site.getSettings(tab.data('site'));
+
+			if( settings.ac_wordpress != '0' ){
+				wordpress = true;
+			}
+
+			/*
+			if( shiftedit.app.site.definitions[settings.id] ){
+				siteDefinitions = shiftedit.app.site.definitions[settings.id];
+			}
+			*/
+		}
 
 		//get token state - this gives us more context than just token info
 		var prevRow = pos.row > 0 ? pos.row-1 : 0;
