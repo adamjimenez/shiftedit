@@ -60,7 +60,6 @@ function open(file, siteId, callback) {
 
     if(!siteId) {
     	console.log('no site id');
-    	nad.nad
     	return;
     }
 
@@ -445,7 +444,7 @@ function saveAs(tab, options) {
     		    } else {
     		    	options.callback = function() {
     		    		tree.refresh();
-    		    	}
+    		    	};
 
     		        if(data.file_exists) {
     		            prompt.confirm({
@@ -714,8 +713,8 @@ function newTab (e, ui) {
 			content = prefs.defaultCode[this.dataset.filetype];
 		}
 
-		editors.create("untitled."+this.dataset.filetype, content);
 		close(ui.tab);
+		editors.create("untitled."+this.dataset.filetype, content);
 	});
 
     //recent files
@@ -730,8 +729,8 @@ function newTab (e, ui) {
 	panel.find('ul.recentFiles').append(HTML);
 
 	panel.find('a.openfile').click(function() {
-	    open($(this).data('file'), $(this).data('site'));
 		close(ui.tab);
+	    open($(this).data('file'), $(this).data('site'));
 	});
 
     $(this).trigger("tabsactivate", [{newTab:ui.tab}]);
