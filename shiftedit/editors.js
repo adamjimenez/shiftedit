@@ -1002,14 +1002,12 @@ function setMode(editor, mode) {
 				var jslint_options = preferences.jslint_options;
 
 				$.each(jslint_options, function (key, item) {
-					if (prefs['jslint_' + item.name]) {
-						options[item.name] = prefs['jslint_' + item.name];
-					}
+					options[item.name] = prefs['jslint_' + item.name];
 				});
 
 				//console.log(options);
 
-                editor.session.$worker.send("changeOptions",[ options ]);
+                editor.session.$worker.send("changeOptions", [options]);
                 // or
                 //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
 			break;
@@ -1019,10 +1017,9 @@ function setMode(editor, mode) {
 				var disable_rules = [];
 
 				$.each(csslint_options, function (key, item) {
-					if (!prefs['csslint_' + item.name]) {
-						disable_rules.push(item.name);
-					}
+					disable_rules.push(item.name);
 				});
+
 				//console.log(disable_rules);
 
                 editor.session.$worker.send("setDisabledRules", [disable_rules]);
