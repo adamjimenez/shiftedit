@@ -910,7 +910,7 @@ function init() {
             		    					modified: item.modified,
             		    					size: item.size
             		    				},
-            		    				icon: (item.leaf ? 'file' : 'folder'),
+            		    				icon: (item.leaf ? 'file '+item.iconCls : 'folder'),
             		    				id: item.id,
             		    				text: item.text,
             		    				type: (item.leaf ? 'file' : 'folder')
