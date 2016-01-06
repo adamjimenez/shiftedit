@@ -1559,6 +1559,10 @@ function init() {
 	    }
     })
     .on('mousedown','a',function (e, data) {
+    	if (e.button!==0) {
+    		return false;
+    	}
+
     	var ref = this;
 
     	if ($(ref).hasClass('jstree-clicked')) {
