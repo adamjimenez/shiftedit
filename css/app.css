@@ -195,15 +195,6 @@ li[role=tab] .ui-icon {
 }
 /* END TREE */
 
-.ace_editor {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 100%;
-}
-
 #serverProgress {
 	position: absolute;
 	top: 0;
@@ -335,6 +326,10 @@ li[role=tab] .ui-icon {
 #siteSettings .ui-menu {
     position: absolute;
     width: 70px;
+}
+
+#siteTabs li {
+	width: auto;
 }
 
 #cloudRadio .ui-button{
@@ -824,11 +819,13 @@ li[role=tab] .ui-icon {
 	z-index: 100000 !important; /*higher than tinymce*/
 }
 
+/*
 .ui-menubar .ui-menu{
 	overflow-x: hidden;
 	overflow-y: auto;
 	max-height: 400px;
 }
+*/
 
 #args{
 	position: absolute;
@@ -841,3 +838,9 @@ li[role=tab] .ui-icon {
 	white-space: nowrap;
 	color: #000;
 }
+
+.user .ui-button-text{
+	text-shadow: 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black;
+	-webkit-font-smoothing: antialiased
+}
+

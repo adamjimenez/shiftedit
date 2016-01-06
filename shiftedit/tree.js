@@ -17,6 +17,7 @@ var reference;
 var inst;
 var treeFn;
 var singleClickOpen = false;
+var renameTimer;
 
 function findChild(parent, name) {
 	for( i=0; i<parent.children.length; i++ ){
@@ -909,7 +910,7 @@ function init() {
             		    					modified: item.modified,
             		    					size: item.size
             		    				},
-            		    				icon: (item.leaf ? 'file' : 'folder'),
+            		    				icon: (item.leaf ? 'file '+item.iconCls : 'folder'),
             		    				id: item.id,
             		    				text: item.text,
             		    				type: (item.leaf ? 'file' : 'folder')
@@ -1557,14 +1558,33 @@ function init() {
 	    	$('.filter').focus();
 	    }
     })
-    .on('click','a',function (e, data) {
-        if(singleClickOpen){
-            open({
-                reference: this
-            });
-        }
+    .on('mousedown','a',function (e, data) {
+    	if (e.button!==0) {
+    		return false;
+    	}
+
+    	var ref = this;
+
+    	if ($(ref).hasClass('jstree-clicked')) {
+    		clearTimeout(renameTimer);
+    		renameTimer = setTimeout(function() {
+    			if (ref) {
+					var inst = $.jstree.reference(ref),
+	            		obj = inst.get_node(ref);
+	            	inst.edit(obj);
+    			}
+    		}, 1000);
+    	} else {
+	        if(singleClickOpen){
+	            open({
+	                reference: ref
+	            });
+	        }
+    	}
     })
     .on('dblclick','a',function (e, data) {
+    	clearTimeout(renameTimer);
+
         open({
             reference: this
         });

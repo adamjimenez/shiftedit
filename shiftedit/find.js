@@ -101,7 +101,6 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		//count all results
 		if (needle) {
 		    var files = [];
-
 			var start;
 			var end;
 			var editor;
@@ -131,7 +130,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 			var active = tabs.active();
 			editor = tabs.getEditor(active);
 
-			if( findIn == 'selection' ){
+			if( editor && findIn == 'selection' ){
 				options.range =	editor.getSelectionRange();
 				dontSelect = true;
 			}
@@ -169,7 +168,6 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 				}
 
 				var range = editor.getSelectionRange();
-
 				var selectionChanged = false;
 
 				if (
@@ -257,6 +255,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 					current = -1;
 				}
 				$("#findStatus").text((current + 1) + ' of ' + num_results);
+				editor.find(needle, options);
 				return num_results;
 			} else {
 				$("#findStatus").text('no results');
@@ -341,8 +340,11 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 				return;
 			}
 
-    		var tab = tabs.active();
-		    var currentSite = tab.attr('data-site');
+		    var currentSite = site.active();
+
+		    if(!currentSite) {
+		    	return;
+		    }
 
 			$('#findResults').html('');
 
@@ -504,6 +506,8 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
         open: open
     };
 });
+
+
 
 
 

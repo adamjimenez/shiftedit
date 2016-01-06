@@ -9,6 +9,7 @@ var editor_contextmenu = require('app/editor_contextmenu');
 var prompt = require('app/prompt');
 var autocomplete = require('app/autocomplete');
 var Autocomplete = require("ace/autocomplete").Autocomplete;
+var language_tools = require("ace/ext/language_tools");
 var site = require('app/site');
 var firebase = require('app/firebase');
 var Firepad = require('firepad/firepad');
@@ -23,6 +24,28 @@ var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20151029';
 ace.config.set("modePath", acePath);
 ace.config.set("workerPath", acePath);
 ace.config.set("themePath", acePath);
+
+// custom completions
+var shifteditCompleter = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+        var completions = autocomplete.run(editor, session, pos, prefix, callback);
+
+        if (completions) {
+        	callback(null, completions);
+        }
+    },
+    getDocTooltip: function(selected){
+    	if (selected.doc) {
+	    	return {
+	    		docHTML: selected.doc
+	    	};
+    	}
+    }
+};
+language_tools.addCompleter(shifteditCompleter);
+
+//remove text completer
+language_tools.textCompleter.getCompletions = function(){};
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -282,7 +305,7 @@ function addFirepad(tab) {
 	console.log('adding firepad');
 
 	//TODO loading mask
-
+	var editor = tabs.getEditor(tab);
     var options = {};
     var content = tab.data('original');
 	if( typeof content === 'string' ){
@@ -291,7 +314,6 @@ function addFirepad(tab) {
 
 	var siteId = tab.attr('data-site');
 	var file = tab.attr('data-file');
-
 	var doc_name = siteId + '/' + file;
 	doc_name = doc_name.split('.').join('_');
 
@@ -306,6 +328,11 @@ function addFirepad(tab) {
 
 	firepadRef = new Firebase(url+doc_name);
 	tab.data('firepadRef', firepadRef);
+
+	// Create Firepad.
+	firepad = Firepad.fromACE(firepadRef, editor, {
+		userId: storage.get('user')
+	});
 
 	//remove on dispose
 	firepadRef.on('value', function(snapshot) {
@@ -324,22 +351,24 @@ function addFirepad(tab) {
 		//loadmask.hide();
 	});
 
-	// Create Firepad.
-	firepad = Firepad.fromACE(firepadRef, editor, {
-		userId: storage.get('user')
-	});
-
 	tab.data('firepad', firepad);
+	tab.data('options', options);
 
 	// Create FirepadUserList (with our desired userId)
 	firepadUserList = FirepadUserList.fromDiv(firepadRef.child('users'), storage.get('user'), storage.get('username'), editor);
 	tab.data('firepadUserList', firepadUserList);
 
 	//// Initialize contents
-	firepad.on('ready', function() {
+	firepad.on('ready', $.proxy(function() {
+		var tab = this;
+		var firepad = tab.data('firepad');
+		var editor = tabs.getEditor(tab);
+		var options = tab.data('options');
+		var firepadRef = tab.data('firepadRef');
+
 		if( firepad.isHistoryEmpty() ){
 			firepad.setText(content);
-			editor.session.getUndoManager().reset();
+			editor.getSession().getUndoManager().reset();
 		}else if( typeof content === 'string' && editor.getValue() !== options.content ){
 			//firepad.setText(content);
 			tabs.setEdited(tab, true);
@@ -376,7 +405,7 @@ function addFirepad(tab) {
 		//loadmask.hide();
 
 		restoreState(options.state);
-	});
+	}, tab));
 }
 
 _autoIndentOnPaste = function(editor, noidea, e) {
@@ -681,35 +710,7 @@ function create(file, content, siteId, options) {
 	    'definitionRanges': {}
     };
 
-	var shifteditCompleter = {
-	    getCompletions: function(editor, session, pos, prefix, callback) {
-	        var completions = autocomplete.run(editor, session, pos, prefix, callback);
-
-	        if (completions) {
-	        	callback(null, completions);
-	        }
-	    },
-	    getDocTooltip: function(selected){
-	    	if (selected.doc) {
-		    	return {
-		    		docHTML: selected.doc
-		    	};
-	    	}
-	    }
-	};
-
-	//var language_tools = require("ace/ext/language_tools");
-	//editor.completers = [language_tools.keyWordCompleter];
-
-	//hack to remove keyword completer
-	for (var i in editor.completers){
-		if (editor.completers[i].getCompletions.toString().indexOf('getCompletions')!==-1) {
-			editor.completers.splice(i, 1);
-			console.log('deleted '+i);
-		}
-	}
-
-	editor.completers.push(shifteditCompleter);
+	//editor.completers = [shifteditCompleter];
 
 	//shortcuts
 	editor.commands.addCommand({
@@ -993,14 +994,12 @@ function setMode(editor, mode) {
 				var jslint_options = preferences.jslint_options;
 
 				$.each(jslint_options, function (key, item) {
-					if (prefs['jslint_' + item.name]) {
-						options[item.name] = prefs['jslint_' + item.name];
-					}
+					options[item.name] = prefs['jslint_' + item.name];
 				});
 
 				//console.log(options);
 
-                editor.session.$worker.send("changeOptions",[ options ]);
+                editor.session.$worker.send("changeOptions", [options]);
                 // or
                 //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
 			break;
@@ -1010,10 +1009,9 @@ function setMode(editor, mode) {
 				var disable_rules = [];
 
 				$.each(csslint_options, function (key, item) {
-					if (!prefs['csslint_' + item.name]) {
-						disable_rules.push(item.name);
-					}
+					disable_rules.push(item.name);
 				});
+
 				//console.log(disable_rules);
 
                 editor.session.$worker.send("setDisabledRules", [disable_rules]);
@@ -1049,4 +1047,5 @@ exports.setMode = setMode;
 exports.applyPrefs = applyPrefs;
 
 });
+
 
