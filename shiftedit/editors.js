@@ -9,6 +9,7 @@ var editor_contextmenu = require('app/editor_contextmenu');
 var prompt = require('app/prompt');
 var autocomplete = require('app/autocomplete');
 var Autocomplete = require("ace/autocomplete").Autocomplete;
+var language_tools = require("ace/ext/language_tools");
 var site = require('app/site');
 var firebase = require('app/firebase');
 var Firepad = require('firepad/firepad');
@@ -23,6 +24,28 @@ var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20151029';
 ace.config.set("modePath", acePath);
 ace.config.set("workerPath", acePath);
 ace.config.set("themePath", acePath);
+
+// custom completions
+var shifteditCompleter = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+        var completions = autocomplete.run(editor, session, pos, prefix, callback);
+
+        if (completions) {
+        	callback(null, completions);
+        }
+    },
+    getDocTooltip: function(selected){
+    	if (selected.doc) {
+	    	return {
+	    		docHTML: selected.doc
+	    	};
+    	}
+    }
+};
+language_tools.addCompleter(shifteditCompleter);
+
+//remove text completer
+language_tools.textCompleter.getCompletions = function(){};
 
 function onChange(e) {
     var tabs = require("app/tabs");
@@ -687,38 +710,7 @@ function create(file, content, siteId, options) {
 	    'definitionRanges': {}
     };
 
-	var shifteditCompleter = {
-	    getCompletions: function(editor, session, pos, prefix, callback) {
-	        var completions = autocomplete.run(editor, session, pos, prefix, callback);
-
-	        if (completions) {
-	        	callback(null, completions);
-	        }
-	    },
-	    getDocTooltip: function(selected){
-	    	if (selected.doc) {
-		    	return {
-		    		docHTML: selected.doc
-		    	};
-	    	}
-	    }
-	};
-
-	//var language_tools = require("ace/ext/language_tools");
-	//editor.completers = [language_tools.keyWordCompleter];
-
-	/*
-	//hack to remove keyword completer
-	for (var i in editor.completers){
-		if (editor.completers[i].getCompletions.toString().indexOf('getCompletions')!==-1) {
-			editor.completers.splice(i, 1);
-			console.log('deleted '+i);
-		}
-	}
-	editor.completers.push(shifteditCompleter);
-	*/
-
-	editor.completers = [shifteditCompleter];
+	//editor.completers = [shifteditCompleter];
 
 	//shortcuts
 	editor.commands.addCommand({
