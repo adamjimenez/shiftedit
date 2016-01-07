@@ -1222,7 +1222,10 @@ function init() {
 					},
 					"reload": {
 						"label": "Reload",
-						action: refresh
+						action: function (data) {
+                            var inst = $.jstree.reference(data.reference);
+                            inst.refresh_node(inst.get_selected(true)[0]);
+						}
 					},
 					"chmod": {
 						"label": "Set permissions",
