@@ -15,6 +15,7 @@ requirejs.config({
         "jstree": "jstree/jstree",
         "ace": "ace.20151029/src",
         //"ace/split": 'ace.20151029/src/ext-split',
+        "ace/ext/language_tools": "ace.20151029/src/ext-language_tools",
         "ace/autocomplete": "ace.20151029/src/ext-language_tools",
         "ace/mode/css/csslint": "ace.20151029/src/worker-css",
         //"ace/ext/emmet": 'ace.20151029/src/ext-emmet',
