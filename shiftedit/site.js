@@ -1350,7 +1350,7 @@ function edit(newSite, duplicate) {
 						$( "#dialog-site" ).dialog( "close" );
                         $( "#dialog-site" ).remove();
                     }else{
-                        prompt.alert({title:'Error', msg:data.error});
+                        prompt.alert({title:'Error', msg: data.error.replace(/\n/g,"<br>")});
                     }
                 }).fail(function() {
                     loading.stop();
@@ -1395,7 +1395,7 @@ function getAjaxOptions(ajaxUrl) {
         	if( settings.web_url ){
         		ajaxUrl = settings.web_url+'shiftedit-proxy.php?ModPagespeed=off';
         	}else{
-        		prompt.alert({title:lang.errorText, msg:'Missing web URL'});
+        		prompt.alert({title:lang.errorText, msg:'Missing website URL for proxy, edit site settings and set a website url or disable turbo option.'});
         	}
 
     		//fixme prompt for master password
