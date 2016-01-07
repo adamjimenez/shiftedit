@@ -541,7 +541,7 @@ function load() {
             });
 
             if(currentSite) {
-                $( "#sites" ).combobox('val', currentSite);
+                $( "#sites" ).combobox('val', currentSite+"");
                 return open(currentSite);
             }
 
