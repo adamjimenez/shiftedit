@@ -216,12 +216,10 @@ function select(path) {
 }
 
 function newFolder(data) {
-    //data.item.name
-
 	var inst = $.jstree.reference(data.reference),
 		obj = inst.get_node(data.reference);
 		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
-	inst.create_node(parent, { type : "default" }, "last", function (new_node) {
+	inst.create_node(parent, { type : "default", text: 'New folder' }, "last", function (new_node) {
 		setTimeout(function () { inst.edit(new_node); }, 0);
 	});
 }
@@ -403,6 +401,9 @@ function processUploads() {
                 if(data.file_exists===false) {
                     loading.stop();
                     loading.fetch(ajaxOptions.url+'&cmd=newdir&dir='+folder, {
+                    	data: {
+                    		dir: folder
+                    	},
                         action: 'Uploading '+folder,
                         success: function(data) {
                             processUploads();
@@ -1306,10 +1307,11 @@ function init() {
 			if(data.node.parent!=='#root') {
 				path = data.node.parent + '/' + path;
 			}
-        	params.file = path;
 
         	if(data.node.type=='default') {
-        		params.dir = data.node.text;
+        		params.dir = path;
+        	} else {
+        		params.file = path;
         	}
         	//end backcompat
 
@@ -1318,7 +1320,7 @@ function init() {
         		id = data.node.parent;
         	}
 
-        	$.ajax(ajaxOptions.url+'&cmd='+cmd+'&type='+data.node.type+'&id='+id+'&text='+data.node.text, {
+        	$.ajax(ajaxOptions.url+'&cmd='+cmd+'&type='+data.node.type+'&path='+path, {
     		    method: 'POST',
     		    dataType: 'json',
     		    data: params
