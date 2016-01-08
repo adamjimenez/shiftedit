@@ -195,6 +195,10 @@ li[role=tab] .ui-icon {
 }
 /* END TREE */
 
+#revisionDiff {
+	height: 100%;
+}
+
 #serverProgress {
 	position: absolute;
 	top: 0;
