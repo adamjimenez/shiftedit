@@ -527,8 +527,12 @@ function load() {
     return $.getJSON('/api/sites')
         .then(function (data) {
             sites = data.sites;
-
             $( "#sites" ).children('option').remove();
+
+            if (!sites.length) {
+            	create();
+            	return;
+            }
 
             $.each(sites, function( index, site ) {
                 var icon = '';
