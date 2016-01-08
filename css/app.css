@@ -108,6 +108,11 @@ li[role=tab] .ui-icon {
     vertical-align: bottom;
 }
 
+.addTab{
+	padding-bottom: 4px !important;
+	background-position: top;
+}
+
 /* Menubar */
 .ui-menubar .ui-menu{
     width: 300px;
@@ -194,6 +199,10 @@ li[role=tab] .ui-icon {
 	display: block;
 }
 /* END TREE */
+
+#revisionDiff {
+	height: 100%;
+}
 
 #serverProgress {
 	position: absolute;

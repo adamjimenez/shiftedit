@@ -255,7 +255,9 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 					current = -1;
 				}
 				$("#findStatus").text((current + 1) + ' of ' + num_results);
-				editor.find(needle, options);
+				if( !dontSelect ){
+					editor.find(needle, options);
+				}
 				return num_results;
 			} else {
 				$("#findStatus").text('no results');

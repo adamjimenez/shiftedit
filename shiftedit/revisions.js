@@ -65,6 +65,11 @@ function open() {
             Cancel: function() {
                 $( this ).dialog( "close" );
             }
+        },
+        resizeStop: function( event, ui ) {
+        	setTimeout(function() {
+        		revisionsEditor.resize();
+        	}, 250);
         }
     });
 
