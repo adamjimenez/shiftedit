@@ -54,7 +54,7 @@ function getEditor(tab) {
     return false;
 }
 
-function open(file, siteId, callback) {
+function open(file, siteId, options) {
     if(!file)
         return quickOpen();
 
@@ -76,13 +76,17 @@ function open(file, siteId, callback) {
 			siteId: siteId,
 			file: file
 	    });
-	    openFiles(callback);
+	    openFiles(options);
     }
 }
 
-function openFiles(callback) {
+function openFiles(options) {
     if (!opening.length)
         return;
+
+    if(!options){
+        options = {};
+    }
 
 	var item = opening.shift();
     var siteId = item.siteId;
@@ -102,13 +106,12 @@ function openFiles(callback) {
     	console.log('file already open');
         li.closest('.ui-tabs').tabs("option", "active", li.index());
 
-		if (callback)
-            callback(active(), false);
+		if (options.callback)
+            options.callback(active(), false);
         return;
     }
 
-    var options = site.getAjaxOptions("/api/files?site="+siteId);
-
+    var ajaxOptions = site.getAjaxOptions("/api/files?site="+siteId);
     var ajax;
 	if (!loading.start('Opening ' + file, function(){
 		console.log('abort opening files');
@@ -123,6 +126,10 @@ function openFiles(callback) {
 	    var title = file;
 	    if(data.title) {
 	        title = data.title;
+	    }
+
+	    if (options.tabpanel) {
+	    	data.tabpanel = options.tabpanel;
 	    }
 
         var type = util.fileExtension(title);
@@ -151,12 +158,12 @@ function openFiles(callback) {
 			}
 
             if (opening.length) {
-                openFiles(callback);
+                openFiles(options.callback);
             }else{
                 recordOpenFiles();
 
-                if (callback)
-                    callback(tab, true);
+                if (options.callback)
+                    options.callback(tab, true);
             }
 	    }
 	}
@@ -170,10 +177,10 @@ function openFiles(callback) {
 	    });
 	} else {
 		//backcompat turbo mode
-		var params = util.clone(options.params);
+		var params = util.clone(ajaxOptions.params);
 		params.file = fileId;
 
-    	ajax = $.ajax(options.url+'&cmd=open&file=' + fileId, {
+    	ajax = $.ajax(ajaxOptions.url+'&cmd=open&file=' + fileId, {
     	    method: 'POST',
     	    dataType: 'json',
     	    data: params,
@@ -706,6 +713,7 @@ function newTab (e, ui) {
 	panel.find('ul.fileTypes').append(HTML);
 
 	panel.find('a.newfile').click(function() {
+		var tabpanel = $(ui.tab.closest('.ui-tabs'));
 	    var prefs = preferences.get_prefs();
 
 		var content = '';
@@ -714,7 +722,7 @@ function newTab (e, ui) {
 		}
 
 		close(ui.tab);
-		editors.create("untitled."+this.dataset.filetype, content);
+		editors.create("untitled."+this.dataset.filetype, content, null, {tabpanel: tabpanel});
 	});
 
     //recent files
@@ -729,8 +737,9 @@ function newTab (e, ui) {
 	panel.find('ul.recentFiles').append(HTML);
 
 	panel.find('a.openfile').click(function() {
+		var tabpanel = $(ui.tab.closest('.ui-tabs'));
 		close(ui.tab);
-	    open($(this).data('file'), $(this).data('site'));
+	    open($(this).data('file'), $(this).data('site'), {tabpanel: tabpanel});
 	});
 
     $(this).trigger("tabsactivate", [{newTab:ui.tab}]);

@@ -568,8 +568,10 @@ function create(file, content, siteId, options) {
         title = options.title;
     }
 
+    var tabpanel = options.tabpanel ? options.tabpanel : $(".ui-layout-center");
+
     //create tab
-	tab = $(".ui-layout-center").tabs('add', title, '<div class="vbox"><div class="editor_toolbar"></div>\
+	tab = tabpanel.tabs('add', title, '<div class="vbox"><div class="editor_toolbar"></div>\
 	<div class="editor_status" data-currentError="0">\
     <button class="previous" type="button" disabled>\
     <i class="fa fa-arrow-left"></i></button> \
@@ -602,12 +604,12 @@ function create(file, content, siteId, options) {
 
     tab.data('original', content);
 
-    $(".ui-layout-center").trigger("tabsactivate", [{newTab:tab}]);
+    tabpanel.trigger("tabsactivate", [{newTab:tab}]);
 
 	//load ace
 
 	//fixme panels can be in other tabarea
-	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	var panel = tabpanel.tabs('getPanelForTab', tab);
 	panel.css('overflow', 'hidden');
 
 	// Splitting
