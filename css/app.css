@@ -66,6 +66,8 @@ textarea{
 
 .ui-tabs-anchor{
     float: left;
+    height: 21px;
+    line-height: 21px;
 }
 
 .ui-tabs .ui-tabs-panel{
