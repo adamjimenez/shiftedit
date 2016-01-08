@@ -152,8 +152,8 @@ function openFiles(options) {
 				break;
 				default:
 					//$('#data .default').html(d.content).show();
-					editors.create(file, data.content, options.site, data);
-					recent.add(file, options.site);
+					editors.create(file, data.content, ajaxOptions.site, data);
+					recent.add(file, ajaxOptions.site);
 				break;
 			}
 
