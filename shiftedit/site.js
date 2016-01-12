@@ -529,7 +529,7 @@ function load() {
             sites = data.sites;
             $( "#sites" ).children('option').remove();
 
-            if (!sites.length) {
+            if (!sites || !sites.length) {
             	create();
             	return;
             }
