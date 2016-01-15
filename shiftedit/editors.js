@@ -315,7 +315,10 @@ function addFirepad(tab) {
 	var siteId = tab.attr('data-site');
 	var file = tab.attr('data-file');
 	var doc_name = siteId + '/' + file;
+	//firebase doesn't allow ".", "#", "$", "[", or "]"
 	doc_name = doc_name.split('.').join('_');
+	doc_name = doc_name.split('[').join('(');
+	doc_name = doc_name.split(']').join(')');
 
 	var url;
 	if( tab.attr('shared') ){
