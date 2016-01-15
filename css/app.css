@@ -147,6 +147,22 @@ li[role=tab] .ui-icon {
 	border-radius: 0 !important;
 }
 
+#refresh_site, #siteNenuBtn {
+	border-style: hidden !important;
+}
+
+.ui-button:focus{
+    outline: none;
+}
+
+.ui-widget-overlay
+{
+	background-image: none !important;
+	opacity: .50 !important; /* Make sure to change both of these, as IE only sees the second one */
+	filter: Alpha(Opacity=50) !important;
+	background-color: rgb(50, 50, 50) !important; /* This will make it darker */
+}
+
 /* START TREE */
 /*.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }*/
 .jstree .folder { background:url('../lib/jstree/file_sprite.png') right bottom no-repeat; }

@@ -11,8 +11,7 @@ function load() {
     return $.getJSON('/api/lang')
         .then(function (data) {
             if(!data.success){
-                console.error('lang not found');
-                return false;
+                console.log('lang not found');
             }
 
             lang = data.strs;
@@ -20,7 +19,7 @@ function load() {
 			storage.set('lang', data.lang);
 			storage.set('strs', lang);
 
-            return lang;
+            return data;
         });
 }
 

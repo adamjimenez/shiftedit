@@ -102,7 +102,12 @@ function buildQueue(nodes, d) {
 
 	var path = node.id;
 	var newName = node.text;
-    if(node.id == dest+'/'+newName) {
+	var newPath = newName;
+	if (dest) {
+		newPath = '/'+newPath;
+	}
+
+    if(node.id == newPath) {
     	newName = findAvailableName(parent, newName);
 	}
 
@@ -156,15 +161,16 @@ function _processQueue(queue) {
     	}
     	url += 'cmd=paste';
 
+    	var params = util.clone(ajaxOptions.params);
+    	params.dest = item.dest;
+    	params.path = item.path;
+    	params.isDir = item.isDir;
+    	params.site = item.site;
+    	params.cut = item.cut;
+
 		loading.fetch(url, {
 			action: 'Putting '+item.dest,
-			data: {
-				dest: item.dest,
-				path: item.path,
-				isDir: item.isDir,
-				site: clipboard.site,
-				cut: clipboard.cut
-			},
+			data: params,
 			success: function (result, request) {
 				_processQueue(queue);
 			}
@@ -520,6 +526,8 @@ function uploadByURl() {
       </form>\
     </div>');
 
+	$('#uploadUrlForm button').button();
+
     //profile combo
     var combo = $( "#uploadUrl" ).combobox({
         select: function (event, ui) {
@@ -678,7 +686,7 @@ function chmod(data) {
             </p>\
         </fieldset>\
         <p>\
-            <label>Numeric value</label> <input type="text" id="chmod-value" name="chmod-value">\
+            <label>Numeric value</label> <input type="number" id="chmod-value" name="chmod-value" max="777" min="0">\
         </p>\
       </form>\
     </div>');
@@ -735,7 +743,7 @@ function chmod(data) {
     var dialog = $( "#dialog-chmod" ).dialog({
         modal: true,
         width: 400,
-        height: 350,
+        height: 380,
         buttons: {
             OK: function() {
                 var node = getSelected()[0];
@@ -947,6 +955,34 @@ function init() {
 									        if (treeFn) {
 									            treeFn({cmd: 'delete', file: node.id, callback: callback});
 									        }else{
+								        		var source = new EventSource(ajaxOptions.url+'&cmd=delete&file='+node.id, {withCredentials: true});
+												var abortFunction = function(){
+													if( source ){
+														source.close();
+													}
+												};
+
+												source.addEventListener('message', function(event) {
+													var data = JSON.parse(event.data);
+													loading.stop(false);
+													loading.start('Deleting ' + data.msg+'', abortFunction);
+												}, false);
+
+												source.addEventListener('error', function(event) {
+													loading.stop(false);
+													if (event.eventPhase == 2) { //EventSource.CLOSED
+														if( source ){
+															source.close();
+														}
+
+									    		    	if(r.success) {
+									    		    		callback();
+									    		    	}
+									    				t.delete_node(node);
+													}
+												}, false);
+
+									        	/*
 									    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+node.id, {
 									    		    method: 'POST',
 									    		    dataType: 'json',
@@ -963,6 +999,7 @@ function init() {
 									    			prompt.alert({title:'Delete Failed', msg: 'Could not connect'});
 									    			t.refresh();
 									    		});
+									    		*/
 									        }
 								    	}
 
