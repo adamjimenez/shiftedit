@@ -102,7 +102,12 @@ function buildQueue(nodes, d) {
 
 	var path = node.id;
 	var newName = node.text;
-    if(node.id == dest+'/'+newName) {
+	var newPath = newName;
+	if (dest) {
+		newPath = '/'+newPath;
+	}
+
+    if(node.id == newPath) {
     	newName = findAvailableName(parent, newName);
 	}
 
@@ -156,15 +161,16 @@ function _processQueue(queue) {
     	}
     	url += 'cmd=paste';
 
+    	var params = util.clone(ajaxOptions.params);
+    	params.dest = item.dest;
+    	params.path = item.path;
+    	params.isDir = item.isDir;
+    	params.site = item.site;
+    	params.cut = item.cut;
+
 		loading.fetch(url, {
 			action: 'Putting '+item.dest,
-			data: {
-				dest: item.dest,
-				path: item.path,
-				isDir: item.isDir,
-				site: clipboard.site,
-				cut: clipboard.cut
-			},
+			data: params,
 			success: function (result, request) {
 				_processQueue(queue);
 			}
