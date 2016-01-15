@@ -853,11 +853,15 @@ function init() {
         var node = getSelected()[0];
         var parent = getDir(node);
 
-        r.opts.query = {
-            //cmd: 'upload',
-            chunked: 1,
-            path: node.id
-        };
+        var params = util.clone(ajaxOptions.params);
+
+        params.path = '';
+		if(node.id!=='#root')
+			params.path = node.id;
+
+		params.chunked = 1;
+
+        r.opts.query = params;
 
         r.upload();
     });
