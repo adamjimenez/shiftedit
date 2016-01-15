@@ -635,6 +635,8 @@ function checkEdited (e, ui) {
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
+
+		$(ui.tab).trigger('close'); //destroy editor and firepad
     }
 }
 
