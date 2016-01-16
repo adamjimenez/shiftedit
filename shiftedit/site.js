@@ -13,6 +13,7 @@ var directFn;
 var sites = [];
 var currentSite = storage.get('currentSite');
 var combobox;
+var site = {};
 
 function setSiteValues(obj) {
     for (var i in obj) {
@@ -359,7 +360,7 @@ function open(siteId, options) {
     //hide tree
     $('#tree-container').hide();
 
-    var site = getSettings(siteId);
+    site = getSettings(siteId);
     currentSite = siteId;
     storage.set('currentSite', currentSite);
     enableMenuItems(site);
@@ -894,7 +895,7 @@ function test() {
     }
 
     var ajax;
-	if (!loading.start('Testing site '+site.name, function(){
+	if (!loading.start('Testing site ' + (site ? site.name : ''), function(){
 		console.log('abort testing site');
 		ajax.abort();
 	})) {
@@ -1309,7 +1310,7 @@ function edit(newSite, duplicate) {
             Connect: test,
             Save: function() {
                 var ajax;
-            	if (!loading.start('Saving site '+site.name, function(){
+            	if (!loading.start('Saving site ' + (site ? site.name : ''), function(){
             		console.log('abort saving site');
             		ajax.abort();
             	})) {
