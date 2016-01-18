@@ -136,6 +136,7 @@ li[role=tab] .ui-icon {
 	max-height: 300px;
 	overflow-x: hidden;
 	overflow-y: scroll;
+	z-index: 1000000;
 }
 
 /* dialogs */
