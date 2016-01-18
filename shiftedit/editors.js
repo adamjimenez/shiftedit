@@ -919,7 +919,7 @@ function create(file, content, siteId, options) {
 		name: "replaceInSelection",
 		exec: function (editor, args, request) {
 		    var needle = args[0];
-		    var replacement = args[0];
+		    var replacement = args[1];
 
     		var text = editor.getSelectedText();
     		editor.insert(text.replace(new RegExp(needle, 'g'), replacement), true);
