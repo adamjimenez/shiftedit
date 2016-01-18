@@ -599,6 +599,11 @@ function setTitle(tab, title) {
 	tab.attr('data-title', title);
     tab.children('.ui-tabs-anchor').attr('title', title);
     tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(title));
+
+    $( tab ).tooltip({
+    	position: { my: "left top", at: "left bottom", collision: "flipfit" }
+    });
+    $( tab ).tooltip( "option", "content", title );
 }
 
 function recordOpenFiles() {
@@ -1001,6 +1006,16 @@ function init() {
             }
 
             ui.helper.offset(ui.offset);
+        },
+        start: function(e, ui) {
+        	//remove tooltip
+        	ui.item.tooltip();
+        	ui.item.tooltip( "disable" );
+        },
+        stop: function(e, ui) {
+        	//reinstate tooltip
+        	ui.item.tooltip( "enable" );
+    		$( ui.item ).children('.ui-tabs-anchor').attr( "title", ui.item.data('title') );
         }
     });
 }
