@@ -937,6 +937,10 @@ function open() {
 	    <input type="number" name="printMarginColumn" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label><br>\
 	<label>\
+	    <input type="checkbox" name="autocomplete" value="1">\
+	    Autocomplete\
+	</label>\
+	<label>\
 	    <input type="checkbox" name="indentOnPaste" value="1">\
 	    Indent on paste\
 	</label>\
