@@ -969,20 +969,28 @@ function init() {
 												source.addEventListener('message', function(event) {
 													var data = JSON.parse(event.data);
 													loading.stop(false);
-													loading.start('Deleting ' + data.msg+'', abortFunction);
+													loading.start(data.msg, abortFunction);
+
+													var pos = data.msg.indexOf(' ');
+													var action = data.msg.substr(0, pos);
+													var file = data.msg.substr(pos+1, data.msg.length);
+
+													if (action == 'delete' || action == 'rmdir') {
+														var node = t.get_node(file);
+														if (node)
+															t.delete_node(node);
+													}
 												}, false);
 
 												source.addEventListener('error', function(event) {
 													loading.stop(false);
 													if (event.eventPhase == 2) { //EventSource.CLOSED
-														if( source ){
+														if (source) {
 															source.close();
 														}
 
-									    		    	if(r.success) {
-									    		    		callback();
-									    		    	}
-									    				t.delete_node(node);
+								    		    		callback();
+									    				//t.delete_node(node);
 													}
 												}, false);
 
@@ -1010,10 +1018,13 @@ function init() {
 								    	queue = t.get_selected(true);
 								    	var node;
 								    	var callback = function() {
+								    		/*
 							    			if(node)
 							    				t.delete_node(node);
+							    			*/
 
 								    		if(queue.length) {
+								    			confirmed = true;
 										   		node = queue.shift();
 										    	doDelete(node);
 								    		}
@@ -1025,9 +1036,7 @@ function init() {
                     	});
         			    return false;
                 	}else{
-                		if(!queue.length) {
-                	    	confirmed = false;
-                		}
+               	    	confirmed = false;
                 	    return true;
                 	}
 
