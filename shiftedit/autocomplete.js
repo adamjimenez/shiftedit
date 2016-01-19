@@ -432,6 +432,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		var siteDefinitions = {};
 		var className = '';
 		var functions = {};
+		var autoSelect = true;
 
 		if(tab.data('site')) {
 			var settings = site.getSettings(tab.data('site'));
@@ -457,6 +458,13 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 
 		//get context
 		var lang = session.$modeId.replace('ace/mode/', '');
+
+		//default lang in a php file is html
+		if(lang === 'php') {
+			lang = 'html';
+		}
+
+		//find if we're in a php block, script tag etc
 		lang = (tokenState.match(/(php|js|css)\-/i) || ['', lang])[1].toLowerCase();
 
 		//combine definitions
@@ -849,6 +857,8 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			        items[i][0] = i + '($0)';
 		        }
 			}
+
+			autoSelect = false;
 		}else if( forced && (lang == 'js' || lang == 'javascript') ){
 			subject = 'js_function';
 			functions = util.merge(jsDictionary.Global, js_functions);
@@ -953,6 +963,9 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
     			});
 		    }
 		}
+
+		editor.completer.autoSelect = autoSelect;
+		console.log(autoSelect);
 
 		return options;
 	};

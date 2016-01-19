@@ -557,12 +557,10 @@ function applyPrefs(tab) {
 		//editor.container.style.fontFamily = prefs.font;
 		editor.setFontSize(prefs.fontSize + 'px');
 
-
-
 		//remove tab command
 		editor.completer.keyboardHandler.removeCommand('Tab');
-		editor.completer.liveAutocompletionAutoSelect = true;
 		editor.completer.exactMatch = true;
+		editor.completer.autoSelect = true;
 
 		editor.setOptions({
 			enableBasicAutocompletion: Boolean(prefs.autocomplete),
