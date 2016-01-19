@@ -1630,7 +1630,7 @@ function init() {
 	    	$('.filter').focus();
 	    }
     })
-    .on('mousedown','a',function (e, data) {
+    .on('mouseup','a',function (e, data) {
     	if (e.button!==0) {
     		return false;
     	}
