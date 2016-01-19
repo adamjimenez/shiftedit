@@ -48,7 +48,7 @@ function findAvailableName(d, text) {
 	while(findChild(d, newName)!==false) {
 		i++;
 		var pos = text.indexOf('.');
-		var copyStr = ' - copy ['+i+']';
+		var copyStr = ' ('+i+')';
 
 		if(pos == -1) {
 			newName = text + copyStr;
@@ -226,7 +226,9 @@ function newFolder(data) {
 	var inst = $.jstree.reference(data.reference),
 		obj = inst.get_node(data.reference);
 		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
-	inst.create_node(parent, { type : "default", text: 'New folder' }, "last", function (new_node) {
+		var newName = findAvailableName(parent, 'New folder');
+
+	inst.create_node(parent, { type : "default", text: newName }, "last", function (new_node) {
 		setTimeout(function () { inst.edit(new_node); }, 0);
 	});
 }
@@ -245,6 +247,8 @@ function newFile(data) {
 		i++;
 		newName = prefix + i + '.' + extension;
 	}
+
+	newName = findAvailableName(parent, newName);
 
 	inst.create_node(parent, { type : "file", text: newName }, "last", function (new_node) {
 		setTimeout(function () { inst.edit(new_node); }, 0);
