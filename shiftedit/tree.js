@@ -1454,7 +1454,11 @@ function init() {
             }else{
                 var params = util.clone(ajaxOptions.params);
                 params.oldname = data.node.id;
-                params.newname = data.parent+'/'+util.basename(data.node.id);
+		    	params.newname = util.basename(data.node.id);
+				if(data.parent!=='#root') {
+					params.newname = data.parent;
+				}
+
                 params.site = ajaxOptions.site;
 
         		$.ajax(ajaxOptions.url+'&cmd=rename', {
