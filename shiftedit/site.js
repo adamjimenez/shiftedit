@@ -14,6 +14,7 @@ var sites = [];
 var currentSite = storage.get('currentSite');
 var combobox;
 var site = {};
+var definitions = {};
 
 function setSiteValues(obj) {
     for (var i in obj) {
@@ -427,6 +428,8 @@ function open(siteId, options) {
         //console.log(data);
 
         if(data.success){
+       		definitions[siteId] = data.definitions;
+
             //load file tree
             var ajaxOptions = getAjaxOptions('/api/files?site='+siteId);
             tree.setAjaxOptions(ajaxOptions);
@@ -1445,6 +1448,7 @@ exports.active = active;
 exports.getSettings = getSettings;
 exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
+exports.definitions = definitions
 
 });
 

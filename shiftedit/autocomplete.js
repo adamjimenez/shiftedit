@@ -440,11 +440,9 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 				wordpress = true;
 			}
 
-			/*
-			if( shiftedit.app.site.definitions[settings.id] ){
-				siteDefinitions = shiftedit.app.site.definitions[settings.id];
+			if (site.definitions[settings.id]) {
+				siteDefinitions = site.definitions[settings.id];
 			}
-			*/
 		}
 
 		//get token state - this gives us more context than just token info
@@ -488,7 +486,6 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		}
 
 		//custom definitions
-		/*
 		if( siteDefinitions.php && siteDefinitions.php.variables ){
 			php_vars = util.merge(php_vars, siteDefinitions.php.variables);
 		}
@@ -496,7 +493,6 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		if( siteDefinitions.php && siteDefinitions.php.classes ){
 			php_classes = util.merge(php_classes, siteDefinitions.php.classes);
 		}
-		*/
 
 		//console.log('State: '+tokenState);
 		//console.log('Context: '+context);
