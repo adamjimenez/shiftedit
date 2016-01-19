@@ -1209,8 +1209,12 @@ function init() {
             					"icon": "glyphicon glyphicon-leaf",
             					"action": function (data) {
             						var inst = $.jstree.reference(data.reference),
-            							obj = inst.get_node(data.reference);
-            						inst.edit(obj);
+            							node = inst.get_node(data.reference);
+
+            						if(node.id==='#root')
+            							return;
+
+            						inst.edit(node);
             					}
                             },
                             "remove": {
@@ -1647,8 +1651,12 @@ function init() {
     		renameTimer = setTimeout(function() {
     			if (ref) {
 					var inst = $.jstree.reference(ref),
-	            		obj = inst.get_node(ref);
-	            	inst.edit(obj);
+	            		node = inst.get_node(ref);
+
+   						if(node.id==='#root')
+  							return;
+
+		            	inst.edit(node);
     			}
     		}, 1000);
     	} else {
