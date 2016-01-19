@@ -1709,7 +1709,10 @@ function init() {
                     var pos = $(data.helper).position();
                     data.helper.find('.jstree-icon').removeClass('jstree-er').addClass('jstree-ok');
 
-                    editor = ace.edit(t.closest('.editor')[0]);
+                    var panel = t.closest('.ui-tabs-panel')[0];
+                    var id = $(panel).attr('id');
+                    var tab = $('li[aria-controls='+id+']')[0];
+                    var editor = tabs.getEditor(tab);
         			editor.focus();
 
         			//move caret with mouse
@@ -1741,12 +1744,11 @@ function init() {
                     }
                     */
 
-                    editor = ace.edit(t.closest('.editor')[0]);
-        			editor.focus();
-
                     var panel = t.closest('.ui-tabs-panel')[0];
                     var id = $(panel).attr('id');
                     var tab = $('li[aria-controls='+id+']')[0];
+                    var editor = tabs.getEditor(tab);
+        			editor.focus();
 
                     var nodes = data.data.nodes;
             		if (nodes) {
