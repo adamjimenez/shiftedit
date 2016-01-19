@@ -343,9 +343,7 @@ function downloadZip(data) {
 
 			source.close();
 
-    		var evt = document.createEvent("HTMLEvents");
-    		evt.initEvent("click");
-
+			var evt = new Event('click');
     		var a = document.createElement('a');
     		a.download = 1;
 			a.href = url+'&d=1';
@@ -376,9 +374,7 @@ function downloadFile(data) {
         action: 'downloading file',
         success: function(data) {
             var blob = util.b64toBlob(data.content);
-    		var evt = document.createEvent("HTMLEvents");
-    		evt.initEvent("click");
-
+			var evt = new Event('click');
     		var a = document.createElement('a');
     		a.download = util.basename(file);
     		a.href = URL.createObjectURL(blob);
@@ -388,8 +384,7 @@ function downloadFile(data) {
 }
 
 function upload() {
-	var evt = document.createEvent("HTMLEvents");
-	evt.initEvent("click");
+	var evt = new Event('click');
 
 	var a = document.createElement('a');
     r.assignBrowse(a);
@@ -459,9 +454,6 @@ function processUploads() {
 }
 
 function uploadFolder() {
-	//var evt = document.createEvent("HTMLEvents");
-	//evt.initEvent("click");
-
 	$('<input type="file" multiple directory webkitdirectory mozdirectory>').change(function(e) {
 		//loading maask
 		var node = getSelected();
@@ -502,7 +494,6 @@ function uploadFolder() {
 
         processUploads();
 	}).click();
-	//a.dispatchEvent(evt);
 }
 
 function loadUploadUrls() {
