@@ -359,6 +359,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 			end: end
 		});
 
+		editor.scrollToLine(start.row+1, true, true);
 		editor.focus();
 	}
 

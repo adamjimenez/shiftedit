@@ -111,6 +111,18 @@ function openFiles(options) {
         return;
     }
 
+    //switch site if need be
+    if (siteId!==site.active()) {
+    	opening.unshift(item);
+
+    	site.open(siteId, {
+    		callback: function() {
+    			openFiles();
+    		}
+    	});
+    	return;
+    }
+
     var ajaxOptions = site.getAjaxOptions("/api/files?site="+siteId);
     var ajax;
 	if (!loading.start('Opening ' + file, function(){
@@ -138,6 +150,9 @@ function openFiles(options) {
 
 	    if (!data.success) {
 	        prompt.alert({title:lang.failedText, msg:'Error opening file' + ': ' + data.error});
+            opening = [];
+	    }else if (data.content===false) {
+	        prompt.alert({title:lang.failedText, msg:'Missing file'});
             opening = [];
 	    } else {
 			$('#data .content').hide();
@@ -584,6 +599,11 @@ function setTitle(tab, title) {
 	tab.attr('data-title', title);
     tab.children('.ui-tabs-anchor').attr('title', title);
     tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(title));
+
+    $( tab ).tooltip({
+    	position: { my: "left top", at: "left bottom", collision: "flipfit" }
+    });
+    $( tab ).tooltip( "option", "content", title );
 }
 
 function recordOpenFiles() {
@@ -635,6 +655,8 @@ function checkEdited (e, ui) {
         if($(ui.tab).attr('aria-selected')) {
             document.title = 'ShiftEdit';
         }
+
+		$(ui.tab).trigger('close'); //destroy editor and firepad
     }
 }
 
@@ -783,9 +805,9 @@ function updateTabs(e, params) {
 function quickOpen() {
     //construct dialog
     $( "body" ).append('<div id="dialog-message" title="Quick open">\
-  <form>\
+  <form class="vbox">\
 	<input type="text" name="input" id="quickOpenSearch" value="" class="text ui-widget-content ui-corner-all" autocomplete="off" autofocus><br>\
-	<select id="quickOpenFile" size="14" class="ui-widget ui-state-default ui-corner-all"></select>\
+	<select id="quickOpenFile" size="14" class="ui-widget ui-state-default ui-corner-all flex"></select>\
 	<!-- Allow form submission with keyboard without duplicating the dialog button -->\
 	<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
   </form>\
@@ -891,7 +913,10 @@ function quickOpen() {
     var dialog = $( "#dialog-message" ).dialog({
         modal: true,
         width: 400,
-        height: 300
+        height: 320,
+        close: function( event, ui ) {
+            $( this ).remove();
+        }
     });
 
     //make sure quick open is focused
@@ -981,6 +1006,16 @@ function init() {
             }
 
             ui.helper.offset(ui.offset);
+        },
+        start: function(e, ui) {
+        	//remove tooltip
+        	ui.item.tooltip();
+        	ui.item.tooltip( "disable" );
+        },
+        stop: function(e, ui) {
+        	//reinstate tooltip
+        	ui.item.tooltip( "enable" );
+    		$( ui.item ).children('.ui-tabs-anchor').attr( "title", ui.item.data('title') );
         }
     });
 }

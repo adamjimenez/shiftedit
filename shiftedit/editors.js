@@ -315,7 +315,10 @@ function addFirepad(tab) {
 	var siteId = tab.attr('data-site');
 	var file = tab.attr('data-file');
 	var doc_name = siteId + '/' + file;
+	//firebase doesn't allow ".", "#", "$", "[", or "]"
 	doc_name = doc_name.split('.').join('_');
+	doc_name = doc_name.split('[').join('(');
+	doc_name = doc_name.split(']').join(')');
 
 	var url;
 	if( tab.attr('shared') ){
@@ -553,6 +556,18 @@ function applyPrefs(tab) {
 		editor.setShowPrintMargin(Boolean(prefs.printMargin));
 		//editor.container.style.fontFamily = prefs.font;
 		editor.setFontSize(prefs.fontSize + 'px');
+
+
+
+		//remove tab command
+		editor.completer.keyboardHandler.removeCommand('Tab');
+		editor.completer.liveAutocompletionAutoSelect = true;
+		editor.completer.exactMatch = true;
+
+		editor.setOptions({
+			enableBasicAutocompletion: Boolean(prefs.autocomplete),
+			enableLiveAutocompletion: Boolean(prefs.autocomplete)
+		});
 	});
 }
 
@@ -696,16 +711,6 @@ function create(file, content, siteId, options) {
 
 	//autocomplete
 	editor.completer = new Autocomplete();
-
-	//remove tab command
-	editor.completer.keyboardHandler.removeCommand('Tab');
-	editor.completer.liveAutocompletionAutoSelect = true;
-	editor.completer.exactMatch = true;
-
-	editor.setOptions({
-		enableBasicAutocompletion: true,
-		enableLiveAutocompletion: true
-	});
 
     window.shiftedit.defs[$(tab).attr('id')] = {
         'definitions': {},
@@ -914,7 +919,7 @@ function create(file, content, siteId, options) {
 		name: "replaceInSelection",
 		exec: function (editor, args, request) {
 		    var needle = args[0];
-		    var replacement = args[0];
+		    var replacement = args[1];
 
     		var text = editor.getSelectedText();
     		editor.insert(text.replace(new RegExp(needle, 'g'), replacement), true);

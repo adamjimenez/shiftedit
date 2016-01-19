@@ -13,6 +13,8 @@ var directFn;
 var sites = [];
 var currentSite = storage.get('currentSite');
 var combobox;
+var site = {};
+var definitions = {};
 
 function setSiteValues(obj) {
     for (var i in obj) {
@@ -359,7 +361,7 @@ function open(siteId, options) {
     //hide tree
     $('#tree-container').hide();
 
-    var site = getSettings(siteId);
+    site = getSettings(siteId);
     currentSite = siteId;
     storage.set('currentSite', currentSite);
     enableMenuItems(site);
@@ -426,6 +428,8 @@ function open(siteId, options) {
         //console.log(data);
 
         if(data.success){
+       		definitions[siteId] = data.definitions;
+
             //load file tree
             var ajaxOptions = getAjaxOptions('/api/files?site='+siteId);
             tree.setAjaxOptions(ajaxOptions);
@@ -894,7 +898,7 @@ function test() {
     }
 
     var ajax;
-	if (!loading.start('Testing site '+site.name, function(){
+	if (!loading.start('Testing site ' + (site ? site.name : ''), function(){
 		console.log('abort testing site');
 		ajax.abort();
 	})) {
@@ -1309,7 +1313,7 @@ function edit(newSite, duplicate) {
             Connect: test,
             Save: function() {
                 var ajax;
-            	if (!loading.start('Saving site '+site.name, function(){
+            	if (!loading.start('Saving site ' + (site ? site.name : ''), function(){
             		console.log('abort saving site');
             		ajax.abort();
             	})) {
@@ -1444,6 +1448,7 @@ exports.active = active;
 exports.getSettings = getSettings;
 exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
+exports.definitions = definitions
 
 });
 

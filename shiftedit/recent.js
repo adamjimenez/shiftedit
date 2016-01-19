@@ -1,4 +1,4 @@
-define(function (require) {
+define(["app/site"], function (site) {
 
 var recentFiles = [];
 
@@ -15,19 +15,22 @@ function getRecent() {
     return recentFiles;
 }
 
-function add(file, site) {
+function add(file, siteId) {
     //remove if already in list
 	for (var i in recentFiles) {
-		if (recentFiles[i].file === file && recentFiles[i].site === site) {
+		if (recentFiles[i].file === file && recentFiles[i].site === siteId) {
 			recentFiles.splice(i, 1);
 			break;
 		}
 	}
 
+	settings = site.getSettings(siteId);
+
 	//add to beginning
     recentFiles.unshift({
 		file: file,
-		site: site
+		site: siteId,
+		domain: settings.domain
 	});
 }
 
