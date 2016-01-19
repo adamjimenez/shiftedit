@@ -1411,9 +1411,14 @@ function init() {
             params.oldname = data.node.id;
             params.newname = data.text;
             var dir = util.dirname(params.oldname);
-            if(dir) {
+            if (dir) {
             	params.newname = dir + '/' + params.newname;
             }
+
+            if (params.newname === params.oldname) {
+            	return;
+            }
+
             //params.newname = util.dirname(params.oldname)+'/'+data.text;
             params.site = ajaxOptions.site;
 
