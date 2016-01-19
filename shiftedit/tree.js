@@ -397,20 +397,32 @@ var uploadFolders = [];
 var uploadFiles = [];
 
 function processUploads() {
+	var params;
+
+	var node = getSelected()[0];
+	var parent = getDir(node);
+	var path = '';
+
+	if(parent.id!=='#root')
+		path = parent.id+'/';
+
     if (uploadFolders.length) {
-        var folder = uploadFolders.shift();
+        var folder = path + uploadFolders.shift();
+        params = util.clone(ajaxOptions.params);
 
         //check exists
         loading.stop();
         loading.fetch(ajaxOptions.url+'&cmd=file_exists&file='+folder, {
             action: 'Checking '+folder,
+            data: params,
             success: function(data) {
                 if(data.file_exists===false) {
+        			var params = util.clone(ajaxOptions.params);
+        			params.dir = folder;
+
                     loading.stop();
                     loading.fetch(ajaxOptions.url+'&cmd=newdir&dir='+folder, {
-                    	data: {
-                    		dir: folder
-                    	},
+                    	data: params,
                         action: 'Uploading '+folder,
                         success: function(data) {
                             processUploads();
@@ -423,14 +435,14 @@ function processUploads() {
         });
     } else if(uploadFiles.length) {
         var file = uploadFiles.shift();
+		params = util.clone(ajaxOptions.params);
+		params.file = path + file.path;
+		params.content = file.content;
 
         loading.stop();
         loading.fetch(ajaxOptions.url+'&cmd=upload', {
             action: 'uploading '+file.path,
-            data: {
-                file: file.path,
-                content: file.content
-            },
+            data: params,
             success: function(data) {
                 processUploads();
             }
