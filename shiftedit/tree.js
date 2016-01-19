@@ -104,7 +104,7 @@ function buildQueue(nodes, d) {
 	var newName = node.text;
 	var newPath = newName;
 	if (dest) {
-		newPath = '/'+newPath;
+		newPath = dest+'/'+newPath;
 	}
 
     if(node.id == newPath) {
@@ -127,13 +127,14 @@ function buildQueue(nodes, d) {
     	} else {
     		url+='&';
     	}
-    	url += 'cmd=list_all';
+    	url += 'cmd=list';
+
+    	var params = util.clone(ajaxOptions.params);
+    	params.path = path;
+    	params.site = clipboard.site;
 
 		loading.fetch(url, {
-			data: {
-				path: path,
-				site: clipboard.site
-			},
+			data: params,
 			success: function (data) {
 				for( i=0; i<data.files.length; i++ ){
 					queue.push({
