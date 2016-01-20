@@ -223,6 +223,14 @@ li[role=tab] .ui-icon {
 	height: 100%;
 }
 
+.revisionFile-menu {
+	height: 200px;
+}
+
+.revisionFile-button{
+	width: auto !important;
+}
+
 #serverProgress {
 	position: absolute;
 	top: 0;

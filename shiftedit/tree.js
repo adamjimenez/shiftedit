@@ -911,6 +911,9 @@ function init() {
             		    method: 'POST',
             		    dataType: 'json',
             		    data: params,
+						xhrFields: {
+							withCredentials: true
+						},
             		    success: function(data) {
             		    	if(data.error) {
             		    		prompt.alert({title:'Error', msg:data.error});
@@ -1007,6 +1010,9 @@ function init() {
 									    		    method: 'POST',
 									    		    dataType: 'json',
 									    		    data: ajaxOptions.params,
+													xhrFields: {
+														withCredentials: true
+													},
 									    		    success: function(r) {
 									    		    	if(r.success) {
 									    		    		callback();
@@ -1349,7 +1355,7 @@ function init() {
             ]
         },
     	'plugins' : [
-    	    'state','dnd','sort','types','contextmenu','unique','search','grid'
+    	    /*'state',*/'dnd','sort','types','contextmenu','unique','search','grid'
     	]
     })
     .on('delete_node.jstree', function (e, data) {
@@ -1385,7 +1391,10 @@ function init() {
         	$.ajax(ajaxOptions.url+'&cmd='+cmd+'&type='+data.node.type+'&path='+path, {
     		    method: 'POST',
     		    dataType: 'json',
-    		    data: params
+    		    data: params,
+				xhrFields: {
+					withCredentials: true
+				}
         	})
     		.done(function (d) {
     			var id = d.id;
@@ -1424,7 +1433,10 @@ function init() {
     		$.ajax(ajaxOptions.url+'&cmd=rename', {
     		    method: 'POST',
     		    dataType: 'json',
-    		    data: params
+    		    data: params,
+				xhrFields: {
+					withCredentials: true
+				},
     		})
     		.done(function (d) {
     		    if(!d.success){
@@ -1480,7 +1492,10 @@ function init() {
         		$.ajax(ajaxOptions.url+'&cmd=rename', {
         		    method: 'POST',
         		    dataType: 'json',
-        		    data: params
+        		    data: params,
+					xhrFields: {
+						withCredentials: true
+					}
         		})
         		.done(moveCallback)
         		.fail(function () {
@@ -1672,6 +1687,26 @@ function init() {
     	//expand root node
     	var rootNode = getNode('#').children[0];
     	inst.open_node(rootNode);
+    }).on('open_node.jstree', function(e, data){
+    	var path = data.node.id;
+
+    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=1&path='+path, {
+		    method: 'POST',
+		    dataType: 'json',
+			xhrFields: {
+				withCredentials: true
+			}
+    	})
+    }).on('close_node.jstree', function(e, data){
+    	var path = data.node.id;
+
+    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=0&path='+path, {
+		    method: 'POST',
+		    dataType: 'json',
+			xhrFields: {
+				withCredentials: true
+			}
+    	})
     })/*.on('hover_node.jstree', function(e, data){
     	inst.get_node(data.node, true).addClass('ui-state-hover');
     }).on('dehover_node.jstree', function(e, data){
