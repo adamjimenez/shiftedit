@@ -127,6 +127,7 @@ function init() {
                     disableMenuItems();
 
                     currentSite = 0;
+                    storage.set('currentSite', currentSite);
 
                     //refresh combo
                     $( "#sites" ).combobox('val', '');
@@ -358,6 +359,11 @@ function open(siteId, options) {
 
     currentSite = null;
 
+    if(!siteId) {
+    	storage.set('currentSite', currentSite);
+    	return;
+    }
+
     //hide tree
     $('#tree-container').hide();
 
@@ -544,6 +550,7 @@ function load() {
             $( "#sites" ).children('option').remove();
 
             if (!sites || !sites.length) {
+            	currentSite = 0;
             	create();
             	return;
             }

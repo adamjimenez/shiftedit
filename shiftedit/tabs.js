@@ -271,6 +271,11 @@ function saveFiles(options) {
     }
 
     //switch site if need be
+    if (!siteId) {
+    	saveAs(tab, options);
+    	return;
+    }
+
     if (siteId!==site.active()) {
     	saving.unshift(item);
 
@@ -450,6 +455,11 @@ function saveAs(tab, options) {
     }
 
     console.log('save as');
+    console.log(site.active())
+    if (!site.active()) {
+        prompt.alert({title:'No site selected', msg:'Select a site from the site dropdown'});
+    	return;
+    }
 
     prompt.prompt({
 		title: lang.saveChangesText,
