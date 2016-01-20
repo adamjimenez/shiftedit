@@ -227,7 +227,7 @@ li[role=tab] .ui-icon {
 	position: absolute;
 	top: 0;
 	width: 100%;
-	z-index: 10;
+	z-index: 100000; /* higher than modal windows */
 	margin: 10px;
 	opacity: 0.8;
 	text-align: center;
