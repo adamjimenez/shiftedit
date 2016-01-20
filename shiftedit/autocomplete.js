@@ -965,7 +965,6 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		}
 
 		editor.completer.autoSelect = autoSelect;
-		console.log(autoSelect);
 
 		return options;
 	};
