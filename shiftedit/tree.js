@@ -911,6 +911,9 @@ function init() {
             		    method: 'POST',
             		    dataType: 'json',
             		    data: params,
+						xhrFields: {
+							withCredentials: true
+						},
             		    success: function(data) {
             		    	if(data.error) {
             		    		prompt.alert({title:'Error', msg:data.error});
@@ -1007,6 +1010,9 @@ function init() {
 									    		    method: 'POST',
 									    		    dataType: 'json',
 									    		    data: ajaxOptions.params,
+													xhrFields: {
+														withCredentials: true
+													},
 									    		    success: function(r) {
 									    		    	if(r.success) {
 									    		    		callback();
@@ -1385,7 +1391,10 @@ function init() {
         	$.ajax(ajaxOptions.url+'&cmd='+cmd+'&type='+data.node.type+'&path='+path, {
     		    method: 'POST',
     		    dataType: 'json',
-    		    data: params
+    		    data: params,
+				xhrFields: {
+					withCredentials: true
+				}
         	})
     		.done(function (d) {
     			var id = d.id;
@@ -1424,7 +1433,10 @@ function init() {
     		$.ajax(ajaxOptions.url+'&cmd=rename', {
     		    method: 'POST',
     		    dataType: 'json',
-    		    data: params
+    		    data: params,
+				xhrFields: {
+					withCredentials: true
+				},
     		})
     		.done(function (d) {
     		    if(!d.success){
@@ -1480,7 +1492,10 @@ function init() {
         		$.ajax(ajaxOptions.url+'&cmd=rename', {
         		    method: 'POST',
         		    dataType: 'json',
-        		    data: params
+        		    data: params,
+					xhrFields: {
+						withCredentials: true
+					}
         		})
         		.done(moveCallback)
         		.fail(function () {
