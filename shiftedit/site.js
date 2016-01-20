@@ -1043,6 +1043,7 @@ function save() {
     var prefs = preferences.get_prefs();
 	if (prefs.useMasterPassword) {
 		if (!storage.get('masterPassword')) {
+			loading.stop();
 			return masterPasswordPrompt(save);
 		}
 
