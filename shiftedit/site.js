@@ -127,6 +127,7 @@ function init() {
                     disableMenuItems();
 
                     currentSite = 0;
+                    storage.set('currentSite', currentSite);
 
                     //refresh combo
                     $( "#sites" ).combobox('val', '');
@@ -358,6 +359,11 @@ function open(siteId, options) {
 
     currentSite = null;
 
+    if(!siteId) {
+    	storage.set('currentSite', currentSite);
+    	return;
+    }
+
     //hide tree
     $('#tree-container').hide();
 
@@ -365,7 +371,7 @@ function open(siteId, options) {
     currentSite = siteId;
     storage.set('currentSite', currentSite);
     enableMenuItems(site);
-    $( "#sites" ).combobox('val', currentSite);
+    $( "#sites" ).combobox('val', currentSite+'');
 
     var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
@@ -468,19 +474,9 @@ function open(siteId, options) {
     			    }
     			});
             }else if (data.require_master_password) {
-    			prompt.prompt({
-    			    title: lang.requireMasterPasswordText,
-    			    msg: lang.passwordText,
-    			    password: true,
-    			    fn: function(btn, password) {
-    			        switch(btn) {
-    			            case 'ok':
-    							storage.set('masterPassword', preferences.createHash(password));
-    							options.masterPassword = storage.get('masterPassword');
-    							open(siteId, options);
-			                break;
-    			        }
-    			    }
+    			masterPasswordPrompt(function() {
+					options.masterPassword = storage.get('masterPassword');
+					open(siteId, options);
     			});
             }else{
                 prompt.alert({title:'Error', msg:data.error});
@@ -492,6 +488,22 @@ function open(siteId, options) {
     });
 
     return ajax;
+}
+
+function masterPasswordPrompt(callback) {
+	prompt.prompt({
+	    title: lang.requireMasterPasswordText,
+	    msg: lang.passwordText,
+	    password: true,
+	    fn: function(btn, password) {
+	        switch(btn) {
+	            case 'ok':
+					storage.set('masterPassword', preferences.createHash(password));
+					callback();
+                break;
+	        }
+	    }
+	});
 }
 
 function loadUsers() {
@@ -538,6 +550,7 @@ function load() {
             $( "#sites" ).children('option').remove();
 
             if (!sites || !sites.length) {
+            	currentSite = 0;
             	create();
             	return;
             }
@@ -553,7 +566,6 @@ function load() {
             });
 
             if(currentSite) {
-                $( "#sites" ).combobox('val', currentSite+"");
                 return open(currentSite);
             }
 
@@ -681,17 +693,17 @@ function updateCategory() {
         });
 
         if( ['GDrive', 'GDriveLimited', 'Dropbox', 'AmazonS3'].indexOf(category) !== -1 ){
-            $('[name=serverTypeItem][value=Cloud]').attr("checked", "checked").button('refresh');
+            $('[name=serverTypeItem][value=Cloud]:first').attr("checked", "checked").button('refresh');
 
             if( ['GDrive', 'GDriveLimited'].indexOf(category) !== -1 ){
-                $('[name=cloud][value=GDrive]').attr("checked", "checked").button('refresh');
+                $('[name=cloud][value=GDrive]:first').attr("checked", "checked").button('refresh');
             } else {
-                $('[name=cloud][value=' + category + ']').attr("checked", "checked").button('refresh');
+                $('[name=cloud][value=' + category + ']:first').attr("checked", "checked").button('refresh');
             }
         } else if( ['AJAX', 'WebDAV'].indexOf(category) !== -1 ) {
-            $('[name=serverTypeItem][value=Other]').attr("checked", "checked").button('refresh');
+            $('[name=serverTypeItem][value=Other]:first').attr("checked", "checked").button('refresh');
         } else {
-            $('[name=serverTypeItem][value=' + category + ']').attr("checked", "checked").button('refresh');
+            $('[name=serverTypeItem][value=' + category + ']:first').attr("checked", "checked").button('refresh');
         }
     }
 
@@ -716,7 +728,7 @@ function updateCategory() {
     $('#ftp_user').attr('placeholder', username_placeholder);
 
     //password placeholder
-    var password_placeholder = 'leave blank to prompt for password';
+    var password_placeholder = '';
     if( category==='AmazonS3' ){
         password_placeholder = 'secret access key';
     }
@@ -897,25 +909,31 @@ function test() {
         }
     }
 
-    var ajax;
-	if (!loading.start('Testing site ' + (site ? site.name : ''), function(){
-		console.log('abort testing site');
-		ajax.abort();
-	})) {
-		return;
-	}
-
     var ajaxOptions = getAjaxOptions('/api/sites?site=');
     var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
-
     var prefs = preferences.get_prefs();
+
 	if (prefs.useMasterPassword) {
+		if (!storage.get('masterPassword')) {
+			return masterPasswordPrompt(test);
+		}
+
+		params.masterPassword = storage.get('masterPassword');
+
 		if (params.ftp_pass) {
 			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
 		}
 		if (params.db_password) {
 			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
 		}
+	}
+
+    var ajax;
+	if (!loading.start('Testing site ' + params.name, function(){
+		console.log('abort testing site');
+		ajax.abort();
+	})) {
+		return;
 	}
 
     ajax = $.ajax({
@@ -927,8 +945,8 @@ function test() {
     .then(function (data) {
         loading.stop();
 
-        if(data.success){
-			if(data.private){
+        if(data.success) {
+        	if(data.private){
 				prompt.prompt({
 					title: 'Folder permissions',
 					msg: 'Make folder public readable?',
@@ -998,12 +1016,85 @@ function test() {
 					prompt.alert({title: 'Success', msg: lang.connectionEstablishedText});
 				}
 			}
-        }else{
-            prompt.alert({title:'Error', msg:data.error});
+        } else {
+        	if (data.require_master_password) {
+				return masterPasswordPrompt(test);
+			} else {
+            	prompt.alert({title:'Error', msg:data.error});
+			}
         }
     }).fail(function() {
         loading.stop();
 		prompt.alert({title:lang.failedText, msg:'Error testing site'});
+    });
+}
+
+function save() {
+    var params = util.serializeObject($('#siteSettings'));
+
+    var ajax;
+	if (!loading.start('Saving site ' + params.name, function(){
+		console.log('abort saving site');
+		ajax.abort();
+	})) {
+		return;
+	}
+
+    var prefs = preferences.get_prefs();
+	if (prefs.useMasterPassword) {
+		if (!storage.get('masterPassword')) {
+			return masterPasswordPrompt(save);
+		}
+
+		params.masterPassword = storage.get('masterPassword');
+
+		if (params.ftp_pass) {
+			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
+		}
+		if (params.db_password) {
+			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
+		}
+	}
+
+    ajax = $.ajax({
+        url: '/api/sites?cmd=save&site='+$('#siteSettings [name=id]').val(),
+	    method: 'POST',
+	    dataType: 'json',
+	    data: params
+    })
+    .then(function (data) {
+        loading.stop();
+
+        if(data.success){
+			/*
+			//set gdrive folder to public
+			if(
+			    (
+			        server_type === 'GDrive' ||
+			        server_type === 'GDriveLimited'
+			    ) &&
+			    dir_id
+			){
+			    console.log('set permissions');
+			    gdrive.set_public(dir_id, true);
+			}
+			*/
+
+			currentSite = data.site;
+			load();
+
+			$( "#dialog-site" ).dialog( "close" );
+            $( "#dialog-site" ).remove();
+        }else{
+        	var error = 'unknown';
+        	if (data.error) {
+        		error = data.error.replace(/\n/g, "<br>");
+        	}
+            prompt.alert({title:'Error', msg: error});
+        }
+    }).fail(function() {
+        loading.stop();
+		prompt.alert({title:lang.failedText, msg:'Error saving site'});
     });
 }
 
@@ -1222,17 +1313,6 @@ function edit(newSite, duplicate) {
 		}
     }
 
-    //passwords
-	if (prefs.useMasterPassword) {
-	    if(settings.ftp_pass) {
-		    $('input[name=ftp_pass').val(Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256));
-	    }
-
-	    if(settings.db_password) {
-		    $('input[name=db_password]').val(Aes.Ctr.decrypt(settings.db_password, storage.get('masterPassword'), 256));
-	    }
-	}
-
     //select ssh key
     $('#sshKey').button().click(function(){
         $(this).select();
@@ -1302,7 +1382,6 @@ function edit(newSite, duplicate) {
 
     updateCategory();
 
-
     //open dialog
     var dialog = $( "#dialog-site" ).dialog({
         modal: true,
@@ -1311,69 +1390,31 @@ function edit(newSite, duplicate) {
         },
         buttons: {
             Connect: test,
-            Save: function() {
-                var ajax;
-            	if (!loading.start('Saving site ' + (site ? site.name : ''), function(){
-            		console.log('abort saving site');
-            		ajax.abort();
-            	})) {
-            		return;
-            	}
-
-                var params = util.serializeObject($('#siteSettings'));
-
-                var prefs = preferences.get_prefs();
-            	if (prefs.useMasterPassword) {
-            		if (params.ftp_pass) {
-            			params.ftp_pass = Aes.Ctr.encrypt(params.ftp_pass, storage.get('masterPassword'), 256);
-            		}
-            		if (params.db_password) {
-            			params.db_password = Aes.Ctr.encrypt(params.db_password, storage.get('masterPassword'), 256);
-            		}
-            	}
-
-                ajax = $.ajax({
-                    url: '/api/sites?cmd=save&site='+$('#siteSettings [name=id]').val(),
-            	    method: 'POST',
-            	    dataType: 'json',
-            	    data: params
-                })
-                .then(function (data) {
-                    loading.stop();
-
-                    if(data.success){
-						/*
-						//set gdrive folder to public
-						if(
-						    (
-						        server_type === 'GDrive' ||
-						        server_type === 'GDriveLimited'
-						    ) &&
-						    dir_id
-						){
-						    console.log('set permissions');
-						    gdrive.set_public(dir_id, true);
-						}
-						*/
-
-						currentSite = data.site;
-						load();
-
-						$( "#dialog-site" ).dialog( "close" );
-                        $( "#dialog-site" ).remove();
-                    }else{
-                        prompt.alert({title:'Error', msg: data.error.replace(/\n/g,"<br>")});
-                    }
-                }).fail(function() {
-                    loading.stop();
-            		prompt.alert({title:lang.failedText, msg:'Error saving site'});
-                });
-            }
+            Save: save
         },
         width: 520,
         minWidth: 520,
         minHeight: 300
     });
+
+    //passwords
+	function decryptPasswords() {
+	    if(settings.ftp_pass) {
+		    $('input[name=ftp_pass').val(Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256));
+	    }
+
+	    if(settings.db_password) {
+		    $('input[name=db_password]').val(Aes.Ctr.decrypt(settings.db_password, storage.get('masterPassword'), 256));
+	    }
+	}
+
+	if (!newSite && prefs.useMasterPassword) {
+		if (!storage.get('masterPassword')) {
+			return masterPasswordPrompt(decryptPasswords);
+		} else {
+			decryptPasswords();
+		}
+	}
 }
 
 function active() {
