@@ -380,6 +380,17 @@ function saveFiles(options) {
                     }
                 }
 
+				//save revision for turbo mode or AJAX
+				settings = site.getSettings(siteId);
+				if( settings.turbo == 1 || settings.server_type=='AJAX' ){
+					$.ajax({
+    			        url: '/api/revisions?cmd=save&site='+siteId+'&file='+params.file,
+    	                method: 'POST',
+    	                data: params,
+    	                dataType: 'json'
+    			    })
+				}
+
                 //compile coffee
                 if (prefs.compileCoffeeScript && util.fileExtension(title)==='coffee') {
                     var newTitle = tab.data('title');
