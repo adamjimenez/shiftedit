@@ -1355,7 +1355,7 @@ function init() {
             ]
         },
     	'plugins' : [
-    	    'state','dnd','sort','types','contextmenu','unique','search','grid'
+    	    /*'state',*/'dnd','sort','types','contextmenu','unique','search','grid'
     	]
     })
     .on('delete_node.jstree', function (e, data) {
@@ -1687,6 +1687,26 @@ function init() {
     	//expand root node
     	var rootNode = getNode('#').children[0];
     	inst.open_node(rootNode);
+    }).on('open_node.jstree', function(e, data){
+    	var path = data.node.id;
+
+    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=1&path='+path, {
+		    method: 'POST',
+		    dataType: 'json',
+			xhrFields: {
+				withCredentials: true
+			}
+    	})
+    }).on('close_node.jstree', function(e, data){
+    	var path = data.node.id;
+
+    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=0&path='+path, {
+		    method: 'POST',
+		    dataType: 'json',
+			xhrFields: {
+				withCredentials: true
+			}
+    	})
     })/*.on('hover_node.jstree', function(e, data){
     	inst.get_node(data.node, true).addClass('ui-state-hover');
     }).on('dehover_node.jstree', function(e, data){
