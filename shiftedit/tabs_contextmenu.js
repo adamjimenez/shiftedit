@@ -38,8 +38,7 @@ function init() {
                 case 'close':
                     return tabs.close($(this));
                 case 'closeOtherTabs':
-                    lis = $(this).siblings('li.closable');
-                break;
+                    return tabs.closeOther($(this));
                 case 'closeAllTabs':
                     return tabs.closeAll($(this));
                 case 'closeTabsRight':
