@@ -661,6 +661,10 @@ li[role=tab] .ui-icon {
     width: 70px;
 }
 
+#tabs-definitions{
+	overflow: auto;
+}
+
 #tabs-notes{
     display: flex;
 }
