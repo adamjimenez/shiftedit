@@ -136,7 +136,7 @@ li[role=tab] .ui-icon {
 	max-height: 300px;
 	overflow-x: hidden;
 	overflow-y: scroll;
-	z-index: 1000000;
+	z-index: 1000000 !important;
 }
 
 /* dialogs */
@@ -319,7 +319,7 @@ li[role=tab] .ui-icon {
     z-index: 2;
 }
 
-#siteSettings p{
+#siteSettings p, #snippetForm p{
     display: flex;
     vertical-align: middle;
     align-items: center;
@@ -329,7 +329,7 @@ li[role=tab] .ui-icon {
     max-width: 50px;
 }
 
-#siteSettings label{
+#siteSettings label, #snippetForm label{
     display: inline-block;
     padding-left: 10px;
     padding-right: 4px;
@@ -351,11 +351,11 @@ li[role=tab] .ui-icon {
     padding: 0;
 }
 
-#siteSettings input, #siteSettings textarea{
+#siteSettings input, #siteSettings textarea, #snippetForm input{
     flex-grow: 1;
 }
 
-#siteSettings input[type=checkbox]{
+#siteSettings input[type=checkbox], #snippetForm input[type=checkbox]{
     flex-grow: 0;
 }
 
