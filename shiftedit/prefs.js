@@ -1272,6 +1272,7 @@ exports.open = open;
 exports.jslint_options = jslint_options;
 exports.csslint_options = csslint_options;
 exports.createHash = createHash;
+exports.charsets = charsets
 
 });
 

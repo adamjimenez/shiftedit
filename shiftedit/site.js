@@ -1121,7 +1121,7 @@ function edit(newSite, duplicate) {
         	<ul>\
         	    <li><a href="#tabs-site">Site</a></li>\
         	    <li><a href="#tabs-database">Database</a></li>\
-        	    <li><a href="#tabs-autocomplete">Autocomplete</a></li>\
+        	    <li><a href="#tabs-advanced">Advanced</a></li>\
         	</ul>\
             <div>\
                 <div id="tabs-site">\
@@ -1271,14 +1271,20 @@ function edit(newSite, duplicate) {
                         <button type="button" id="showDbPassword">Show</button>\
                     </p>\
                 </div>\
-                <div id="tabs-autocomplete">\
+                <div id="tabs-advanced">\
                     <p>\
-                        <label for="name">Wordpress:</label>\
+                        <label for="name">Wordpress completions:</label>\
                         <input type="checkbox" name="ac_wordpress" value="1" class="text ui-widget-content ui-corner-all">\
                     </p>\
                     <p>\
                         <label for="name">Custom completions:</label>\
                         <input type="text" name="ac_custom" value="" placeholder="e.g. http://domain.com/completions.json" class="text ui-widget-content ui-corner-all">\
+                    </p>\
+                    <p>\
+						<label for="encoding">Encoding</label>\
+					    <select name="encoding" class="ui-widget ui-state-default ui-corner-all">\
+					    	<option value=""></option>\
+					    </select>\
                     </p>\
                 </div>\
             </div>\
@@ -1286,6 +1292,14 @@ function edit(newSite, duplicate) {
         <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
       </form>\
     </div>');
+
+    //encoding dropdown
+    var charsets = preferences.charsets;
+    for(var i in charsets) {
+        if (charsets.hasOwnProperty(i)) {
+            $('#siteSettings select[name=encoding]').append( '<option value="'+i+'">'+charsets[i]+' ('+i+')</option>' );
+        }
+    }
 
     //set values
     var defaults = {
