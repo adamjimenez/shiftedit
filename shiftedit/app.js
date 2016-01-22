@@ -22,7 +22,9 @@ requirejs.config({
         //"firepad": 'firepad/firepad',
         "firepad-userlist": 'firepad/firepad-userlist',
         "jsdiff": 'jsdiff/diff',
-        "ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize'
+        "ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize',
+        "ace/keyboard/vim": "ace.20151029/src/keybinding-vim",
+        "ace/keyboard/emacs": "ace.20151029/src/keybinding-emacs"
     },
     "shim": {
         "ace/ext-emmet": {
