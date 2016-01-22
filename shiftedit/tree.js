@@ -1484,7 +1484,7 @@ function init() {
                 params.oldname = data.node.id;
 		    	params.newname = util.basename(data.node.id);
 				if(data.parent!=='#root') {
-					params.newname = data.parent;
+					params.newname = data.parent + '/' + params.newname;
 				}
 
                 params.site = ajaxOptions.site;
