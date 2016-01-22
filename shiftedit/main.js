@@ -1,17 +1,13 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache', 'app/prompt'], function (exports) {
     var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
     var locale = require("app/lang");
     var preferences = require("app/prefs");
     var splash = require("app/splash");
+    var prompt = require("app/prompt");
 
     splash.update('loading strings..');
     locale.load()
     .done(function(data) {
-	    if(!data.success){
-	        location.href = '/login';
-	        return;
-	    }
-
         splash.update('loading preferences..');
         return preferences.load();
     })
@@ -23,7 +19,13 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
     	var layout = require("app/layout");
 		layout.init();
     })
-    .done(function () {
+    .done(function (data) {
+	    if(!data.success) {
+	    	prompt.alert({title: 'Error', msg:data.error});
+	        location.href = '/login';
+	        return;
+	    }
+
         var prefs = preferences.get_prefs();
 
         // yay!
