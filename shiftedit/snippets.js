@@ -9,10 +9,11 @@ function refresh() {
 function edit(node) {
     //snippet dialog
     $( "body" ).append('<div id="dialog-snippet" title="Edit snippet">\
-      <form id="snippetForm" class="hbox">\
+      <form id="snippetForm">\
+        <input type="hidden" name="id">\
         <p>\
             <label>Name</label>\
-            <input type="text" name="text" required>\
+            <input type="text" name="name" required class="text ui-widget-content ui-corner-all">\
         </p>\
         <p>\
             <label>Insert type</label>\
@@ -23,17 +24,17 @@ function edit(node) {
         </p>\
         <span>Insert before</span>\
         <p>\
-            <textarea name="snippet1" class="flex"></textarea>\
+            <textarea name="snippet1"class="flex text ui-widget-content ui-corner-all"></textarea>\
         </p>\
         <div id="snippet2Container">\
             <span>Insert after</span>\
             <p>\
-                <textarea name="snippet2" class="flex"></textarea>\
+                <textarea name="snippet2" class="flex ui-widget-content ui-corner-all"></textarea>\
             </p>\
         </div>\
         <p>\
             <label>Shortcut, ctrl + shift + &nbsp;</label>\
-            <select name="shortcut">\
+            <select name="shortcut" class="text ui-widget-content ui-corner-all">\
                 <option value=""></option>\
                 <option value="96">0</option>\
                 <option value="49">1</option>\
@@ -62,7 +63,8 @@ function edit(node) {
 
     //set values
     if(node) {
-        node.data.text = node.text;
+        node.data.name = node.text;
+        node.data.id = node.id;
         for(var i in node.data) {
     		if (node.data.hasOwnProperty(i)) {
     		    var field = $('[name='+i+']');
@@ -99,9 +101,6 @@ function edit(node) {
         },
         buttons: {
             Save: function() {
-                $( "#dialog-snippet" ).dialog( "close" );
-                $( "#dialog-snippet" ).remove();
-
                 var params = util.serializeObject($('#snippetForm'));
 
                 //save and create node
@@ -113,18 +112,35 @@ function edit(node) {
                         shortcuts.load();
                     }
                 });
+
+                $( "#dialog-snippet" ).dialog( "close" );
+                $( "#dialog-snippet" ).remove();
             }
         }
     });
 }
 
+function init() {
     tree = $('#snippets')
     .jstree({
     	'core' : {
             'data' : function (node, callback) {
                 //console.log(node);
 
-        		$.ajax('/api/snippets?cmd=list&path='+encodeURIComponent(node.id), {
+	            if(node.id==='#') {
+	            	return callback.call(tree, {
+	            		children: true,
+	            		id: '#root',
+	            		text: 'Snippets',
+	            		type: 'folder'
+	            	});
+	            }
+
+				var path = '';
+				if(node.id!=='#root')
+					path = node.id;
+
+        		$.ajax('/api/snippets?cmd=list&path='+encodeURIComponent(path), {
         		    method: 'POST',
         		    dataType: 'json',
         		    //data: options.params,
@@ -164,6 +180,11 @@ function edit(node) {
     			}
 
     			return true;
+    		},
+    		'themes': {
+    			'responsive': false,
+    			'variant': 'small',
+    			'stripes': true
     		}
     	},
     	'sort' : function(a, b) {
@@ -306,7 +327,7 @@ function edit(node) {
         var editor = tabs.getEditor(tabs.active());
         var item = node.data;
 
-        if (editor) {
+        if (item && editor) {
             if(parseInt(item.wrap)) {
 	            editor.commands.exec('wrapSelection', editor, [item.snippet1, item.snippet2]);
             } else {
@@ -314,7 +335,9 @@ function edit(node) {
             }
         }
     });
+}
 
     return {
+    	init: init
     };
 });

@@ -702,6 +702,11 @@ function closeAll (tab) {
     close(closing[0]);
 }
 
+function closeOther (tab) {
+    closing = $(tab).siblings('li.closable');
+    close(closing[0]);
+}
+
 function closeTabsRight (tab) {
     closing = $(tab).nextAll('li:not(.button)');
     close(closing[0]);
@@ -1055,6 +1060,7 @@ $('body').on('click', 'a.openfile', function() {
     exports.init = init;
     exports.close = close;
     exports.closeAll = closeAll;
+    exports.closeOther = closeOther;
     exports.closeTabsRight = closeTabsRight;
     exports.open = open;
     exports.recordOpenFiles = recordOpenFiles;

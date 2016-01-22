@@ -62,7 +62,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
         find.init();
         var exit = require("app/exit");
         var notes = require("app/notes").init();
-        var snippets = require("app/snippets");
+        var snippets = require("app/snippets").init();
         var resize = require("app/resize");
         resize.init();
 
