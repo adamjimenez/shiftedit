@@ -54,6 +54,10 @@ function disableMenuItems() {
 }
 
 function init() {
+    $('body').on('click','.newTab .site', function(){
+        create();
+    });
+
     combobox = $( "#sites" ).combobox({
         forceSelection: true,
         selectOnFocus: true,

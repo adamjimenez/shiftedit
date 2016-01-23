@@ -739,7 +739,7 @@ function newTab (e, ui) {
 				<div class="column">\
 					<h5>Other</h5>\
 					<ul class="other">\
-					    <li><a href="#">New Site</a></li>\
+					    <li><a href="#" class="site">New Site</a></li>\
 						<li><a href="#" class="preview">Preview</a></li>\
 						<li><a href="#" class="ssh">SSH</a></li>\
 						<li><a href="#" class="diff">File Compare</a></li>\
