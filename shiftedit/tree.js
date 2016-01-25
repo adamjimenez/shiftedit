@@ -1669,13 +1669,20 @@ function init() {
 		            	inst.edit(node);
     			}
     		}, 1000);
-    	} else {
-	        if(singleClickOpen){
-	            open({
-	                reference: ref
-	            });
-	        }
     	}
+    })
+    .on('click','a',function (e, data) {
+    	if (e.button!==0) {
+    		return false;
+    	}
+
+    	var ref = this;
+
+        if(singleClickOpen){
+            open({
+                reference: ref
+            });
+        }
     })
     .on('dblclick','a',function (e, data) {
     	clearTimeout(renameTimer);
