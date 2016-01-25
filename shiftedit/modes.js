@@ -28,6 +28,7 @@ define(['app/prefs'], function (preferences) {
 		['htaccess', 'Plain Text', ['htaccess'], 'text/plain'],
 		['jade', 'Jade', ['jade'], 'text/x-jade'],
 		['java', 'Java', ['java'], 'text/x-java'],
+		['jsx', 'JSX', ['jsx'], 'text/x-jsx'],
 		['latex', 'Latex', ['latex'], 'text/x-latex'],
 		['less', 'LESS', ['less'], 'text/x-less'],
 		['liquid', 'Liquid', ['liquid'], 'text/liquid'],
