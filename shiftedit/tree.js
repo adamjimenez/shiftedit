@@ -1773,12 +1773,10 @@ function init() {
 	});
 
     //only select filename part on rename
-    $(document).on("focus", '.jstree-rename-input', util.selectFilename);
-
+    $(document).on("focus", '.jstree-rename-input', function(){ setTimeout($.proxy( util.selectFilename, this), 10) });
 
     $('.drag')
         .on('mousedown', function (e) {
-            console.log(1);
             return $.vakata.dnd.start(e, { 'jstree' : true, 'obj' : $(this), 'nodes' : [{ id : true, text: $(this).text() }] }, '<div id="jstree-dnd" class="jstree-default"><i class="jstree-icon jstree-er"></i>' + $(this).text() + '</div>');
         });
     $(document)
