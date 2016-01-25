@@ -600,6 +600,12 @@ function init () {
 		            window.open('/docs/');
     			}
     		}, {
+    			id: 'reportIssue',
+    			text: 'Report an issue',
+    			handler: function() {
+		            window.open('https://github.com/adamjimenez/shiftedit/issues');
+    			}
+    		}, {
     			id: 'feedback',
     			text: lang.feedback,
     			handler: function() {
