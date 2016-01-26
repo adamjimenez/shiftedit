@@ -1841,8 +1841,7 @@ function init() {
             				var path = '';
 
             				if( from ){
-            				//	path = relative(dirname(from), to);
-            					path = '/'+to;
+            					path = util.relative(util.dirname(from), to);
             				}else{
             					path = '/'+to;
             				}
