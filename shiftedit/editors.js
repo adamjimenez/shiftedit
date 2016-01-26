@@ -1,4 +1,4 @@
-define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'ace/ext/language_tools', "ace/keyboard/vim", "ace/keyboard/emacs"], function (ace, tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'ace/ext/language_tools', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -15,6 +15,9 @@ var firebase = require('app/firebase');
 var Firepad = require('firepad/firepad');
 var find = require('app/find');
 var storage = require('app/storage');
+var beautify = require('beautify');
+var css_beautify = require('beautify-css');
+var html_beautify = require('beautify-html');
 
 //ace.config.set("packaged", true);
 //ace.config.set("basePath", require.toUrl("ace"));
@@ -963,6 +966,70 @@ function create(file, content, siteId, options) {
 		exec: function (editor, args, request) {
 			tabs.next();
 			return true;
+		}
+	});
+
+	editor.commands.addCommand({
+		name: "applySourceFormatting",
+		bindKey: {
+			win: "Alt-Shift-f",
+			mac: "Alt-Shift-f",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			var prefs = preferences.get_prefs();
+			var toSelection = !editor.getSelection().isEmpty();
+			var mode = editor.getSession().$modeId.substr(9);
+
+			var tab = '';
+			for (i = 0; i < prefs.tabSize; i++) {
+				tab += ' ';
+			}
+
+			var code = toSelection ? editor.getSelectedText() : code = editor.getValue();
+
+			switch (mode) {
+			case 'javascript':
+			case 'json':
+				code = beautify.js_beautify(code, {
+					'indent_size': prefs.softTabs ? prefs.tabSize : 1,
+					'indent_char': prefs.softTabs ? ' ' : '\t',
+					'brace_style': prefs.beautifier_brace_style,
+					'preserve_newlines': prefs.beautifier_preserve_newlines,
+					'keep_array_indentation': prefs.beautifier_keep_array_indentation,
+					'break_chained_methods': prefs.beautifier_break_chained_methods,
+					'space_before_conditional': prefs.beautifier_space_before_conditional,
+					'indent_scripts': prefs.beautifier_indent_scripts
+				});
+				break;
+			case 'css':
+				code = css_beautify.css_beautify(code, {
+					indent: tab,
+					openbrace: prefs.beautifier_open_brace
+				});
+				break;
+			case 'html':
+			case 'php':
+			case 'xml':
+				code = html_beautify.html_beautify(code, {
+					'indent_size': prefs.softTabs ? prefs.tabSize : 1,
+					'indent_char': prefs.softTabs ? ' ' : '\t',
+					'indent_scripts': prefs.beautifier_indent_scripts,
+					'max_char': 78,
+					'brace_style': prefs.beautifier_brace_style,
+					'unformatted': ['?', '?=', '?php', 'a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+					'extra_liners': []
+				});
+				break;
+			default:
+				return;
+			}
+
+			if (toSelection) {
+				editor.insert(code);
+			} else {
+				editor.setValue(code);
+			}
 		}
 	});
 

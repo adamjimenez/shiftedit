@@ -24,7 +24,10 @@ requirejs.config({
         "jsdiff": 'jsdiff/diff',
         "ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize',
         "ace/keyboard/vim": "ace.20151029/src/keybinding-vim",
-        "ace/keyboard/emacs": "ace.20151029/src/keybinding-emacs"
+        "ace/keyboard/emacs": "ace.20151029/src/keybinding-emacs",
+        'beautify': 'js-beautify/beautify',
+        'beautify-css': 'js-beautify/beautify-css',
+        'beautify-html': 'js-beautify/beautify-html'
     },
     "shim": {
         "ace/ext-emmet": {
@@ -96,4 +99,3 @@ requirejs.config({
 
 // Start loading the main app file
 requirejs(['app/main']);
-

@@ -460,7 +460,8 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.commands.exec('beautify', editor);
+    				//editor.commands.exec('beautify', editor);
+					editor.commands.exec('applySourceFormatting', editor);
     			},
     			disabled: true,
     			target: 'file'
