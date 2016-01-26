@@ -65,7 +65,7 @@ function open(file, siteId, options) {
 
     var found = false;
     opening.forEach(function(item) {
-        if(item.id === tab.attr('id')){
+        if(item.file === file && item.siteId === siteId){
             found = true;
             return;
         }
