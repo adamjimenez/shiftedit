@@ -849,6 +849,7 @@ function chooseFolder() {
     $( "#dialog-choose-folder" ).dialog({
         modal: true,
         minHeight: 200,
+        maxHeight: 360,
         buttons: {
             OK: function() {
                 var reference = folderTree;
