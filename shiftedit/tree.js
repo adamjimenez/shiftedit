@@ -1835,6 +1835,7 @@ function init() {
 
             			for( i=0; i<nodes.length; i++ ){
             				node = nodes[i];
+            				n = getNode(node);
 
             				var from = $(tab).data('file');
             				var to = node;
@@ -1846,7 +1847,10 @@ function init() {
             					path = '/'+to;
             				}
 
-            				switch( util.fileExtension(node.toLowerCase()) ){
+            				if(n.data.link)
+            					path = n.data.link;
+
+            				switch( util.fileExtension(n.text) ){
             					case 'jpg':
             					case 'jpeg':
             					case 'gif':
