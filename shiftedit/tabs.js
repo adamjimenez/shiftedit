@@ -65,7 +65,7 @@ function open(file, siteId, options) {
 
     var found = false;
     opening.forEach(function(item) {
-        if(item.id === tab.attr('id')){
+        if(item.file === file && item.siteId === siteId){
             found = true;
             return;
         }
@@ -739,7 +739,7 @@ function newTab (e, ui) {
 				<div class="column">\
 					<h5>Other</h5>\
 					<ul class="other">\
-					    <li><a href="#">New Site</a></li>\
+					    <li><a href="#" class="site">New Site</a></li>\
 						<li><a href="#" class="preview">Preview</a></li>\
 						<li><a href="#" class="ssh">SSH</a></li>\
 						<li><a href="#" class="diff">File Compare</a></li>\

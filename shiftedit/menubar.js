@@ -460,7 +460,8 @@ function init () {
     			handler: function () {
     			    var tab = $('.ui-layout-center .ui-tabs-active');
     			    var editor = tabs.getEditor(tab);
-    				editor.commands.exec('beautify', editor);
+    				//editor.commands.exec('beautify', editor);
+					editor.commands.exec('applySourceFormatting', editor);
     			},
     			disabled: true,
     			target: 'file'
@@ -598,6 +599,12 @@ function init () {
     			text: lang.support,
     			handler: function() {
 		            window.open('/docs/');
+    			}
+    		}, {
+    			id: 'reportIssue',
+    			text: 'Report an issue',
+    			handler: function() {
+		            window.open('https://github.com/adamjimenez/shiftedit/issues');
     			}
     		}, {
     			id: 'feedback',

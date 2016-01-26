@@ -54,6 +54,10 @@ function disableMenuItems() {
 }
 
 function init() {
+    $('body').on('click','.newTab .site', function(){
+        create();
+    });
+
     combobox = $( "#sites" ).combobox({
         forceSelection: true,
         selectOnFocus: true,
@@ -845,6 +849,7 @@ function chooseFolder() {
     $( "#dialog-choose-folder" ).dialog({
         modal: true,
         minHeight: 200,
+        maxHeight: 360,
         buttons: {
             OK: function() {
                 var reference = folderTree;

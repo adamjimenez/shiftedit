@@ -430,14 +430,17 @@ function treeFn(options) {
                     var isFolder = (entry.mimeType=='application/vnd.google-apps.folder');
 
 					nodes.push({
-						text: entry.title,
 						id: entry.id,
+						text: entry.title,
 						type: (isFolder) ? 'folder' : 'file',
 						children: isFolder,
 						disabled: false,
-						iconCls: 'file-'+ext,
-						modified: date.getTime()/1000,
-						size: entry.fileSize
+						icon: 'file file-'+ext,
+						data: {
+							modified: date.getTime()/1000,
+							size: entry.fileSize,
+							link: entry.webContentLink.replace('&export=download', '')
+						}
 					});
 				});
 

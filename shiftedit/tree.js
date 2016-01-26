@@ -1669,13 +1669,20 @@ function init() {
 		            	inst.edit(node);
     			}
     		}, 1000);
-    	} else {
-	        if(singleClickOpen){
-	            open({
-	                reference: ref
-	            });
-	        }
     	}
+    })
+    .on('click','a',function (e, data) {
+    	if (e.button!==0) {
+    		return false;
+    	}
+
+    	var ref = this;
+
+        if(singleClickOpen){
+            open({
+                reference: ref
+            });
+        }
     })
     .on('dblclick','a',function (e, data) {
     	clearTimeout(renameTimer);
@@ -1690,23 +1697,27 @@ function init() {
     }).on('open_node.jstree', function(e, data){
     	var path = data.node.id;
 
-    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=1&path='+path, {
-		    method: 'POST',
-		    dataType: 'json',
-			xhrFields: {
-				withCredentials: true
-			}
-    	})
+    	if (!treeFn) {
+	    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=1&path='+path, {
+			    method: 'POST',
+			    dataType: 'json',
+				xhrFields: {
+					withCredentials: true
+				}
+	    	});
+    	}
     }).on('close_node.jstree', function(e, data){
     	var path = data.node.id;
 
-    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=0&path='+path, {
-		    method: 'POST',
-		    dataType: 'json',
-			xhrFields: {
-				withCredentials: true
-			}
-    	})
+		if (!treeFn) {
+	    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=0&path='+path, {
+			    method: 'POST',
+			    dataType: 'json',
+				xhrFields: {
+					withCredentials: true
+				}
+	    	});
+		}
     })/*.on('hover_node.jstree', function(e, data){
     	inst.get_node(data.node, true).addClass('ui-state-hover');
     }).on('dehover_node.jstree', function(e, data){
@@ -1762,12 +1773,10 @@ function init() {
 	});
 
     //only select filename part on rename
-    $(document).on("focus", '.jstree-rename-input', util.selectFilename);
-
+    $(document).on("focus", '.jstree-rename-input', function(){ setTimeout($.proxy( util.selectFilename, this), 10) });
 
     $('.drag')
         .on('mousedown', function (e) {
-            console.log(1);
             return $.vakata.dnd.start(e, { 'jstree' : true, 'obj' : $(this), 'nodes' : [{ id : true, text: $(this).text() }] }, '<div id="jstree-dnd" class="jstree-default"><i class="jstree-icon jstree-er"></i>' + $(this).text() + '</div>');
         });
     $(document)
@@ -1826,19 +1835,22 @@ function init() {
 
             			for( i=0; i<nodes.length; i++ ){
             				node = nodes[i];
+            				n = getNode(node);
 
             				var from = $(tab).data('file');
             				var to = node;
             				var path = '';
 
             				if( from ){
-            				//	path = relative(dirname(from), to);
-            					path = '/'+to;
+            					path = util.relative(util.dirname(from), to);
             				}else{
             					path = '/'+to;
             				}
 
-            				switch( util.fileExtension(node.toLowerCase()) ){
+            				if(n.data.link)
+            					path = n.data.link;
+
+            				switch( util.fileExtension(n.text) ){
             					case 'jpg':
             					case 'jpeg':
             					case 'gif':
