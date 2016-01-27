@@ -85,9 +85,16 @@ function create() {
 
             if(siteId) {
                 var file = tab.data('file');
-                var settings = site.getSettings(siteId);
-                if(settings.web_url) {
-                    url = settings.web_url+file;
+                var url = tab.data('link');
+
+                if (!url) {
+	                var settings = site.getSettings(siteId);
+	                if(settings.web_url) {
+	                    url = settings.web_url+file;
+	                }
+                }
+
+                if(url) {
                     combobox.input.val(url);
                     refresh();
                 }else{

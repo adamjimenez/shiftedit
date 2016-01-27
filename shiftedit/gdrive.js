@@ -153,9 +153,11 @@ function directFn(options) {
                                 success: true,
                                 content: xhr.responseText,
                                 file: result.id,
-                                title: result.title
+                                title: result.title,
+                                link: result.webContentLink.replace('&export=download', '')
                             };
 
+                            console.log(result);
                             console.log(response);
                             options.callback(response);
                         };

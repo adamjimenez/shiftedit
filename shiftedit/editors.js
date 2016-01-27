@@ -618,6 +618,11 @@ function create(file, content, siteId, options) {
 	    tab.attr('data-mdate', options.mdate);
 	}
 
+	if(options.link) {
+	    tab.data('link', options.link);
+	    tab.attr('data-link', options.link);
+	}
+
     tab.data('original', content);
 
     tabpanel.trigger("tabsactivate", [{newTab:tab}]);
