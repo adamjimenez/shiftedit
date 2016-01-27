@@ -821,18 +821,38 @@ function save(name, value) {
 }
 
 function open() {
+    var myLayout = layout.get();
+
     //check if already open
     var tab = $('li[data-type=prefs]');
+
+	var panel = 'east';
+	var minWidth = 300;
 
     if(tab.length) {
         var tabpanel = tab.closest('.ui-tabs');
         tabpanel.tabs("option", "active", tab.index());
+
+        //get nearest panel
+        var pane = tab.closest('.ui-layout-pane');
+        panel = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
+
+        //expand panel
+    	myLayout.open(panel);
+        if (pane.outerWidth() < minWidth) {
+			myLayout.sizePane(panel, minWidth);
+        }
+
         return;
     }
 
-    //create tab
-    layout.get().open('east');
+    //expand east panel
+    myLayout.open(panel);
+    if(myLayout.panes.east.outerWidth() < minWidth) {
+		myLayout.sizePane(panel, minWidth);
+    }
 
+    //create tab
 	tab = $('.ui-layout-east').tabs('add', 'Preferences', '<div class="prefs">\
 	<form id="prefsForm">\
 	<h2>General</h2>\
