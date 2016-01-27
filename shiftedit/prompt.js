@@ -69,8 +69,10 @@ define(['app/util'], function (util) {
 
         $( "body" ).append('<div id="dialog-prompt" title="'+options.title+'">\
   <form>\
+  	<div class="vbox">\
       <label for="name">'+options.msg+'</label>\
-      <input type="'+inputType+'" name="input" id="input" value="'+options.value+'" class="text ui-widget-content ui-corner-all" required>\
+      <input type="'+inputType+'" name="input" id="input" value="'+options.value+'" class="flex text ui-widget-content ui-corner-all" required>\
+      </div>\
  \
       <!-- Allow form submission with keyboard without duplicating the dialog button -->\
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
