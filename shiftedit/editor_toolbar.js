@@ -144,7 +144,7 @@ var menu = [{
 				var session = secondSession || sp.getEditor(0).session;
 				var newSession = sp.setSession(session, 1);
 				newSession.name = session.name;
-				editors.refresh(tab);
+				editors.applyPrefs(tab);
 			}
 		},
 		group: 'codeSplit'
@@ -162,7 +162,7 @@ var menu = [{
 				var session = secondSession || sp.getEditor(0).session;
 				var newSession = sp.setSession(session, 1);
 				newSession.name = session.name;
-				editors.refresh(tab);
+				editors.applyPrefs(tab);
 			}
 		},
 		group: 'codeSplit'

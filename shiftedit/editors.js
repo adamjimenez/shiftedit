@@ -257,16 +257,6 @@ function restoreState(state) {
 	}
 }
 
-function refresh(tab) {
-	//editor.resize();
-
-	window.splits[tab.attr('id')].forEach(
-		function (editor) {
-	        editor.setTheme("ace/theme/monokai");
-		}
-	);
-}
-
 function destroy(e) {
     var tab = $(this);
     var editor = tabs.getEditor($(tab));
@@ -560,15 +550,17 @@ function applyPrefs(tab) {
 		//editor.container.style.fontFamily = prefs.font;
 		editor.setFontSize(prefs.fontSize + 'px');
 
-		//remove tab command
-		editor.completer.keyboardHandler.removeCommand('Tab');
-		editor.completer.exactMatch = true;
-		editor.completer.autoSelect = true;
-
 		editor.setOptions({
 			enableBasicAutocompletion: Boolean(prefs.autocomplete),
 			enableLiveAutocompletion: Boolean(prefs.autocomplete)
 		});
+
+		//remove tab command
+		if (editor.completer) {
+			editor.completer.keyboardHandler.removeCommand('Tab');
+			editor.completer.exactMatch = true;
+			editor.completer.autoSelect = true;
+		}
 	});
 }
 
@@ -616,6 +608,11 @@ function create(file, content, siteId, options) {
 	if(options.mdate) {
 	    tab.data('mdate', options.mdate);
 	    tab.attr('data-mdate', options.mdate);
+	}
+
+	if(options.link) {
+	    tab.data('link', options.link);
+	    tab.attr('data-link', options.link);
 	}
 
     tab.data('original', content);
@@ -1114,10 +1111,7 @@ return {
 exports.init = init;
 exports.create = create;
 exports.focus = focus;
-exports.refresh = refresh;
 exports.setMode = setMode;
 exports.applyPrefs = applyPrefs;
 
 });
-
-

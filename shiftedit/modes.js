@@ -23,6 +23,7 @@ define(['app/prefs'], function (preferences) {
 		['csharp', 'C#', ['cs'], 'text/x-c#src'],
 		['dart', 'Dart', ['dart'], 'text/x-dart'],
 		['erlang', 'Erlang', ['erl'], 'text/x-erlang'],
+		['fsharp', 'F#', ['fs'], 'text/x-f#src'],
 		['golang', 'Go', ['go'], 'text/x-go'],
 		['groovy', 'Groovy', ['groovy'], 'text/x-groovy'],
 		['htaccess', 'Plain Text', ['htaccess'], 'text/plain'],

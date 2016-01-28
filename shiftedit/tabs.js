@@ -388,7 +388,7 @@ function saveFiles(options) {
     	                method: 'POST',
     	                data: params,
     	                dataType: 'json'
-    			    })
+    			    });
 				}
 
                 //compile coffee
@@ -466,7 +466,6 @@ function saveAs(tab, options) {
     }
 
     console.log('save as');
-    console.log(site.active())
     if (!site.active()) {
         prompt.alert({title:'No site selected', msg:'Select a site from the site dropdown'});
     	return;
@@ -577,9 +576,12 @@ function doSaveAs(tab, file, options) {
 }
 
 function saveAll(tab) {
-    var tabs = $(tab).parent().children('li:not(.button)');
-    tabs.forEach(function(item){
-        saving[tab.attr('id')] = tab;
+    $('li[data-file]').each(function( index ) {
+        var tab = $(this);
+        saving.push({
+            id: tab.attr('id'),
+            tab: tab
+        });
     });
     saveFiles();
 }
