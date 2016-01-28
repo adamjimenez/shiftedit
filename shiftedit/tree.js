@@ -77,6 +77,8 @@ function duplicate(nodes) {
 		return false;
 	}
 
+	clipboard.site = site.active();
+
     //no dest as we copy to the same folder
 	clipboard.dest = null;
 
@@ -127,7 +129,7 @@ function buildQueue(nodes, d) {
     	} else {
     		url+='&';
     	}
-    	url += 'cmd=list';
+    	url += 'cmd=list&site='+clipboard.site+'&path='+path;
 
     	var params = util.clone(ajaxOptions.params);
     	params.path = path;
@@ -137,9 +139,16 @@ function buildQueue(nodes, d) {
 			data: params,
 			success: function (data) {
 				for( i=0; i<data.files.length; i++ ){
+					console.log(data.files[i])
+
+					var newPath = newName + data.files[i].id.substr(path.length);
+					if (dest) {
+						dest = dest +'/' + newPath;
+					}
+
 					queue.push({
-						path: data.files[i].path,
-						dest: dest +'/' + newName + data.files[i].path.substr(path.length),
+						path: data.files[i].id,
+						dest: newPath,
 						isDir: data.files[i].isDir
 					});
 				}
