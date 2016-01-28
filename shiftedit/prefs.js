@@ -384,11 +384,6 @@ var jslint_options = [{
 	value: false,
 	type: 'relaxing'
 }, {
-	name: 'es5',
-	description: 'ES5',
-	value: false,
-	type: 'relaxing'
-}, {
 	name: 'esnext',
 	description: 'ES.next',
 	value: false,
