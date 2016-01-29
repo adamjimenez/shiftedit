@@ -1,4 +1,4 @@
-define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/resize", "app/site", "app/designs", "app/revisions", "app/modes"], function (util, menus, tabs, editors, preferences, revisions, resize, site, designs) {
+define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/resize", "app/site", "app/designs", "app/revisions", "app/modes"], function (util, menus, tabs, editors, preferences, resize, site, designs, revisions ) {
 var modes = require('app/modes').modes;
 
 var changeMode = function(tab) {
@@ -178,7 +178,7 @@ var menu = [{
 	text: '<i class="fa fa-clock-o"></i>',
 	tooltip: 'Revision History',
 	handler: function (tab) {
-		revisions.show(tab);
+		revisions.open(tab);
 	}
 }, '->', {
 	id: 'syntaxErrorsButton',

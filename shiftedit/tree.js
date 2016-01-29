@@ -967,9 +967,15 @@ function init() {
 
     			if(o === "delete_node") {
                 	if (!confirmed){
+                		var delMsg = 'the selected files';
+                		queue = t.get_selected(true);
+                		if(queue.length==1) {
+                			delMsg = this.get_node(n).text;
+                		}
+
                     	prompt.confirm({
                     	    title: 'Delete',
-                    	    msg: 'Are you sure you want to delete the selected files?',
+                    	    msg: 'Are you sure you want to delete '+delMsg+'?',
                     	    fn: function(btn) {
                     	        switch(btn){
                     	            case 'yes':
