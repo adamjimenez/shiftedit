@@ -181,8 +181,11 @@ function open() {
 }
 
 //listener
-$('body').on('click', '#revisionHistory a', function(e){ open(); });
-    return {
-        open: open
-    };
+$('body').on('click', '#revisionHistory a', open);
+
+return {
+    open: open
+};
+
+
 });
