@@ -1291,6 +1291,10 @@ function edit(newSite, duplicate) {
 					    	<option value=""></option>\
 					    </select>\
                     </p>\
+                    <p>\
+                        <label for="name">Revisions per file:</label>\
+                        <input type="number" name="revisions" value="" min="-1" max="50" class="text ui-widget-content ui-corner-all">\
+                    </p>\
                 </div>\
             </div>\
         </div>\
