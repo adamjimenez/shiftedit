@@ -442,13 +442,15 @@ function treeFn(options) {
                 		link = entry.webContentLink.replace('&export=download', '');
                 	}
 
+                	var icon = isFolder ? '' : 'file file-'+ext;
+
 					nodes.push({
 						id: entry.id,
 						text: entry.title,
 						type: (isFolder) ? 'folder' : 'file',
 						children: isFolder,
 						disabled: false,
-						icon: 'file file-'+ext,
+						icon: icon,
 						data: {
 							modified: date.getTime()/1000,
 							size: entry.fileSize,
