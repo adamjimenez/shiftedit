@@ -104,13 +104,14 @@ function buildQueue(nodes, d) {
 
 	var path = node.id;
 	var newName = node.text;
+
+    if(node.text == newName) {
+    	newName = findAvailableName(parent, newName);
+	}
+
 	var newPath = newName;
 	if (dest) {
 		newPath = dest+'/'+newPath;
-	}
-
-    if(node.id == newPath) {
-    	newName = findAvailableName(parent, newName);
 	}
 
 	queue.push({
@@ -141,14 +142,14 @@ function buildQueue(nodes, d) {
 				for( i=0; i<data.files.length; i++ ){
 					console.log(data.files[i])
 
-					var newPath = newName + data.files[i].id.substr(path.length);
+					var destPath = newPath + data.files[i].id.substr(path.length);
 					if (dest) {
-						dest = dest +'/' + newPath;
+						dest = dest +'/' + destPath;
 					}
 
 					queue.push({
 						path: data.files[i].id,
-						dest: newPath,
+						dest: destPath,
 						isDir: data.files[i].isDir
 					});
 				}
