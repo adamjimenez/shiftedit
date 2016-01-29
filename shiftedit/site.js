@@ -737,7 +737,7 @@ function updateCategory() {
         password_placeholder = 'secret access key';
     }
 
-    $('#password').attr('placeholder', password_placeholder);
+    $('#ftp_pass').attr('placeholder', password_placeholder);
 }
 
 function chooseFolder() {
@@ -1120,8 +1120,10 @@ function edit(newSite, duplicate) {
         <input type="hidden" name="id" value="">\
         <input type="hidden" name="share" value="">\
         <!-- fake fields are a workaround for chrome autofill -->\
-        <input style="display:none" type="text" name="fakeusernameremembered"/>\
-        <input style="display:none" type="password" name="fakepasswordremembered"/>\
+        <div style="height:0; overflow: hidden;">\
+        <input type="text" name="fakeusernameremembered"/>\
+        <input type="password" name="fakepasswordremembered"/>\
+        </div>\
         <div id="siteTabs">\
         	<ul>\
         	    <li><a href="#tabs-site">Site</a></li>\
@@ -1226,7 +1228,7 @@ function edit(newSite, duplicate) {
                     </p>\
                     <p id="pass_container">\
                         <label for="name">Password:</label>\
-                        <input type="password" id="password" name="ftp_pass" value="" class="text ui-widget-content ui-corner-all" required>\
+                        <input type="password" id="ftp_pass" name="ftp_pass" value="" class="text ui-widget-content ui-corner-all" required>\
                         <button type="button" id="showPassword">Show</button>\
                     </p>\
                     <p id="ssh_key_container">\
