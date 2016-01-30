@@ -650,18 +650,21 @@ function updateCategory() {
         'Dropbox': [
             'cloud_container',
             'dir_container',
+			'web_url',
             'testSiteButton'
         ],
         'GDrive': [
             'cloud_container',
             'gdrivelimited',
             'dir_container',
+			'web_url',
             'testSiteButton'
         ],
         'GDriveLimited': [
             'cloud_container',
             'gdrivelimited',
             'dir_container',
+			'web_url',
             'testSiteButton'
         ],
         'Hosted': [

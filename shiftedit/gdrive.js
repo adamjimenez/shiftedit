@@ -148,13 +148,19 @@ function directFn(options) {
                         var xhr = new XMLHttpRequest();
                         xhr.open('GET', result.downloadUrl);
                         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+
                         xhr.onload = function() {
+                        	var link = '';
+                        	if (result.webContentLink) {
+                        		link = result.webContentLink.replace('&export=download', '');
+                        	}
+
                             response = {
                                 success: true,
                                 content: xhr.responseText,
                                 file: result.id,
                                 title: result.title,
-                                link: result.webContentLink.replace('&export=download', '')
+                                link: link
                             };
 
                             console.log(result);
@@ -431,17 +437,24 @@ function treeFn(options) {
 					var ext = util.fileExtension(entry.title);
                     var isFolder = (entry.mimeType=='application/vnd.google-apps.folder');
 
+                	var link = '';
+                	if (entry.webContentLink) {
+                		link = entry.webContentLink.replace('&export=download', '');
+                	}
+
+                	var icon = isFolder ? '' : 'file file-'+ext;
+
 					nodes.push({
 						id: entry.id,
 						text: entry.title,
 						type: (isFolder) ? 'folder' : 'file',
 						children: isFolder,
 						disabled: false,
-						icon: 'file file-'+ext,
+						icon: icon,
 						data: {
 							modified: date.getTime()/1000,
 							size: entry.fileSize,
-							link: entry.webContentLink.replace('&export=download', '')
+							link: link
 						}
 					});
 				});
