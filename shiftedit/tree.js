@@ -154,6 +154,8 @@ function buildQueue(nodes, d) {
 					});
 				}
 
+				console.log(queue);
+
 				buildQueue(nodes, d);
 			}
 		});
@@ -1004,8 +1006,10 @@ function init() {
 
 													if (action == 'delete' || action == 'rmdir') {
 														var node = t.get_node(file);
-														if (node)
+														if (node) {
+								    						confirmed = true;
 															t.delete_node(node);
+														}
 													}
 												}, false);
 
@@ -1057,6 +1061,8 @@ function init() {
 								    			confirmed = true;
 										   		node = queue.shift();
 										    	doDelete(node);
+								    		} else {
+								    			confirmed = false;
 								    		}
 								    	};
 								    	callback();
