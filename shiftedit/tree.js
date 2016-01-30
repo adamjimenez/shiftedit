@@ -430,7 +430,7 @@ function processUploads() {
         			params.dir = folder;
 
                     loading.stop();
-                    loading.fetch(ajaxOptions.url+'&cmd=newdir&dir='+folder, {
+                    loading.fetch(ajaxOptions.url+'&cmd=newdir&path='+folder, {
                     	data: params,
                         action: 'Uploading '+folder,
                         success: function(data) {
