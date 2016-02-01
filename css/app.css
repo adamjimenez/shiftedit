@@ -753,6 +753,10 @@ li[role=tab] .ui-icon {
     position: relative;
 }
 
+.design{
+	overflow: hidden;
+}
+
 /* stretch site dropdown */
 #sitebar{
 	padding: 2px;
