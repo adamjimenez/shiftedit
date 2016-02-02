@@ -200,6 +200,10 @@ li[role=tab] .ui-icon {
 	background-color: transparent !important;
 }
 
+.jstree-grid-cell{
+	background-image: none !important;
+}
+
 .vakata-context .vakata-contextmenu-shortcut{
     display: inline;
     opacity: 1;
