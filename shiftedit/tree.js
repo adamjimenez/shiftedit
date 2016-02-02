@@ -331,10 +331,7 @@ function extract(data) {
 }
 
 function downloadZip(data) {
-	var inst = $.jstree.reference(data.reference),
-		node = inst.get_node(data.reference);
-
-	var file = node.id;
+	var inst = $.jstree.reference(data.reference);
 
 	//send compress request
 	var abortFunction = function(){
@@ -342,7 +339,7 @@ function downloadZip(data) {
 			source.close();
 		}
 	};
-	loading.start('Compressing ' + file, abortFunction);
+	loading.start('Compressing zip', abortFunction);
 
 	var url = ajaxOptions.url;
 	if( url.indexOf('?')==-1 ){
@@ -350,38 +347,57 @@ function downloadZip(data) {
 	}else{
 		url+='&';
 	}
-	url += 'cmd=compress&site='+ajaxOptions.site+'&file='+file;
+	url += 'cmd=compress&site='+ajaxOptions.site;
 
-	var source = new EventSource(url, {withCredentials: true});
+	var nodes = getSelected();
+	var paths = [];
+	for( i=0; i<nodes.length; i++ ){
+		paths.push(nodes[i].id);
+	}
 
-	source.addEventListener('message', function(event) {
-		var data = JSON.parse(event.data);
+	var params = util.clone(ajaxOptions.params);
+	params.paths = paths;
 
-		if( data.msg === 'done' ){
-			done = true;
-			loading.stop(false);
+	$.ajax(url, {
+	    method: 'POST',
+	    dataType: 'json',
+	    data: params,
+		xhrFields: {
+			withCredentials: true
+		},
+	    success: function(data) {
+			var source = new EventSource(url, {withCredentials: true});
 
-			source.close();
+			source.addEventListener('message', function(event) {
+				var data = JSON.parse(event.data);
 
-			var evt = new Event('click');
-    		var a = document.createElement('a');
-    		a.download = 1;
-			a.href = url+'&d=1';
-    		a.dispatchEvent(evt);
-		}else{
-			loading.stop(false);
-			loading.start(data.msg, abortFunction);
-		}
-	}, false);
+				if( data.msg === 'done' ){
+					done = true;
+					loading.stop(false);
 
-	source.addEventListener('error', function(event) {
-		//console.log(event);
-		if (event.eventPhase == 2) { //EventSource.CLOSED
-			if( source ){
-				source.close();
-			}
-		}
-	}, false);
+					source.close();
+
+					var evt = new Event('click');
+		    		var a = document.createElement('a');
+		    		a.download = 1;
+					a.href = url+'&d=1';
+		    		a.dispatchEvent(evt);
+				}else{
+					loading.stop(false);
+					loading.start(data.msg, abortFunction);
+				}
+			}, false);
+
+			source.addEventListener('error', function(event) {
+				//console.log(event);
+				if (event.eventPhase == 2) { //EventSource.CLOSED
+					if( source ){
+						source.close();
+					}
+				}
+			}, false);
+	    }
+	});
 }
 
 function downloadFile(data) {
