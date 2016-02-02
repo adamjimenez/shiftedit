@@ -241,7 +241,11 @@ function newFolder(data) {
 		var newName = findAvailableName(parent, 'New folder');
 
 	inst.create_node(parent, { type : "default", text: newName }, "last", function (new_node) {
-		setTimeout(function () { inst.edit(new_node); }, 0);
+		setTimeout(function () {
+	        inst.deselect_all();
+	        inst.select_node(new_node);
+			inst.edit(new_node);
+		}, 0);
 	});
 }
 
@@ -263,7 +267,11 @@ function newFile(data) {
 	newName = findAvailableName(parent, newName);
 
 	inst.create_node(parent, { type : "file", text: newName }, "last", function (new_node) {
-		setTimeout(function () { inst.edit(new_node); }, 0);
+		setTimeout(function () {
+	        inst.deselect_all();
+	        inst.select_node(new_node);
+			inst.edit(new_node);
+		}, 0);
 	});
 }
 
