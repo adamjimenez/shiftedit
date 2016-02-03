@@ -42,7 +42,7 @@ define(["jquery.menubar"], function () {
                 if(menu[i].group) {
                     item.children('a').prepend('<input type="radio" name="'+menu[i].group+'">');
                 }else if(typeof menu[i].checked === "boolean") {
-                    $('<input type="checkbox">').prependTo(item.children('a')).click(function(){return false});
+                    $('<input type="checkbox">').prependTo(item.children('a'));
                 }
 
                 if(menu[i].checked) {
@@ -53,9 +53,11 @@ define(["jquery.menubar"], function () {
                 if(menu[i].handler) {
                     item.click(
                         (function(i, item, context) {
-                            return function() {
+                            return function(e) {
                                 var checkbox = $(item).find('input');
-                                checkbox.prop("checked", !checkbox.prop("checked"));
+                            	if(e.target.nodeName!=='INPUT') {
+                                	checkbox.prop("checked", !checkbox.prop("checked"));
+                            	}
 
                                 jQuery.proxy(menu[i].handler, item, context, checkbox.prop("checked"))();
                             };
