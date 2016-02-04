@@ -218,13 +218,11 @@ function init() {
             //import site dialog
             $( "body" ).append('<div id="dialog-share-site" title="Share site">\
               <form id="shareSiteForm">\
-                <fieldset class="hbox">\
-                	<div class="hbox">\
-	                    <label for="share_email">Email</label>\
-	                    <input id="share_email" type="text" name="email" class="flex text ui-widget-content ui-corner-all" required autofocus>\
-	                    <button type="submit">Add</button>\
-                    </div>\
-                </fieldset>\
+            	<div class="hbox">\
+                    <label for="share_email">Email</label>\
+                    <input id="share_email" type="text" name="email" class="flex text ui-widget-content ui-corner-all" required autofocus>\
+                    <button type="submit">Add</button>\
+                </div>\
                 <div id="users">\
                 </div>\
               </form>\
