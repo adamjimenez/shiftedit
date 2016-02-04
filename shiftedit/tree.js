@@ -240,7 +240,7 @@ function newFolder(data) {
 		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
 		var newName = findAvailableName(parent, 'New folder');
 
-	inst.create_node(parent, { type : "default", text: newName }, "last", function (new_node) {
+	inst.create_node(parent, { type : "default", text: newName, data: {} }, "last", function (new_node) {
 		setTimeout(function () {
 	        inst.deselect_all();
 	        inst.select_node(new_node);
@@ -266,7 +266,7 @@ function newFile(data) {
 
 	newName = findAvailableName(parent, newName);
 
-	inst.create_node(parent, { type : "file", text: newName }, "last", function (new_node) {
+	inst.create_node(parent, { type : "file", text: newName, data: {} }, "last", function (new_node) {
 		setTimeout(function () {
 	        inst.deselect_all();
 	        inst.select_node(new_node);
