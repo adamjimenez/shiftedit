@@ -140,7 +140,7 @@ function buildQueue(nodes, d) {
 			data: params,
 			success: function (data) {
 				for( i=0; i<data.files.length; i++ ){
-					console.log(data.files[i])
+					console.log(data.files[i]);
 
 					var destPath = newPath + data.files[i].id.substr(path.length);
 					if (dest) {
@@ -1819,7 +1819,7 @@ function init() {
 	});
 
     //only select filename part on rename
-    $(document).on("focus", '.jstree-rename-input', function(){ setTimeout($.proxy( util.selectFilename, this), 10) });
+    $(document).on("focus", '.jstree-rename-input', function(){ setTimeout($.proxy( util.selectFilename, this), 10); });
 
     $('.drag')
         .on('mousedown', function (e) {
