@@ -140,7 +140,7 @@ function buildQueue(nodes, d) {
 			data: params,
 			success: function (data) {
 				for( i=0; i<data.files.length; i++ ){
-					console.log(data.files[i])
+					console.log(data.files[i]);
 
 					var destPath = newPath + data.files[i].id.substr(path.length);
 					if (dest) {
@@ -240,8 +240,12 @@ function newFolder(data) {
 		var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
 		var newName = findAvailableName(parent, 'New folder');
 
-	inst.create_node(parent, { type : "default", text: newName }, "last", function (new_node) {
-		setTimeout(function () { inst.edit(new_node); }, 0);
+	inst.create_node(parent, { type : "default", text: newName, data: {} }, "last", function (new_node) {
+		setTimeout(function () {
+	        inst.deselect_all();
+	        inst.select_node(new_node);
+			inst.edit(new_node);
+		}, 0);
 	});
 }
 
@@ -262,8 +266,12 @@ function newFile(data) {
 
 	newName = findAvailableName(parent, newName);
 
-	inst.create_node(parent, { type : "file", text: newName }, "last", function (new_node) {
-		setTimeout(function () { inst.edit(new_node); }, 0);
+	inst.create_node(parent, { type : "file", text: newName, data: {} }, "last", function (new_node) {
+		setTimeout(function () {
+	        inst.deselect_all();
+	        inst.select_node(new_node);
+			inst.edit(new_node);
+		}, 0);
 	});
 }
 
@@ -323,10 +331,7 @@ function extract(data) {
 }
 
 function downloadZip(data) {
-	var inst = $.jstree.reference(data.reference),
-		node = inst.get_node(data.reference);
-
-	var file = node.id;
+	var inst = $.jstree.reference(data.reference);
 
 	//send compress request
 	var abortFunction = function(){
@@ -334,7 +339,7 @@ function downloadZip(data) {
 			source.close();
 		}
 	};
-	loading.start('Compressing ' + file, abortFunction);
+	loading.start('Compressing zip', abortFunction);
 
 	var url = ajaxOptions.url;
 	if( url.indexOf('?')==-1 ){
@@ -342,38 +347,57 @@ function downloadZip(data) {
 	}else{
 		url+='&';
 	}
-	url += 'cmd=compress&site='+ajaxOptions.site+'&file='+file;
+	url += 'cmd=compress&site='+ajaxOptions.site;
 
-	var source = new EventSource(url, {withCredentials: true});
+	var nodes = getSelected();
+	var paths = [];
+	for( i=0; i<nodes.length; i++ ){
+		paths.push(nodes[i].id);
+	}
 
-	source.addEventListener('message', function(event) {
-		var data = JSON.parse(event.data);
+	var params = util.clone(ajaxOptions.params);
+	params.paths = paths;
 
-		if( data.msg === 'done' ){
-			done = true;
-			loading.stop(false);
+	$.ajax(url, {
+	    method: 'POST',
+	    dataType: 'json',
+	    data: params,
+		xhrFields: {
+			withCredentials: true
+		},
+	    success: function(data) {
+			var source = new EventSource(url, {withCredentials: true});
 
-			source.close();
+			source.addEventListener('message', function(event) {
+				var data = JSON.parse(event.data);
 
-			var evt = new Event('click');
-    		var a = document.createElement('a');
-    		a.download = 1;
-			a.href = url+'&d=1';
-    		a.dispatchEvent(evt);
-		}else{
-			loading.stop(false);
-			loading.start(data.msg, abortFunction);
-		}
-	}, false);
+				if( data.msg === 'done' ){
+					done = true;
+					loading.stop(false);
 
-	source.addEventListener('error', function(event) {
-		//console.log(event);
-		if (event.eventPhase == 2) { //EventSource.CLOSED
-			if( source ){
-				source.close();
-			}
-		}
-	}, false);
+					source.close();
+
+					var evt = new Event('click');
+		    		var a = document.createElement('a');
+		    		a.download = 1;
+					a.href = url+'&d=1';
+		    		a.dispatchEvent(evt);
+				}else{
+					loading.stop(false);
+					loading.start(data.msg, abortFunction);
+				}
+			}, false);
+
+			source.addEventListener('error', function(event) {
+				//console.log(event);
+				if (event.eventPhase == 2) { //EventSource.CLOSED
+					if( source ){
+						source.close();
+					}
+				}
+			}, false);
+	    }
+	});
 }
 
 function downloadFile(data) {
@@ -1795,7 +1819,7 @@ function init() {
 	});
 
     //only select filename part on rename
-    $(document).on("focus", '.jstree-rename-input', function(){ setTimeout($.proxy( util.selectFilename, this), 10) });
+    $(document).on("focus", '.jstree-rename-input', function(){ setTimeout($.proxy( util.selectFilename, this), 10); });
 
     $('.drag')
         .on('mousedown', function (e) {

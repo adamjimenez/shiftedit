@@ -218,13 +218,11 @@ function init() {
             //import site dialog
             $( "body" ).append('<div id="dialog-share-site" title="Share site">\
               <form id="shareSiteForm">\
-                <fieldset class="hbox">\
-                	<div class="hbox">\
-	                    <label for="share_email">Email</label>\
-	                    <input id="share_email" type="text" name="email" class="flex text ui-widget-content ui-corner-all" required autofocus>\
-	                    <button type="submit">Add</button>\
-                    </div>\
-                </fieldset>\
+            	<div class="hbox">\
+                    <label for="share_email">Email</label>\
+                    <input id="share_email" type="text" name="email" class="flex text ui-widget-content ui-corner-all" required autofocus>\
+                    <button type="submit">Add</button>\
+                </div>\
                 <div id="users">\
                 </div>\
               </form>\
@@ -1122,11 +1120,6 @@ function edit(newSite, duplicate) {
         <input type="hidden" name="server_type" value="">\
         <input type="hidden" name="id" value="">\
         <input type="hidden" name="share" value="">\
-        <!-- fake fields are a workaround for chrome autofill -->\
-        <div style="height:0; overflow: hidden;">\
-        <input type="text" name="fakeusernameremembered"/>\
-        <input type="password" name="fakepasswordremembered"/>\
-        </div>\
         <div id="siteTabs">\
         	<ul>\
         	    <li><a href="#tabs-site">Site</a></li>\
@@ -1231,7 +1224,7 @@ function edit(newSite, duplicate) {
                     </p>\
                     <p id="pass_container">\
                         <label for="name">Password:</label>\
-                        <input type="password" id="ftp_pass" name="ftp_pass" value="" class="text ui-widget-content ui-corner-all" required>\
+                        <input type="password" id="ftp_pass" name="ftp_pass" value="" class="text ui-widget-content ui-corner-all" required disabled>\
                         <button type="button" id="showPassword">Show</button>\
                     </p>\
                     <p id="ssh_key_container">\
@@ -1306,6 +1299,11 @@ function edit(newSite, duplicate) {
         <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
       </form>\
     </div>');
+
+    //defeat chrome autofill
+	setTimeout(function(){
+		$('#ftp_pass').removeAttr("disabled");
+	}, 100);
 
     //encoding dropdown
     var charsets = preferences.charsets;

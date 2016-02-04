@@ -496,6 +496,11 @@ function applyPrefs(tab) {
 		switch (prefs.keyBinding) {
 		case 'vim':
 			keybinding = require("ace/keyboard/vim").handler;
+			var vimApi = require("ace/keyboard/vim").CodeMirror.Vim
+			vimApi.defineEx("write", "w", jQuery.proxy(function(cm, input) {
+			    var editor = cm.ace;
+			    return editor.commands.exec('save', editor);
+			}, tab));
 			break;
 		case 'emacs':
 			keybinding = require("ace/keyboard/emacs").handler;

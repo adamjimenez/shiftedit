@@ -809,6 +809,8 @@ function save(name, value) {
     .then(function (data) {
         if(!data.success){
             prompt.alert({title:'Error', msg:data.error});
+        } else {
+        	storage.set('prefs', prefs);
         }
     }).fail(function() {
 		prompt.alert({title:lang.failedText, msg:'Error saving preferences'});
