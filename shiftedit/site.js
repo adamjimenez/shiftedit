@@ -1214,8 +1214,8 @@ function edit(newSite, duplicate) {
                     <p id="authentication_container">\
                         <label for="name">Authentication:</label>\
                         <span id="authenticationRadio">\
-                            <input type="radio" name="logon_type" value="" id="authRadio1" checked><label for="authRadio1">Password</label>\
-                            <input type="radio" name="logon_type" value="key" id="authRadio2"><label for="authRadio2">Public Key</label>\
+                            <input type="radio" name="logon_type" value="" id="logon_password" checked><label for="logon_password">Password</label>\
+                            <input type="radio" name="logon_type" value="key" id="logon_key"><label for="logon_key">Public Key</label>\
                         </span>\
                     </p>\
                     <p id="ftp_user">\
@@ -1229,7 +1229,7 @@ function edit(newSite, duplicate) {
                     </p>\
                     <p id="ssh_key_container">\
                         <label for="name">Your SSH key:</label>\
-                        <textarea id="sshKey" readonly>'+storage.get('public_key')+'</textarea>\
+                        <textarea id="sshKey" rows="4" readonly>'+storage.get('public_key')+'</textarea>\
                         <label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
                     </p>\
                     <p id="dir_container">\
@@ -1340,8 +1340,16 @@ function edit(newSite, duplicate) {
 		}
     }
 
+	$('#logon_password').click(function() {
+		$('#ssh_key_container').hide();
+	});
+
+	$('#logon_key').click(function() {
+		$('#ssh_key_container').show();
+	});
+
     //select ssh key
-    $('#sshKey').button().click(function(){
+    $('#sshKey').click(function(){
         $(this).select();
     });
 
