@@ -130,7 +130,7 @@ function buildQueue(nodes, d) {
     	} else {
     		url+='&';
     	}
-    	url += 'cmd=list&site='+clipboard.site+'&path='+path;
+    	url += 'cmd=list&site='+clipboard.site+'&path='+encodeURIComponent(path);
 
     	var params = util.clone(ajaxOptions.params);
     	params.path = path;
@@ -296,7 +296,7 @@ function extract(data) {
 	}else{
 		url+='&';
 	}
-	url += 'cmd=extract&site='+ajaxOptions.site+'&file='+file;
+	url += 'cmd=extract&site='+ajaxOptions.site+'&file='+encodeURIComponent(file);
 
 	loading.start('Extracting ' + file, abortFunction);
 	var source = new EventSource(url, {withCredentials: true});
@@ -406,7 +406,7 @@ function downloadFile(data) {
 
 	var file = node.id;
 
-    loading.fetch(ajaxOptions.url+'&cmd=download&file='+file, {
+    loading.fetch(ajaxOptions.url+'&cmd=download&file='+encodeURIComponent(file), {
         action: 'downloading file',
         success: function(data) {
             var blob = util.b64toBlob(data.content);
@@ -447,7 +447,7 @@ function processUploads() {
 
         //check exists
         loading.stop();
-        loading.fetch(ajaxOptions.url+'&cmd=file_exists&file='+folder, {
+        loading.fetch(ajaxOptions.url+'&cmd=file_exists&file='+encodeURIComponent(folder), {
             action: 'Checking '+folder,
             data: params,
             success: function(data) {
@@ -456,7 +456,7 @@ function processUploads() {
         			params.dir = folder;
 
                     loading.stop();
-                    loading.fetch(ajaxOptions.url+'&cmd=newdir&path='+folder, {
+                    loading.fetch(ajaxOptions.url+'&cmd=newdir&path='+encodeURIComponent(folder), {
                     	data: params,
                         action: 'Uploading '+folder,
                         success: function(data) {
@@ -793,7 +793,7 @@ function chmod(data) {
                 var node = getSelected()[0];
                 var mode = $('#chmod-value').val();
 
-                loading.fetch(ajaxOptions.url+'&cmd=chmod&file='+node.id+'&mode='+mode, {
+                loading.fetch(ajaxOptions.url+'&cmd=chmod&file='+encodeURIComponent(node.id)+'&mode='+mode, {
                     action: 'chmod file',
                     success: function(data) {
                         node.data.perms = mode;
@@ -1012,7 +1012,7 @@ function init() {
 									        if (treeFn) {
 									            treeFn({cmd: 'delete', file: node.id, callback: callback});
 									        }else{
-								        		var source = new EventSource(ajaxOptions.url+'&cmd=delete&file='+node.id, {withCredentials: true});
+								        		var source = new EventSource(ajaxOptions.url+'&cmd=delete&file='+encodeURIComponent(node.id), {withCredentials: true});
 												var abortFunction = function(){
 													if( source ){
 														source.close();
@@ -1050,7 +1050,7 @@ function init() {
 												}, false);
 
 									        	/*
-									    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+node.id, {
+									    		$.ajax(ajaxOptions.url+'&cmd=delete&file='+encodeURIComponent(node.id), {
 									    		    method: 'POST',
 									    		    dataType: 'json',
 									    		    data: ajaxOptions.params,
@@ -1434,7 +1434,7 @@ function init() {
         		id = data.node.parent;
         	}
 
-        	$.ajax(ajaxOptions.url+'&cmd='+cmd+'&type='+data.node.type+'&path='+path, {
+        	$.ajax(ajaxOptions.url+'&cmd='+cmd+'&type='+data.node.type+'&path='+encodeURIComponent(path), {
     		    method: 'POST',
     		    dataType: 'json',
     		    data: params,
@@ -1744,7 +1744,7 @@ function init() {
     	var path = data.node.id;
 
     	if (!treeFn) {
-	    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=1&path='+path, {
+	    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=1&path='+encodeURIComponent(path), {
 			    method: 'POST',
 			    dataType: 'json',
 				xhrFields: {
@@ -1756,7 +1756,7 @@ function init() {
     	var path = data.node.id;
 
 		if (!treeFn) {
-	    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=0&path='+path, {
+	    	$.ajax(ajaxOptions.url+'&cmd=save_path&expand=0&path='+encodeURIComponent(path), {
 			    method: 'POST',
 			    dataType: 'json',
 				xhrFields: {
