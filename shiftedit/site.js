@@ -77,7 +77,9 @@ function init() {
 
     $( "#refresh_site" ).button()
     .click(function() {
-        tree.refresh();
+        if (currentSite) {
+        	open(currentSite);
+        }
     });
 
     //button menu

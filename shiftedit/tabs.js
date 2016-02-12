@@ -195,7 +195,7 @@ function openFiles(options) {
 		var params = util.clone(ajaxOptions.params);
 		params.file = fileId;
 
-    	ajax = $.ajax(ajaxOptions.url+'&cmd=open&file=' + fileId, {
+    	ajax = $.ajax(ajaxOptions.url+'&cmd=open&file=' + encodeURIComponent(fileId), {
     	    method: 'POST',
     	    dataType: 'json',
     	    data: params,
@@ -384,7 +384,7 @@ function saveFiles(options) {
 				settings = site.getSettings(siteId);
 				if( settings.turbo == 1 || settings.server_type=='AJAX' ){
 					$.ajax({
-    			        url: '/api/revisions?cmd=save&site='+siteId+'&file='+params.file,
+    			        url: '/api/revisions?cmd=save&site='+siteId+'&file='+encodeURIComponent(params.file),
     	                method: 'POST',
     	                data: params,
     	                dataType: 'json'
@@ -447,7 +447,7 @@ function saveFiles(options) {
 		params.confirmed = confirmed;
 		params.minify = minify;
 
-    	ajax = $.ajax(ajaxOptions.url+"&cmd=save&file="+file+"&mdate="+mdate+"&confirmed="+confirmed+"&minify="+minify, {
+    	ajax = $.ajax(ajaxOptions.url+"&cmd=save&file="+encodeURIComponent(file)+"&mdate="+mdate+"&confirmed="+confirmed+"&minify="+minify, {
     	    method: 'POST',
     	    dataType: 'json',
     	    data: params,
@@ -535,7 +535,7 @@ function saveAs(tab, options) {
             	    });
             	} else {
     			    $.ajax({
-    			        url: '/api/files?cmd=file_exists&site='+siteId+'&file='+file,
+    			        url: '/api/files?cmd=file_exists&site='+siteId+'&file='+encodeURIComponent(file),
     	                method: 'GET',
     	                dataType: 'json'
     			    })

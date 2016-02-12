@@ -32,10 +32,6 @@ var changeMode = function(tab) {
 
 	if( defaultMode === mode ){
 		delete prefs.fileAssociations[ext];
-
-		if(!prefs.fileAssociations[ext]) {
-			return;
-		}
 	}else{
 		if(prefs.fileAssociations[ext]===mode) {
 			return;
