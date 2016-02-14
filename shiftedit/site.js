@@ -1,4 +1,4 @@
-define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'aes', 'app/gdrive'], function (exports) {
+define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'aes', 'app/gdrive', 'app/editors'], function (exports) {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
@@ -8,6 +8,7 @@ var ssl = require('app/ssl');
 var loading = require('app/loading');
 var preferences = require('app/prefs');
 var gdrive = require('app/gdrive');
+var editors = require('app/editors');
 var Aes = require('aes');
 var directFn;
 var sites = [];
@@ -34,8 +35,10 @@ function enableMenuItems(site) {
     if(site.db_phpmyadmin)
         items.push('phpmyadmin');
 
-    if(site.server_type==='Hosted')
+    if(site.server_type==='Hosted') {
         items.push('reboot');
+        items.push('logs');
+    }
 
     if(site.logon_type == 'key')
         items.push('sshSite');
@@ -46,7 +49,7 @@ function enableMenuItems(site) {
 }
 
 function disableMenuItems() {
-    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions', 'phpmyadmin', 'ssh', 'reboot'];
+    var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions', 'phpmyadmin', 'ssh', 'reboot', 'logs'];
 
     items.forEach(function(item){
         $('#'+item).removeClass('ui-state-disabled');
@@ -307,6 +310,18 @@ function init() {
             loading.fetch('/api/sites?cmd=reboot&site='+currentSite, {
                 action: 'Rebooting site '+site.name,
                 success: function(data) {
+                }
+            });
+        },
+        disabled: true
+    }, {
+        id: 'logs',
+        text: 'Server logs',
+        handler: function() {
+            loading.fetch('/api/sites?cmd=logs&site='+currentSite, {
+                action: 'Fetching logs '+site.name,
+                success: function(data) {
+					editors.create("server.log", data.content);
                 }
             });
         },

@@ -1,6 +1,8 @@
 define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/resize", "app/site", "app/designs", "app/revisions", "app/modes"], function (util, menus, tabs, editors, preferences, resize, site, designs, revisions ) {
 var modes = require('app/modes').modes;
 
+var saveMode = true;
+
 var changeMode = function(tab) {
     var editor = tabs.getEditor(tab);
     var label = $(this).text().trim();
@@ -15,6 +17,10 @@ var changeMode = function(tab) {
     var ext  = util.fileExtension(tab.data('file'));
 
 	//save pref
+	if (!saveMode) {
+		return;
+	}
+	
 	var defaultMode = 'text';
 
 	//check default file associations
@@ -195,7 +201,10 @@ function create(tab) {
     //select mode
     var editor = tabs.getEditor(tab);
     var mode = editor.getSession().$modeId.substr(9);
+    
+    saveMode = false;
     $(panel).find('[data-name='+mode+']').children('a').trigger('click');
+    saveMode = true;
 }
 
 return {
