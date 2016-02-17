@@ -42,17 +42,17 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
         splash.update('loading sites..');
         site.load()
         .done(function() {
-            if(prefs.restoreTabs) {
-                require('app/restore').restoreBatch(preferences.getOpeningFilesBatch(), function() {
-                	$( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).each(function( index ) {
-                		if (!$( this ).children('.ui-tabs-nav').children(':not(.button)').length) {
-                			$( this ).tabs('add');
-                		}
-                	} );
-                });
-            }
-
-            var hash = require("app/hash").load();
+       		var hash = require("app/hash").load(function(files) {
+	            if(prefs.restoreTabs && !files.length) {
+	                require('app/restore').restoreBatch(preferences.getOpeningFilesBatch(), function() {
+	                	$( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).each(function( index ) {
+	                		if (!$( this ).children('.ui-tabs-nav').children(':not(.button)').length) {
+	                			$( this ).tabs('add');
+	                		}
+	                	} );
+	                });
+	            }
+    		});
         });
 
         var recent = require("app/recent");
