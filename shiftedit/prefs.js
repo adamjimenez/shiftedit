@@ -103,11 +103,11 @@ var skins = [{
 	title: "Dark Orange",
 	name: "dark-orange",
 	icon: "theme_90_smoothness.png"
-}/*, { //tree issues
-	title: "Grey",
+}, { //tree issues
+	title: "Smoothness",
 	name: "smoothness",
 	icon: "theme_90_smoothness.png"
-}*//*, {
+},/* {
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
@@ -119,7 +119,7 @@ var skins = [{
 	title: "Cupertino",
 	name: "cupertino",
 	icon: "theme_90_cupertino.png"
-}*/, {
+},*/ {
 	title: "Dark Hive",
 	name: "dark-hive",
 	icon: "theme_90_dark_hive.png"
@@ -131,7 +131,7 @@ var skins = [{
 	title: "Eggplant",
 	name: "eggplant",
 	icon: "theme_90_eggplant.png"
-}/*, {
+},/* {
 	title: "Excite Bike",
 	name: "excite-bike",
 	icon: "theme_90_excite_bike.png"
@@ -139,14 +139,14 @@ var skins = [{
 	title: "Flick",
 	name: "flick",
 	icon: "theme_90_flick.png"
-}*/, {
+}*/ {
 	title: "Gray",
 	name: "gray"
-}/*, {
+},/* {
 	title: "Hot Sneaks",
 	name: "hot-sneaks",
 	icon: "theme_90_hot_sneaks.png"
-}*/, {
+}*/ {
 	title: "Humanity",
 	name: "humanity",
 	icon: "theme_90_humanity.png"
@@ -158,11 +158,11 @@ var skins = [{
 	title: "Mint Choc",
 	name: "mint-choc",
 	icon: "theme_90_mint_choco.png"
-}/*, {
+},/* {
 	title: "Overcast",
 	name: "overcast",
 	icon: "theme_90_overcast.png"
-}*/, {
+}*/ {
 	title: "Pepper Grinder",
 	name: "pepper-grinder",
 	icon: "theme_90_pepper_grinder.png"
@@ -174,11 +174,11 @@ var skins = [{
 	title: "South Street",
 	name: "south-street",
 	icon: "theme_90_south_street.png"
-}/*, {
+},/* {
 	title: "Start",
 	name: "start",
 	icon: "theme_90_start_menu.png"
-}*/, {
+}*/ {
 	title: "Sunny",
 	name: "sunny",
 	icon: "theme_90_sunny.png"
@@ -696,6 +696,7 @@ function updateSkin(name){
     var url;
     var currentStyle = [];
 	var themepath = '//shiftedit.s3.amazonaws.com/css';
+	//themepath = 'css';
 
 	//check skin is valid
 	var found = false;
@@ -1289,7 +1290,7 @@ exports.open = open;
 exports.jslint_options = jslint_options;
 exports.csslint_options = csslint_options;
 exports.createHash = createHash;
-exports.charsets = charsets
+exports.charsets = charsets;
 
 });
 
