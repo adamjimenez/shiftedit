@@ -686,6 +686,13 @@ function load() {
 			if(prefs.skin) {
 			    updateSkin(prefs.skin);
 			}
+			
+			//prompt
+			if(data.expired) {
+				prompt.alert({title:'Your Subscription has Expired',  msg:'Your account has reverted to Standard edition. Unlock all sites and features by upgrading to <a href="premier" target="_blank">Premier</a>.'});
+			} else if(data.edition == 'Standard') {
+				prompt.alert({title:'Free Trial Expired',  msg:'Support ShiftEdit by <a href="/premier" target="_blank">picking a plan</a>.'});
+			}
 
             return prefs;
         });
