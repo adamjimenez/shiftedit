@@ -264,7 +264,10 @@ function init() {
             var dialog = $( "#dialog-share-site" ).dialog({
                 modal: true,
                 width: 400,
-                height: 300
+                height: 300,
+	            close: function( event, ui ) {
+	                $( this ).remove();
+	            }
             });
         },
         disabled: true
