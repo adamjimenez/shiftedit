@@ -1123,11 +1123,13 @@ function save() {
 }
 
 function edit(newSite, duplicate) {
+	/*
 	if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Standard' && sites.length >= (1+1)) {
 		return prompt.alert({title: 'Quota exceeded', msg:'Free edition is limited to 1 site. <a href="/premier" target="_blank">Go Premier</a>'});
 	} else if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Education' && sites.length >= (5+1)) {
 		return prompt.alert({title: 'Quota exceeded', msg:'Education edition is limited to 5 sites. <a href="/premier" target="_blank">Go Premier</a>'});
 	}
+	*/
 
     var prefs = preferences.get_prefs();
 
@@ -1342,7 +1344,7 @@ function edit(newSite, duplicate) {
         settings.id = '';
     }
 
-    for(var i in settings) {
+    for(i in settings) {
 		if (settings.hasOwnProperty(i)) {
 		    var field = $('[name='+i+']');
 		    switch(field.attr('type')){
@@ -1541,8 +1543,6 @@ exports.active = active;
 exports.getSettings = getSettings;
 exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
-exports.definitions = definitions
+exports.definitions = definitions;
 
 });
-
-
