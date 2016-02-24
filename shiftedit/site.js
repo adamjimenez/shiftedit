@@ -450,8 +450,9 @@ function open(siteId, options) {
 	        masterPassword: options.masterPassword,
 	        save_password: 1
 	    }
-    })
-    .then(function (data) {
+    });
+    
+    ajax.then(function (data) {
         loading.stop();
         //console.log(data);
 
@@ -967,8 +968,9 @@ function test() {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params
-    })
-    .then(function (data) {
+    });
+    
+    ajax.then(function (data) {
         loading.stop();
 
         if(data.success) {
@@ -1088,8 +1090,9 @@ function save() {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params
-    })
-    .then(function (data) {
+    });
+    
+    ajax.then(function (data) {
         loading.stop();
 
         if(data.success){

@@ -92,8 +92,9 @@ function fetch(url, options) {
 	    method: method,
 	    dataType: 'json',
 	    data: options.data
-    })
-    .then(function (data) {
+    });
+    
+    ajax.then(function (data) {
         stop();
 
         if(data.success){
