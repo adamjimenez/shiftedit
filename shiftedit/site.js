@@ -264,7 +264,10 @@ function init() {
             var dialog = $( "#dialog-share-site" ).dialog({
                 modal: true,
                 width: 400,
-                height: 300
+                height: 300,
+	            close: function( event, ui ) {
+	                $( this ).remove();
+	            }
             });
         },
         disabled: true
@@ -447,8 +450,9 @@ function open(siteId, options) {
 	        masterPassword: options.masterPassword,
 	        save_password: 1
 	    }
-    })
-    .then(function (data) {
+    });
+    
+    ajax.then(function (data) {
         loading.stop();
         //console.log(data);
 
@@ -964,8 +968,9 @@ function test() {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params
-    })
-    .then(function (data) {
+    });
+    
+    ajax.then(function (data) {
         loading.stop();
 
         if(data.success) {
@@ -1085,8 +1090,9 @@ function save() {
 	    method: 'POST',
 	    dataType: 'json',
 	    data: params
-    })
-    .then(function (data) {
+    });
+    
+    ajax.then(function (data) {
         loading.stop();
 
         if(data.success){
@@ -1123,11 +1129,13 @@ function save() {
 }
 
 function edit(newSite, duplicate) {
+	/*
 	if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Standard' && sites.length >= (1+1)) {
 		return prompt.alert({title: 'Quota exceeded', msg:'Free edition is limited to 1 site. <a href="/premier" target="_blank">Go Premier</a>'});
 	} else if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Education' && sites.length >= (5+1)) {
 		return prompt.alert({title: 'Quota exceeded', msg:'Education edition is limited to 5 sites. <a href="/premier" target="_blank">Go Premier</a>'});
 	}
+	*/
 
     var prefs = preferences.get_prefs();
 
@@ -1342,7 +1350,7 @@ function edit(newSite, duplicate) {
         settings.id = '';
     }
 
-    for(var i in settings) {
+    for(i in settings) {
 		if (settings.hasOwnProperty(i)) {
 		    var field = $('[name='+i+']');
 		    switch(field.attr('type')){
@@ -1541,8 +1549,6 @@ exports.active = active;
 exports.getSettings = getSettings;
 exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
-exports.definitions = definitions
+exports.definitions = definitions;
 
 });
-
-

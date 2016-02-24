@@ -18,6 +18,7 @@ var inst;
 var treeFn;
 var singleClickOpen = false;
 var renameTimer;
+var image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'pxd'];
 
 function findChild(parent, name) {
 	for( i=0; i<parent.children.length; i++ ){
@@ -670,7 +671,15 @@ function open(data) {
 
 	if(selected && selected.length) {
 	    selected.forEach(function(file) {
-	    	tabs.open(file, site.active());
+	    	var file_extension = util.fileExtension(util.basename(file));
+	    	if (image_extensions.indexOf(file_extension) != -1) {
+	    		var settings = site.getSettings();
+	    		var url = settings.web_url+file;
+	    		
+	    		window.open('http://apps.pixlr.com/editor/?referrer=ShiftEdit&image=' + encodeURIComponent(url + '?shiftedit=' + new Date().getTime()) + '&title=' + file + '&target=' + encodeURIComponent('https://shiftedit.net/api/files?cmd=save_image&site=' + site.active() + '&path=' + file) + '&redirect=false');
+	    	} else {
+	    	   	tabs.open(file, site.active());
+	    	}
 	    });
 	}
 }

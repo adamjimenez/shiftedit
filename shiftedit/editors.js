@@ -1034,6 +1034,31 @@ function create(file, content, siteId, options) {
 			}
 		}
 	});
+	
+	editor.commands.addCommand({
+		name: "br",
+		bindKey: {
+			win: "Shift-Return",
+			mac: "Shift-Return",
+			sender: "editor"
+		},
+		exec: function (editor, args, request) {
+			var sel = editor.getSelectionRange();
+			var line = editor.getSession().getLine(sel.start.row);
+			var whitespace = '';
+	
+			for (i = 0; i < line.length; i++) {
+				if (line[i].match(/\s/)) {
+					whitespace += line[i];
+				} else {
+					break;
+				}
+			}
+	
+			editor.insert('<br>\n'+whitespace);
+		},
+		multiSelectAction: "forEach"
+	});
 
 	//console.log(options);
 	if (options && options.state) {

@@ -1,4 +1,4 @@
-define(['exports', 'app/editors', 'app/tabs', 'jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree'], function (exports, editors, tabs) {
+define(['exports', 'app/editors', 'app/tabs', 'jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree', 'lzma/lzma_worker'], function (exports, editors, tabs) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
@@ -98,16 +98,17 @@ defaultPrefs.beautifier_space_before_conditional = false;
 defaultPrefs.fileColumns = true;
 defaultPrefs.notes = '';
 defaultPrefs.find = '{}';
+defaultPrefs.skinUrl = '';
 
 var skins = [{
 	title: "Dark Orange",
 	name: "dark-orange",
 	icon: "theme_90_smoothness.png"
-}/*, { //tree issues
-	title: "Grey",
+}, { //tree issues
+	title: "Smoothness",
 	name: "smoothness",
 	icon: "theme_90_smoothness.png"
-}*//*, {
+},/* {
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
@@ -119,7 +120,7 @@ var skins = [{
 	title: "Cupertino",
 	name: "cupertino",
 	icon: "theme_90_cupertino.png"
-}*/, {
+},*/ {
 	title: "Dark Hive",
 	name: "dark-hive",
 	icon: "theme_90_dark_hive.png"
@@ -131,7 +132,7 @@ var skins = [{
 	title: "Eggplant",
 	name: "eggplant",
 	icon: "theme_90_eggplant.png"
-}/*, {
+},/* {
 	title: "Excite Bike",
 	name: "excite-bike",
 	icon: "theme_90_excite_bike.png"
@@ -139,14 +140,14 @@ var skins = [{
 	title: "Flick",
 	name: "flick",
 	icon: "theme_90_flick.png"
-}*/, {
+}*/ {
 	title: "Gray",
 	name: "gray"
-}/*, {
+},/* {
 	title: "Hot Sneaks",
 	name: "hot-sneaks",
 	icon: "theme_90_hot_sneaks.png"
-}*/, {
+}*/ {
 	title: "Humanity",
 	name: "humanity",
 	icon: "theme_90_humanity.png"
@@ -158,11 +159,11 @@ var skins = [{
 	title: "Mint Choc",
 	name: "mint-choc",
 	icon: "theme_90_mint_choco.png"
-}/*, {
+},/* {
 	title: "Overcast",
 	name: "overcast",
 	icon: "theme_90_overcast.png"
-}*/, {
+}*/ {
 	title: "Pepper Grinder",
 	name: "pepper-grinder",
 	icon: "theme_90_pepper_grinder.png"
@@ -174,11 +175,11 @@ var skins = [{
 	title: "South Street",
 	name: "south-street",
 	icon: "theme_90_south_street.png"
-}/*, {
+},/* {
 	title: "Start",
 	name: "start",
 	icon: "theme_90_start_menu.png"
-}*/, {
+}*/ {
 	title: "Sunny",
 	name: "sunny",
 	icon: "theme_90_sunny.png"
@@ -211,6 +212,12 @@ skins.forEach(function(item){
 	    '+item.title+'\
 	</label>';
 });
+
+skinHTML += '<label>\
+    <input type="radio" name="skin" value="custom">\
+    <input type="text" name="skinUrl" id="skinUrl" class="text ui-widget-content ui-corner-all" placeholder="Themeroller url e.g http://jqueryui.com/themeroller/..">\
+    <a href="http://jqueryui.com/themeroller/" target="_blank">Theme roller</a>\
+</label>';
 
 var codeThemes = ['custom', 'ambiance', 'chaos', 'chrome', 'clouds', 'clouds_midnight', 'cobalt', 'crimson_editor', 'dawn', 'dreamweaver', 'eclipse', 'idle_fingers', 'katzenmilch', 'kr_theme', 'kuroir', 'merbivore', 'merbivore_soft', 'mono_industrial', 'monokai', 'pastel_on_dark', 'solarized_dark', 'solarized_light', 'terminal', 'textmate', 'tomorrow', 'tomorrow_night', 'tomorrow_night_blue', 'tomorrow_night_bright', 'tomorrow_night_eighties', 'twilight', 'vibrant_ink', 'xcode'];
 
@@ -686,85 +693,141 @@ function load() {
 			if(prefs.skin) {
 			    updateSkin(prefs.skin);
 			}
+			
+			//prompt
+			if(data.expired) {
+				prompt.alert({title:'Your Subscription has Expired',  msg:'Your account has reverted to Standard edition. Unlock all sites and features by upgrading to <a href="premier" target="_blank">Premier</a>.'});
+			} else if(data.edition == 'Standard') {
+				prompt.alert({title:'Free Trial Expired',  msg:'Support ShiftEdit by <a href="/premier" target="_blank">picking a plan</a>.'});
+			}
 
             return prefs;
         });
 }
 
+function unzip( zipped, callback ) {
+	var data,
+		intoDec = function( hex ) {
+			var dec = parseInt( hex, 16 );
+			if ( dec >= 128 ) {
+					dec = dec - 256;
+			}
+			return dec;
+		};
+
+	// Split string into an array of hexes
+	data = [];
+	while( zipped.length ) {
+		data.push( zipped.slice( -2 ) );
+		zipped = zipped.slice( 0, -2 );
+	}
+	data = data.reverse();
+
+	LZMA.decompress( $.map( data, intoDec ), function( unzipped ) {
+		callback( JSON.parse( unzipped ) );
+	});
+}
+
+function parsethemeUrl(url) {
+	if (!url) {
+		return;
+	}
+	
+	var str = 'zThemeParams=';
+	var pos = url.indexOf(str);
+	var zThemeParams = url.substr(pos+str.length);
+	
+	unzip( zThemeParams, function( unzipped ) {
+		var url = "/api/prefs?cmd=skin&" + $.param(unzipped);
+		$( "body" ).append( "<link href=\"" + url + "\" type=\"text/css\" rel=\"Stylesheet\" />");
+	});
+	
+	return;
+}
 
 function updateSkin(name){
-    var url;
-    var currentStyle = [];
-	var themepath = '//shiftedit.s3.amazonaws.com/css';
-
-	//check skin is valid
-	var found = false;
-	skins.forEach(function(item) {
-		if (item.name===name) {
-			found = true;
-			return;
+	//remove old ones
+	$( "link[href*=cmd\\=skin]" ).remove();
+	$( "#theme" ).remove();
+    $('#themeStyle').remove();
+	
+	if (prefs.skin === 'custom') {
+		parsethemeUrl(prefs.skinUrl);
+	} else {
+	    var url;
+	    var currentStyle = [];
+		var themepath = '//shiftedit.s3.amazonaws.com/css';
+		//themepath = 'css';
+	
+		//check skin is valid
+		var found = false;
+		skins.forEach(function(item) {
+			if (item.name===name) {
+				found = true;
+				return;
+			}
+		});
+	
+		if(!found) {
+			name = prefs.skin;
 		}
-	});
-
-	if(!found) {
-		name = prefs.skin;
+	
+	    if (!url) {
+	        var urlPrefix = themepath + "/themes/";
+	        url = urlPrefix + name + "/jquery-ui.css";
+	        currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
+	    }
+	
+	    var style = $("<link/>")
+	    .attr("type","text/css")
+	    .attr("rel","stylesheet")
+	    .attr("id","theme")
+	    .attr("href", url);
+	
+	    style.appendTo("head");
+	
+	    style.load(function(){
+		    //set resizer color
+		    var borderColor = $('.ui-widget-header').css('border-color');
+			$('.ui-layout-resizer').css('background', borderColor);
+	
+		    //var activeColor = $('.ui-widget-header').css('border-color');
+		    //var hoverColor = $('.ui-widget-header').css('border-color');
+	
+		    var div = $('<div class="ui-state-highlight"></div>').appendTo('body');
+		    var activeBackground = div.css('background-color');
+		    var activeColor = div.css('color');
+		    var activeBorderColor = div.css('border-color');
+	
+		    div.remove();
+	
+		    div = $('<div class="ui-state-focus"></div>').appendTo('body');
+		    var hoverBackground = div.css('background-color');
+		    var hoverColor = div.css('color');
+		    var hoverBorderColor = div.css('border-color');
+		    div.remove();
+	
+	        $('<style id="themeStyle">\
+			.jstree-default .jstree-clicked{\
+				background: '+activeBackground+' !important;\
+				color: '+activeColor+' !important;\
+				border: 0 solid '+activeBorderColor+';\
+			}\
+			\
+			.jstree-default .jstree-hovered{\
+				background: '+hoverBackground+';\
+				color: '+hoverColor+';\
+				border: 0 solid '+hoverBorderColor+';\
+			}\
+	        </style>').appendTo('head');
+	
+	    });
+	
+	    /*
+	    $.cookie(settings.cookiename, data.name,
+	        { expires: settings.cookieexpires, path: settings.cookiepath }
+	    );*/
 	}
-
-    if (!url) {
-        var urlPrefix = themepath + "/themes/";
-        url = urlPrefix + name + "/jquery-ui.css";
-        currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
-    }
-
-    var style = $("<link/>")
-    .attr("type","text/css")
-    .attr("rel","stylesheet")
-    .attr("href", url);
-
-    style.appendTo("head");
-
-    style.load(function(){
-	    //set resizer color
-	    var borderColor = $('.ui-widget-header').css('border-color');
-		$('.ui-layout-resizer').css('background', borderColor);
-
-	    //var activeColor = $('.ui-widget-header').css('border-color');
-	    //var hoverColor = $('.ui-widget-header').css('border-color');
-
-	    var div = $('<div class="ui-state-highlight"></div>').appendTo('body');
-	    var activeBackground = div.css('background-color');
-	    var activeColor = div.css('color');
-	    var activeBorderColor = div.css('border-color');
-
-	    div.remove();
-
-	    div = $('<div class="ui-state-focus"></div>').appendTo('body');
-	    var hoverBackground = div.css('background-color');
-	    var hoverColor = div.css('color');
-	    var hoverBorderColor = div.css('border-color');
-	    div.remove();
-
-        $('#themeStyle').remove();
-        $('<style id="themeStyle">\
-		.jstree-default .jstree-clicked{\
-			background: '+activeBackground+' !important;\
-			color: '+activeColor+' !important;\
-			border: 0 solid '+activeBorderColor+';\
-		}\
-		\
-		.jstree-default .jstree-hovered{\
-			background: '+hoverBackground+';\
-			color: '+hoverColor+';\
-			border: 0 solid '+hoverBorderColor+';\
-		}\
-        </style>').appendTo('head');
-
-    });
-
-    /*
-    $.cookie(settings.cookiename, data.name,
-        { expires: settings.cookieexpires, path: settings.cookiepath }
-    );*/
 }
 
 function save(name, value) {
@@ -779,7 +842,7 @@ function save(name, value) {
     }
 
     //skin
-    if(name==='skin') {
+    if(name==='skin' || name=='skinUrl') {
         updateSkin(value);
     }
 
@@ -1289,7 +1352,7 @@ exports.open = open;
 exports.jslint_options = jslint_options;
 exports.csslint_options = csslint_options;
 exports.createHash = createHash;
-exports.charsets = charsets
+exports.charsets = charsets;
 
 });
 
