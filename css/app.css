@@ -665,6 +665,10 @@ li[role=tab] .ui-icon {
     width: 70px;
 }
 
+#skinUrl {
+	width: calc(100% - 30px);
+}
+
 #tabs-definitions{
 	overflow: auto;
 }
