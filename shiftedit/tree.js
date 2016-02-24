@@ -245,7 +245,6 @@ function newFolder(data) {
 		setTimeout(function () {
 	        inst.deselect_all();
 	        inst.select_node(new_node);
-			inst.edit(new_node);
 		}, 0);
 	});
 }
@@ -271,7 +270,6 @@ function newFile(data) {
 		setTimeout(function () {
 	        inst.deselect_all();
 	        inst.select_node(new_node);
-			inst.edit(new_node);
 		}, 0);
 	});
 }
@@ -1421,6 +1419,7 @@ function init() {
             var parent = inst.get_node(data.node.parent);
             treeFn({cmd: cmd, title: data.node.text, parent: parent.id, callback: function(response) {
                 data.instance.set_id(data.node, response.file);
+				data.instance.edit(data.node);
             }});
         }else{
         	var params = util.clone(ajaxOptions.params);
@@ -1460,6 +1459,7 @@ function init() {
     			}
 
     			data.instance.set_id(data.node, id);
+				data.instance.edit(data.node);
     		})
     		.fail(function () {
     			data.instance.refresh();
