@@ -601,6 +601,9 @@ function uploadByURl() {
         modal: true,
         width: 550,
         height: 300,
+        close: function( event, ui ) {
+            $( this ).remove();
+        },
         buttons: {
             OK: function() {
 				var url = combo.combobox('val');
