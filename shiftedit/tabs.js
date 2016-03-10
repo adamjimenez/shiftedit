@@ -661,7 +661,7 @@ function checkEdited (e, ui) {
 			fn: function (btn) {
 				if (btn == "yes") {
 				    //save
-				    save(ui.tab, close);
+				    save($(ui.tab), { callback: close });
 				} else if (btn == 'no') {
 				    //remove
 				    setEdited(ui.tab, false);
