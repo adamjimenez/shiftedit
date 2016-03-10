@@ -615,9 +615,12 @@ li[role=tab] .ui-icon {
     width: 70px;
 }
 
-#uploadUrlForm .delete{
-    position: relative;
-    left: 40px;
+#uploadUrlForm .custom-combobox {
+    flex: 1;
+}
+
+#uploadUrlForm .custom-combobox-input{
+    width: calc(100% - 50px);
 }
 
 .prefs{
