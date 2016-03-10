@@ -679,7 +679,7 @@ function checkEdited (e, ui) {
             document.title = 'ShiftEdit';
         }
 
-		$(ui.tab).trigger('close'); //destroy editor and firepad
+		$(ui.tab).trigger('beforeClose'); //destroy editor and firepad
     }
 }
 

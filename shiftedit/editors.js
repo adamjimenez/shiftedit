@@ -710,7 +710,7 @@ function create(file, content, siteId, options) {
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
 
-    $(tab).on('close', destroy);
+    $(tab).on('beforeClose', destroy);
 
 	//autocomplete
 	editor.completer = new Autocomplete();
