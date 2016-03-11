@@ -44,6 +44,7 @@ defaultPrefs.lineBreak = 'auto'; //windows unix
 defaultPrefs.font = "Courier New";
 defaultPrefs.fontSize = 12;
 defaultPrefs.softTabs = true;
+defaultPrefs.autoTabs = true;
 defaultPrefs.indentOnPaste = false;
 defaultPrefs.wordWrap = false;
 defaultPrefs.fullLineSelection = false;
@@ -981,6 +982,10 @@ function open() {
 	<label>\
 	    <input type="radio" name="keyBinding" value="emacs">\
 	    Emacs\
+	</label><br>\
+	<label>\
+	    <input type="checkbox" name="autoTabs" value="1">\
+	    Detect tab type\
 	</label><br>\
 	<label>\
 	    <input type="checkbox" name="softTabs" value="1">\
