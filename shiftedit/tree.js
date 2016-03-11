@@ -131,7 +131,7 @@ function buildQueue(nodes, d) {
     	} else {
     		url+='&';
     	}
-    	url += 'cmd=list&site='+clipboard.site+'&path='+encodeURIComponent(path);
+    	url += 'cmd=list_all&site='+clipboard.site+'&path='+encodeURIComponent(path);
 
     	var params = util.clone(ajaxOptions.params);
     	params.path = path;
@@ -141,21 +141,21 @@ function buildQueue(nodes, d) {
 			data: params,
 			success: function (data) {
 				for( i=0; i<data.files.length; i++ ){
-					console.log(data.files[i]);
+					//console.log(data.files[i]);
 
-					var destPath = newPath + data.files[i].id.substr(path.length);
+					var destPath = newPath + data.files[i].path.substr(path.length);
 					if (dest) {
 						dest = dest +'/' + destPath;
 					}
 
 					queue.push({
-						path: data.files[i].id,
+						path: data.files[i].path,
 						dest: destPath,
 						isDir: data.files[i].isDir
 					});
 				}
 
-				console.log(queue);
+				//console.log(queue);
 
 				buildQueue(nodes, d);
 			}
@@ -178,7 +178,7 @@ function _processQueue(queue) {
     	var params = util.clone(ajaxOptions.params);
     	params.dest = item.dest;
     	params.path = item.path;
-    	params.isDir = item.isDir;
+    	params.isDir = item.isDir ? 1 : '';
     	params.site = clipboard.site;
     	params.cut = item.cut;
 
