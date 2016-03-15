@@ -7,7 +7,15 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 
     splash.update('loading strings..');
     locale.load()
-    .done(function(data) {
+    .then(function(data) {
+	    if(!data.success) {
+            console.log("logged out");
+            window.onbeforeunload = null;
+	    	prompt.alert({title: 'Error', msg:data.error});
+	        location.href = '/login';
+	        return;
+	    }
+	    
         splash.update('loading preferences..');
         return preferences.load();
     })
@@ -16,18 +24,14 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
         location.href='/login';
     })
     .done(function () {
+    })
+    .done(function () {
     	var layout = require("app/layout");
 		layout.init();
     })
     .done(function (data) {
-	    if(!data.success) {
-	    	prompt.alert({title: 'Error', msg:data.error});
-	        location.href = '/login';
-	        return;
-	    }
-
         var prefs = preferences.get_prefs();
-
+        
         // yay!
         var tabs = require("app/tabs");
         tabs.init();
