@@ -534,10 +534,14 @@ function saveAs(tab, options) {
             	        callback: fileExistsCallback
             	    });
             	} else {
+            	    var ajaxOptions = site.getAjaxOptions("/api/files?site="+siteId);
+            	    var params = util.clone(ajaxOptions.params);
+            	    
     			    $.ajax({
-    			        url: '/api/files?cmd=file_exists&site='+siteId+'&file='+encodeURIComponent(file),
-    	                method: 'GET',
-    	                dataType: 'json'
+                    	url: ajaxOptions.url+'&cmd=file_exists&site='+siteId+'&file='+encodeURIComponent(file),
+    	                method: 'POST',
+    	                dataType: 'json',
+    	                data: params
     			    })
                     .then(function (data) {
                         fileExistsCallback(data);
