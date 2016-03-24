@@ -25,7 +25,7 @@ var html_beautify = require('beautify-html');
 var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20151029';
 
 ace.config.set("modePath", acePath);
-ace.config.set("workerPath", acePath);
+//ace.config.set("workerPath", acePath); //disabled to fix firefox security issue
 ace.config.set("themePath", acePath);
 
 // custom completions
