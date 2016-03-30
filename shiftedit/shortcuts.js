@@ -88,7 +88,7 @@ define(['app/tabs','app/find', 'app/prefs', 'jquery'], function (tabs, find, pre
 				tabs.getEditor().editor.findPrevious();
 			}
 		}
-	},*/ { //run F12
+	},*/ /*{ //run F12
 		key: 123,
 		ctrl: false,
 		scope: this,
@@ -96,7 +96,7 @@ define(['app/tabs','app/find', 'app/prefs', 'jquery'], function (tabs, find, pre
 		fn: function (key, e) {
 			tabs.run();
 		}
-	}, { //fullscreen ctrl+shift+f
+	},*/ { //fullscreen ctrl+shift+f
 		key: 70,
 		ctrl: true,
 		shift: true,
