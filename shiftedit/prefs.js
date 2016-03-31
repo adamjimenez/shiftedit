@@ -986,7 +986,7 @@ function open() {
 	<label>\
 	    <input type="checkbox" name="autoTabs" value="1">\
 	    Detect tab type\
-	</label><br>\
+	</label>\
 	<label>\
 	    <input type="checkbox" name="softTabs" value="1">\
 	    Indent with spaces\
@@ -1276,7 +1276,7 @@ function open() {
 					var error = '';
 					//check password
 					if (values.forceRemovePassword != 1) {
-						if (createHash(createHash($('#currentMasterPassword'))) != prefs.masterPasswordHash) {
+						if (createHash(createHash($('#currentMasterPassword').val())) != prefs.masterPasswordHash) {
 							error += lang.currentPasswordIncorrectText;
 						}
 					}
