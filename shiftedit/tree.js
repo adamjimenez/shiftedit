@@ -180,7 +180,7 @@ function _processQueue(queue) {
     	params.path = item.path;
     	params.isDir = item.isDir ? 1 : '';
     	params.site = clipboard.site;
-    	params.cut = item.cut;
+    	params.cut = clipboard.cut;
 
 		loading.fetch(url, {
 			action: 'Putting '+item.dest,
