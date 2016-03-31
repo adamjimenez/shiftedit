@@ -131,7 +131,7 @@ function buildQueue(nodes, d) {
     	} else {
     		url+='&';
     	}
-    	url += 'cmd=list&site='+clipboard.site+'&path='+encodeURIComponent(path);
+    	url += 'cmd=list_all&site='+clipboard.site+'&path='+encodeURIComponent(path);
 
     	var params = util.clone(ajaxOptions.params);
     	params.path = path;
@@ -141,21 +141,21 @@ function buildQueue(nodes, d) {
 			data: params,
 			success: function (data) {
 				for( i=0; i<data.files.length; i++ ){
-					console.log(data.files[i]);
+					//console.log(data.files[i]);
 
-					var destPath = newPath + data.files[i].id.substr(path.length);
+					var destPath = newPath + data.files[i].path.substr(path.length);
 					if (dest) {
 						dest = dest +'/' + destPath;
 					}
 
 					queue.push({
-						path: data.files[i].id,
+						path: data.files[i].path,
 						dest: destPath,
 						isDir: data.files[i].isDir
 					});
 				}
 
-				console.log(queue);
+				//console.log(queue);
 
 				buildQueue(nodes, d);
 			}
@@ -178,9 +178,9 @@ function _processQueue(queue) {
     	var params = util.clone(ajaxOptions.params);
     	params.dest = item.dest;
     	params.path = item.path;
-    	params.isDir = item.isDir;
-    	params.site = item.site;
-    	params.cut = item.cut;
+    	params.isDir = item.isDir ? 1 : '';
+    	params.site = clipboard.site;
+    	params.cut = clipboard.cut;
 
 		loading.fetch(url, {
 			action: 'Putting '+item.dest,
@@ -556,16 +556,14 @@ function uploadByURl() {
     //dialog
     $( "body" ).append('<div id="dialog-uploadUrl" class="ui-front" title="Upload by url">\
       <form id="uploadUrlForm">\
-        <fieldset>\
-            <p>\
-                <label>URL:</label>\
-                <select id="uploadUrl" name="url"></select>\
-                <button type="button" class="delete">X</button>\
-            </p>\
-            <p>\
-                <label><input type="checkbox" name="extract" value="1" disabled> extract archive</label>\
-            </p>\
-        </fieldset>\
+        <div class="hbox">\
+            <label>URL:</label>\
+            <select id="uploadUrl" name="url" class="flex"></select>\
+            <button type="button" class="delete">X</button>\
+        </div>\
+        <p>\
+            <label><input type="checkbox" name="extract" value="1" disabled> extract archive</label>\
+        </p>\
       </form>\
     </div>');
 
@@ -603,6 +601,9 @@ function uploadByURl() {
         modal: true,
         width: 550,
         height: 300,
+        close: function( event, ui ) {
+            $( this ).remove();
+        },
         buttons: {
             OK: function() {
 				var url = combo.combobox('val');
@@ -613,7 +614,7 @@ function uploadByURl() {
 				}
 
                 var extractFile = $('[name=extract]').prop('checked');
-        		var node = getSelected();
+        		var node = getSelected()[0];
         		var parent = getDir(node);
         		var path = parent.id;
 
@@ -626,10 +627,16 @@ function uploadByURl() {
                     success: function(data) {
                         //add node if it doesn't exist
                         var node = tree.jstree(true).get_node(data.file);
-                        var parent = getDir(node);
 
                         if(!node) {
-                            node = tree.jstree('create_node', parent, {'id' : path, 'text' : util.basename(data.file)}, 'last');
+                            node = tree.jstree('create_node', parent, {
+                            	'type' : "file", 
+                            	'id' : data.file, 
+                            	'text' : util.basename(data.file),
+                            	'data' : {
+                            		'noRename' : true
+                            	}
+                            }, 'last');
                         }
 
                         //select node
@@ -1459,7 +1466,10 @@ function init() {
     			}
 
     			data.instance.set_id(data.node, id);
-				data.instance.edit(data.node);
+                
+                if (data.node.data && !data.node.data.noRename) {
+					data.instance.edit(data.node);
+                }
     		})
     		.fail(function () {
     			data.instance.refresh();

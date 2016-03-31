@@ -1,6 +1,37 @@
 define(['app/tabs', 'app/util', 'app/prompt', 'app/loading', 'app/shortcuts', 'app/lang', 'jstreegrid'], function (tabs, util, prompt, loading, shortcuts) {
 var lang = require('app/lang').lang;
 var confirmed = false;
+var inst;
+
+function findChild(parent, name) {
+	for( i=0; i<parent.children.length; i++ ){
+	    var node = inst.get_node(parent.children[i]);
+
+	    if(node.text==name) {
+	        return node;
+	    }
+	}
+	return false;
+}
+
+function findAvailableName(d, text) {
+    //if src and dest folder are the same then rename
+	var i = 0;
+	var newName = text;
+	while(findChild(d, newName)!==false) {
+		i++;
+		var pos = text.indexOf('.');
+		var copyStr = ' ('+i+')';
+
+		if(pos == -1) {
+			newName = text + copyStr;
+		}else{
+			newName = text.substr(0, pos) + copyStr + text.substr(pos, text.length-pos);
+		}
+	}
+
+	return newName;
+}
 
 function refresh() {
     tree.jstree(true).refresh();
@@ -118,6 +149,9 @@ function edit(node) {
             }
         }
     });
+    
+    //select input text
+    $('#snippetForm input[name=name]').select();
 }
 
 function init() {
@@ -199,7 +233,14 @@ function init() {
                         "label": lang.newSnippetText,
     					"icon" : "glyphicon glyphicon-leaf",
     					"action" : function (data) {
-    						edit();
+    						var inst = $.jstree.reference(data.reference),
+    							node = inst.get_node(data.reference);
+                       		var parent = node.type == 'default' ? node : inst.get_node(node.parent);
+                       		
+							var newName = findAvailableName(parent, 'New snippet');
+                        	inst.create_node(parent, { type: "file", text: newName, data: {} }, "last", function (new_node) {
+                       			inst.open_node(parent);
+                        	});
     					}
                     },
                     "newFolder": {
@@ -208,9 +249,14 @@ function init() {
     					"action" : function (data) {
                         	var inst = $.jstree.reference(data.reference),
                         		node = inst.get_node(data.reference);
-                        		var parent = node.type == 'default' ? node : inst.get_node(node.parent);
-                        	inst.create_node(parent, { type : "default" }, "last", function (new_node) {
-                        		setTimeout(function () { inst.edit(new_node); }, 0);
+                       		var parent = node.type == 'default' ? node : inst.get_node(node.parent);
+                       		
+							var newName = findAvailableName(parent, 'New folder');
+                        	inst.create_node(parent, { type : "default", text: newName }, "last", function (new_node) {
+                       			inst.open_node(parent);
+                        		setTimeout(function () { 
+                        			inst.edit(new_node); 
+                        		}, 0);
                         	});
     					}
                     },
@@ -288,9 +334,23 @@ function init() {
 		});
     })
     .on('create_node.jstree', function (e, data) {
-    	$.get('/api/snippets?cmd=new', { 'type' : data.node.type, 'parent' : data.node.parent, 'text' : data.node.text })
+        parent = '';
+        
+		if(data.node.parent!=='#root')
+			parent = data.node.parent;
+    	
+    	$.get('/api/snippets?cmd=new', { 'type' : data.node.type, 'parent' : parent, 'text' : data.node.text })
     		.done(function (d) {
-    			data.instance.set_id(data.node, d.id);
+    			if (d.id) {
+    				data.instance.set_id(data.node, d.id);
+    				
+			        inst.deselect_all();
+			        inst.select_node(data.node);
+    				
+    				if (data.node.type=='file') {
+    					edit(data.node);
+    				}
+    			}
     		})
     		.fail(function () {
     			data.instance.refresh();
@@ -321,6 +381,46 @@ function init() {
     	//$.get('/app/?cmd=rename_node', { 'id' : data.node.id, 'text' : data.text })
 
     })
+    .on('move_node.jstree', function (e, data) {
+    	prompt.confirm({
+    	    title: 'Move',
+    	    msg: 'Are you sure you want to move the selected snippets?',
+    	    fn: function(btn) {
+    	        switch(btn){
+    	            case 'yes':
+    	                doMove();
+    	            break;
+    	            default:
+    					data.instance.refresh();
+    	            break;
+    	        }
+    	    }
+    	});
+
+        function doMove() {
+            function moveCallback() {
+    			data.instance.refresh();
+            }
+
+			var params = {};
+	        params.parent = '';
+	        
+			if(data.parent!=='#root')
+				params.parent = data.parent;
+
+            params.id = data.node.id;
+
+    		$.ajax('/api/snippets?cmd=move', {
+    		    method: 'GET',
+    		    dataType: 'json',
+    		    data: params
+    		})
+    		.done(moveCallback)
+    		.fail(function () {
+    			data.instance.refresh();
+    		});
+        }
+    })
     .on('dblclick','a',function (e, data) {
     	var inst = $.jstree.reference(this);
         var node = inst.get_node(this);
@@ -335,6 +435,8 @@ function init() {
             }
         }
     });
+    
+    inst = $.jstree.reference($('#snippets'));
 }
 
     return {

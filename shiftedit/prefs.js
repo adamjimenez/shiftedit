@@ -44,6 +44,7 @@ defaultPrefs.lineBreak = 'auto'; //windows unix
 defaultPrefs.font = "Courier New";
 defaultPrefs.fontSize = 12;
 defaultPrefs.softTabs = true;
+defaultPrefs.autoTabs = true;
 defaultPrefs.indentOnPaste = false;
 defaultPrefs.wordWrap = false;
 defaultPrefs.fullLineSelection = false;
@@ -983,6 +984,10 @@ function open() {
 	    Emacs\
 	</label><br>\
 	<label>\
+	    <input type="checkbox" name="autoTabs" value="1">\
+	    Detect tab type\
+	</label>\
+	<label>\
 	    <input type="checkbox" name="softTabs" value="1">\
 	    Indent with spaces\
 	</label><br>\
@@ -1271,7 +1276,7 @@ function open() {
 					var error = '';
 					//check password
 					if (values.forceRemovePassword != 1) {
-						if (createHash(createHash($('#currentMasterPassword'))) != prefs.masterPasswordHash) {
+						if (createHash(createHash($('#currentMasterPassword').val())) != prefs.masterPasswordHash) {
 							error += lang.currentPasswordIncorrectText;
 						}
 					}

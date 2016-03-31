@@ -534,10 +534,14 @@ function saveAs(tab, options) {
             	        callback: fileExistsCallback
             	    });
             	} else {
+            	    var ajaxOptions = site.getAjaxOptions("/api/files?site="+siteId);
+            	    var params = util.clone(ajaxOptions.params);
+            	    
     			    $.ajax({
-    			        url: '/api/files?cmd=file_exists&site='+siteId+'&file='+encodeURIComponent(file),
-    	                method: 'GET',
-    	                dataType: 'json'
+                    	url: ajaxOptions.url+'&cmd=file_exists&site='+siteId+'&file='+encodeURIComponent(file),
+    	                method: 'POST',
+    	                dataType: 'json',
+    	                data: params
     			    })
                     .then(function (data) {
                         fileExistsCallback(data);
@@ -661,7 +665,7 @@ function checkEdited (e, ui) {
 			fn: function (btn) {
 				if (btn == "yes") {
 				    //save
-				    save(ui.tab, close);
+				    save($(ui.tab), { callback: close });
 				} else if (btn == 'no') {
 				    //remove
 				    setEdited(ui.tab, false);
@@ -679,7 +683,7 @@ function checkEdited (e, ui) {
             document.title = 'ShiftEdit';
         }
 
-		$(ui.tab).trigger('close'); //destroy editor and firepad
+		$(ui.tab).trigger('beforeClose'); //destroy editor and firepad
     }
 }
 

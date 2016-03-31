@@ -1,4 +1,4 @@
-define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'ace/ext/language_tools', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html'], function (ace, tabs, exports, preferences) {
+define(['ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'ace/ext/language_tools', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace'], function (ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -25,7 +25,7 @@ var html_beautify = require('beautify-html');
 var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20151029';
 
 ace.config.set("modePath", acePath);
-ace.config.set("workerPath", acePath);
+//ace.config.set("workerPath", acePath); //disabled to fix firefox security issue
 ace.config.set("themePath", acePath);
 
 // custom completions
@@ -257,6 +257,18 @@ function restoreState(state) {
 	}
 }
 
+//runs when editor or firepad is ready
+function ready(tab) {
+    var editor = tabs.getEditor($(tab));
+    
+    editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
+			
+	if (prefs.autoTabs) {
+		var whitespace = require("ace/ext/whitespace");
+		whitespace.detectIndentation(editor.getSession());
+	} 
+}
+
 function destroy(e) {
     var tab = $(this);
     var editor = tabs.getEditor($(tab));
@@ -396,9 +408,8 @@ function addFirepad(tab) {
 			}
 		});
 
-	    editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
-
 		//loadmask.hide();
+		ready(tab);
 
 		restoreState(options.state);
 	}, tab));
@@ -496,7 +507,7 @@ function applyPrefs(tab) {
 		switch (prefs.keyBinding) {
 		case 'vim':
 			keybinding = require("ace/keyboard/vim").handler;
-			var vimApi = require("ace/keyboard/vim").CodeMirror.Vim
+			var vimApi = require("ace/keyboard/vim").CodeMirror.Vim;
 			vimApi.defineEx("write", "w", jQuery.proxy(function(cm, input) {
 			    var editor = cm.ace;
 			    return editor.commands.exec('save', editor);
@@ -509,7 +520,6 @@ function applyPrefs(tab) {
 
 		editor.setKeyboardHandler(keybinding);
 		editor.getSession().setFoldStyle(prefs.codeFolding);
-		editor.getSession().setTabSize(parseInt(prefs.tabSize, 10));
 
 		// set linebreak mode. don't change if using firepad
 		if(
@@ -547,7 +557,15 @@ function applyPrefs(tab) {
 		editor.renderer.setHScrollBarAlwaysVisible(false);
 		editor.renderer.setVScrollBarAlwaysVisible(true);
 		editor.renderer.setAnimatedScroll(true);
+
+		editor.getSession().setTabSize(parseInt(prefs.tabSize, 10));
 		editor.getSession().setUseSoftTabs(Boolean(prefs.softTabs));
+		
+		if (prefs.autoTabs) {
+			var whitespace = require("ace/ext/whitespace");
+			whitespace.detectIndentation(editor.getSession());
+		}
+		
 		editor.getSession().setUseWrapMode(Boolean(prefs.wordWrap)); //wrap mode causing a problem!
 		//editor.setScrollSpeed(parseInt(prefs.scrollSpeed, 10));
 		editor.renderer.setPrintMarginColumn(parseInt(prefs.printMarginColumn, 10));
@@ -690,7 +708,7 @@ function create(file, content, siteId, options) {
 		//if no firepad:
 	    editor.getSession().getDocument().setValue(content);
 
-	    editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
+	    ready(tab);
 
     	//clear history //fixes undo redo when using split
 		var UndoManager = require("ace/undomanager").UndoManager;
@@ -710,7 +728,7 @@ function create(file, content, siteId, options) {
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
 
-    $(tab).on('close', destroy);
+    $(tab).on('beforeClose', destroy);
 
 	//autocomplete
 	editor.completer = new Autocomplete();
@@ -770,7 +788,7 @@ function create(file, content, siteId, options) {
 			    fn :function (button, line) {
     				if (button == 'ok') {
     					editor.gotoLine(line);
-    					setTimeout(function(){editor.focus()}, 50);
+    					setTimeout(function(){editor.focus();}, 50);
     				}
 			    }
 			});
