@@ -132,7 +132,7 @@ li[role=tab] .ui-icon {
 	text-decoration: none;
 }
 
-.ui-autocomplete{
+.ui-selectmenu-menu, .ui-autocomplete{
 	max-height: 300px;
 	overflow-x: hidden;
 	overflow-y: scroll;
@@ -393,6 +393,7 @@ li[role=tab] .ui-icon {
 .revisions{
     float: left;
     width: 260px;
+    margin-right: 10px;
 }
 
 /* chat panel */

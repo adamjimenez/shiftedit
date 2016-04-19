@@ -40,8 +40,8 @@ function open() {
     //revisions dialog
     $( "body" ).append('<div id="dialog-revisions" title="Revisions">\
         <div class="revisions">\
-            <p><select id="revisionFile" class="ui-widget ui-state-default ui-corner-all"></select></p>\
-            <p><select id="revision" size="20" class="ui-widget ui-state-default ui-corner-all"></select></p>\
+            <p class="hbox"><select id="revisionFile" class="ui-widget ui-state-default ui-corner-all"></select></p>\
+            <p class="hbox"><select id="revision" size="20" class="ui-widget ui-state-default ui-corner-all flex"></select></p>\
         </div>\
         <div id="revisionDiff">\
         </div>\
