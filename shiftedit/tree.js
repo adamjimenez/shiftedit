@@ -1229,6 +1229,9 @@ function init() {
                                 "separator_before": false,
                                 "separator_after": false,
                                 "label": "Cut",
+                                "shortcut": 88,
+                                "shortcut_ctrl": true,
+                                "shortcut_label": "Ctrl+X",
     							"action": function (data) {
                                     var instance = $.jstree.reference(data.reference);
                                     cut(instance.get_selected(true));
@@ -1240,7 +1243,8 @@ function init() {
                                 "separator_after": false,
                                 "label": "Copy",
                                 "shortcut": 67,
-                                "shortcut_label": "C",
+                                "shortcut_ctrl": true,
+                                "shortcut_label": "Ctrl+C",
     							"action": function (data) {
                                     var instance = $.jstree.reference(data.reference);
                                     copy(instance.get_selected(true));
@@ -1255,6 +1259,9 @@ function init() {
     							},
                                 "separator_after": false,
                                 "label": "Paste",
+                                "shortcut": 86,
+                                "shortcut_ctrl": true,
+                                "shortcut_label": "Ctrl+V",
     							"action": function (data) {
                                     var instance = $.jstree.reference(data.reference);
                                     paste(inst.get_top_selected(true)[0]);
@@ -1589,7 +1596,8 @@ function init() {
 	    var keycode = e.keyCode;
         var reference = this;
         var inst = $.jstree.reference(this);
-
+        
+        
 
         switch(keycode) {
         	//escape
@@ -1684,30 +1692,53 @@ function init() {
         var items = inst.settings.contextmenu.items(selected);
         for(i in items){
             if (items.hasOwnProperty(i)) {
-                if(items[i].shortcut === e.which) {
+            	if (!items[i].shortcut_ctrl) {
+            		items[i].shortcut_ctrl = false;
+            	}
+            	
+                if(items[i].shortcut === e.which && e.ctrlKey == items[i].shortcut_ctrl) {
                     items[i].action({reference:reference});
                 }
 
                 if(items[i].submenu){
                     var submenu_items = items[i].submenu;
                     for(var j in submenu_items){
-                        if(submenu_items[j].shortcut === e.which) {
+		            	if (!submenu_items[j].shortcut_ctrl) {
+		            		submenu_items[j].shortcut_ctrl = false;
+		            	}
+            	
+                        if(submenu_items[j].shortcut === e.which && e.ctrlKey == submenu_items[j].shortcut_ctrl) {
                             submenu_items[j].action({reference:reference});
                         }
                     }
                 }
             }
         }
+        
+        if (e.ctrlKey) {
+	        switch(keycode) {
+	        	//ctrl+a
+	        	case 65:
+		        	$('#tree').jstree("select_all");
+		        	$('#tree').focus();
+		        	e.preventDefault();
+	        		return;
+	        }
+        }
+        
 
         //treefilter
 	    var valid =
-	        (keycode > 47 && keycode < 58)   || // number keys
-	        keycode == 32                    || // spacebar
-	        keycode == 8                     || // backspace
-	        (keycode > 64 && keycode < 91)   || // letter keys
-	        (keycode > 95 && keycode < 112)  || // numpad keys
-	        (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
-	        (keycode > 218 && keycode < 223);   // [\]' (in order)
+	    	(e.ctrlKey === false) &&
+	    	(
+		        (keycode > 47 && keycode < 58)   || // number keys
+		        keycode == 32                    || // spacebar
+		        keycode == 8                     || // backspace
+		        (keycode > 64 && keycode < 91)   || // letter keys
+		        (keycode > 95 && keycode < 112)  || // numpad keys
+		        (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
+		        (keycode > 218 && keycode < 223)   // [\]' (in order)
+		    );
 
 	    if(valid) {
         	$('.filter').show();
