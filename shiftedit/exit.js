@@ -13,12 +13,6 @@ window.onbeforeunload = function () {
 	}
 };
 
-window.onunload = function () {
-	//clear hash so tabs can be restored
-	location.hash = '';
-	location.reload();
-};
-
     return {
     };
 });
