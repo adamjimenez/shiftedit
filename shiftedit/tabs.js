@@ -80,6 +80,18 @@ function open(file, siteId, options) {
     }
 }
 
+function isOpen (file, siteId) {
+    //check if file already open
+    var li = $("li[data-file='"+file+"'][data-site='"+siteId+"']");
+    if(li.length && li.index()!==-1){
+    	console.log('file already open');
+        li.closest('.ui-tabs').tabs("option", "active", li.index());
+        return true;
+    }
+    
+    return false;
+}
+
 function openFiles(options) {
     if (!opening.length)
         return;
@@ -99,13 +111,8 @@ function openFiles(options) {
     	console.log(item);
     	return false;
     }
-
-    //check if file already open
-    var li = $("li[data-file='"+file+"'][data-site='"+siteId+"']");
-    if(li.length && li.index()!==-1){
-    	console.log('file already open');
-        li.closest('.ui-tabs').tabs("option", "active", li.index());
-
+    
+    if (isOpen(file, siteId)) {
 		if (options.callback)
             options.callback(active(), false);
         return;
@@ -1069,6 +1076,7 @@ $('body').on('click', 'a.openfile', function() {
     exports.closeOther = closeOther;
     exports.closeTabsRight = closeTabsRight;
     exports.open = open;
+    exports.isOpen = isOpen;
     exports.recordOpenFiles = recordOpenFiles;
     exports.next = next;
     exports.prev = prev;
