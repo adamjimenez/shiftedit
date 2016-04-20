@@ -194,6 +194,7 @@ li[role=tab] .ui-icon {
 /* force tree grid height to 100% */
 .jstree-grid-wrapper{
 	display: table-cell;
+	overflow: hidden !important;
 }
 
 .jstree-grid-header-regular{
