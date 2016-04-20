@@ -844,7 +844,8 @@ function init() {
             cmd: 'upload',
             chunked: 1
         },
-        withCredentials: true
+        withCredentials: true,
+        chunkSize: (10*1024*1024)
     });
 
     r.assignDrop($('#tree'));
@@ -892,6 +893,7 @@ function init() {
 	});
 
     r.on('error', function(message, file){
+        uploadStarted = false;
 		loading.stop();
 		prompt.alert({title:file, msg:message});
 	});
@@ -899,18 +901,20 @@ function init() {
     r.on('fileAdded', function(file){
         uploadStarted = true;
 
+		/*
+		// This breaks stuff - don't do this, need a resumable method instead: https://github.com/23/resumable.js/issues/303
         if( chunkedUploads ){
             r.opts.chunkSize = 1*1024*1024;
         }else{
             r.opts.chunkSize = 20*1024*1024;
         }
+        */
 
         r.opts.target = ajaxOptions.url+'&cmd=upload&chunked=1';
         r.opts.withCredentials = true;
 
         var node = getSelected()[0];
         var parent = getDir(node);
-
         var params = util.clone(ajaxOptions.params);
 
         params.path = '';
@@ -918,9 +922,7 @@ function init() {
 			params.path = node.id;
 
 		params.chunked = 1;
-
         r.opts.query = params;
-
         r.upload();
     });
 
