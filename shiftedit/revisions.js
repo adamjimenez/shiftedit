@@ -28,10 +28,7 @@ function load(siteId, file) {
 }
 
 function open() {
-    console.log(arguments);
-    if(!tab) {
-        tab = tabs.active();
-    }
+    tab = tabs.active();
 
     if(!tab) {
         return false;
@@ -70,6 +67,9 @@ function open() {
         	setTimeout(function() {
         		revisionsEditor.resize();
         	}, 250);
+        },
+        close: function( event, ui ) {
+            $( this ).remove();
         }
     });
 
@@ -82,6 +82,8 @@ function open() {
 	var container = $('#revisionDiff')[0];
 	revisionsEditor = ace.edit(container);
 	revisionsEditor.setReadOnly(true);
+	
+	$('#revision').focus();
 
 	/*
 	// set theme
