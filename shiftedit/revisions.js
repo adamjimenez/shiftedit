@@ -33,6 +33,13 @@ function open() {
     if(!tab) {
         return false;
     }
+    
+    var siteId = tab.data('site');
+    var file = tab.data('file');
+    
+    if (!siteId) {
+    	return false;
+    }
 
     //revisions dialog
     $( "body" ).append('<div id="dialog-revisions" title="Revisions">\
@@ -74,8 +81,6 @@ function open() {
     });
 
     //load files and revisions
-    var siteId = tab.data('site');
-    var file = tab.data('file');
     load(siteId, file);
 
     //revision panel
