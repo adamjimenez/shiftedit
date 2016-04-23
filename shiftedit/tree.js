@@ -1410,7 +1410,7 @@ function init() {
                     header: "Size",
                     value: "size",
                     format: function(size) {
-        				if( size === '' ){
+        				if( size === '' || size === -1 ){
         					return '';
         				}
 
