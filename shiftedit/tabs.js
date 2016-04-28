@@ -1082,5 +1082,3 @@ $('body').on('click', 'a.openfile', function() {
     exports.prev = prev;
     exports.setTitle = setTitle;
 });
-
-
