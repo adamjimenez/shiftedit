@@ -24,17 +24,19 @@ function create() {
     layout.get().open('east');
 
     //create tab
-	tab = $(".ui-layout-east").tabs('add', 'File Compare', '<div class="diff_toolbar ui-widget-header ui-corner-all">\
+	tab = $(".ui-layout-east").tabs('add', 'File Compare', '<div class="vbox"><div class="diff_toolbar ui-widget-header ui-corner-all">\
 	<select class="diffFiles flex"></select>\
 	<select class="diffFiles flex"></select>\
 	</div>\
-	<div class="diff" style="width:100%;height:100%;display:block;"></div>');
+	<div class="editor"></div></div>');
 
     tab.addClass('closable');
 
     var panel = $(tab).closest(".ui-tabs").tabs('getPanelForTab', tab);
-	var container = $(panel).find('div.diff')[0];
+	var container = $(panel).find('div.editor')[0];
 	var editor = ace.edit(container);
+	editor.renderer.setHScrollBarAlwaysVisible(true);
+	editor.renderer.setVScrollBarAlwaysVisible(true);
 	editor.setReadOnly(true);
 
     updateOptions();
@@ -60,7 +62,7 @@ function select() {
 
     //show diff
 	//remove markers
-	var container = $(panel).find('div.diff')[0];
+	var container = $(panel).find('div.editor')[0];
 	var editor = ace.edit(container);
 	var session = editor.getSession();
 	var markers = session.getMarkers();
