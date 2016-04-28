@@ -901,3 +901,14 @@ li[role=tab] .ui-icon {
 	-webkit-font-smoothing: antialiased
 }
 
+.tabCloseButton {
+    display: none;
+}
+
+.tabCloseButton {
+    display: none;
+}
+
+.closable:hover .tabCloseButton {
+    display: block;
+}
