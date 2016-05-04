@@ -563,9 +563,11 @@ li[role=tab] .ui-icon {
     padding: 0;
 }
 
+/*
 #findForm label.ui-button{
     padding: 0;
 }
+*/
 
 #findForm input, #findForm textarea{
     flex-grow: 1;
