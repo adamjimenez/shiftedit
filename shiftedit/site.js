@@ -1402,10 +1402,18 @@ function edit(newSite, duplicate) {
 
     //tabs and buttons
     $( "#siteTabs" ).tabs();
-    $( "#serverTypeRadio" ).buttonset();
-    $( "#stackRadio" ).buttonset();
-    $( "#cloudRadio" ).buttonset();
-    $( "#authenticationRadio" ).buttonset();
+    $( "#serverTypeRadio input[type='radio']" ).checkboxradio({
+        icon: false
+    });
+    $( "#stackRadio input[type='radio']" ).checkboxradio({
+        icon: false
+    });
+    $( "#cloudRadio input[type='radio']" ).checkboxradio({
+        icon: false
+    });
+    $( "#authenticationRadio input[type='radio']" ).checkboxradio({
+        icon: false
+    });
 
     //git combo
     gitCombo = $( "#git_url_select" ).combobox({
