@@ -105,11 +105,15 @@ var skins = [{
 	title: "Dark Orange",
 	name: "dark-orange",
 	icon: "theme_90_smoothness.png"
-}, { //tree issues
+},{ //tree issues
 	title: "Smoothness",
 	name: "smoothness",
 	icon: "theme_90_smoothness.png"
 },/* {
+	title: "Base",
+	name: "base",
+	icon: "theme_90_base.png"
+}, {
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
@@ -774,7 +778,7 @@ function updateSkin(name){
 		}
 	
 	    if (!url) {
-	        var urlPrefix = themepath + "/themes/";
+	        var urlPrefix = themepath + "/themes.1.12/";
 	        url = urlPrefix + name + "/jquery-ui.css";
 	        currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
 	    }

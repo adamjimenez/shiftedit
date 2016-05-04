@@ -352,9 +352,11 @@ li[role=tab] .ui-icon {
     width: auto;
 }
 
+/*
 #siteSettings label.ui-button{
     padding: 0;
 }
+*/
 
 #siteSettings input, #siteSettings textarea, #snippetForm input{
     flex-grow: 1;
@@ -690,6 +692,10 @@ li[role=tab] .ui-icon {
 .ui-menu .ui-menu-divider{
     float: left;
     clear: left;
+}
+
+.ui-menu .ui-menu-item-wrapper{
+    display: block;
 }
 
 #picker{

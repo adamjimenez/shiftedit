@@ -1383,9 +1383,10 @@ function edit(newSite, duplicate) {
     //"Other" split button
     $('#otherMenu').menu().hide();
     $('#otherMenu a').click(function() {
-        $('#otherLabel').children('span').text($(this).text());
+        $('#otherLabel').contents().last().replaceWith($(this).text());
         $('#other').val($(this).text());
-        $('#otherLabel').trigger('click');
+        $('#other').trigger('click');
+        //$('#otherLabel').trigger('click');
     });
     $('#otherLabel').click(function() {
         var menu = $('#otherMenu').show().position({
@@ -1429,9 +1430,8 @@ function edit(newSite, duplicate) {
     });
 
     //toggle fields
-    $('#cloud_container label, #serverTypeRadio label').click(function() {
-        var category = $(this).prev().prop('checked', true).val(); //make sure radio is checked
-        $('input[name=server_type]').val(category);
+    $('#cloud_container input:radio, #serverTypeRadio input:radio').change(function() {
+        $('input[name=server_type]').val(this.value);
         updateCategory();
     });
 
@@ -1452,8 +1452,8 @@ function edit(newSite, duplicate) {
             Connect: test,
             Save: save
         },
-        width: 520,
-        minWidth: 520,
+        width: 560,
+        minWidth: 560,
         minHeight: 300
     });
 
