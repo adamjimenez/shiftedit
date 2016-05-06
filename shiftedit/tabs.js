@@ -80,7 +80,7 @@ function open(file, siteId, options) {
     }
 }
 
-function isOpen (file, siteId) {
+function isOpen(file, siteId) {
     //check if file already open
     var li = $("li[data-file='"+file+"'][data-site='"+siteId+"']");
     if(li.length && li.index()!==-1){
@@ -1022,6 +1022,9 @@ function init() {
             }
 
             insertBefore = $(insertBefore).closest('li[role="tab"]').get(0);
+            
+            if (!insertBefore)
+                insertBefore = receiver.find('.addTab');
 
             if(insertBefore)
                 tab.insertBefore(insertBefore);
