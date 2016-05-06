@@ -105,11 +105,15 @@ var skins = [{
 	title: "Dark Orange",
 	name: "dark-orange",
 	icon: "theme_90_smoothness.png"
-}, { //tree issues
+},{ //tree issues
 	title: "Smoothness",
 	name: "smoothness",
 	icon: "theme_90_smoothness.png"
 },/* {
+	title: "Base",
+	name: "base",
+	icon: "theme_90_base.png"
+}, {
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
@@ -774,7 +778,7 @@ function updateSkin(name){
 		}
 	
 	    if (!url) {
-	        var urlPrefix = themepath + "/themes/";
+	        var urlPrefix = themepath + "/themes.1.12/";
 	        url = urlPrefix + name + "/jquery-ui.css";
 	        currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
 	    }
@@ -799,13 +803,18 @@ function updateSkin(name){
 		    var activeBackground = div.css('background-color');
 		    var activeColor = div.css('color');
 		    var activeBorderColor = div.css('border-color');
-	
 		    div.remove();
 	
 		    div = $('<div class="ui-state-focus"></div>').appendTo('body');
 		    var hoverBackground = div.css('background-color');
 		    var hoverColor = div.css('color');
 		    var hoverBorderColor = div.css('border-color');
+		    div.remove();
+	
+		    div = $('<div class="ui-state-default"></div>').appendTo('body');
+		    var defaultBackground = div.css('background-color');
+		    var defaultColor = div.css('color');
+		    var defaultBorderColor = div.css('border-color');
 		    div.remove();
 	
 	        $('<style id="themeStyle">\
@@ -820,9 +829,13 @@ function updateSkin(name){
 				color: '+hoverColor+';\
 				border: 0 solid '+hoverBorderColor+';\
 			}\
-	        </style>').appendTo('head');
+			.jstree-grid-header-regular{\
+				background-color: '+defaultBackground+' !important;\
+				color: '+defaultColor+';\
+			}\
+			</style>').appendTo('head');
 	
-	    });
+		});
 	
 	    /*
 	    $.cookie(settings.cookiename, data.name,

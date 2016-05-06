@@ -611,7 +611,9 @@ function create(file, content, siteId, options) {
     <!--<button class="fix" type="button" disabled>Fix</button>--> \
     <span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
 	</div>\
-	<div class="editor"></div><div class="design flex" style="display: none;"></div></div>', 'site-'+siteId);
+	<div class="editor"></div><div class="design flex" style="display: none;"></div></div>'
+	//, 'site-'+siteId
+	);
 
     tab.addClass('closable');
 	tab.data(file, file);

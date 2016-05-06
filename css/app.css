@@ -193,12 +193,7 @@ li[role=tab] .ui-icon {
 
 /* force tree grid height to 100% */
 .jstree-grid-wrapper{
-	display: table-cell;
-	overflow: hidden !important;
-}
-
-.jstree-grid-header-regular{
-	background-color: transparent !important;
+    height: 100%;
 }
 
 .jstree-grid-cell{
@@ -352,9 +347,11 @@ li[role=tab] .ui-icon {
     width: auto;
 }
 
+/*
 #siteSettings label.ui-button{
     padding: 0;
 }
+*/
 
 #siteSettings input, #siteSettings textarea, #snippetForm input{
     flex-grow: 1;
@@ -561,9 +558,11 @@ li[role=tab] .ui-icon {
     padding: 0;
 }
 
+/*
 #findForm label.ui-button{
     padding: 0;
 }
+*/
 
 #findForm input, #findForm textarea{
     flex-grow: 1;
@@ -692,6 +691,10 @@ li[role=tab] .ui-icon {
     clear: left;
 }
 
+.ui-menu .ui-menu-item-wrapper{
+    display: block;
+}
+
 #picker{
 	position: absolute;
 	z-index: 100;
@@ -770,6 +773,10 @@ li[role=tab] .ui-icon {
 	overflow: hidden;
 }
 
+#filetree-buttons {
+    padding: 4px 0;
+}
+
 /* stretch site dropdown */
 #sitebar{
 	padding: 2px;
@@ -781,12 +788,6 @@ li[role=tab] .ui-icon {
 
 #sitebar .custom-combobox-input{
     width: calc(100% - 50px);
-}
-
-#tree-container{
-	padding: 2px 0;
-    width: 100%;
-    overflow: scroll;
 }
 
 .jstree-default .jstree-clicked{
@@ -901,3 +902,14 @@ li[role=tab] .ui-icon {
 	-webkit-font-smoothing: antialiased
 }
 
+.tabCloseButton {
+    display: none;
+}
+
+.tabCloseButton {
+    display: none;
+}
+
+.closable:hover .tabCloseButton {
+    display: block;
+}

@@ -11,8 +11,10 @@ li[role=tab] {
 
 li[role=tab] a.ui-tabs-anchor {
 	font-size: 1em !important;
+	margin: 0 !important;
 	padding: 5px 10px !important;
 	font-weight: normal;
+	overflow: hidden;
 }
 
 li[role=tab] .ui-tabs-anchor{

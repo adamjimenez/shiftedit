@@ -474,7 +474,9 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 	    </div>\
 	</form>').appendTo('#tabs-find');
 
-	    $( "#findInRadio" ).buttonset();
+	    $( "#findInRadio input[type='radio']" ).checkboxradio({
+	        icon: false
+	    });
 	    $( "#findForm button" ).button();
 	    $( "#findForm input[type=checkbox]" ).button();
 	    $('#findprogress').progressbar({
