@@ -803,13 +803,18 @@ function updateSkin(name){
 		    var activeBackground = div.css('background-color');
 		    var activeColor = div.css('color');
 		    var activeBorderColor = div.css('border-color');
-	
 		    div.remove();
 	
 		    div = $('<div class="ui-state-focus"></div>').appendTo('body');
 		    var hoverBackground = div.css('background-color');
 		    var hoverColor = div.css('color');
 		    var hoverBorderColor = div.css('border-color');
+		    div.remove();
+	
+		    div = $('<div class="ui-state-default"></div>').appendTo('body');
+		    var defaultBackground = div.css('background-color');
+		    var defaultColor = div.css('color');
+		    var defaultBorderColor = div.css('border-color');
 		    div.remove();
 	
 	        $('<style id="themeStyle">\
@@ -824,9 +829,13 @@ function updateSkin(name){
 				color: '+hoverColor+';\
 				border: 0 solid '+hoverBorderColor+';\
 			}\
-	        </style>').appendTo('head');
+			.jstree-grid-header-regular{\
+				background-color: '+defaultBackground+' !important;\
+				color: '+defaultColor+';\
+			}\
+			</style>').appendTo('head');
 	
-	    });
+		});
 	
 	    /*
 	    $.cookie(settings.cookiename, data.name,

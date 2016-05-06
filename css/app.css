@@ -193,12 +193,7 @@ li[role=tab] .ui-icon {
 
 /* force tree grid height to 100% */
 .jstree-grid-wrapper{
-	display: table-cell;
-	overflow: hidden !important;
-}
-
-.jstree-grid-header-regular{
-	background-color: transparent !important;
+    height: 100%;
 }
 
 .jstree-grid-cell{
@@ -789,12 +784,6 @@ li[role=tab] .ui-icon {
 
 #sitebar .custom-combobox-input{
     width: calc(100% - 50px);
-}
-
-#tree-container{
-	padding: 2px 0;
-    width: 100%;
-    overflow: scroll;
 }
 
 .jstree-default .jstree-clicked{

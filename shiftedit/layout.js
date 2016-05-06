@@ -44,7 +44,7 @@ function init() {
 	                    <button id="siteNenuBtn"><i class="fa fa-bars"></i></button>\
 	                    <ul id="siteMenu"></ul>\
 	                </div>\
-	                <div id="tree-container" class="flex" style="display: none;">\
+	                <div id="tree-container" class="vbox" style="display: none;">\
                 		<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all" style="display: none;">\
 	        			<div id="tree"></div>\
 	                </div>\
