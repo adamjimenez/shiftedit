@@ -35,7 +35,7 @@ function init() {
 	    <div class="ui-layout-content">\
 	        <div id="tabs-filetree">\
 	            <div class="vbox">\
-	                <div class="hbox">\
+	                <div id="filetree-buttons" class="hbox">\
 	                    <div id="sitebar" class="flex">\
 	                        <select id="sites">\
 	                        </select>\

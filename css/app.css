@@ -773,6 +773,10 @@ li[role=tab] .ui-icon {
 	overflow: hidden;
 }
 
+#filetree-buttons {
+    padding: 4px 0;
+}
+
 /* stretch site dropdown */
 #sitebar{
 	padding: 2px;
