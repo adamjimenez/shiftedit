@@ -25,11 +25,11 @@ function init() {
 	\
 	<div class="ui-layout-west" style="display: none;">\
 		<ul>\
-	        <li><a href="#tabs-filetree"><i class="fa fa-folder"></i></a></li>\
-	        <li><a href="#tabs-find"><i class="fa fa-search"></i></a></li>\
-	        <li><a href="#tabs-definitions"><i class="fa fa-code"></i></a></li>\
-	        <li><a href="#tabs-notes"><i class="fa fa-pencil"></i></a></li>\
-	        <li><a href="#tabs-snippets"><i class="fa fa-cut"></i></a></li>\
+	        <li><a href="#tabs-filetree" title="File tree"><i class="fa fa-folder"></i></a></li>\
+	        <li><a href="#tabs-find" title="Find"><i class="fa fa-search"></i></a></li>\
+	        <li><a href="#tabs-definitions" title="Definitions"><i class="fa fa-code"></i></a></li>\
+	        <li><a href="#tabs-notes" title="Notes"><i class="fa fa-pencil"></i></a></li>\
+	        <li><a href="#tabs-snippets" title="Snippets"><i class="fa fa-cut"></i></a></li>\
 	    </ul>\
 	    <!-- add wrapper that layout will auto-size to fill space -->\
 	    <div class="ui-layout-content">\
