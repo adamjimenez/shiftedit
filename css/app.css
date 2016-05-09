@@ -765,6 +765,10 @@ li[role=tab] .ui-icon {
     margin: 0;
 }
 
+.newTab a{
+    text-decoration: none;
+}
+
 .newTab .column{
     display: block;
     width: 25%;
