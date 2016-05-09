@@ -833,6 +833,9 @@ function updateSkin(name){
 				background-color: '+defaultBackground+' !important;\
 				color: '+defaultColor+';\
 			}\
+			.jstree-grid-separator{\
+				border-color: '+defaultBorderColor+';\
+			}\
 			</style>').appendTo('head');
 	
 		});

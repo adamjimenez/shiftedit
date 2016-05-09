@@ -54,6 +54,10 @@ textarea{
     height: 100%;
 }
 
+.ui-layout-north {
+    overflow: hidden;
+}
+
 /* TAB-THEME ADJUSTMENTS */
 .ui-tabs-panel {
 	font-size: 1em !important;
@@ -198,6 +202,10 @@ li[role=tab] .ui-icon {
 
 .jstree-grid-cell{
 	background-image: none !important;
+}
+
+.jstree-default .jstree-anchor, .jstree-ocl {
+    cursor: default;
 }
 
 .vakata-context .vakata-contextmenu-shortcut{
