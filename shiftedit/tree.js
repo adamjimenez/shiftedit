@@ -806,9 +806,13 @@ function chmod(data) {
             OK: function() {
                 var node = getSelected()[0];
                 var mode = $('#chmod-value').val();
+				var params = util.clone(ajaxOptions.params);
+				params.file = node.id;
+				params.mode = mode;
 
                 loading.fetch(ajaxOptions.url+'&cmd=chmod&file='+encodeURIComponent(node.id)+'&mode='+mode, {
                     action: 'chmod file',
+                    data: params,
                     success: function(data) {
                         node.data.perms = mode;
                         var el = inst.get_node(node, true);
