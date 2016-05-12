@@ -836,6 +836,14 @@ function updateSkin(name){
 			.jstree-grid-separator{\
 				border-color: '+defaultBorderColor+';\
 			}\
+			\
+			.jstree-grid-midwrapper a.jstree-hovered:before{\
+				background: '+hoverBackground+';\
+			}\
+			\
+			.jstree-grid-midwrapper a.jstree-clicked:before{\
+				background: '+activeBackground+';\
+			}\
 			</style>').appendTo('head');
 	
 		});
