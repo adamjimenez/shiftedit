@@ -1391,6 +1391,7 @@ function init() {
         grid: {
         	isThemeroller: true,
             resizable: true,
+            draggable: true,
             stateful: true,
             columns: [
                 {
