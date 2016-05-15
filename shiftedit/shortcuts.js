@@ -1,4 +1,4 @@
-define(['app/tabs','app/find', 'app/prefs', 'jquery'], function (tabs, find, preferences) {
+define(['app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'jquery'], function (tabs, find, preferences, site, tree) {
     var shortcuts = [];
 	var defaultShortcuts = [{ //escape
 		key: 27,
@@ -9,7 +9,7 @@ define(['app/tabs','app/find', 'app/prefs', 'jquery'], function (tabs, find, pre
 		fn: function (key, e) {
 			$('#shortcutsSheet').remove();
 		}
-	}, { //close ctrl-alt+n
+	}, { //close ctrl-alt-n
 		key: 78,
 		ctrl: false,
 		alt: true,
@@ -25,6 +25,15 @@ define(['app/tabs','app/find', 'app/prefs', 'jquery'], function (tabs, find, pre
 		stopEvent: true,
 		fn: function (key, e) {
 			tabs.open();
+		}
+	}, { //close ctrl-shift-o
+		key: 79,
+		ctrl: true,
+		shift: true,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			site.focus();
 		}
 	}, { //saveAll ctrl-shift-s
 		key: 83,
@@ -154,6 +163,56 @@ define(['app/tabs','app/find', 'app/prefs', 'jquery'], function (tabs, find, pre
 		stopEvent: true,
 		fn: function (key, e) {
 			print.run();
+		}
+	}, { //alt-f
+		key: 70,
+		alt: true,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			$('a[href="#file"]').focus().click();
+		}
+	}, { //alt-e
+		key: 69,
+		alt: true,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			$('a[href="#edit"]').focus().click();
+		}
+	}, { //alt-v
+		key: 86,
+		alt: true,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			$('a[href="#view"]').focus().click();
+		}
+	}, { //alt-h
+		key: 72,
+		alt: true,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			$('a[href="#help"]').focus().click();
+		}
+	}, { //shift-escape
+		key: 27,
+		shift: true,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			if (document.activeElement) {
+				document.activeElement.blur();
+			}
+		}
+	}, { //ctrl-\
+		key: 220,
+		ctrl: true,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			tree.toggle();
 		}
 	}];
 

@@ -1,4 +1,4 @@
-define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'aes', 'app/gdrive', 'app/editors'], function (exports) {
+define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'app/layout', 'aes', 'app/gdrive', 'app/editors'], function (exports) {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
@@ -7,6 +7,7 @@ var util = require('app/util');
 var ssl = require('app/ssl');
 var loading = require('app/loading');
 var preferences = require('app/prefs');
+var layout = require('app/layout');
 var gdrive = require('app/gdrive');
 var editors = require('app/editors');
 var Aes = require('aes');
@@ -511,6 +512,16 @@ function open(siteId, options) {
     });
 
     return ajax;
+}
+
+function focus() {
+	//expand panel
+	layout.get().open('west');
+
+	//activate tab
+	$(".ui-layout-west").tabs("option", "active", $('li[aria-controls=tabs-filetree]').index());
+	$('#sitebar input').focus();
+	return;
 }
 
 function masterPasswordPrompt(callback) {
@@ -1558,5 +1569,6 @@ exports.getSettings = getSettings;
 exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
 exports.definitions = definitions;
+exports.focus = focus;
 
 });

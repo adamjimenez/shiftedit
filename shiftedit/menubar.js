@@ -1,4 +1,4 @@
-define(['exports', "jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/storage', 'app/main', 'app/prompt', 'app/util', 'app/shortcuts', 'app/editors', 'app/revisions', 'app/chat'], function (exports) {
+define(['exports', "jquery.menubar",'app/menus','app/lang','app/prefs', 'app/tabs', 'app/tree', 'app/storage', 'app/main', 'app/prompt', 'app/util', 'app/shortcuts', 'app/editors', 'app/revisions', 'app/chat', 'app/site'], function (exports) {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var preferences = require('app/prefs');
@@ -11,6 +11,8 @@ var util = require('app/util');
 var menus = require('app/menus');
 var shortcuts = require('app/shortcuts');
 var editors = require('app/editors');
+var site = require('app/site');
+var tree = require('app/tree');
 
 var selectionMenuItems = [{
 	id: 'collapseSelection',
@@ -203,6 +205,11 @@ function init () {
     			text: makeMenuText(lang.open + '...', 'Ctrl+O'),
     			handler: function () {
     				tabs.open();
+    			}
+    		}, {
+    			text: makeMenuText(lang.open + ' site', 'Ctrl+Shift+O'),
+    			handler: function () {
+    				setTimeout(function() { site.focus(); }, 0);
     			}
     		}, {
     			text: 'Upload',
@@ -582,6 +589,12 @@ function init () {
         			//prefs.printMargin = $(this).prop('checked');
         			preferences.save('printMargin', checked);
         		}
+        	}, {
+        		id: 'toggleTreeView',
+        		text: 'Toggle Tree View',
+        		handler: function (item, checked) {
+        			tree.toggle();
+        		}
         	}/*, {
         		id: 'fileColumns',
         		text: 'File Columns',
@@ -593,7 +606,7 @@ function init () {
         	}*/]
     	},
     	"help": {
-    		text: 'Help',
+    		text: '<u>H</u>elp',
     		items: [{
     			id: 'support',
     			text: lang.support,
@@ -909,7 +922,7 @@ function init () {
 
     menus.create($("#menubar"), menu);
 
-    $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ toggleOptions('file') } );
+    $( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ toggleOptions('file'); } );
     $( ".ui-layout-center" ).on( "tabsremove", function(e, ui){
         if (!$('.ui-layout-center .ui-tabs-active').length)
             toggleOptions(false);

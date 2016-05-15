@@ -6,6 +6,7 @@ var prompt = require('app/prompt');
 var tabs = require('app/tabs');
 var loading = require('app/loading');
 var site = require('app/site');
+var layout = require('app/layout');
 var ajaxOptions = {};
 var tree;
 var confirmed = false;
@@ -1364,6 +1365,10 @@ function init() {
 					},
 					"reload": {
 						"label": "Reload",
+                        "stop_event": true,
+                        "shortcut": 82,
+                        "shortcut_ctrl": true,
+                        "shortcut_label": "Ctrl+R",
 						action: function (data) {
                             var inst = $.jstree.reference(data.reference);
                             inst.refresh_node(inst.get_selected(true)[0]);
@@ -1633,6 +1638,16 @@ function init() {
 					inst.select_node(o.children('.jstree-anchor').focus());
 				}
         		return;
+			case 39: // right
+				e.preventDefault();
+				node = inst.get_node(e.currentTarget);
+				inst.open_node(node);
+        		return;
+			case 37: // left
+				e.preventDefault();
+				node = inst.get_node(e.currentTarget);
+				inst.close_node(node);
+        		return;
 			case 36: // home
 				e.preventDefault();
 				o = inst._firstChild(inst.get_container_ul()[0]);
@@ -1705,6 +1720,10 @@ function init() {
             	
                 if(items[i].shortcut === e.which && e.ctrlKey == items[i].shortcut_ctrl) {
                     items[i].action({reference:reference});
+                    
+                    if(items[i].stop_event) {
+		        		e.preventDefault();
+                    }
                 }
 
                 if(items[i].submenu){
@@ -1716,6 +1735,10 @@ function init() {
             	
                         if(submenu_items[j].shortcut === e.which && e.ctrlKey == submenu_items[j].shortcut_ctrl) {
                             submenu_items[j].action({reference:reference});
+                    
+		                    if(submenu_items[j].stop_event) {
+				        		e.preventDefault();
+		                    }
                         }
                     }
                 }
@@ -2015,17 +2038,37 @@ function setSingleClickOpen(value) {
     singleClickOpen = value;
 }
 
-return {
-    init: init,
-    setAjaxOptions: setAjaxOptions,
-    refresh: refresh,
-    select: select,
-    getNode: getNode,
-    findChild: findChild,
-    setSingleClickOpen: setSingleClickOpen
-};
+function toggle() {
+	if (layout.get().state.west.isClosed) {
+		layout.get().open('west', false, true);
+		
+		//activate tab
+		$(".ui-layout-west").tabs("option", "active", $('li[aria-controls=tabs-filetree]').index());
+		
+		//focus tree
+    	var inst = $.jstree.reference(reference);
+    	var node_id = inst.get_selected()[0];
+    	if (!node_id)
+    		node_id = '#root';
+    	
+		var node = inst.get_node(node_id, true);
+		node.children('.jstree-anchor').focus();
+	} else {
+		layout.get().close('west', false, true);
+		
+		//focus editor
+		var tab = tabs.active();
+		$(".ui-layout-center").trigger("tabsactivate", [{newTab: tab}]);
+	}
+}
+
+exports.init = init;
+exports.setAjaxOptions = setAjaxOptions;
+exports.refresh = refresh;
+exports.select = select;
+exports.getNode = getNode;
+exports.findChild = findChild;
+exports.setSingleClickOpen = setSingleClickOpen;
+exports.toggle = toggle;
 
 });
-
-
-
