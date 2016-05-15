@@ -426,7 +426,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 
 	function open(val) {
 		//expand panel
-		layout.get().open('west');
+		layout.get().open('west', false, true);
 
 		//activate tab
 		$(".ui-layout-west").tabs("option", "active", $('li[aria-controls=tabs-find]').index());
