@@ -1,4 +1,4 @@
-define(['resumable', "jstreegrid","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading', 'app/site'], function (Resumable) {
+define(['exports', 'resumable', "jstreetable","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading', 'app/site', 'app/layout'], function (exports, Resumable) {
 var util = require('app/util');
 var editor = require('app/editors');
 var lang = require('app/lang').lang;
@@ -1388,7 +1388,7 @@ function init() {
     			return name + ' ' + counter;
     		}
     	},
-        grid: {
+        table: {
         	isThemeroller: true,
             resizable: true,
             draggable: true,
@@ -1429,7 +1429,7 @@ function init() {
             ]
         },
     	'plugins' : [
-    	    /*'state',*/'dnd','sort','types','contextmenu','unique','search','grid'
+    	    /*'state',*/'dnd','sort','types','contextmenu','unique','search','table'
     	]
     })
     .on('delete_node.jstree', function (e, data) {

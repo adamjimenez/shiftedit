@@ -723,10 +723,10 @@ function init () {
         				</tr>\
         				<tr>\
         					<td>\
-        						<a href="https://github.com/deitch/jstree-grid" target="_blank">jsTreeGrid</a>\
+        						<a href="https://github.com/adamjimenez/jstree-table" target="_blank">jsTreeTable</a>\
         					</td>\
         					<td>\
-        						<a href="https://raw.githubusercontent.com/deitch/jstree-grid/master/LICENSE" target="_blank">License</a>\
+        						<a href="https://raw.githubusercontent.com/adamjimenez/jstree-table/master/LICENSE" target="_blank">License</a>\
         					</td>\
         				</tr>\
         				<tr>\
