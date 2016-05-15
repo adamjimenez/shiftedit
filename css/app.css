@@ -195,12 +195,12 @@ li[role=tab] .ui-icon {
 .jstree .file-css { background-position: -144px 0 }
 .jstree .file-fla { background-position: -398px 0 }
 
-/* force tree grid height to 100% */
-.jstree-grid-wrapper{
+/* force tree table height to 100% */
+.jstree-table-wrapper{
     height: 100%;
 }
 
-.jstree-grid-cell{
+.jstree-table-cell{
 	background-image: none !important;
 }
 

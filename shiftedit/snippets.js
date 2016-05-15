@@ -1,4 +1,4 @@
-define(['app/tabs', 'app/util', 'app/prompt', 'app/loading', 'app/shortcuts', 'app/lang', 'jstreegrid'], function (tabs, util, prompt, loading, shortcuts) {
+define(['app/tabs', 'app/util', 'app/prompt', 'app/loading', 'app/shortcuts', 'app/lang', 'jstree'], function (tabs, util, prompt, loading, shortcuts) {
 var lang = require('app/lang').lang;
 var confirmed = false;
 var inst;
@@ -310,7 +310,7 @@ function init() {
     		}
     	},
     	'plugins' : [
-    	    'state','dnd','sort','types','contextmenu','unique'//,'grid'
+    	    'state','dnd','sort','types','contextmenu','unique'
     	]
     })
     .on('delete_node.jstree', function (e, data) {

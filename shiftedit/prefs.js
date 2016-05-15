@@ -829,19 +829,19 @@ function updateSkin(name){
 				color: '+hoverColor+';\
 				border: 0 solid '+hoverBorderColor+';\
 			}\
-			.jstree-grid-header-regular{\
+			.jstree-table-header-regular{\
 				background-color: '+defaultBackground+' !important;\
 				color: '+defaultColor+';\
 			}\
-			.jstree-grid-separator{\
+			.jstree-table-separator{\
 				border-color: '+defaultBorderColor+';\
 			}\
 			\
-			.jstree-grid-midwrapper a.jstree-hovered:before{\
+			.jstree-table-midwrapper a.jstree-hovered:before{\
 				background: '+hoverBackground+';\
 			}\
 			\
-			.jstree-grid-midwrapper a.jstree-clicked:before{\
+			.jstree-table-midwrapper a.jstree-clicked:before{\
 				background: '+activeBackground+';\
 			}\
 			</style>').appendTo('head');
