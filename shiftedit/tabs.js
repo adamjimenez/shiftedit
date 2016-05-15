@@ -830,6 +830,11 @@ function tabActivate(tab) {
     var editor = getEditor(tab);
     if (editor)
         editor.focus();
+    else {
+        var tabpanel = $(tab).closest(".ui-tabs");
+        var panel = tabpanel.tabs('getPanelForTab', tab);
+        panel.find('a').first().focus();
+    }
 
     $(tab).trigger('activate');
 }
