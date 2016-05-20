@@ -1030,87 +1030,98 @@ function init() {
 										confirmed = true;
 
 										function doDelete(node) {
-											if (treeFn) {
-												treeFn({cmd: 'delete', file: node.id, callback: callback});
-											}else{
-												var source = new EventSource(ajaxOptions.url+'&cmd=delete&file='+encodeURIComponent(node.id), {withCredentials: true});
-												var abortFunction = function(){
-													if( source ){
-														source.close();
-													}
-												};
-
-												source.addEventListener('message', function(event) {
-													var data = JSON.parse(event.data);
-													loading.stop(false);
-													loading.start(data.msg, abortFunction);
-
-													var pos = data.msg.indexOf(' ');
-													var action = data.msg.substr(0, pos);
-													var file = data.msg.substr(pos+1, data.msg.length);
-
-													if (action == 'delete' || action == 'rmdir') {
-														var node = t.get_node(file);
-														if (node) {
-															confirmed = true;
-															t.delete_node(node);
-														}
-													}
-												}, false);
-
-												source.addEventListener('error', function(event) {
-													loading.stop(false);
-													if (event.eventPhase == 2) { //EventSource.CLOSED
-														if (source) {
-															source.close();
-														}
-
-														callback();
-														//t.delete_node(node);
-													}
-												}, false);
-
-												/*
-												$.ajax(ajaxOptions.url+'&cmd=delete&file='+encodeURIComponent(node.id), {
-													method: 'POST',
-													dataType: 'json',
-													data: ajaxOptions.params,
-													xhrFields: {
-														withCredentials: true
-													},
-													success: function(r) {
-														if(r.success) {
-															callback();
-														}
-														t.delete_node(node);
-													}
-												})
-												.fail(function () {
-													confirmed = false;
-													prompt.alert({title:'Delete Failed', msg: 'Could not connect'});
-													t.refresh();
-												});
-												*/
-											}
+											treeFn({cmd: 'delete', file: node.id, callback: callback});
 										}
-
-										queue = t.get_selected(true);
-										var node;
-										var callback = function() {
-											/*
-											if(node)
-												t.delete_node(node);
-											*/
-
-											if(queue.length) {
-												confirmed = true;
-										   		node = queue.shift();
-												doDelete(node);
-											} else {
+										
+										if (treeFn) {
+											var node;
+											var callback = function() {
+												if(queue.length) {
+													confirmed = true;
+											   		node = queue.shift();
+													doDelete(node);
+												} else {
+													confirmed = false;
+												}
+											};
+											callback();
+										}else{
+											queue = t.get_selected(true);
+											
+											var files = [];
+											queue.forEach(function(node) {
+												files.push(node.id);
+											});
+											
+											var params = util.clone(ajaxOptions.params);
+											params.files = files;
+											$.ajax(ajaxOptions.url+'&cmd=delete', {
+												method: 'POST',
+												dataType: 'json',
+												data: params,
+												xhrFields: {
+													withCredentials: true
+												},
+												success: function(r) {
+													if(r.queue) {
+														var source = new EventSource(ajaxOptions.url+'&cmd=delete&queue=1', {withCredentials: true});
+														var abortFunction = function(){
+															if( source ){
+																queue = [];
+																confirmed = false;
+																source.close();
+															}
+														};
+		
+														source.addEventListener('message', function(event) {
+															var data = JSON.parse(event.data);
+															loading.stop(false);
+															loading.start(data.msg, abortFunction);
+		
+															var pos = data.msg.indexOf(' ');
+															var action = data.msg.substr(0, pos);
+															var file = data.msg.substr(pos+1, data.msg.length);
+		
+															if (action == 'delete' || action == 'rmdir') {
+																var node = t.get_node(file);
+																if (node) {
+																	confirmed = true;
+																	t.delete_node(node);
+																}
+															}
+														}, false);
+		
+														source.addEventListener('error', function(event) {
+															loading.stop(false);
+															confirmed = false;
+															queue = [];
+															if (event.eventPhase == 2) { //EventSource.CLOSED
+																if (source) {
+																	source.close();
+																}
+															}
+														}, false);
+													} else {
+														var file = files[0];
+														var node = t.get_node(file);
+														
+														if (r.success) {
+															t.delete_node(node);
+														} else {
+															prompt.alert({title:file, msg:r.error});
+														}
+														
+														queue = [];
+														confirmed = false;
+													}
+												}
+											})
+											.fail(function () {
 												confirmed = false;
-											}
-										};
-										callback();
+												prompt.alert({title:'Delete Failed', msg: 'Could not connect'});
+												t.refresh();
+											});	
+										}
 									break;
 								}
 							}
