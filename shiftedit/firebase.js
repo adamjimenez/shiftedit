@@ -33,10 +33,10 @@ connect = function (callback) {
 };
 
 $('body').on('click', 'a.user', function() {
-    var user = $(this).data('user');
-    var tab = tabs.active();
-    var editor = tabs.getEditor(tab);
-    var firepad = tab.data('firepad');
+	var user = $(this).data('user');
+	var tab = tabs.active();
+	var editor = tabs.getEditor(tab);
+	var firepad = tab.data('firepad');
 
 	if( firepad.editorAdapter_.otherCursors ){
 		var range = firepad.editorAdapter_.otherCursors[user];
@@ -48,10 +48,10 @@ $('body').on('click', 'a.user', function() {
 });
 
 return {
-    connect: connect,
-    isConnected: function() {
-        return connected;
-    }
+	connect: connect,
+	isConnected: function() {
+		return connected;
+	}
 };
 
 });

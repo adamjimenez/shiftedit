@@ -6,19 +6,19 @@ var blocked = true;
 $.ajax({
    url: 'http://shiftedit.s3.amazonaws.com/js/insecure.js',
    success: function() {
-       blocked = false;
+	   blocked = false;
    },
    xhrFields: {
-      //withCredentials: true
+	  //withCredentials: true
    }
 });
 
 
 
 return {
-    check_blocked: function () {
-        return blocked;
-    }
+	check_blocked: function () {
+		return blocked;
+	}
 };
 
 });

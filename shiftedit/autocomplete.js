@@ -5,9 +5,9 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 	wordpressFunctions = {};
 
 	for (var i in wpFunctions) {
-	    if(wpFunctions.hasOwnProperty(i)) {
+		if(wpFunctions.hasOwnProperty(i)) {
 			wordpressFunctions[i] = [wpFunctions[i], '', 'wordpress'];
-	    }
+		}
 	}
 
 	var jqueryDictionary = {
@@ -233,131 +233,131 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		}
 	};
 
-    var cssDictionary =
-    {
-      "background": {"#$0": 2},
-      "background-color": {"#$0": 2, "transparent": 2, "fixed": 2},
-      "background-image": {"url('/$0')": 2},
-      "background-repeat": {"repeat": 2, "repeat-x": 2, "repeat-y": 2, "no-repeat": 2, "inherit": 2},
-      "background-position": {"bottom":2, "center":2, "left":2, "right":2, "top":2, "inherit":2,},
-      "background-attachment": {"scroll": 2, "fixed": 2},
-      "background-size": {"cover": 2, "contain": 2},
-      "background-clip": {"border-box": 2, "padding-box": 2, "content-box": 2},
-      "background-origin": {"border-box": 2, "padding-box": 2, "content-box": 2},
-      "border": {"solid $0": 2, "dashed $0": 2, "dotted $0": 2, "#$0": 2},
-      "border-top": 1,
-      "border-right": 1,
-      "border-bottom": 1,
-      "border-left": 1,
-      "border-color": {"#$0": 2},
-      "border-width": 1,
-      "border-style": {"solid":2, "dashed":2, "dotted":2, "double":2, "groove":2, "hidden":2, "inherit":2, "inset":2, "none":2, "outset":2, "ridged":2,},
-      "border-spacing": 1,
-      "border-collapse": {"collapse": 2, "separate": 2},
-      "bottom": {"px": 2, "em": 2, "%": 2},
-      "clear": {"left": 2, "right": 2, "both": 2, "none": 2},
-      "clip": 1,
-      "color": {"#$0": 2, "rgb(#$00,0,0)": 2},
-      "content": 1,
-      "cursor": {"default": 2, "pointer": 2, "move": 2, "text": 2, "wait": 2, "help": 2, "progress": 2, "n-resize": 2, "ne-resize": 2, "e-resize": 2, "se-resize": 2, "s-resize": 2, "sw-resize": 2, "w-resize": 2, "nw-resize": 2},
-      "display": {"none": 2, "block": 2, "inline": 2, "inline-block": 2, "table-cell": 2},
-      "empty-cells": {"show": 2, "hide": 2},
-      "float": {"left": 2, "right": 2, "none": 2},
-      "font-family": {"Arial":2,"Comic Sans MS":2,"Consolas":2,"Courier New":2,"Courier":2,"Georgia":2,"Monospace":2,"Sans-Serif":2, "Segoe UI":2,"Tahoma":2,"Times New Roman":2,"Trebuchet MS":2,"Verdana": 2},
-      "font-size": {"px": 2, "em": 2, "%": 2},
-      "font-weight": {"bold": 2, "normal": 2},
-      "font-style": {"italic": 2, "normal": 2},
-      "font-variant": {"normal": 2, "small-caps": 2},
-      "font": 1,
-      "height": {"px": 2, "em": 2, "%": 2},
-      "left": {"px": 2, "em": 2, "%": 2},
-      "letter-spacing": {"normal": 2},
-      "line-height": {"normal": 2},
-      "list-style": 1,
-      "list-style-image": 1,
-      "list-style-position": 1,
-      "list-style-type": {"none": 2, "disc": 2, "circle": 2, "square": 2, "decimal": 2, "decimal-leading-zero": 2, "lower-roman": 2, "upper-roman": 2, "lower-greek": 2, "lower-latin": 2, "upper-latin": 2, "georgian": 2, "lower-alpha": 2, "upper-alpha": 2},
-      "margin": {"px": 2, "em": 2, "%": 2},
-      "margin-right": {"px": 2, "em": 2, "%": 2},
-      "margin-left": {"px": 2, "em": 2, "%": 2},
-      "margin-top": {"px": 2, "em": 2, "%": 2},
-      "margin-bottom": {"px": 2, "em": 2, "%": 2},
-      "max-height": {"px": 2, "em": 2, "%": 2},
-      "max-width": {"px": 2, "em": 2, "%": 2},
-      "min-height": {"px": 2, "em": 2, "%": 2},
-      "min-width": {"px": 2, "em": 2, "%": 2},
-      "outline": 1,
-      "outline-color": 1,
-      "outline-style": 1,
-      "outline-width": 1,
-      "overflow": {"hidden": 2, "visible": 2, "auto": 2, "scroll": 2},
-      "overflow-x": {"hidden": 2, "visible": 2, "auto": 2, "scroll": 2},
-      "overflow-y": {"hidden": 2, "visible": 2, "auto": 2, "scroll": 2},
-      "padding": {"px": 2, "em": 2, "%": 2},
-      "padding-top": {"px": 2, "em": 2, "%": 2},
-      "padding-right": {"px": 2, "em": 2, "%": 2},
-      "padding-bottom": {"px": 2, "em": 2, "%": 2},
-      "padding-left": {"px": 2, "em": 2, "%": 2},
-      "page-break-after": {"auto": 2, "always": 2, "avoid": 2, "left": 2, "right": 2},
-      "page-break-before": {"auto": 2, "always": 2, "avoid": 2, "left": 2, "right": 2},
-      "page-break-inside": 1,
-      "position": {"absolute": 2, "relative": 2, "fixed": 2, "static": 2},
-      "right": {"px": 2, "em": 2, "%": 2},
-      "table-layout": {"fixed": 2, "auto": 2},
-      "text-decoration": {"none": 2, "underline": 2, "line-through": 2, "blink": 2},
-      "text-align": {"left": 2, "right": 2, "center": 2, "justify": 2},
-      "text-indent": 1,
-      "text-transform": {"capitalize": 2, "uppercase": 2, "lowercase": 2, "none": 2},
-      "top": {"px": 2, "em": 2, "%": 2},
-      "vertical-align": {"top": 2, "bottom": 2},
-      "visibility": {"hidden": 2, "visible": 2},
-      "white-space": {"nowrap": 2, "normal": 2, "pre": 2, "pre-line": 2, "pre-wrap": 2},
-      "width": {"px": 2, "em": 2, "%": 2},
-      "word-spacing": {"normal": 2},
-      "z-index": 1,
+	var cssDictionary =
+	{
+	  "background": {"#$0": 2},
+	  "background-color": {"#$0": 2, "transparent": 2, "fixed": 2},
+	  "background-image": {"url('/$0')": 2},
+	  "background-repeat": {"repeat": 2, "repeat-x": 2, "repeat-y": 2, "no-repeat": 2, "inherit": 2},
+	  "background-position": {"bottom":2, "center":2, "left":2, "right":2, "top":2, "inherit":2,},
+	  "background-attachment": {"scroll": 2, "fixed": 2},
+	  "background-size": {"cover": 2, "contain": 2},
+	  "background-clip": {"border-box": 2, "padding-box": 2, "content-box": 2},
+	  "background-origin": {"border-box": 2, "padding-box": 2, "content-box": 2},
+	  "border": {"solid $0": 2, "dashed $0": 2, "dotted $0": 2, "#$0": 2},
+	  "border-top": 1,
+	  "border-right": 1,
+	  "border-bottom": 1,
+	  "border-left": 1,
+	  "border-color": {"#$0": 2},
+	  "border-width": 1,
+	  "border-style": {"solid":2, "dashed":2, "dotted":2, "double":2, "groove":2, "hidden":2, "inherit":2, "inset":2, "none":2, "outset":2, "ridged":2,},
+	  "border-spacing": 1,
+	  "border-collapse": {"collapse": 2, "separate": 2},
+	  "bottom": {"px": 2, "em": 2, "%": 2},
+	  "clear": {"left": 2, "right": 2, "both": 2, "none": 2},
+	  "clip": 1,
+	  "color": {"#$0": 2, "rgb(#$00,0,0)": 2},
+	  "content": 1,
+	  "cursor": {"default": 2, "pointer": 2, "move": 2, "text": 2, "wait": 2, "help": 2, "progress": 2, "n-resize": 2, "ne-resize": 2, "e-resize": 2, "se-resize": 2, "s-resize": 2, "sw-resize": 2, "w-resize": 2, "nw-resize": 2},
+	  "display": {"none": 2, "block": 2, "inline": 2, "inline-block": 2, "table-cell": 2},
+	  "empty-cells": {"show": 2, "hide": 2},
+	  "float": {"left": 2, "right": 2, "none": 2},
+	  "font-family": {"Arial":2,"Comic Sans MS":2,"Consolas":2,"Courier New":2,"Courier":2,"Georgia":2,"Monospace":2,"Sans-Serif":2, "Segoe UI":2,"Tahoma":2,"Times New Roman":2,"Trebuchet MS":2,"Verdana": 2},
+	  "font-size": {"px": 2, "em": 2, "%": 2},
+	  "font-weight": {"bold": 2, "normal": 2},
+	  "font-style": {"italic": 2, "normal": 2},
+	  "font-variant": {"normal": 2, "small-caps": 2},
+	  "font": 1,
+	  "height": {"px": 2, "em": 2, "%": 2},
+	  "left": {"px": 2, "em": 2, "%": 2},
+	  "letter-spacing": {"normal": 2},
+	  "line-height": {"normal": 2},
+	  "list-style": 1,
+	  "list-style-image": 1,
+	  "list-style-position": 1,
+	  "list-style-type": {"none": 2, "disc": 2, "circle": 2, "square": 2, "decimal": 2, "decimal-leading-zero": 2, "lower-roman": 2, "upper-roman": 2, "lower-greek": 2, "lower-latin": 2, "upper-latin": 2, "georgian": 2, "lower-alpha": 2, "upper-alpha": 2},
+	  "margin": {"px": 2, "em": 2, "%": 2},
+	  "margin-right": {"px": 2, "em": 2, "%": 2},
+	  "margin-left": {"px": 2, "em": 2, "%": 2},
+	  "margin-top": {"px": 2, "em": 2, "%": 2},
+	  "margin-bottom": {"px": 2, "em": 2, "%": 2},
+	  "max-height": {"px": 2, "em": 2, "%": 2},
+	  "max-width": {"px": 2, "em": 2, "%": 2},
+	  "min-height": {"px": 2, "em": 2, "%": 2},
+	  "min-width": {"px": 2, "em": 2, "%": 2},
+	  "outline": 1,
+	  "outline-color": 1,
+	  "outline-style": 1,
+	  "outline-width": 1,
+	  "overflow": {"hidden": 2, "visible": 2, "auto": 2, "scroll": 2},
+	  "overflow-x": {"hidden": 2, "visible": 2, "auto": 2, "scroll": 2},
+	  "overflow-y": {"hidden": 2, "visible": 2, "auto": 2, "scroll": 2},
+	  "padding": {"px": 2, "em": 2, "%": 2},
+	  "padding-top": {"px": 2, "em": 2, "%": 2},
+	  "padding-right": {"px": 2, "em": 2, "%": 2},
+	  "padding-bottom": {"px": 2, "em": 2, "%": 2},
+	  "padding-left": {"px": 2, "em": 2, "%": 2},
+	  "page-break-after": {"auto": 2, "always": 2, "avoid": 2, "left": 2, "right": 2},
+	  "page-break-before": {"auto": 2, "always": 2, "avoid": 2, "left": 2, "right": 2},
+	  "page-break-inside": 1,
+	  "position": {"absolute": 2, "relative": 2, "fixed": 2, "static": 2},
+	  "right": {"px": 2, "em": 2, "%": 2},
+	  "table-layout": {"fixed": 2, "auto": 2},
+	  "text-decoration": {"none": 2, "underline": 2, "line-through": 2, "blink": 2},
+	  "text-align": {"left": 2, "right": 2, "center": 2, "justify": 2},
+	  "text-indent": 1,
+	  "text-transform": {"capitalize": 2, "uppercase": 2, "lowercase": 2, "none": 2},
+	  "top": {"px": 2, "em": 2, "%": 2},
+	  "vertical-align": {"top": 2, "bottom": 2},
+	  "visibility": {"hidden": 2, "visible": 2},
+	  "white-space": {"nowrap": 2, "normal": 2, "pre": 2, "pre-line": 2, "pre-wrap": 2},
+	  "width": {"px": 2, "em": 2, "%": 2},
+	  "word-spacing": {"normal": 2},
+	  "z-index": 1,
 
-      // opacity
-      "opacity": 1,
-      "filter": {"alpha(opacity=$0100)": 2},
+	  // opacity
+	  "opacity": 1,
+	  "filter": {"alpha(opacity=$0100)": 2},
 
-      "text-shadow": {"$02px 2px 2px #777": 2},
-      "text-overflow": {"ellipsis-word": 2, "clip": 2, "ellipsis": 2},
+	  "text-shadow": {"$02px 2px 2px #777": 2},
+	  "text-overflow": {"ellipsis-word": 2, "clip": 2, "ellipsis": 2},
 
-      // border radius
-      "border-radius": 1,
-      "-moz-border-radius": 1,
-      "-moz-border-radius-topright": 1,
-      "-moz-border-radius-bottomright": 1,
-      "-moz-border-radius-topleft": 1,
-      "-moz-border-radius-bottomleft": 1,
-      "-webkit-border-radius": 1,
-      "-webkit-border-top-right-radius": 1,
-      "-webkit-border-top-left-radius": 1,
-      "-webkit-border-bottom-right-radius": 1,
-      "-webkit-border-bottom-left-radius": 1,
+	  // border radius
+	  "border-radius": 1,
+	  "-moz-border-radius": 1,
+	  "-moz-border-radius-topright": 1,
+	  "-moz-border-radius-bottomright": 1,
+	  "-moz-border-radius-topleft": 1,
+	  "-moz-border-radius-bottomleft": 1,
+	  "-webkit-border-radius": 1,
+	  "-webkit-border-top-right-radius": 1,
+	  "-webkit-border-top-left-radius": 1,
+	  "-webkit-border-bottom-right-radius": 1,
+	  "-webkit-border-bottom-left-radius": 1,
 
-      // dropshadows
-      "-moz-box-shadow": 1,
-      "-webkit-box-shadow": 1,
+	  // dropshadows
+	  "-moz-box-shadow": 1,
+	  "-webkit-box-shadow": 1,
 
-      // transformations
-      "transform": {"rotate($00deg)": 2, "skew($00deg)": 2},
-      "-moz-transform": {"rotate($00deg)": 2, "skew($00deg)": 2},
-      "-webkit-transform": {"rotate($00deg)": 2, "skew($00deg)": 2 }
-    };
+	  // transformations
+	  "transform": {"rotate($00deg)": 2, "skew($00deg)": 2},
+	  "-moz-transform": {"rotate($00deg)": 2, "skew($00deg)": 2},
+	  "-webkit-transform": {"rotate($00deg)": 2, "skew($00deg)": 2 }
+	};
 
 	var cssPseudoClasses = {
-      "link": 1,
-      "visited": 1,
-      "active": 1,
-      "hover": 1,
-      "focus": 1,
-      "first-letter": 1,
-      "first-line": 1,
-      "first-child": 1,
-      "before": 1,
-      "after": 1,
-      "last-child": 1
+	  "link": 1,
+	  "visited": 1,
+	  "active": 1,
+	  "hover": 1,
+	  "focus": 1,
+	  "first-letter": 1,
+	  "first-line": 1,
+	  "first-child": 1,
+	  "before": 1,
+	  "after": 1,
+	  "last-child": 1
 	};
 
 	var phpVarDictionary = {
@@ -418,11 +418,11 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 	};
 
 	run = function(editor, session, pos, prefix, callback){
-        var panel = $(editor.container).closest("[role=tabpanel]");
-        var tab = $("[role=tab][aria-controls="+panel.attr('id')+"]");
-	    var definitionRanges = window.shiftedit.defs[tab.attr('id')].definitionRanges;
+		var panel = $(editor.container).closest("[role=tabpanel]");
+		var tab = $("[role=tab][aria-controls="+panel.attr('id')+"]");
+		var definitionRanges = window.shiftedit.defs[tab.attr('id')].definitionRanges;
 
-	    forced = (prefix!=='');
+		forced = (prefix!=='');
 
 		var subject, args, i, func;
 		var items = {};
@@ -474,23 +474,23 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		var dom_ids = {};
 		var php_vars = {};
 		var php_classes = {};
-        var defs = window.shiftedit.defs;
+		var defs = window.shiftedit.defs;
 
 		for (var id in defs) {
-		    if( defs.hasOwnProperty(id) ){
-    			if( defs[id].definitions.php ){
-    				php_functions = util.merge(php_functions, defs[id].definitions.php.functions);
-    				php_vars = util.merge(php_vars, defs[id].definitions.php.variables);
-    				php_classes = util.merge(php_classes, defs[id].definitions.php.classes);
-    			}
-    			if( defs[id].definitions.js ){
-    				js_functions = util.merge(js_functions, defs[id].definitions.js.functions);
-    			}
-    			if( defs[id].definitions.css ){
-    				css_classes = util.merge(css_classes, defs[id].definitions.css.classes);
-    				dom_ids = util.merge(dom_ids, defs[id].definitions.css.ids);
-    			}
-		    }
+			if( defs.hasOwnProperty(id) ){
+				if( defs[id].definitions.php ){
+					php_functions = util.merge(php_functions, defs[id].definitions.php.functions);
+					php_vars = util.merge(php_vars, defs[id].definitions.php.variables);
+					php_classes = util.merge(php_classes, defs[id].definitions.php.classes);
+				}
+				if( defs[id].definitions.js ){
+					js_functions = util.merge(js_functions, defs[id].definitions.js.functions);
+				}
+				if( defs[id].definitions.css ){
+					css_classes = util.merge(css_classes, defs[id].definitions.css.classes);
+					dom_ids = util.merge(dom_ids, defs[id].definitions.css.ids);
+				}
+			}
 		}
 
 		//custom definitions
@@ -573,8 +573,8 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			var variable = '';
 			var def;
 
-            iterator = new TokenIterator(session, pos.row, pos.column);
-            token = iterator.getCurrentToken();
+			iterator = new TokenIterator(session, pos.row, pos.column);
+			token = iterator.getCurrentToken();
 			while (token) {
 				//skip ->
 				if( func && token.type == 'keyword.operator' ){
@@ -639,13 +639,13 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 					subject = 'js_function';
 				}
 
-    			if( className && php_classes[className] && php_classes[className].functions[func] ){
-    				def = php_classes[className].functions[func];
-    			}else{
-                    if( functions[func] ){
-    				    def = typeof functions[func] === 'object' ? functions[func][0] : func+' '+functions[func];
-    			    }
-                }
+				if( className && php_classes[className] && php_classes[className].functions[func] ){
+					def = php_classes[className].functions[func];
+				}else{
+					if( functions[func] ){
+						def = typeof functions[func] === 'object' ? functions[func][0] : func+' '+functions[func];
+					}
+				}
 			}
 
 			if( def ){
@@ -715,7 +715,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 				/([\w\-]+):[^:]*$/.test(line);
 				var CSSAttribute = RegExp.$1;
 				if(cssDictionary[CSSAttribute]){
-				    items = cssDictionary[CSSAttribute];
+					items = cssDictionary[CSSAttribute];
 				}
 			}else{
 				subject = 'css_attribute_name';
@@ -852,10 +852,10 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			items = functions;
 
 			for (i in items) {
-		        if( items[i] ){
-			        items[i][1] = "<h4>" + items[i][0] + "</h4>" + items[i][1];
-			        items[i][0] = i + '($0)';
-		        }
+				if( items[i] ){
+					items[i][1] = "<h4>" + items[i][0] + "</h4>" + items[i][1];
+					items[i][0] = i + '($0)';
+				}
 			}
 
 			autoSelect = false;
@@ -872,7 +872,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 
 		if( forced ){
 			//subject = 'snippets';
-            /*
+			/*
 			var getDeepAllLeafNodes = function(node,onlyLeaf){
 				var allNodes = [];
 				if(!value(node, false)){
@@ -894,7 +894,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			//snippets
 			var nodes;
 			if( $('#snippetTree') ){
-			    nodes = getDeepAllLeafNodes($('#snippetTree').getStore().getRootNode(), true);
+				nodes = getDeepAllLeafNodes($('#snippetTree').getStore().getRootNode(), true);
 			}
 
 			$.each(nodes, function (item) {
@@ -916,52 +916,52 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		var meta = '';
 
 		for (i in items) {
-		    if( items[i] ){
-    			caption = i;
-    			value = i;
-    			snippet = null;
+			if( items[i] ){
+				caption = i;
+				value = i;
+				snippet = null;
 
-    			if(typeof items[i] === 'object' && items[i][0]){
-    				snippet = items[i][0];
-    			}
+				if(typeof items[i] === 'object' && items[i][0]){
+					snippet = items[i][0];
+				}
 
-    			if( value.indexOf('$0')!==-1 ){
-    			    snippet = value;
-    			    caption = value.replace('$0', '');
-    			}
+				if( value.indexOf('$0')!==-1 ){
+					snippet = value;
+					caption = value.replace('$0', '');
+				}
 
-    			// if function add braces
-    			if( typeof items[i] == 'string' && items[i].indexOf('(') !==-1 ){
-    				snippet = value + '($0)';
-    			}
+				// if function add braces
+				if( typeof items[i] == 'string' && items[i].indexOf('(') !==-1 ){
+					snippet = value + '($0)';
+				}
 
-    			switch(subject){
-    				case 'html_attribute_name':
-    					snippet = value + '="$0"';
-    				break;
-    				case 'css_attribute_name':
-    					snippet = value + ': ';
-    				break;
-    			}
+				switch(subject){
+					case 'html_attribute_name':
+						snippet = value + '="$0"';
+					break;
+					case 'css_attribute_name':
+						snippet = value + ': ';
+					break;
+				}
 
-    			doc = '';
-    			if(typeof items[i] === 'object' && items[i][1]){
-    				doc = items[i][1];
-    			}
+				doc = '';
+				if(typeof items[i] === 'object' && items[i][1]){
+					doc = items[i][1];
+				}
 
-    			meta = subject;
-    			if(typeof items[i] === 'object' && items[i][2]){
-    				meta = items[i][2];
-    			}
+				meta = subject;
+				if(typeof items[i] === 'object' && items[i][2]){
+					meta = items[i][2];
+				}
 
-    			options.push({
-    				caption: caption,
-                    snippet: snippet,
-                    value: value,
-    				meta: meta,
-    				doc: doc
-    			});
-		    }
+				options.push({
+					caption: caption,
+					snippet: snippet,
+					value: value,
+					meta: meta,
+					doc: doc
+				});
+			}
 		}
 
 		editor.completer.autoSelect = autoSelect;
@@ -969,7 +969,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		return options;
 	};
 
-    return {
-        run: run
-    };
+	return {
+		run: run
+	};
 });

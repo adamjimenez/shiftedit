@@ -1,7 +1,7 @@
 define(['app/tabs'], function (tabs) {
 function create() {
-    var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    var editor = tabs.getEditor(tab);
+	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	var editor = tabs.getEditor(tab);
 
 	tab.data('design-ready', true);
 
@@ -21,9 +21,9 @@ function create() {
 			"insertdatetime media table contextmenu paste fullpage textcolor colorpicker"
 		],
 		toolbar: "undo redo styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image forecolor backcolor",
-	    protect: [
-	        /<\?[\s\S]*\?>/g // Protect php code
-	    ],
+		protect: [
+			/<\?[\s\S]*\?>/g // Protect php code
+		],
 		// General options
 		// Theme options
 		theme_advanced_toolbar_location : "top",
@@ -77,69 +77,69 @@ function create() {
 			var ajaxOptions = site.getAjaxOptions('/api/files?site='+siteId);
 			var settings = site.getSettings();
 
-		    $( "body" ).append('<div id="dialog-choose-image" title="Choose image">\
+			$( "body" ).append('<div id="dialog-choose-image" title="Choose image">\
 			<div id="imageTree"></div>\
 			</div>');
 
-		    var imageTree = $('#imageTree').jstree({
-		    	'core' : {
-		            'data' : function (node, callback) {
-		                if( ['GDrive', 'GDriveLimited'].indexOf(settings.server_type) !== -1 ){
-		                    gdrive.directFn({node: node, callback: callback, tree: $('#imageTree')});
-		                }else{
-		                    if(!ajaxOptions.url){
-		                        return false;
-		                    }
+			var imageTree = $('#imageTree').jstree({
+				'core' : {
+					'data' : function (node, callback) {
+						if( ['GDrive', 'GDriveLimited'].indexOf(settings.server_type) !== -1 ){
+							gdrive.directFn({node: node, callback: callback, tree: $('#imageTree')});
+						}else{
+							if(!ajaxOptions.url){
+								return false;
+							}
 
-				            if(node.id==='#') {
-				            	return callback.call(tree, {
-				            		children: true,
-				            		id: '#root',
-				            		text: ajaxOptions.dir,
-				            		type: 'folder'
-				            	});
-				            }
+							if(node.id==='#') {
+								return callback.call(tree, {
+									children: true,
+									id: '#root',
+									text: ajaxOptions.dir,
+									type: 'folder'
+								});
+							}
 
-		            		$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
-		            		    method: 'POST',
-		            		    dataType: 'json',
-		            		    data: ajaxOptions.params,
-		            		    success: function(data) {
-		            		        //console.log(data);
-		                            callback.call(imageTree, data.files);
-		            		    }
-		            		});
-		                }
-		            }
-		    	},
-		    	'types' : {
-		    		'default' : { 'icon' : 'folder' },
-		    		'file' : { 'valid_children' : [], 'icon' : 'file' }
-		    	},
-		    	'sort' : function(a, b) {
-		    		return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
-		    	},
-		    	'plugins' : [
-		    	    'sort','types'
-		    	]
-		    }).on('refresh.jstree', function(e, data){
-		    	//expand root node
+							$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+								method: 'POST',
+								dataType: 'json',
+								data: ajaxOptions.params,
+								success: function(data) {
+									//console.log(data);
+									callback.call(imageTree, data.files);
+								}
+							});
+						}
+					}
+				},
+				'types' : {
+					'default' : { 'icon' : 'folder' },
+					'file' : { 'valid_children' : [], 'icon' : 'file' }
+				},
+				'sort' : function(a, b) {
+					return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
+				},
+				'plugins' : [
+					'sort','types'
+				]
+			}).on('refresh.jstree', function(e, data){
+				//expand root node
 				var inst = $.jstree.reference($('#imageTree'));
-		    	var rootNode = $('#imageTree').jstree(true).get_node('#').children[0];
-		    	inst.open_node(rootNode);
-		    });
+				var rootNode = $('#imageTree').jstree(true).get_node('#').children[0];
+				inst.open_node(rootNode);
+			});
 
-		    imageTree.jstree(true).refresh();
+			imageTree.jstree(true).refresh();
 
-		    $( "#dialog-choose-image" ).dialog({
-		        modal: true,
-		        minHeight: 200,
-		        buttons: {
-		            OK: function() {
-		                var reference = imageTree;
-		                var instance = $.jstree.reference(imageTree);
-		                var selected = instance.get_selected();
-		                var node = instance.get_node(selected);
+			$( "#dialog-choose-image" ).dialog({
+				modal: true,
+				minHeight: 200,
+				buttons: {
+					OK: function() {
+						var reference = imageTree;
+						var instance = $.jstree.reference(imageTree);
+						var selected = instance.get_selected();
+						var node = instance.get_node(selected);
 
 						if(node){
 							var parent;
@@ -165,24 +165,24 @@ function create() {
 								path += to;
 
 								win.document.getElementById(field_name).value = path;
-				                $( this ).dialog( "close" );
-				                $( "#dialog-choose-image" ).remove();
+								$( this ).dialog( "close" );
+								$( "#dialog-choose-image" ).remove();
 							}
 						}
-		            },
-		            Cancel: function() {
-		                $( this ).dialog( "close" );
-		                $( "#dialog-choose-image" ).remove();
-		            }
-		        }
-		    });
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
+						$( "#dialog-choose-image" ).remove();
+					}
+				}
+			});
 
 
 		}
 	});
 }
 
-    return {
-    	create: create
-    };
+	return {
+		create: create
+	};
 });

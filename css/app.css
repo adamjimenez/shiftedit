@@ -54,6 +54,10 @@ textarea{
     height: 100%;
 }
 
+.ui-layout-north {
+    overflow: hidden;
+}
+
 /* TAB-THEME ADJUSTMENTS */
 .ui-tabs-panel {
 	font-size: 1em !important;
@@ -191,13 +195,17 @@ li[role=tab] .ui-icon {
 .jstree .file-css { background-position: -144px 0 }
 .jstree .file-fla { background-position: -398px 0 }
 
-/* force tree grid height to 100% */
-.jstree-grid-wrapper{
+/* force tree table height to 100% */
+.jstree-table-wrapper{
     height: 100%;
 }
 
-.jstree-grid-cell{
+.jstree-table-cell{
 	background-image: none !important;
+}
+
+.jstree-default .jstree-anchor, .jstree-ocl {
+    cursor: default;
 }
 
 .vakata-context .vakata-contextmenu-shortcut{
@@ -755,6 +763,10 @@ li[role=tab] .ui-icon {
 
 .newTab h5{
     margin: 0;
+}
+
+.newTab a{
+    text-decoration: none;
 }
 
 .newTab .column{

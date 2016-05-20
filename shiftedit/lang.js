@@ -8,24 +8,24 @@ if(customLang){
 }
 
 function load() {
-    return $.getJSON('/api/lang')
-        .then(function (data) {
-            if(!data.success){
-                console.log('lang not found');
-            }
+	return $.getJSON('/api/lang')
+		.then(function (data) {
+			if(!data.success){
+				console.log('lang not found');
+			}
 
-            lang = data.strs;
+			lang = data.strs;
 
 			storage.set('lang', data.lang);
 			storage.set('strs', lang);
 
-            return data;
-        });
+			return data;
+		});
 }
 
 return {
-    load: load,
-    lang: lang
+	load: load,
+	lang: lang
 };
 
 });

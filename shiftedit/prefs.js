@@ -212,32 +212,32 @@ var skins = [{
 
 var skinHTML = '';
 skins.forEach(function(item){
-    skinHTML += '<label>\
-	    <input type="radio" name="skin" value="'+item.name+'">\
-	    '+item.title+'\
+	skinHTML += '<label>\
+		<input type="radio" name="skin" value="'+item.name+'">\
+		'+item.title+'\
 	</label>';
 });
 
 skinHTML += '<label>\
-    <input type="radio" name="skin" value="custom">\
-    <input type="text" name="skinUrl" id="skinUrl" class="text ui-widget-content ui-corner-all" placeholder="Themeroller url e.g http://jqueryui.com/themeroller/..">\
-    <a href="http://jqueryui.com/themeroller/" target="_blank">Theme roller</a>\
+	<input type="radio" name="skin" value="custom">\
+	<input type="text" name="skinUrl" id="skinUrl" class="text ui-widget-content ui-corner-all" placeholder="Themeroller url e.g http://jqueryui.com/themeroller/..">\
+	<a href="http://jqueryui.com/themeroller/" target="_blank">Theme roller</a>\
 </label>';
 
 var codeThemes = ['custom', 'ambiance', 'chaos', 'chrome', 'clouds', 'clouds_midnight', 'cobalt', 'crimson_editor', 'dawn', 'dreamweaver', 'eclipse', 'idle_fingers', 'katzenmilch', 'kr_theme', 'kuroir', 'merbivore', 'merbivore_soft', 'mono_industrial', 'monokai', 'pastel_on_dark', 'solarized_dark', 'solarized_light', 'terminal', 'textmate', 'tomorrow', 'tomorrow_night', 'tomorrow_night_blue', 'tomorrow_night_bright', 'tomorrow_night_eighties', 'twilight', 'vibrant_ink', 'xcode'];
 
 var themeHTML = '';
 codeThemes.forEach(function(item){
-    var label = item.replace(/_/g, ' ');
-    label = label.charAt(0).toUpperCase() + label.slice(1);
+	var label = item.replace(/_/g, ' ');
+	label = label.charAt(0).toUpperCase() + label.slice(1);
 
-    if(item==='custom') {
-        label += ' (<a class="editCustomTheme" href="#">Edit</a>)';
-    }
+	if(item==='custom') {
+		label += ' (<a class="editCustomTheme" href="#">Edit</a>)';
+	}
 
-    themeHTML += '<label>\
-	    <input type="radio" name="codeTheme" value="'+item+'">\
-	    '+ label +'\
+	themeHTML += '<label>\
+		<input type="radio" name="codeTheme" value="'+item+'">\
+		'+ label +'\
 	</label>';
 });
 
@@ -629,34 +629,34 @@ coffeelint_options = [{
 
 var jslintHTML = '';
 jslint_options.forEach(function (item) {
-    jslintHTML += '<label>\
-    <input type="checkbox" name="jslint_'+item.name+'" value="1">\
-    '+item.description+'\
+	jslintHTML += '<label>\
+	<input type="checkbox" name="jslint_'+item.name+'" value="1">\
+	'+item.description+'\
 </label>';
 
-    defaultPrefs['jslint_'+item.name] = item.value;
+	defaultPrefs['jslint_'+item.name] = item.value;
 });
 
 var csslintHTML = '';
 css_rules.forEach(function (item) {
-    csslintHTML += '<label>\
-    <input type="checkbox" name="csslint_'+item.id+'" value="1">\
-    '+item.desc+'\
+	csslintHTML += '<label>\
+	<input type="checkbox" name="csslint_'+item.id+'" value="1">\
+	'+item.desc+'\
 </label>';
 });
 
 var coffeescriptlintHTML = '';
 coffeelint_options.forEach(function (item) {
-    coffeescriptlintHTML += '<label>\
-    <input type="checkbox" name="coffeelint_'+item.name+'" value="1">\
-    '+item.description+'\
+	coffeescriptlintHTML += '<label>\
+	<input type="checkbox" name="coffeelint_'+item.name+'" value="1">\
+	'+item.description+'\
 </label>';
 
-    defaultPrefs['coffeelint_'+item.name] = item.value;
+	defaultPrefs['coffeelint_'+item.name] = item.value;
 });
 
 if(!prefs)
-    prefs = {};
+	prefs = {};
 
 // create hash using mater password hash
 function createHash(password) {
@@ -664,21 +664,21 @@ function createHash(password) {
 }
 
 function load() {
-    return $.getJSON('/api/prefs')
-        .then(function (data) {
-            console.log('loaded prefs');
-            prefs = $.extend(defaultPrefs, data.prefs);
+	return $.getJSON('/api/prefs')
+		.then(function (data) {
+			console.log('loaded prefs');
+			prefs = $.extend(defaultPrefs, data.prefs);
 
-            for(var i in prefs){
-                if (prefs.hasOwnProperty(i)) {
-                    try{
-                        prefs[i] = JSON.parse(prefs[i]);
-                    }catch(e) {
-                    }
-                }
-            }
+			for(var i in prefs){
+				if (prefs.hasOwnProperty(i)) {
+					try{
+						prefs[i] = JSON.parse(prefs[i]);
+					}catch(e) {
+					}
+				}
+			}
 
-            openingFilesBatch = data.openingFilesBatch;
+			openingFilesBatch = data.openingFilesBatch;
 			storage.set('prefs', prefs);
 
 			//storage.set('site', site);
@@ -696,7 +696,7 @@ function load() {
 
 			//load skin
 			if(prefs.skin) {
-			    updateSkin(prefs.skin);
+				updateSkin(prefs.skin);
 			}
 			
 			//prompt
@@ -706,8 +706,8 @@ function load() {
 				prompt.alert({title:'Free Trial Expired',  msg:'Support ShiftEdit by <a href="/premier" target="_blank">picking a plan</a>.'});
 			}
 
-            return prefs;
-        });
+			return prefs;
+		});
 }
 
 function unzip( zipped, callback ) {
@@ -754,13 +754,13 @@ function updateSkin(name){
 	//remove old ones
 	$( "link[href*=cmd\\=skin]" ).remove();
 	$( "#theme" ).remove();
-    $('#themeStyle').remove();
+	$('#themeStyle').remove();
 	
 	if (prefs.skin === 'custom') {
 		parsethemeUrl(prefs.skinUrl);
 	} else {
-	    var url;
-	    var currentStyle = [];
+		var url;
+		var currentStyle = [];
 		var themepath = '//shiftedit.s3.amazonaws.com/css';
 		//themepath = 'css';
 	
@@ -777,47 +777,47 @@ function updateSkin(name){
 			name = prefs.skin;
 		}
 	
-	    if (!url) {
-	        var urlPrefix = themepath + "/themes.1.12/";
-	        url = urlPrefix + name + "/jquery-ui.css";
-	        currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
-	    }
+		if (!url) {
+			var urlPrefix = themepath + "/themes.1.12/";
+			url = urlPrefix + name + "/jquery-ui.css";
+			currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
+		}
 	
-	    var style = $("<link/>")
-	    .attr("type","text/css")
-	    .attr("rel","stylesheet")
-	    .attr("id","theme")
-	    .attr("href", url);
+		var style = $("<link/>")
+		.attr("type","text/css")
+		.attr("rel","stylesheet")
+		.attr("id","theme")
+		.attr("href", url);
 	
-	    style.appendTo("head");
+		style.appendTo("head");
 	
-	    style.load(function(){
-		    //set resizer color
-		    var borderColor = $('.ui-widget-header').css('border-color');
+		style.load(function(){
+			//set resizer color
+			var borderColor = $('.ui-widget-header').css('border-color');
 			$('.ui-layout-resizer').css('background', borderColor);
 	
-		    //var activeColor = $('.ui-widget-header').css('border-color');
-		    //var hoverColor = $('.ui-widget-header').css('border-color');
+			//var activeColor = $('.ui-widget-header').css('border-color');
+			//var hoverColor = $('.ui-widget-header').css('border-color');
 	
-		    var div = $('<div class="ui-state-highlight"></div>').appendTo('body');
-		    var activeBackground = div.css('background-color');
-		    var activeColor = div.css('color');
-		    var activeBorderColor = div.css('border-color');
-		    div.remove();
+			var div = $('<div class="ui-state-highlight"></div>').appendTo('body');
+			var activeBackground = div.css('background-color');
+			var activeColor = div.css('color');
+			var activeBorderColor = div.css('border-color');
+			div.remove();
 	
-		    div = $('<div class="ui-state-focus"></div>').appendTo('body');
-		    var hoverBackground = div.css('background-color');
-		    var hoverColor = div.css('color');
-		    var hoverBorderColor = div.css('border-color');
-		    div.remove();
+			div = $('<div class="ui-state-focus"></div>').appendTo('body');
+			var hoverBackground = div.css('background-color');
+			var hoverColor = div.css('color');
+			var hoverBorderColor = div.css('border-color');
+			div.remove();
 	
-		    div = $('<div class="ui-state-default"></div>').appendTo('body');
-		    var defaultBackground = div.css('background-color');
-		    var defaultColor = div.css('color');
-		    var defaultBorderColor = div.css('border-color');
-		    div.remove();
+			div = $('<div class="ui-state-default"></div>').appendTo('body');
+			var defaultBackground = div.css('background-color');
+			var defaultColor = div.css('color');
+			var defaultBorderColor = div.css('border-color');
+			div.remove();
 	
-	        $('<style id="themeStyle">\
+			$('<style id="themeStyle">\
 			.jstree-default .jstree-clicked{\
 				background: '+activeBackground+' !important;\
 				color: '+activeColor+' !important;\
@@ -829,104 +829,115 @@ function updateSkin(name){
 				color: '+hoverColor+';\
 				border: 0 solid '+hoverBorderColor+';\
 			}\
-			.jstree-grid-header-regular{\
+			.jstree-table-header-regular{\
 				background-color: '+defaultBackground+' !important;\
 				color: '+defaultColor+';\
+			}\
+			.jstree-table-separator{\
+				border-color: '+defaultBorderColor+';\
+			}\
+			\
+			.jstree-table-midwrapper a.jstree-hovered:before{\
+				background: '+hoverBackground+';\
+			}\
+			\
+			.jstree-table-midwrapper a.jstree-clicked:before{\
+				background: '+activeBackground+';\
 			}\
 			</style>').appendTo('head');
 	
 		});
 	
-	    /*
-	    $.cookie(settings.cookiename, data.name,
-	        { expires: settings.cookieexpires, path: settings.cookiepath }
-	    );*/
+		/*
+		$.cookie(settings.cookiename, data.name,
+			{ expires: settings.cookieexpires, path: settings.cookiepath }
+		);*/
 	}
 }
 
 function save(name, value) {
-    //nested array value
-    parts = name.split('.');
-    name = parts[0];
+	//nested array value
+	parts = name.split('.');
+	name = parts[0];
 
-    if (parts[1]) {
-        prefs[name][parts[1]] = value;
-    } else {
-        prefs[name] = value;
-    }
+	if (parts[1]) {
+		prefs[name][parts[1]] = value;
+	} else {
+		prefs[name] = value;
+	}
 
-    //skin
-    if(name==='skin' || name=='skinUrl') {
-        updateSkin(value);
-    }
+	//skin
+	if(name==='skin' || name=='skinUrl') {
+		updateSkin(value);
+	}
 
-    if(name==='customTheme'){
+	if(name==='customTheme'){
 		$('#ace-custom').remove();
-    }
+	}
 
-    if(name==='singleClickOpen'){
+	if(name==='singleClickOpen'){
 		tree.setSingleClickOpen(value);
-    }
+	}
 
-    //apply change to open editors
-    $('li[data-file]').each(function() {
-        editors.applyPrefs(this);
-    });
+	//apply change to open editors
+	$('li[data-file]').each(function() {
+		editors.applyPrefs(this);
+	});
 
-    if(typeof(prefs[name])==='object') {
-        value = JSON.stringify(prefs[name]);
-    }
+	if(typeof(prefs[name])==='object') {
+		value = JSON.stringify(prefs[name]);
+	}
 
-    $.ajax({
-        url: '/api/prefs?cmd=save&name='+name,
-	    method: 'POST',
-	    dataType: 'json',
-	    data: {value: value}
-    })
-    .then(function (data) {
-        if(!data.success){
-            prompt.alert({title:'Error', msg:data.error});
-        } else {
-        	storage.set('prefs', prefs);
-        }
-    }).fail(function() {
+	$.ajax({
+		url: '/api/prefs?cmd=save&name='+name,
+		method: 'POST',
+		dataType: 'json',
+		data: {value: value}
+	})
+	.then(function (data) {
+		if(!data.success){
+			prompt.alert({title:'Error', msg:data.error});
+		} else {
+			storage.set('prefs', prefs);
+		}
+	}).fail(function() {
 		prompt.alert({title:lang.failedText, msg:'Error saving preferences'});
-    });
+	});
 }
 
 function open() {
-    var myLayout = layout.get();
+	var myLayout = layout.get();
 
-    //check if already open
-    var tab = $('li[data-type=prefs]');
+	//check if already open
+	var tab = $('li[data-type=prefs]');
 
 	var panel = 'east';
 	var minWidth = 300;
 
-    if(tab.length) {
-        var tabpanel = tab.closest('.ui-tabs');
-        tabpanel.tabs("option", "active", tab.index());
+	if(tab.length) {
+		var tabpanel = tab.closest('.ui-tabs');
+		tabpanel.tabs("option", "active", tab.index());
 
-        //get nearest panel
-        var pane = tab.closest('.ui-layout-pane');
-        panel = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
+		//get nearest panel
+		var pane = tab.closest('.ui-layout-pane');
+		panel = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 
-        //expand panel
-    	myLayout.open(panel);
-        if (pane.outerWidth() < minWidth) {
+		//expand panel
+		myLayout.open(panel);
+		if (pane.outerWidth() < minWidth) {
 			myLayout.sizePane(panel, minWidth);
-        }
+		}
 
-        return;
-    }
+		return;
+	}
 
-    //expand east panel
-    myLayout.open(panel);
-    if(myLayout.panes.east.outerWidth() < minWidth) {
+	//expand east panel
+	myLayout.open(panel);
+	if(myLayout.panes.east.outerWidth() < minWidth) {
 		myLayout.sizePane(panel, minWidth);
-    }
+	}
 
-    //create tab
+	//create tab
 	tab = $('.ui-layout-east').tabs('add', 'Preferences', '<div class="prefs">\
 	<form id="prefsForm">\
 	<h2>General</h2>\
@@ -936,129 +947,129 @@ function open() {
 	'+themeHTML+'<br>\
 	<label>Prompt on exit</label>\
 	<label>\
-	    <input type="radio" name="promptOnExit" value="unsaved">\
-	    When there are unsaved changes\
+		<input type="radio" name="promptOnExit" value="unsaved">\
+		When there are unsaved changes\
 	</label>\
 	<label>\
-	    <input type="radio" name="promptOnExit" value="always">\
-	    Always\
+		<input type="radio" name="promptOnExit" value="always">\
+		Always\
 	</label>\
 	<h2>Files</h2>\
 	<label>\
-	    Default template<br>\
-	    <select id="defaultCode" class="ui-widget ui-state-default ui-corner-all"></select>\
-	    <button id="editDefaultCode" type="button">Edit</button>\
+		Default template<br>\
+		<select id="defaultCode" class="ui-widget ui-state-default ui-corner-all"></select>\
+		<button id="editDefaultCode" type="button">Edit</button>\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="restoreTabs" value="1">\
-	    Restore tabs on startup\
+		<input type="checkbox" name="restoreTabs" value="1">\
+		Restore tabs on startup\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="singleClickOpen" value="1">\
-	    Single click to open files\
+		<input type="checkbox" name="singleClickOpen" value="1">\
+		Single click to open files\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="stripWhitespace" value="1">\
-	    Strip whitespace on save\
+		<input type="checkbox" name="stripWhitespace" value="1">\
+		Strip whitespace on save\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="saveWithMinified" value="1">\
-	    Save with minified\
+		<input type="checkbox" name="saveWithMinified" value="1">\
+		Save with minified\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="compileLESS" value="1">\
-	    Compile LESS/ SCSS on save\
+		<input type="checkbox" name="compileLESS" value="1">\
+		Compile LESS/ SCSS on save\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="compileCoffeeScript" value="1">\
-	    Compile CoffeeScript on save\
+		<input type="checkbox" name="compileCoffeeScript" value="1">\
+		Compile CoffeeScript on save\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="autoSave" value="1">\
-	    Autosave\
+		<input type="checkbox" name="autoSave" value="1">\
+		Autosave\
 	</label><br>\
 	<label>\
-	    Default encoding<br>\
-	    <select name="encoding" class="ui-widget ui-state-default ui-corner-all"></select>\
+		Default encoding<br>\
+		<select name="encoding" class="ui-widget ui-state-default ui-corner-all"></select>\
 	</label>\
 	\
 	<h2>Editor</h2>\
 	<label>Key binding</label>\
 	<label>\
-	    <input type="radio" name="keyBinding" value="default">\
-	    Default\
+		<input type="radio" name="keyBinding" value="default">\
+		Default\
 	</label>\
 	<label>\
-	    <input type="radio" name="keyBinding" value="vim">\
-	    Vim\
+		<input type="radio" name="keyBinding" value="vim">\
+		Vim\
 	</label>\
 	<label>\
-	    <input type="radio" name="keyBinding" value="emacs">\
-	    Emacs\
+		<input type="radio" name="keyBinding" value="emacs">\
+		Emacs\
 	</label><br>\
 	<label>\
-	    <input type="checkbox" name="autoTabs" value="1">\
-	    Detect tab type\
+		<input type="checkbox" name="autoTabs" value="1">\
+		Detect tab type\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="softTabs" value="1">\
-	    Indent with spaces\
+		<input type="checkbox" name="softTabs" value="1">\
+		Indent with spaces\
 	</label><br>\
 	<label>\
-	    Tab size<br>\
-	    <select name="tabSize" class="ui-widget ui-state-default ui-corner-all">\
-	        <option>2</option>\
-	        <option>3</option>\
-	        <option>4</option>\
-	        <option>8</option>\
-	    </select>\
+		Tab size<br>\
+		<select name="tabSize" class="ui-widget ui-state-default ui-corner-all">\
+			<option>2</option>\
+			<option>3</option>\
+			<option>4</option>\
+			<option>8</option>\
+		</select>\
 	</label><br>\
 	<label>Line break</label>\
 	<label>\
-	    <input type="radio" name="lineBreak" value="auto">\
-	    Auto\
+		<input type="radio" name="lineBreak" value="auto">\
+		Auto\
 	</label>\
 	<label>\
-	    <input type="radio" name="lineBreak" value="unix">\
-	    Unix\
+		<input type="radio" name="lineBreak" value="unix">\
+		Unix\
 	</label>\
 	<label>\
-	    <input type="radio" name="lineBreak" value="windows">\
-	    Windows\
+		<input type="radio" name="lineBreak" value="windows">\
+		Windows\
 	</label><br>\
 	<label>\
-	    Font size<br>\
-	    <input type="number" name="fontSize" value="" class="ui-widget ui-state-default ui-corner-all">\
+		Font size<br>\
+		<input type="number" name="fontSize" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label>\
 	<label>\
-	    Print margin column<br>\
-	    <input type="number" name="printMarginColumn" value="" class="ui-widget ui-state-default ui-corner-all">\
+		Print margin column<br>\
+		<input type="number" name="printMarginColumn" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label><br>\
 	<label>\
-	    <input type="checkbox" name="autocomplete" value="1">\
-	    Autocomplete\
+		<input type="checkbox" name="autocomplete" value="1">\
+		Autocomplete\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="indentOnPaste" value="1">\
-	    Indent on paste\
+		<input type="checkbox" name="indentOnPaste" value="1">\
+		Indent on paste\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="zen" value="1">\
-	    Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
+		<input type="checkbox" name="zen" value="1">\
+		Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="behaviours" value="1">\
-	    Auto-close tags, brackets, quotes etc\
+		<input type="checkbox" name="behaviours" value="1">\
+		Auto-close tags, brackets, quotes etc\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="scrollPastEnd" value="1">\
-	    Scroll past end\
+		<input type="checkbox" name="scrollPastEnd" value="1">\
+		Scroll past end\
 	</label>\
 	<h2>Security</h2>\
 	<p>A Master Password is used to protect your passwords.</p>\
 	<label>\
-	    <input type="checkbox" id="useMasterPassword" name="useMasterPassword" value="1">\
-	    Use a master password\
+		<input type="checkbox" id="useMasterPassword" name="useMasterPassword" value="1">\
+		Use a master password\
 	</label>\
 	<p><button type="button" id="changeMasterPassword">Change master password</button></p>\
 	<h2>Lint Checking</h2>\
@@ -1072,149 +1083,149 @@ function open() {
 	<h3>HTML</h3>\
 	<label>HTML &lt;style&gt;, &lt;script&gt; formatting</label>\
 	<label>\
-	    <input type="radio" name="beautifier_indent_scripts" value="keep">\
-	    Keep indent level of the tag\
+		<input type="radio" name="beautifier_indent_scripts" value="keep">\
+		Keep indent level of the tag\
 	</label>\
 	<label>\
-	    <input type="radio" name="beautifier_indent_scripts" value="normal">\
-	    Add one indent level\
+		<input type="radio" name="beautifier_indent_scripts" value="normal">\
+		Add one indent level\
 	</label>\
 	<label>\
-	    <input type="radio" name="beautifier_indent_scripts" value="separate">\
-	    Separate indentation\
+		<input type="radio" name="beautifier_indent_scripts" value="separate">\
+		Separate indentation\
 	</label><br>\
 	<h3>CSS</h3>\
 	<label>Open curly brace</label>\
 	<label>\
-	    <input type="radio" name="beautifier_open_brace" value="end-of-line">\
-	    End of line\
+		<input type="radio" name="beautifier_open_brace" value="end-of-line">\
+		End of line\
 	</label>\
 	<label>\
-	    <input type="radio" name="beautifier_open_brace" value="separate-line">\
-	    Separate line\
+		<input type="radio" name="beautifier_open_brace" value="separate-line">\
+		Separate line\
 	</label><br>\
 	<h3>Javascript</h3>\
 	<label>Brace style</label>\
 	<label>\
-	    <input type="radio" name="beautifier_brace_style" value="collapse">\
-	    Braces with control statement\
+		<input type="radio" name="beautifier_brace_style" value="collapse">\
+		Braces with control statement\
 	</label>\
 	<label>\
-	    <input type="radio" name="beautifier_brace_style" value="expand">\
-	    Braces on own line\
+		<input type="radio" name="beautifier_brace_style" value="expand">\
+		Braces on own line\
 	</label>\
 	<label>\
-	    <input type="radio" name="beautifier_brace_style" value="end-expand">\
-	    End braces on own line\
+		<input type="radio" name="beautifier_brace_style" value="end-expand">\
+		End braces on own line\
 	</label><br>\
 	<label>\
-	    <input type="checkbox" name="beautifier_preserve_newlines" value="1">\
-	    Preserve empty lines\
+		<input type="checkbox" name="beautifier_preserve_newlines" value="1">\
+		Preserve empty lines\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="beautifier_keep_array_indentation" value="1">\
-	    Keep array indentation\
+		<input type="checkbox" name="beautifier_keep_array_indentation" value="1">\
+		Keep array indentation\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="beautifier_break_chained_methods" value="1">\
-	    Break lines on chained methods\
+		<input type="checkbox" name="beautifier_break_chained_methods" value="1">\
+		Break lines on chained methods\
 	</label>\
 	<label>\
-	    <input type="checkbox" name="beautifier_space_before_conditional" value="1">\
-	    Spaces before conditional: "if(x)" / "if (x)"\
+		<input type="checkbox" name="beautifier_space_before_conditional" value="1">\
+		Spaces before conditional: "if(x)" / "if (x)"\
 	</label>\
 	</form>\
 	</div>');
 
 	tab.attr('data-type', 'prefs');
 
-    //encoding dropdown
-    for(var i in charsets) {
-        if (charsets.hasOwnProperty(i)) {
-            $('#prefsForm select[name=encoding]').append( '<option value="'+i+'">'+charsets[i]+' ('+i+')</option>' );
-        }
-    }
+	//encoding dropdown
+	for(var i in charsets) {
+		if (charsets.hasOwnProperty(i)) {
+			$('#prefsForm select[name=encoding]').append( '<option value="'+i+'">'+charsets[i]+' ('+i+')</option>' );
+		}
+	}
 
-    //modes dropdown
-    for( i in modes) {
-        if (modes.hasOwnProperty(i)) {
-            $('#defaultCode').append( '<option value="'+modes[i][2][0]+'">'+modes[i][1]+'</option>' );
-        }
-    }
-    $('#defaultCode').val('html');
+	//modes dropdown
+	for( i in modes) {
+		if (modes.hasOwnProperty(i)) {
+			$('#defaultCode').append( '<option value="'+modes[i][2][0]+'">'+modes[i][1]+'</option>' );
+		}
+	}
+	$('#defaultCode').val('html');
 
-    //form values
-    //var values = $.extend(defaultPrefs, prefs);
+	//form values
+	//var values = $.extend(defaultPrefs, prefs);
 
-    var inputs = $('#prefsForm input[name], #prefsForm select[name]');
+	var inputs = $('#prefsForm input[name], #prefsForm select[name]');
 
-    inputs.each(function() {
-        var name = $(this).prop('name');
-        var val = prefs[name];
+	inputs.each(function() {
+		var name = $(this).prop('name');
+		var val = prefs[name];
 
-        switch($(this).prop('type')) {
-            case 'checkbox':
-                $(this).prop('checked', val);
-            break;
-            case 'radio':
-                $("input[name=" + name + "][value=" + val + "]").prop('checked', true);
-            break;
-            default:
-                $(this).val(prefs[$(this).prop('name')]);
-            break;
-        }
-    });
+		switch($(this).prop('type')) {
+			case 'checkbox':
+				$(this).prop('checked', val);
+			break;
+			case 'radio':
+				$("input[name=" + name + "][value=" + val + "]").prop('checked', true);
+			break;
+			default:
+				$(this).val(prefs[$(this).prop('name')]);
+			break;
+		}
+	});
 
-    inputs.change(function() {
-        var name = $(this).prop('name');
-        var val;
+	inputs.change(function() {
+		var name = $(this).prop('name');
+		var val;
 
-        switch($(this).prop('type')) {
-            case 'checkbox':
-                val = $(this).is(':checked');
-            break;
-            default:
-                val = $(this).val();
-            break;
-        }
+		switch($(this).prop('type')) {
+			case 'checkbox':
+				val = $(this).is(':checked');
+			break;
+			default:
+				val = $(this).val();
+			break;
+		}
 
-        //save it
-        prefs[name] = val;
-        save(name, val);
-    });
+		//save it
+		prefs[name] = val;
+		save(name, val);
+	});
 
-    //edit default code
-    $('#editDefaultCode').button().click(function() {
-        var val = $('#defaultCode').val();
-    	var tab = editors.create('defaultCode.'+val, prefs.defaultCode[val], 0);
-    	tab.data('pref', 'defaultCode.'+val);
-    });
+	//edit default code
+	$('#editDefaultCode').button().click(function() {
+		var val = $('#defaultCode').val();
+		var tab = editors.create('defaultCode.'+val, prefs.defaultCode[val], 0);
+		tab.data('pref', 'defaultCode.'+val);
+	});
 
-    function changeMasterPassword() {
-        $( "body" ).append('<div id="dialog-changeMasterPasword" title="'+lang.changeMasterPasswordText+'">\
-          <form id="masterPasswordForm">\
-            <p>'+lang.masterPasswordInfoText+'</p>\
-            <p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
-            <p><label for="newMasterPassword">'+lang.enterNewPasswordText+'</label> <input type="password" name="newMasterPassword" id="newMasterPassword"></p>\
-            <p><label for="confirmMasterPassword">'+lang.reenterPasswordText+'</label> <input type="password" name="confirmMasterPassword" id="confirmMasterPassword"></p>\
-            <p>'+lang.masterPasswordRememberText+'</p>\
-          </form>\
-        </div>');
+	function changeMasterPassword() {
+		$( "body" ).append('<div id="dialog-changeMasterPasword" title="'+lang.changeMasterPasswordText+'">\
+		  <form id="masterPasswordForm">\
+			<p>'+lang.masterPasswordInfoText+'</p>\
+			<p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
+			<p><label for="newMasterPassword">'+lang.enterNewPasswordText+'</label> <input type="password" name="newMasterPassword" id="newMasterPassword"></p>\
+			<p><label for="confirmMasterPassword">'+lang.reenterPasswordText+'</label> <input type="password" name="confirmMasterPassword" id="confirmMasterPassword"></p>\
+			<p>'+lang.masterPasswordRememberText+'</p>\
+		  </form>\
+		</div>');
 
-        if(!prefs.useMasterPassword){
-            $('#currentMasterPassword').val('No password set').prop('disabled', true);
-        }
+		if(!prefs.useMasterPassword){
+			$('#currentMasterPassword').val('No password set').prop('disabled', true);
+		}
 
-        //open dialog
-        var dialog = $( "#dialog-changeMasterPasword" ).dialog({
-            modal: true,
-            width: 500,
-            close: function( event, ui ) {
-                $( this ).remove();
-            },
-            buttons: {
-                OK: function(){
-                    var values = util.serializeObject($('#masterPasswordForm'));
+		//open dialog
+		var dialog = $( "#dialog-changeMasterPasword" ).dialog({
+			modal: true,
+			width: 500,
+			close: function( event, ui ) {
+				$( this ).remove();
+			},
+			buttons: {
+				OK: function(){
+					var values = util.serializeObject($('#masterPasswordForm'));
 
 					var error = '';
 					//check password
@@ -1244,48 +1255,48 @@ function open() {
 						params.newMasterPassword = createHash(values.newMasterPassword);
 
 						loading.fetch('/api/prefs?cmd=save_master_password', {
-						    action: 'saving master password',
-						    data: params,
-						    success: function(data) {
+							action: 'saving master password',
+							data: params,
+							success: function(data) {
 								storage.set('masterPassword', values.newMasterPassword);
 								prefs.masterPasswordHash = data.masterPasswordHash;
 								prefs.useMasterPassword = true;
 
 								$('#useMasterPassword').prop('checked', true);
 								$('#changeMasterPassword').prop('disabled', false);
-                                $( "#dialog-changeMasterPasword" ).dialog( "close" );
-						    }
+								$( "#dialog-changeMasterPasword" ).dialog( "close" );
+							}
 						});
 					}
-                }
-            }
-        });
-    }
+				}
+			}
+		});
+	}
 
-    function removeMasterPassword() {
-        $( "body" ).append('<div id="dialog-removeMasterPasword" title="'+lang.removeMasterPasswordText+'">\
-          <form id="removeMasterPasswordForm">\
-            <p>'+lang.removedMasterPasswordText+'</p>\
-            <p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
-            <p><input type="checkbox" name="forceRemovePassword" id="forceRemovePassword" value="1"> <label for="forceRemovePassword">'+lang.forceRemoveMasterPasswordText+'</label></p>\
-          </form>\
-        </div>');
+	function removeMasterPassword() {
+		$( "body" ).append('<div id="dialog-removeMasterPasword" title="'+lang.removeMasterPasswordText+'">\
+		  <form id="removeMasterPasswordForm">\
+			<p>'+lang.removedMasterPasswordText+'</p>\
+			<p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
+			<p><input type="checkbox" name="forceRemovePassword" id="forceRemovePassword" value="1"> <label for="forceRemovePassword">'+lang.forceRemoveMasterPasswordText+'</label></p>\
+		  </form>\
+		</div>');
 
-        $('#forceRemovePassword').click(function() {
-            if ($(this).is(':checked')) {
-                $('#currentMasterPassword').prop('disabled', true);
-            } else {
-                $('#currentMasterPassword').prop('disabled', false);
-            }
-        });
+		$('#forceRemovePassword').click(function() {
+			if ($(this).is(':checked')) {
+				$('#currentMasterPassword').prop('disabled', true);
+			} else {
+				$('#currentMasterPassword').prop('disabled', false);
+			}
+		});
 
-        //open dialog
-        var dialog = $( "#dialog-removeMasterPasword" ).dialog({
-            modal: true,
-            width: 500,
-            buttons: {
-                OK: function() {
-                    var values = util.serializeObject($('#removeMasterPasswordForm'));
+		//open dialog
+		var dialog = $( "#dialog-removeMasterPasword" ).dialog({
+			modal: true,
+			width: 500,
+			buttons: {
+				OK: function() {
+					var values = util.serializeObject($('#removeMasterPasswordForm'));
 					var error = '';
 					//check password
 					if (values.forceRemovePassword != 1) {
@@ -1303,54 +1314,54 @@ function open() {
 						params.forceRemovePassword = values.forceRemovePassword;
 
 						loading.fetch('/api/prefs?cmd=save_master_password', {
-						    action: 'removing master password',
-						    data: params,
-						    success: function(data) {
+							action: 'removing master password',
+							data: params,
+							success: function(data) {
 								prefs.useMasterPassword = false;
 								storage.set('masterPassword', '');
 								prefs.masterPasswordHash = '';
 
 								$('#useMasterPassword').prop('checked', false);
 								$('#changeMasterPassword').prop('disabled', true);
-                                $( "#dialog-removeMasterPasword" ).dialog( "close" );
-                                $( "#dialog-removeMasterPasword" ).remove();
-						    }
+								$( "#dialog-removeMasterPasword" ).dialog( "close" );
+								$( "#dialog-removeMasterPasword" ).remove();
+							}
 						});
 					}
-                }
-            }
-        });
-    }
+				}
+			}
+		});
+	}
 
-    //master password
-    $('#changeMasterPassword').button().click(changeMasterPassword);
+	//master password
+	$('#changeMasterPassword').button().click(changeMasterPassword);
 
-    if(!prefs.useMasterPassword){
-        $('#changeMasterPassword').prop('disabled', true);
-    }
+	if(!prefs.useMasterPassword){
+		$('#changeMasterPassword').prop('disabled', true);
+	}
 
-    $('#useMasterPassword').click(function() {
-        if(prefs.useMasterPassword) {
-            removeMasterPassword();
-        }else{
-            changeMasterPassword();
-        }
+	$('#useMasterPassword').click(function() {
+		if(prefs.useMasterPassword) {
+			removeMasterPassword();
+		}else{
+			changeMasterPassword();
+		}
 
-        return false;
-    });
+		return false;
+	});
 }
 
 $('body').on('click', '#openPreferences a', function(e){
-    open();
+	open();
 });
 
 $('body').on('click', 'a.preferences', function(e){
-    var tabpanel = $(this).closest('.ui-tabs');
-    var id = $(this).closest('[role=tabpanel]').attr('id');
-    var tab = $('[aria-controls='+id+']');
-    tabs.close(tab);
+	var tabpanel = $(this).closest('.ui-tabs');
+	var id = $(this).closest('[role=tabpanel]').attr('id');
+	var tab = $('[aria-controls='+id+']');
+	tabs.close(tab);
 
-    open();
+	open();
 });
 
 $('body').on('click', '.editCustomTheme', function(e){
@@ -1359,10 +1370,10 @@ $('body').on('click', '.editCustomTheme', function(e){
 });
 
 exports.get_prefs = function() {
-    return prefs;
+	return prefs;
 };
 exports.getOpeningFilesBatch = function() {
-    return openingFilesBatch;
+	return openingFilesBatch;
 };
 exports.load = load;
 exports.save = save;

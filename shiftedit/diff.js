@@ -3,64 +3,64 @@ define(['app/tabs', 'app/layout', 'app/modes', 'app/util', 'jquery','ace/ace','j
 var updateTimer;
 
 function updateOptions() {
-    $( "select.diffFiles" ).each(function() {
-        var select = $(this);
-        var val = select.val();
-        select.children( "option" ).remove();
+	$( "select.diffFiles" ).each(function() {
+		var select = $(this);
+		var val = select.val();
+		select.children( "option" ).remove();
 
-        //add blank option
-        select.append('<option value=""></option>');
+		//add blank option
+		select.append('<option value=""></option>');
 
-        //populate select menus
-        $( "li[data-file]" ).each(function(index) {
-            select.append( '<option value="'+$(this).attr('id')+'">'+$(this).attr('data-title')+'</option>' );
-        });
+		//populate select menus
+		$( "li[data-file]" ).each(function(index) {
+			select.append( '<option value="'+$(this).attr('id')+'">'+$(this).attr('data-title')+'</option>' );
+		});
 
-        select.val(val);
-    });
+		select.val(val);
+	});
 }
 
 function create() {
-    layout.get().open('east');
+	layout.get().open('east');
 
-    //create tab
+	//create tab
 	tab = $(".ui-layout-east").tabs('add', 'File Compare', '<div class="vbox"><div class="diff_toolbar ui-widget-header ui-corner-all">\
 	<select class="diffFiles flex"></select>\
 	<select class="diffFiles flex"></select>\
 	</div>\
 	<div class="editor"></div></div>');
 
-    tab.addClass('closable');
+	tab.addClass('closable');
 
-    var panel = $(tab).closest(".ui-tabs").tabs('getPanelForTab', tab);
+	var panel = $(tab).closest(".ui-tabs").tabs('getPanelForTab', tab);
 	var container = $(panel).find('div.editor')[0];
 	var editor = ace.edit(container);
 	editor.renderer.setHScrollBarAlwaysVisible(true);
 	editor.renderer.setVScrollBarAlwaysVisible(true);
 	editor.setReadOnly(true);
 
-    updateOptions();
+	updateOptions();
 
-    return tab;
+	return tab;
 }
 
 function select() {
-    var panel = $(this).closest('.ui-tabs-panel');
+	var panel = $(this).closest('.ui-tabs-panel');
 
-    var val1 = $(panel).find('select').eq(0).val();
-    var val2 = $(panel).find('select').eq(1).val();
+	var val1 = $(panel).find('select').eq(0).val();
+	var val2 = $(panel).find('select').eq(1).val();
 
-    if(!val1 || !val2){
-        return;
-    }
+	if(!val1 || !val2){
+		return;
+	}
 
-    var tab1 = $('#'+val1);
-    var tab2 = $('#'+val2);
+	var tab1 = $('#'+val1);
+	var tab2 = $('#'+val2);
 
-    var content1 = tabs.getEditor(tab1).getValue();
-    var content2 = tabs.getEditor(tab2).getValue();
+	var content1 = tabs.getEditor(tab1).getValue();
+	var content2 = tabs.getEditor(tab2).getValue();
 
-    //show diff
+	//show diff
 	//remove markers
 	var container = $(panel).find('div.editor')[0];
 	var editor = ace.edit(container);
@@ -74,11 +74,11 @@ function select() {
 	//check default file associations
 	var mode = modes.find(ext);
 
-    session.setMode("ace/mode/" + mode);
+	session.setMode("ace/mode/" + mode);
 	for (var i in markers) {
-        if (markers.hasOwnProperty(i)) {
-		    session.removeMarker(i);
-        }
+		if (markers.hasOwnProperty(i)) {
+			session.removeMarker(i);
+		}
 	}
 	*/
 
@@ -134,15 +134,15 @@ function select() {
 }
 
 function update() {
-    var id = $(this).attr('id');
+	var id = $(this).attr('id');
 
-    clearTimeout(updateTimer);
-    updateTimer = setTimeout(
-        function() {
-            //trigger change in select handler
-            $('option[value='+id+']:selected').parent().trigger('change');
-        }, 100
-    );
+	clearTimeout(updateTimer);
+	updateTimer = setTimeout(
+		function() {
+			//trigger change in select handler
+			$('option[value='+id+']:selected').parent().trigger('change');
+		}, 100
+	);
 }
 
 $('body').on('change', 'select.diffFiles', select);
@@ -154,12 +154,12 @@ $('body').on('close open', function() {
 });
 
 $('body').on('click','.newTab .diff', function(){
-    var tabpanel = $(this).closest('.ui-tabs');
-    create(tabpanel);
+	var tabpanel = $(this).closest('.ui-tabs');
+	create(tabpanel);
 
-    var id = $(this).closest('[role=tabpanel]').attr('id');
-    var tab = $('[aria-controls='+id+']');
-    tabs.close(tab);
+	var id = $(this).closest('[role=tabpanel]').attr('id');
+	var tab = $('[aria-controls='+id+']');
+	tabs.close(tab);
 });
 
 return {
