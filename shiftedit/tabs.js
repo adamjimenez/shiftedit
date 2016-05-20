@@ -840,7 +840,7 @@ function tabActivate(tab) {
 }
 
 function updateTabs(e, params) {
-    var tab = $(".ui-layout-center li[data-file='"+params.oldname+"'][data-site='"+params.site+"']");
+    var tab = $('.ui-layout-center li[data-file="'+params.oldname+'"][data-site="'+params.site+'"]');
     if(tab.length){
         tab = $(tab);
         setTitle(tab, params.newname);
