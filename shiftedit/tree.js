@@ -1729,15 +1729,17 @@ function init() {
 				if(items[i].submenu){
 					var submenu_items = items[i].submenu;
 					for(var j in submenu_items){
-						if (!submenu_items[j].shortcut_ctrl) {
-							submenu_items[j].shortcut_ctrl = false;
-						}
-				
-						if(submenu_items[j].shortcut === e.which && e.ctrlKey == submenu_items[j].shortcut_ctrl) {
-							submenu_items[j].action({reference:reference});
+						if (submenu_items.hasOwnProperty(j)) {
+							if (!submenu_items[j].shortcut_ctrl) {
+								submenu_items[j].shortcut_ctrl = false;
+							}
 					
-							if(submenu_items[j].stop_event) {
-								e.preventDefault();
+							if(submenu_items[j].shortcut === e.which && e.ctrlKey == submenu_items[j].shortcut_ctrl) {
+								submenu_items[j].action({reference:reference});
+						
+								if(submenu_items[j].stop_event) {
+									e.preventDefault();
+								}
 							}
 						}
 					}
