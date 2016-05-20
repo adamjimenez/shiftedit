@@ -3,13 +3,13 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 
 	//gets defined classes / variables etc
 	function getDefinitions() {
-	    var tab = this;
-	    var editor = tabs.getEditor(tab);
-	    if(!editor)
-	        return;
+		var tab = this;
+		var editor = tabs.getEditor(tab);
+		if(!editor)
+			return;
 
-	    var mode = editor.getSession().$modeId.substr(9);
-	    var i;
+		var mode = editor.getSession().$modeId.substr(9);
+		var i;
 		var definitions = {};
 		var definitionRanges = {};
 		var session = editor.getSession();
@@ -267,16 +267,16 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 			else if( context == 'html' && attribute_name == 'class' && attribute_value ){
 				var classes = attribute_value.replace(/"/g, '').split(' ');
 				for( i in classes ){
-		            if (classes.hasOwnProperty(i)) {
-    					name = classes[i];
-    					definitions.css.classes[name] = 1;
-    					definitionRanges.css.classes[name] = {
-    						start: {
-    							column: iterator.getCurrentTokenColumn()+1,
-    							row: iterator.getCurrentTokenRow()
-    						}
-    					};
-		            }
+					if (classes.hasOwnProperty(i)) {
+						name = classes[i];
+						definitions.css.classes[name] = 1;
+						definitionRanges.css.classes[name] = {
+							start: {
+								column: iterator.getCurrentTokenColumn()+1,
+								row: iterator.getCurrentTokenRow()
+							}
+						};
+					}
 				}
 
 				attribute_value = '';
@@ -336,10 +336,10 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 			token = iterator.stepForward();
 		}
 
-        window.shiftedit.defs[$(tab).attr('id')] = {
-		    'definitions': definitions,
-		    'definitionRanges': definitionRanges
-        };
+		window.shiftedit.defs[$(tab).attr('id')] = {
+			'definitions': definitions,
+			'definitionRanges': definitionRanges
+		};
 
 		update(tab);
 	}
@@ -402,7 +402,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 	}
 
 	function update(tab) {
-	    var tabId = $(tab).attr('id');
+		var tabId = $(tab).attr('id');
 		var defs = window.shiftedit.defs[tabId].definitions;
 		var HTML = '';
 
@@ -454,31 +454,31 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 
 		var editor = tabs.getEditor(tab);
 		$('#tabs-definitions a').click(function(){
-		    var column = $(this).data('column');
-		    var row = $(this).data('row');
-		    var length = $(this).data('length');
-		    goto(editor, column, row, length);
-		    return false;
+			var column = $(this).data('column');
+			var row = $(this).data('row');
+			var length = $(this).data('length');
+			goto(editor, column, row, length);
+			return false;
 		});
 	}
 
-    window.shiftedit.defs = {};
+	window.shiftedit.defs = {};
 	$('#tabs-definitions').html('<p style="text-align:center; color:#ccc;">definitions will appear here</p>');
 
 	//event listeners
 	var timer;
 	$('body').on('change', 'li[role=tab][data-file]', function() {
-	    var tab = this;
-	    clearTimeout(timer);
-	    timer = setTimeout(jQuery.proxy(getDefinitions, tab), 1000);
+		var tab = this;
+		clearTimeout(timer);
+		timer = setTimeout(jQuery.proxy(getDefinitions, tab), 1000);
 	});
 
 	$('body').on('activate', 'li[role=tab][data-file]', function() {
-	    var tab = this;
-	    clearTimeout(timer);
-	    timer = setTimeout(jQuery.proxy(getDefinitions, tab), 1000);
+		var tab = this;
+		clearTimeout(timer);
+		timer = setTimeout(jQuery.proxy(getDefinitions, tab), 1000);
 	});
 
-    return {
-    };
+	return {
+	};
 });

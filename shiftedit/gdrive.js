@@ -9,263 +9,263 @@ var close_delim = "\r\n--" + boundary + "--";
 var fullAccess = true;
 
 function authorise(callback) {
-    var SCOPES;
-    if(fullAccess){
-        SCOPES = 'https://www.googleapis.com/auth/drive';
-    } else {
-        SCOPES = 'https://www.googleapis.com/auth/drive.file';
-    }
+	var SCOPES;
+	if(fullAccess){
+		SCOPES = 'https://www.googleapis.com/auth/drive';
+	} else {
+		SCOPES = 'https://www.googleapis.com/auth/drive.file';
+	}
 
-    gapi.auth.authorize(
-        {'client_id': client_id, 'scope': SCOPES, 'immediate': true},
-        function handleAuthResult(authResult) {
-            if (authResult && !authResult.error) {
-                // Access token has been successfully retrieved, requests can be sent to the API.
-                access_token = authResult.access_token;
+	gapi.auth.authorize(
+		{'client_id': client_id, 'scope': SCOPES, 'immediate': true},
+		function handleAuthResult(authResult) {
+			if (authResult && !authResult.error) {
+				// Access token has been successfully retrieved, requests can be sent to the API.
+				access_token = authResult.access_token;
 
-                gapi.client.load('drive', 'v2', callback);
-            } else {
-                // No access token could be retrieved, show the button to start the authorization flow.
-                console.log('no auth token');
+				gapi.client.load('drive', 'v2', callback);
+			} else {
+				// No access token could be retrieved, show the button to start the authorization flow.
+				console.log('no auth token');
 
-                gapi.auth.authorize(
-                    {
-                        'client_id': client_id,
-                        'scope': SCOPES,
-                        'immediate': false
-                    },
-                    callback
-                );
-            }
-        }
-    );
+				gapi.auth.authorize(
+					{
+						'client_id': client_id,
+						'scope': SCOPES,
+						'immediate': false
+					},
+					callback
+				);
+			}
+		}
+	);
 }
 
 function directFn(options) {
-    var request;
-    var callback;
-    var metadata;
-    var file;
-    var mimeType;
-    var base64Data;
-    var multipartRequestBody;
-    var parent;
+	var request;
+	var callback;
+	var metadata;
+	var file;
+	var mimeType;
+	var base64Data;
+	var multipartRequestBody;
+	var parent;
 
 	switch (options.cmd) {
-	    case 'file_exists':
-	        parent = (options.parent!='#') ? options.parent : 'root';
+		case 'file_exists':
+			parent = (options.parent!='#') ? options.parent : 'root';
 
-            request = gapi.client.drive.children.list({
-                'folderId': parent,
-                'q': "title = '" + options.title + "'"
-            });
+			request = gapi.client.drive.children.list({
+				'folderId': parent,
+				'q': "title = '" + options.title + "'"
+			});
 
-            request.execute(function(resp) {
-                //console.log(resp);
+			request.execute(function(resp) {
+				//console.log(resp);
 
 				options.callback({
-				    success: true,
-				    file_exists: (resp.items > 0)
+					success: true,
+					file_exists: (resp.items > 0)
 				});
-            });
-	    break;
+			});
+		break;
 
-	    case 'save':
-        	//get mime type
-        	mimeType = util.getMimetype(options.title);
-            metadata = {
-                'mimeType': mimeType
-            };
-            var url = 'https://www.googleapis.com/upload/drive/v2/files';
-            var method = 'POST';
+		case 'save':
+			//get mime type
+			mimeType = util.getMimetype(options.title);
+			metadata = {
+				'mimeType': mimeType
+			};
+			var url = 'https://www.googleapis.com/upload/drive/v2/files';
+			var method = 'POST';
 
-            if(!options.parent){
-                url += '/'+options.file+'?uploadType=multipart';
-                method = 'PUT';
-            }else{
-                metadata.title = options.title;
-	            parent = (options.parent!='#') ? options.parent : 'root';
-                metadata.parents = [{id: parent}];
-            }
+			if(!options.parent){
+				url += '/'+options.file+'?uploadType=multipart';
+				method = 'PUT';
+			}else{
+				metadata.title = options.title;
+				parent = (options.parent!='#') ? options.parent : 'root';
+				metadata.parents = [{id: parent}];
+			}
 
-            // Updating the metadata is optional and you can instead use the value from drive.files.get.
-            //var base64Data = btoa(options.content);
+			// Updating the metadata is optional and you can instead use the value from drive.files.get.
+			//var base64Data = btoa(options.content);
 
-            base64Data = util.base64EncArr(util.strToUTF8Arr(options.content));
+			base64Data = util.base64EncArr(util.strToUTF8Arr(options.content));
 
-            multipartRequestBody =
-                delimiter +
-                'Content-Type: application/json\r\n\r\n' +
-                JSON.stringify(metadata) +
-                delimiter +
-                'Content-Type: ' + mimeType + '\r\n' +
-                'Content-Transfer-Encoding: base64\r\n' +
-                '\r\n' +
-                base64Data +
-                close_delim;
+			multipartRequestBody =
+				delimiter +
+				'Content-Type: application/json\r\n\r\n' +
+				JSON.stringify(metadata) +
+				delimiter +
+				'Content-Type: ' + mimeType + '\r\n' +
+				'Content-Transfer-Encoding: base64\r\n' +
+				'\r\n' +
+				base64Data +
+				close_delim;
 
-        	$.ajax({
-        		url: url,
-        		params: {'uploadType': 'multipart', 'alt': 'json'},
-        		method: method,
-                headers: {
-                    "Content-Type": 'multipart/mixed; boundary="' + boundary + '"',
-                    authorization: 'Bearer '+access_token
-                },
-                data: multipartRequestBody,
-                processData: false,
-        		success: function (response, request) {
-                    console.log(response);
+			$.ajax({
+				url: url,
+				params: {'uploadType': 'multipart', 'alt': 'json'},
+				method: method,
+				headers: {
+					"Content-Type": 'multipart/mixed; boundary="' + boundary + '"',
+					authorization: 'Bearer '+access_token
+				},
+				data: multipartRequestBody,
+				processData: false,
+				success: function (response, request) {
+					console.log(response);
 
-                    var result = {success: true, file: response.id};
-                    options.callback(result);
-        		}
-        	});
-	    break;
+					var result = {success: true, file: response.id};
+					options.callback(result);
+				}
+			});
+		break;
 
-	    case 'open':
-            console.log('opening: '+options.file);
+		case 'open':
+			console.log('opening: '+options.file);
 
-            if(!access_token){
-                authorise(function(){
-                    directFn(options);
-                });
-                return;
-            }
+			if(!access_token){
+				authorise(function(){
+					directFn(options);
+				});
+				return;
+			}
 
-        	$.ajax({
-        		url: 'https://content.googleapis.com/drive/v2/files/' + options.file,
-        		method: 'GET',
-        		dataType: 'json',
-                headers: {
-                    authorization: 'Bearer '+access_token
-                },
-        		success: function (result) {
-                    var response = {success: false};
+			$.ajax({
+				url: 'https://content.googleapis.com/drive/v2/files/' + options.file,
+				method: 'GET',
+				dataType: 'json',
+				headers: {
+					authorization: 'Bearer '+access_token
+				},
+				success: function (result) {
+					var response = {success: false};
 
-                    if (result.downloadUrl) {
-                        var accessToken = gapi.auth.getToken().access_token;
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('GET', result.downloadUrl);
-                        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+					if (result.downloadUrl) {
+						var accessToken = gapi.auth.getToken().access_token;
+						var xhr = new XMLHttpRequest();
+						xhr.open('GET', result.downloadUrl);
+						xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
 
-                        xhr.onload = function() {
-                        	var link = '';
-                        	if (result.webContentLink) {
-                        		link = result.webContentLink.replace('&export=download', '');
-                        	}
+						xhr.onload = function() {
+							var link = '';
+							if (result.webContentLink) {
+								link = result.webContentLink.replace('&export=download', '');
+							}
 
-                            response = {
-                                success: true,
-                                content: xhr.responseText,
-                                file: result.id,
-                                title: result.title,
-                                link: link
-                            };
+							response = {
+								success: true,
+								content: xhr.responseText,
+								file: result.id,
+								title: result.title,
+								link: link
+							};
 
-                            console.log(result);
-                            console.log(response);
-                            options.callback(response);
-                        };
-                        xhr.onerror = function() {
-                            options.callback(response);
-                        };
-                        xhr.send();
-                    } else {
-                        options.callback(response);
-                    }
-        		}
-        	});
+							console.log(result);
+							console.log(response);
+							options.callback(response);
+						};
+						xhr.onerror = function() {
+							options.callback(response);
+						};
+						xhr.send();
+					} else {
+						options.callback(response);
+					}
+				}
+			});
 
-	    break;
+		break;
 		case 'newfile':
-		    //console.log(options);
+			//console.log(options);
 
-		    title = options.title;
-		    mimeType = util.getMimetype(title);
-		    parent = (options.parent!='#') ? options.parent : 'root';
+			title = options.title;
+			mimeType = util.getMimetype(title);
+			parent = (options.parent!='#') ? options.parent : 'root';
 
-            metadata = {
-                'title': title,
-                'mimeType': mimeType,
-                'parents': [{id: parent}]
-            };
+			metadata = {
+				'title': title,
+				'mimeType': mimeType,
+				'parents': [{id: parent}]
+			};
 
-            base64Data = btoa('');
-            multipartRequestBody =
-            delimiter +
-            'Content-Type: application/json\r\n\r\n' +
-            JSON.stringify(metadata) +
-            delimiter +
-            'Content-Type: ' + mimeType + '\r\n' +
-            'Content-Transfer-Encoding: base64\r\n' +
-            '\r\n' +
-            base64Data +
-            close_delim;
+			base64Data = btoa('');
+			multipartRequestBody =
+			delimiter +
+			'Content-Type: application/json\r\n\r\n' +
+			JSON.stringify(metadata) +
+			delimiter +
+			'Content-Type: ' + mimeType + '\r\n' +
+			'Content-Transfer-Encoding: base64\r\n' +
+			'\r\n' +
+			base64Data +
+			close_delim;
 
-            request = gapi.client.request({
-            'path': '/upload/drive/v2/files',
-            'method': 'POST',
-            'params': {'uploadType': 'multipart'},
-            'headers': {
-            'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-            },
-            'body': multipartRequestBody});
+			request = gapi.client.request({
+			'path': '/upload/drive/v2/files',
+			'method': 'POST',
+			'params': {'uploadType': 'multipart'},
+			'headers': {
+			'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+			},
+			'body': multipartRequestBody});
 
-            callback = function(file) {
-                console.log(file);
+			callback = function(file) {
+				console.log(file);
 
 				if(options.callback)
-				    options.callback({
+					options.callback({
 						success: true,
 						file: file.id
 					});
-            };
+			};
 
-            request.execute(callback);
-        break;
+			request.execute(callback);
+		break;
 		case 'delete':
-            request = gapi.client.drive.files.delete({
-                'fileId': options.file
-            });
-            request.execute(function(resp) {
+			request = gapi.client.drive.files.delete({
+				'fileId': options.file
+			});
+			request.execute(function(resp) {
 				if (options.callback)
-				    options.callback({success:true});
-            });
+					options.callback({success:true});
+			});
 		break;
 		case 'newdir':
-            console.log(options.params);
-            metadata = {
-                'title': options.dir,
-                'mimeType': 'application/vnd.google-apps.folder',
-                'parents': [{id: options.parent}]
-            };
+			console.log(options.params);
+			metadata = {
+				'title': options.dir,
+				'mimeType': 'application/vnd.google-apps.folder',
+				'parents': [{id: options.parent}]
+			};
 
-            callback = function(file) {
-                console.log(file);
+			callback = function(file) {
+				console.log(file);
 
 				if (options.callback)
-				    options.callback({
+					options.callback({
 						success: true,
 						file: file.id
 					});
-            };
+			};
 
-            gapi.client.drive.files.insert({'resource': metadata}).execute(callback);
+			gapi.client.drive.files.insert({'resource': metadata}).execute(callback);
 		break;
 		case 'rename':
-		    console.log(options);
+			console.log(options);
 
-            metadata = {
-                'title': options.newname
-            };
+			metadata = {
+				'title': options.newname
+			};
 
-            if(options.parent){
-                metadata.parents = [{id: options.parent}];
-            }
+			if(options.parent){
+				metadata.parents = [{id: options.parent}];
+			}
 
-            callback = function(file) {
-                console.log(file);
+			callback = function(file) {
+				console.log(file);
 
 				var o = {
 					responseText: JSON.stringify({
@@ -275,45 +275,45 @@ function directFn(options) {
 				};
 
 				if(options.callback)
-				    options.callback.call(tree, options, true, o);
-            };
+					options.callback.call(tree, options, true, o);
+			};
 
-            request = gapi.client.request({
-                'path': '/drive/v2/files/' + options.file,
-                'method': 'PUT',
-                'body': metadata
-                });
+			request = gapi.client.request({
+				'path': '/drive/v2/files/' + options.file,
+				'method': 'PUT',
+				'body': metadata
+				});
 
-            request.execute(function(resp){
-                console.log(resp);
+			request.execute(function(resp){
+				console.log(resp);
 
-                var result;
+				var result;
 
-                if(resp){
-                    result = {success: true};
-                }else{
-                    result = {success: false, error: 'Rename failed'};
-                }
+				if(resp){
+					result = {success: true};
+				}else{
+					result = {success: false, error: 'Rename failed'};
+				}
 
-                callback(result);
-            });
+				callback(result);
+			});
 
-            //gapi.client.drive.files.update({'resource': metadata}).execute(callback);
+			//gapi.client.drive.files.update({'resource': metadata}).execute(callback);
 
-            return;
+			return;
 		case 'chmod':
 			return false;
 		case 'upload':
-		    //console.log(options);
+			//console.log(options);
 
-		    file = options.file;
-		    mimeType = util.getMimetype(file);
+			file = options.file;
+			mimeType = util.getMimetype(file);
 
-            metadata = {
-                'title': file,
-                'mimeType': mimeType,
-                'parents': [{id: options.parent}]
-            };
+			metadata = {
+				'title': file,
+				'mimeType': mimeType,
+				'parents': [{id: options.parent}]
+			};
 
 			base64Data = options.content;
 
@@ -325,28 +325,28 @@ function directFn(options) {
 				}
 			}
 
-            multipartRequestBody =
-            delimiter +
-            'Content-Type: application/json\r\n\r\n' +
-            JSON.stringify(metadata) +
-            delimiter +
-            'Content-Type: ' + mimeType + '\r\n' +
-            'Content-Transfer-Encoding: base64\r\n' +
-            '\r\n' +
-            base64Data +
-            close_delim;
+			multipartRequestBody =
+			delimiter +
+			'Content-Type: application/json\r\n\r\n' +
+			JSON.stringify(metadata) +
+			delimiter +
+			'Content-Type: ' + mimeType + '\r\n' +
+			'Content-Transfer-Encoding: base64\r\n' +
+			'\r\n' +
+			base64Data +
+			close_delim;
 
-            request = gapi.client.request({
-            'path': '/upload/drive/v2/files',
-            'method': 'POST',
-            'params': {'uploadType': 'multipart'},
-            'headers': {
-            'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-            },
-            'body': multipartRequestBody});
+			request = gapi.client.request({
+			'path': '/upload/drive/v2/files',
+			'method': 'POST',
+			'params': {'uploadType': 'multipart'},
+			'headers': {
+			'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+			},
+			'body': multipartRequestBody});
 
-            callback = function(file) {
-                console.log(file);
+			callback = function(file) {
+				console.log(file);
 
 				var o = {
 					responseText: JSON.stringify({
@@ -356,9 +356,9 @@ function directFn(options) {
 					})
 				};
 				options.success.call(tree, options, true, o);
-            };
+			};
 
-            request.execute(callback);
+			request.execute(callback);
 		break;
 		case 'download':
 			console.log(options.params);
@@ -372,7 +372,7 @@ function directFn(options) {
 				};
 
 				if (options.callback)
-				    options.callback.call(tree, result.content, options, true, o);
+					options.callback.call(tree, result.content, options, true, o);
 			};
 
 			open(options.file_id, callback);
@@ -389,28 +389,28 @@ function treeFn(options) {
 	var dirPath = options.node.id;
 	var path = dirPath;
 
-    if(path==='#') {
+	if(path==='#') {
 		path = options.tree.data('dir_id') ? options.tree.data('dir_id') : 'root';
 		text = options.tree.data('dir') ? options.tree.data('dir') : ' ';
 
-    	return options.callback.call(options.tree, {
-    		children: true,
-    		id: path,
-    		text: text,
-    		type: 'folder'
-    	});
-    }
+		return options.callback.call(options.tree, {
+			children: true,
+			id: path,
+			text: text,
+			type: 'folder'
+		});
+	}
 
-    var entries = [];
-    var retrievePageOfFiles = function(request, result) {
-        request.execute(function(resp) {
-            entries = entries.concat(resp.items);
-            var nextPageToken = resp.nextPageToken;
+	var entries = [];
+	var retrievePageOfFiles = function(request, result) {
+		request.execute(function(resp) {
+			entries = entries.concat(resp.items);
+			var nextPageToken = resp.nextPageToken;
 
-            if (nextPageToken) {
-                request = gapi.client.drive.files.list({'pageToken': nextPageToken});
-                retrievePageOfFiles(request, result);
-            } else {
+			if (nextPageToken) {
+				request = gapi.client.drive.files.list({'pageToken': nextPageToken});
+				retrievePageOfFiles(request, result);
+			} else {
 				var nodes = [];
 
 				entries.forEach(function (entry, i) {
@@ -435,14 +435,14 @@ function treeFn(options) {
 
 					var date = new Date(entry.modifiedDate);
 					var ext = util.fileExtension(entry.title);
-                    var isFolder = (entry.mimeType=='application/vnd.google-apps.folder');
+					var isFolder = (entry.mimeType=='application/vnd.google-apps.folder');
 
-                	var link = '';
-                	if (entry.webContentLink) {
-                		link = entry.webContentLink.replace('&export=download', '');
-                	}
+					var link = '';
+					if (entry.webContentLink) {
+						link = entry.webContentLink.replace('&export=download', '');
+					}
 
-                	var icon = isFolder ? '' : 'file file-'+ext;
+					var icon = isFolder ? '' : 'file file-'+ext;
 
 					nodes.push({
 						id: entry.id,
@@ -461,23 +461,23 @@ function treeFn(options) {
 
 				//console.log(nodes);
 /*
-                nodes.sort(function(a, b){
-                    a = a.text.toLowerCase();
-                    b = b.text.toLowerCase();
-                    if(a < b) {
-                        return -1;
-                    } else if (a > b) {
-                        return 1;
-                    }
-                    return 0;
-                });
+				nodes.sort(function(a, b){
+					a = a.text.toLowerCase();
+					b = b.text.toLowerCase();
+					if(a < b) {
+						return -1;
+					} else if (a > b) {
+						return 1;
+					}
+					return 0;
+				});
 */
-                options.callback.call(options.tree, nodes);
-            }
-        });
-    };
-    var initialRequest = gapi.client.drive.files.list({'q': "'"+path+"' in parents AND trashed = false", 'maxResults': 1000});
-    retrievePageOfFiles(initialRequest, []);
+				options.callback.call(options.tree, nodes);
+			}
+		});
+	};
+	var initialRequest = gapi.client.drive.files.list({'q': "'"+path+"' in parents AND trashed = false", 'maxResults': 1000});
+	retrievePageOfFiles(initialRequest, []);
 }
 
 function get_public(parentId) {
@@ -485,20 +485,20 @@ function get_public(parentId) {
 }
 
 function set_public(parentId, setPublic, callback) {
-    var body = {
-        'value': 'anyone',
-        'type': 'anyone',
-        'role': 'reader'
-    };
-    var request = gapi.client.drive.permissions.insert({
-        'fileId': parentId,
-        'resource': body
-    });
-    request.execute(function(resp) {
-        if(callback){
-            callback();
-        }
-    });
+	var body = {
+		'value': 'anyone',
+		'type': 'anyone',
+		'role': 'reader'
+	};
+	var request = gapi.client.drive.permissions.insert({
+		'fileId': parentId,
+		'resource': body
+	});
+	request.execute(function(resp) {
+		if(callback){
+			callback();
+		}
+	});
 }
 
 treeFn.directCfg = {
@@ -509,11 +509,11 @@ treeFn.directCfg = {
 	}
 };
 
-    return {
-        directFn: directFn,
-        authorise: authorise,
-        setFullAccess: function(val) {
-        	fullAccess = val;
-        }
-    };
+	return {
+		directFn: directFn,
+		authorise: authorise,
+		setFullAccess: function(val) {
+			fullAccess = val;
+		}
+	};
 });

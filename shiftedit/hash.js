@@ -13,7 +13,7 @@ load = function (callback) {
 		//protect from xss
 		if(hash.indexOf('<')!==-1){
 			console.warn('"<" in file name');
-		    return;
+			return;
 		}
 	
 		var line = 0;
@@ -21,46 +21,46 @@ load = function (callback) {
 		files.forEach(function(path){
 			var pos = path.indexOf('/');
 			if (pos !== -1) {
-	    		var siteName = path.substr(0, pos);
-	    		var file = path.substr(pos + 1);
+				var siteName = path.substr(0, pos);
+				var file = path.substr(pos + 1);
 	
-	    		pos = file.indexOf(':');
-	    		if(pos!==-1) {
-	    			line = file.substr(pos+1);
-	    			file = file.substr(0, pos);
-	    		}
+				pos = file.indexOf(':');
+				if(pos!==-1) {
+					line = file.substr(pos+1);
+					file = file.substr(0, pos);
+				}
 	
-	    		var settings = site.getSettings(siteName);
-		        tabs.open(file, settings.id, function(tab, firstOpen) {
-		        	if(firstOpen) {
-			        	var editor = tabs.getEditor(tab);
-			        	editor.gotoLine(line);
-			        	editor.focus();
-		        	}
-		        });
+				var settings = site.getSettings(siteName);
+				tabs.open(file, settings.id, function(tab, firstOpen) {
+					if(firstOpen) {
+						var editor = tabs.getEditor(tab);
+						editor.gotoLine(line);
+						editor.focus();
+					}
+				});
 			}
 		});
 	}
 
-    if (callback) {
-    	callback(files);
-    }
+	if (callback) {
+		callback(files);
+	}
 };
 
 set = function(hash) {
-    if(hash!=window.location.hash){
-    	value = hash;
+	if(hash!=window.location.hash){
+		value = hash;
 
-    	console.log('set hash: #'+ value);
-        window.location.hash = '#'+value;
-    }
+		console.log('set hash: #'+ value);
+		window.location.hash = '#'+value;
+	}
 };
 
 $(window).on( 'hashchange', function(e) { load(); } );
 
 return {
-    load: load,
-    set: set
+	load: load,
+	set: set
 };
 });
 

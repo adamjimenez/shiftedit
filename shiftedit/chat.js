@@ -42,7 +42,7 @@ function send(msg) {
 }
 
 function add() {
-    var tab = $(this);
+	var tab = $(this);
 
 	var siteId = tab.attr('data-site');
 	var file = tab.attr('data-file');
@@ -153,55 +153,55 @@ function add() {
 }
 
 function init() {
-    $( "body" ).append('<div id="dialog-chat" title="Chat" style="display:none;">\
-        <div class="chats">\
-            <ul id="chat" size="20"></ul>\
-        </div>\
-        <div class="messagePanel">\
-            <div id="messages"></div>\
-            <textarea id="message" class="ui-widget ui-state-default ui-corner-all" disabled autofocus></textarea>\
-        </div>\
-    </div>');
+	$( "body" ).append('<div id="dialog-chat" title="Chat" style="display:none;">\
+		<div class="chats">\
+			<ul id="chat" size="20"></ul>\
+		</div>\
+		<div class="messagePanel">\
+			<div id="messages"></div>\
+			<textarea id="message" class="ui-widget ui-state-default ui-corner-all" disabled autofocus></textarea>\
+		</div>\
+	</div>');
 
 	var width = 300;
 	var height = 400;
 	var x = window.innerWidth - width;
 	var y = window.innerHeight - height;
 
-    //open dialog
-    var dialog = $( "#dialog-chat" ).dialog({
-        width: width,
-        height: height,
-        position: { my: "right bottom", at: "right bottom", of: window }
-    });
+	//open dialog
+	var dialog = $( "#dialog-chat" ).dialog({
+		width: width,
+		height: height,
+		position: { my: "right bottom", at: "right bottom", of: window }
+	});
 
-    close();
+	close();
 
-    //listener
-    $('body').on('click', '#chatButton a', function(e){ open(); });
-    $('body').on('firebaseon', 'li', add);
-    $('#chat').on('click', 'a', select);
-    $('#message').keypress(function( event ) {
-        if ( event.which == 13 ) {
-            send($(this).val());
-            $(this).val('');
-            return false;
-        }
-    });
+	//listener
+	$('body').on('click', '#chatButton a', function(e){ open(); });
+	$('body').on('firebaseon', 'li', add);
+	$('#chat').on('click', 'a', select);
+	$('#message').keypress(function( event ) {
+		if ( event.which == 13 ) {
+			send($(this).val());
+			$(this).val('');
+			return false;
+		}
+	});
 
-    $.contextMenu({
-        selector: '#chat a',
-        callback: function(key, opt){
-            switch(key) {
-                case 'delete':
-                    remove($(this).closest("li"));
-                break;
-            }
-        },
-        items: {
-            "delete": {name: 'Delete'}
-        }
-    });
+	$.contextMenu({
+		selector: '#chat a',
+		callback: function(key, opt){
+			switch(key) {
+				case 'delete':
+					remove($(this).closest("li"));
+				break;
+			}
+		},
+		items: {
+			"delete": {name: 'Delete'}
+		}
+	});
 }
 
 function open() {
@@ -213,25 +213,25 @@ function close() {
 }
 
 function select() {
-    var li = $(this).parent();
-    li.parent().children().removeClass('ui-state-focus');
-    li.addClass('ui-state-focus');
-    li.removeClass('unread');
+	var li = $(this).parent();
+	li.parent().children().removeClass('ui-state-focus');
+	li.addClass('ui-state-focus');
+	li.removeClass('unread');
 
-    selectedGroup = li.data('url');
-    $('#messages').html(chats[group]);
+	selectedGroup = li.data('url');
+	$('#messages').html(chats[group]);
 
 	//scroll to bottom
 	var d = $('#messages');
 	d.scrollTop(d.prop("scrollHeight"));
 
-    $('#message').prop('disabled', false);
-    $('#message').focus();
-    return false;
+	$('#message').prop('disabled', false);
+	$('#message').focus();
+	return false;
 }
 
 function remove(li) {
-    var group = li.data('url');
+	var group = li.data('url');
 	var groupRef = groups[group];
 	li.remove();
 

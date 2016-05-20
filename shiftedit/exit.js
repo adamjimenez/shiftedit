@@ -13,6 +13,6 @@ window.onbeforeunload = function () {
 	}
 };
 
-    return {
-    };
+	return {
+	};
 });

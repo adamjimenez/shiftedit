@@ -4,17 +4,17 @@ var modes = require('app/modes').modes;
 var saveMode = true;
 
 var changeMode = function(tab) {
-    var editor = tabs.getEditor(tab);
-    var label = $(this).text().trim();
-    var mode = $(this).attr('data-name');
+	var editor = tabs.getEditor(tab);
+	var label = $(this).text().trim();
+	var mode = $(this).attr('data-name');
 
-    //set editor mode
-    editors.setMode(editor, mode);
+	//set editor mode
+	editors.setMode(editor, mode);
 
-    //set button value
-    $(this).parent().prev().children('.ui-button-text').text(label);
+	//set button value
+	$(this).parent().prev().children('.ui-button-text').text(label);
 
-    var ext  = util.fileExtension(tab.data('file'));
+	var ext  = util.fileExtension(tab.data('file'));
 
 	//save pref
 	if (!saveMode) {
@@ -34,7 +34,7 @@ var changeMode = function(tab) {
 	var prefs = preferences.get_prefs();
 
 	if(typeof(prefs.fileAssociations)!=='object')
-	    prefs.fileAssociations = {};
+		prefs.fileAssociations = {};
 
 	if( defaultMode === mode ){
 		delete prefs.fileAssociations[ext];
@@ -46,17 +46,17 @@ var changeMode = function(tab) {
 		prefs.fileAssociations[ext] = mode;
 	}
 
-    preferences.save('fileAssociations', prefs.fileAssociations);
+	preferences.save('fileAssociations', prefs.fileAssociations);
 };
 
 var modeItems = [];
 modes.forEach(function (item) {
 	modeItems.push({
-	    name: item[0],
-	    text: item[1],
-	    handler: changeMode,
-	    group: 'mode',
-	    checked: false
+		name: item[0],
+		text: item[1],
+		handler: changeMode,
+		group: 'mode',
+		checked: false
 	});
 });
 
@@ -84,9 +84,9 @@ var menu = [{
 	tooltip: 'Design View',
 	enableToggle: true,
 	handler: function (button) {
-	    var panel = $(this).closest('.ui-tabs-panel');
+		var panel = $(this).closest('.ui-tabs-panel');
 		var tab = $('[aria-controls='+panel.attr('id')+']');
-	    var editor = tabs.getEditor(tab);
+		var editor = tabs.getEditor(tab);
 
 		if (tab.data('view')==='code') {
 			panel.find('.editor_status').hide();
@@ -170,7 +170,7 @@ var menu = [{
 		group: 'codeSplit'
 	}]
 }, {
-    text: 'Mode',
+	text: 'Mode',
 	xtype: 'combobox',
 	displayField: 'label',
 	valueField: 'value',
@@ -188,27 +188,27 @@ var menu = [{
 	text: '<i class="fa fa-warning"></i>',
 	enableToggle: true,
 	handler: function (tab) {
-	    var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-	    $(panel).find('.editor_status').toggle();
-	    resize.resize();
+		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+		$(panel).find('.editor_status').toggle();
+		resize.resize();
 	}
 }];
 
 function create(tab) {
-    var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-    menus.create($(panel).find(".editor_toolbar"), menu, tab);
+	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	menus.create($(panel).find(".editor_toolbar"), menu, tab);
 
-    //select mode
-    var editor = tabs.getEditor(tab);
-    var mode = editor.getSession().$modeId.substr(9);
-    
-    saveMode = false;
-    $(panel).find('[data-name='+mode+']').children('a').trigger('click');
-    saveMode = true;
+	//select mode
+	var editor = tabs.getEditor(tab);
+	var mode = editor.getSession().$modeId.substr(9);
+	
+	saveMode = false;
+	$(panel).find('[data-name='+mode+']').children('a').trigger('click');
+	saveMode = true;
 }
 
 return {
-    create: create
+	create: create
 };
 
 });

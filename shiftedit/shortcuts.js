@@ -1,5 +1,5 @@
 define(['app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'jquery'], function (tabs, find, preferences, site, tree) {
-    var shortcuts = [];
+	var shortcuts = [];
 	var defaultShortcuts = [{ //escape
 		key: 27,
 		ctrl: false,
@@ -234,37 +234,37 @@ define(['app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'jquery'], f
 
 	this.load = function() {
 		$.ajax({
-            dataType: "json",
-            url: '/api/snippets?cmd=shortcuts',
-            success: function(data) {
-		        shortcuts = defaultShortcuts.slice(0);
+			dataType: "json",
+			url: '/api/snippets?cmd=shortcuts',
+			success: function(data) {
+				shortcuts = defaultShortcuts.slice(0);
 
-                for(var i in data.snippets) {
-    			    if (data.snippets.hasOwnProperty(i)) {
-                        var item = data.snippets[i];
-                        if(item.shortcut) {
-    						shortcuts.push({
-    							key: parseInt(item.shortcut),
-    							ctrl: true,
-    							shift: true,
-    							stopEvent: true,
-    							fn: function (key, e) {
-                                    var editor = tabs.getEditor(tabs.active());
+				for(var i in data.snippets) {
+					if (data.snippets.hasOwnProperty(i)) {
+						var item = data.snippets[i];
+						if(item.shortcut) {
+							shortcuts.push({
+								key: parseInt(item.shortcut),
+								ctrl: true,
+								shift: true,
+								stopEvent: true,
+								fn: function (key, e) {
+									var editor = tabs.getEditor(tabs.active());
 
-                                    if (editor) {
-                                        if(parseInt(item.wrap)) {
-                            	            editor.commands.exec('wrapSelection', editor, [item.snippet1, item.snippet2]);
-                                        } else {
-                            	            editor.insert(item.snippet1);
-                                        }
-                                    }
-    							}
-    						});
-                        }
-                    }
-                }
-            }
-        });
+									if (editor) {
+										if(parseInt(item.wrap)) {
+											editor.commands.exec('wrapSelection', editor, [item.snippet1, item.snippet2]);
+										} else {
+											editor.insert(item.snippet1);
+										}
+									}
+								}
+							});
+						}
+					}
+				}
+			}
+		});
 	};
 
 	function keyDown(e) {
@@ -272,42 +272,42 @@ define(['app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'jquery'], f
 			var keyCode = (e.charCode) ? e.charCode : e.keyCode;
 
 			for (var i in shortcuts) {
-			    if (shortcuts.hasOwnProperty(i)) {
-    				if (!shortcuts[i].ctrl) {
-    					shortcuts[i].ctrl = false;
-    				}
-    				if (!shortcuts[i].shift) {
-    					shortcuts[i].shift = false;
-    				}
-    				if (!shortcuts[i].alt) {
-    					shortcuts[i].alt = false;
-    				}
+				if (shortcuts.hasOwnProperty(i)) {
+					if (!shortcuts[i].ctrl) {
+						shortcuts[i].ctrl = false;
+					}
+					if (!shortcuts[i].shift) {
+						shortcuts[i].shift = false;
+					}
+					if (!shortcuts[i].alt) {
+						shortcuts[i].alt = false;
+					}
 
-    				if (
-    					shortcuts[i].key === keyCode &&
-    					shortcuts[i].ctrl === e.ctrlKey &&
-    					shortcuts[i].shift === e.shiftKey &&
-    					shortcuts[i].alt === e.altKey
-    				) {
-    					setTimeout(shortcuts[i].fn(e), 0);
+					if (
+						shortcuts[i].key === keyCode &&
+						shortcuts[i].ctrl === e.ctrlKey &&
+						shortcuts[i].shift === e.shiftKey &&
+						shortcuts[i].alt === e.altKey
+					) {
+						setTimeout(shortcuts[i].fn(e), 0);
 
-    					if (shortcuts[i].stopEvent) {
-    						e.preventDefault();
-    						e.stopPropagation();
+						if (shortcuts[i].stopEvent) {
+							e.preventDefault();
+							e.stopPropagation();
 
-    						//console.log(e)
-    						return false;
-    					}
-    				}
-			    }
+							//console.log(e)
+							return false;
+						}
+					}
+				}
 			}
 		}
 	}
 
 	$( "body" ).keydown(keyDown);
 
-    return {
-        show: show,
-        load: load
-    };
+	return {
+		show: show,
+		load: load
+	};
 });

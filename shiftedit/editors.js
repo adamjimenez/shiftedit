@@ -30,20 +30,20 @@ ace.config.set("themePath", acePath);
 
 // custom completions
 var shifteditCompleter = {
-    getCompletions: function(editor, session, pos, prefix, callback) {
-        var completions = autocomplete.run(editor, session, pos, prefix, callback);
+	getCompletions: function(editor, session, pos, prefix, callback) {
+		var completions = autocomplete.run(editor, session, pos, prefix, callback);
 
-        if (completions) {
-        	callback(null, completions);
-        }
-    },
-    getDocTooltip: function(selected){
-    	if (selected.doc) {
-	    	return {
-	    		docHTML: selected.doc
-	    	};
-    	}
-    }
+		if (completions) {
+			callback(null, completions);
+		}
+	},
+	getDocTooltip: function(selected){
+		if (selected.doc) {
+			return {
+				docHTML: selected.doc
+			};
+		}
+	}
 };
 language_tools.addCompleter(shifteditCompleter);
 
@@ -51,7 +51,7 @@ language_tools.addCompleter(shifteditCompleter);
 language_tools.textCompleter.getCompletions = function(){};
 
 function onChange(e) {
-    var tabs = require("app/tabs");
+	var tabs = require("app/tabs");
 	tabs.setEdited(this, true);
 }
 
@@ -63,11 +63,11 @@ function onGutterClick(e, editor) {
 			if (className.indexOf("ace_gutter-cell") != -1) {
 				var row = e.getDocumentPosition().row;
 
-        		if( s.$breakpoints[row] ){
-        			s.clearBreakpoint(row);
-        		}else{
-        			s.setBreakpoint(row);
-        		}
+				if( s.$breakpoints[row] ){
+					s.clearBreakpoint(row);
+				}else{
+					s.setBreakpoint(row);
+				}
 
 				e.stop();
 			}
@@ -76,8 +76,8 @@ function onGutterClick(e, editor) {
 }
 
 function onChangeCursor(e, selection) {
-    var editor = tabs.getEditor(this);
-    var session = selection.session;
+	var editor = tabs.getEditor(this);
+	var session = selection.session;
 	var pos = selection.getSelectionLead();
 	var line = session.getLine(pos.row);
 	var prefix = line.slice(0, pos.column);
@@ -259,9 +259,9 @@ function restoreState(state) {
 
 //runs when editor or firepad is ready
 function ready(tab) {
-    var editor = tabs.getEditor($(tab));
-    
-    editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
+	var editor = tabs.getEditor($(tab));
+	
+	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
 			
 	if (prefs.autoTabs) {
 		var whitespace = require("ace/ext/whitespace");
@@ -270,8 +270,8 @@ function ready(tab) {
 }
 
 function destroy(e) {
-    var tab = $(this);
-    var editor = tabs.getEditor($(tab));
+	var tab = $(this);
+	var editor = tabs.getEditor($(tab));
 
 	removeFirepad(tab);
 
@@ -283,11 +283,11 @@ function destroy(e) {
 function removeFirepad(tab) {
 	console.log('remove firepad');
 
-    var firepad = $(tab).data('firepad');
-    var firepadUserList = $(tab).data('firepadUserList');
-    var firepadRef = $(tab).data('firepadRef');
+	var firepad = $(tab).data('firepad');
+	var firepadUserList = $(tab).data('firepadUserList');
+	var firepadRef = $(tab).data('firepadRef');
 
-    //remove firepad if last user
+	//remove firepad if last user
 	if( firepadUserList && Object.keys(firepadUserList.users).length==1 ){
 		firepadRef.off('value');
 		firepadRef.remove();
@@ -311,8 +311,8 @@ function addFirepad(tab) {
 
 	//TODO loading mask
 	var editor = tabs.getEditor(tab);
-    var options = {};
-    var content = tab.data('original');
+	var options = {};
+	var content = tab.data('original');
 	if( typeof content === 'string' ){
 		options.content = content.replace(/\r\n/g, "\n");
 	}
@@ -416,64 +416,64 @@ function addFirepad(tab) {
 }
 
 _autoIndentOnPaste = function(editor, noidea, e) {
-    var session = editor.getSession();
-    var pos = editor.getSelectionRange().start;
-    var line = session.getLine(pos.row);
-    var tabSize = session.getTabSize();
+	var session = editor.getSession();
+	var pos = editor.getSelectionRange().start;
+	var line = session.getLine(pos.row);
+	var tabSize = session.getTabSize();
 
-    var col = pos.column;
-    for (var i = 0; i < pos.column; i++) {
-        if (line[i] === "\t") {
-            col += (tabSize - 1);
-        }
-    }
-    var tabAsSpaces = "";
-    for (i = 0; i < tabSize; i++) {
-        tabAsSpaces += " ";
-    }
-    var text = e.text.replace(/\t/gm, tabAsSpaces);
-    var lines = text.split("\n");
-    var regexp = /\S/;
-    var min = -1;
-    var index;
-    for (i = 1; i < lines.length; i++) {
-        index = lines[i].search(regexp);
-        if (index !== -1 && (index < min || min === -1)) {
-            min = index;
-        }
-    }
-    var adjust = col - min;
-    if (min > -1 && adjust !== 0) {
-        if (adjust < 0) {
-            for (i = 1; i < lines.length; i++) {
-                lines[i] = lines[i].substring(-adjust);
-            }
-        } else if (adjust > 0) {
-            var add = "";
-            for (i = 0; i < adjust; i++) {
-                add += " ";
-            }
+	var col = pos.column;
+	for (var i = 0; i < pos.column; i++) {
+		if (line[i] === "\t") {
+			col += (tabSize - 1);
+		}
+	}
+	var tabAsSpaces = "";
+	for (i = 0; i < tabSize; i++) {
+		tabAsSpaces += " ";
+	}
+	var text = e.text.replace(/\t/gm, tabAsSpaces);
+	var lines = text.split("\n");
+	var regexp = /\S/;
+	var min = -1;
+	var index;
+	for (i = 1; i < lines.length; i++) {
+		index = lines[i].search(regexp);
+		if (index !== -1 && (index < min || min === -1)) {
+			min = index;
+		}
+	}
+	var adjust = col - min;
+	if (min > -1 && adjust !== 0) {
+		if (adjust < 0) {
+			for (i = 1; i < lines.length; i++) {
+				lines[i] = lines[i].substring(-adjust);
+			}
+		} else if (adjust > 0) {
+			var add = "";
+			for (i = 0; i < adjust; i++) {
+				add += " ";
+			}
 
-            for (i = 1; i < lines.length; i++) {
-                lines[i] = add + lines[i];
-            }
-        }
-    }
+			for (i = 1; i < lines.length; i++) {
+				lines[i] = add + lines[i];
+			}
+		}
+	}
 
-    lines[0] = lines[0].substring(lines[0].search(regexp));
-    e.text = lines.join("\n");
-    if (!session.getUseSoftTabs()) {
-        regexp = new RegExp(tabAsSpaces, "gm");
-        e.text = e.text.replace(regexp, "\t");
-    }
+	lines[0] = lines[0].substring(lines[0].search(regexp));
+	e.text = lines.join("\n");
+	if (!session.getUseSoftTabs()) {
+		regexp = new RegExp(tabAsSpaces, "gm");
+		e.text = e.text.replace(regexp, "\t");
+	}
 };
 
 function applyPrefs(tab) {
-    tab = $(tab);
-    var prefs = preferences.get_prefs();
+	tab = $(tab);
+	var prefs = preferences.get_prefs();
 
 	window.splits[tab.attr('id')].forEach(function (editor) {
-	    setMode(editor, editor.getSession().$modeId.substr(9));
+		setMode(editor, editor.getSession().$modeId.substr(9));
 
 		if (prefs.behaviours) {
 			editor.setBehavioursEnabled(true);
@@ -484,17 +484,17 @@ function applyPrefs(tab) {
 		editor.setDragDelay(0);
 		editor.setHighlightSelectedWord(true);
 
-        if (prefs.indentOnPaste) {
-            editor.on("paste", function(e) {
-                _autoIndentOnPaste(editor, session, e);
-            });
-        } else {
-            editor.removeAllListeners("paste");
-        }
+		if (prefs.indentOnPaste) {
+			editor.on("paste", function(e) {
+				_autoIndentOnPaste(editor, session, e);
+			});
+		} else {
+			editor.removeAllListeners("paste");
+		}
 
 		if( prefs.zen ){
 			console.log('loading emmet');
-		    //emmet fka zen
+			//emmet fka zen
 			editor.setOption("enableEmmet", true);
 		}else{
 			editor.setOption("enableEmmet", false);
@@ -509,8 +509,8 @@ function applyPrefs(tab) {
 			keybinding = require("ace/keyboard/vim").handler;
 			var vimApi = require("ace/keyboard/vim").CodeMirror.Vim;
 			vimApi.defineEx("write", "w", jQuery.proxy(function(cm, input) {
-			    var editor = cm.ace;
-			    return editor.commands.exec('save', editor);
+				var editor = cm.ace;
+				return editor.commands.exec('save', editor);
 			}, tab));
 			break;
 		case 'emacs':
@@ -526,7 +526,7 @@ function applyPrefs(tab) {
 			['auto','unix','windows'].indexOf(prefs.lineBreak) !== -1 &&
 			!$(tab).data('firepad')
 		){
-		    console.log('Linemode: '+prefs.lineBreak);
+			console.log('Linemode: '+prefs.lineBreak);
 			editor.getSession().getDocument().setNewLineMode(prefs.lineBreak);
 		}
 
@@ -588,61 +588,61 @@ function applyPrefs(tab) {
 }
 
 function create(file, content, siteId, options) {
-    var settings = {};
+	var settings = {};
 
-    if(!options){
-        options = {};
-    }
+	if(!options){
+		options = {};
+	}
 
-    var title = file;
-    if(options.title) {
-        title = options.title;
-    }
+	var title = file;
+	if(options.title) {
+		title = options.title;
+	}
 
-    var tabpanel = options.tabpanel ? options.tabpanel : $(".ui-layout-center");
+	var tabpanel = options.tabpanel ? options.tabpanel : $(".ui-layout-center");
 
-    //create tab
+	//create tab
 	tab = tabpanel.tabs('add', title, '<div class="vbox"><div class="editor_toolbar"></div>\
 	<div class="editor_status" data-currentError="0">\
-    <button class="previous" type="button" disabled>\
-    <i class="fa fa-arrow-left"></i></button> \
-    <button class="next" type="button" disabled>\
-    <i class="fa fa-arrow-right"></i></button> \
-    <!--<button class="fix" type="button" disabled>Fix</button>--> \
-    <span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
+	<button class="previous" type="button" disabled>\
+	<i class="fa fa-arrow-left"></i></button> \
+	<button class="next" type="button" disabled>\
+	<i class="fa fa-arrow-right"></i></button> \
+	<!--<button class="fix" type="button" disabled>Fix</button>--> \
+	<span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
 	</div>\
 	<div class="editor"></div><div class="design flex" style="display: none;"></div></div>'
 	//, 'site-'+siteId
 	);
 
-    tab.addClass('closable');
+	tab.addClass('closable');
 	tab.data(file, file);
 	tab.attr('data-file', file);
 
 	tabs.setTitle(tab, title);
 
-    tab.data('view', 'code');
-    tab.attr('data-view', 'code');
+	tab.data('view', 'code');
+	tab.attr('data-view', 'code');
 
 	if(siteId) {
-	    tab.data('site', siteId);
-	    tab.attr('data-site', siteId);
-	    settings = site.getSettings(siteId);
+		tab.data('site', siteId);
+		tab.attr('data-site', siteId);
+		settings = site.getSettings(siteId);
 	}
 
 	if(options.mdate) {
-	    tab.data('mdate', options.mdate);
-	    tab.attr('data-mdate', options.mdate);
+		tab.data('mdate', options.mdate);
+		tab.attr('data-mdate', options.mdate);
 	}
 
 	if(options.link) {
-	    tab.data('link', options.link);
-	    tab.attr('data-link', options.link);
+		tab.data('link', options.link);
+		tab.attr('data-link', options.link);
 	}
 
-    tab.data('original', content);
+	tab.data('original', content);
 
-    tabpanel.trigger("tabsactivate", [{newTab:tab}]);
+	tabpanel.trigger("tabsactivate", [{newTab:tab}]);
 
 	//load ace
 
@@ -671,15 +671,15 @@ function create(file, content, siteId, options) {
 	var session = editor.getSession();
 
 	//syntax bar handlers
-    panel.find('.previous').button()
-    .click(function() {
-        jQuery.proxy(syntax_errors.previous, tab);
-    });
+	panel.find('.previous').button()
+	.click(function() {
+		jQuery.proxy(syntax_errors.previous, tab);
+	});
 
-    panel.find('.next').button()
-    .click(function() {
-        jQuery.proxy(syntax_errors.next, tab);
-    });
+	panel.find('.next').button()
+	.click(function() {
+		jQuery.proxy(syntax_errors.next, tab);
+	});
 
 	//set mode
 	var ext = util.fileExtension(file);
@@ -691,28 +691,28 @@ function create(file, content, siteId, options) {
 	setMode(editor, mode);
 
 	//FIREPAD
-    var firepad = false;
+	var firepad = false;
 	if( siteId && (settings.shared || tab.attr('shared')) ){
-	    firepad = true;
+		firepad = true;
 
 		if( !firebase.isConnected() ){
 			tab.attr('data-firepad', 1);
 
 			firebase.connect(function() {
-			    $('li[role=tab][data-firepad]').each(function(index){
-			        addFirepad($(this));
-			    });
+				$('li[role=tab][data-firepad]').each(function(index){
+					addFirepad($(this));
+				});
 			});
 		}else{
 			addFirepad(tab);
 		}
 	}else{
 		//if no firepad:
-	    editor.getSession().getDocument().setValue(content);
+		editor.getSession().getDocument().setValue(content);
 
-	    ready(tab);
+		ready(tab);
 
-    	//clear history //fixes undo redo when using split
+		//clear history //fixes undo redo when using split
 		var UndoManager = require("ace/undomanager").UndoManager;
 		editor.getSession().setUndoManager(new UndoManager());
 
@@ -723,22 +723,22 @@ function create(file, content, siteId, options) {
 		editor.moveCursorToPosition({column:0, row:0});
 	}
 
-    //event listeners
+	//event listeners
 	editor.getSession().on('changeFold', jQuery.proxy(saveState, tab));
 	editor.getSession().on('changeBreakpoint', jQuery.proxy(saveState, tab));
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
 
-    $(tab).on('beforeClose', destroy);
+	$(tab).on('beforeClose', destroy);
 
 	//autocomplete
 	editor.completer = new Autocomplete();
 
-    window.shiftedit.defs[$(tab).attr('id')] = {
-        'definitions': {},
-	    'definitionRanges': {}
-    };
+	window.shiftedit.defs[$(tab).attr('id')] = {
+		'definitions': {},
+		'definitionRanges': {}
+	};
 
 	//editor.completers = [shifteditCompleter];
 
@@ -786,13 +786,13 @@ function create(file, content, siteId, options) {
 		},
 		exec: function (editor, args, request) {
 			prompt.prompt({
-			    title: 'Go to Line',
-			    fn :function (button, line) {
-    				if (button == 'ok') {
-    					editor.gotoLine(line);
-    					setTimeout(function(){editor.focus();}, 50);
-    				}
-			    }
+				title: 'Go to Line',
+				fn :function (button, line) {
+					if (button == 'ok') {
+						editor.gotoLine(line);
+						setTimeout(function(){editor.focus();}, 50);
+					}
+				}
 			});
 			return true;
 		}
@@ -808,13 +808,13 @@ function create(file, content, siteId, options) {
 			var cursor = editor.getCursorPosition();
 			row = cursor.row;
 
-    		var s = editor.getSession();
+			var s = editor.getSession();
 
-    		if( s.$breakpoints[row] ){
-    			s.clearBreakpoint(row);
-    		}else{
-    			s.setBreakpoint(row);
-    		}
+			if( s.$breakpoints[row] ){
+				s.clearBreakpoint(row);
+			}else{
+				s.setBreakpoint(row);
+			}
 		}
 	});
 	editor.commands.addCommand({
@@ -825,28 +825,28 @@ function create(file, content, siteId, options) {
 			sender: "editor"
 		},
 		exec: function (editor, args, request) {
-    		var breakpoints = editor.getSession().$breakpoints;
+			var breakpoints = editor.getSession().$breakpoints;
 
-    		var cursor = editor.getCursorPosition();
-    		var row = cursor.row;
+			var cursor = editor.getCursorPosition();
+			var row = cursor.row;
 
-    		var real_breakpoints = [];
+			var real_breakpoints = [];
 
-    		for( var i=0; i<breakpoints.length; i++ ) {
-    			if(breakpoints[i]=='ace_breakpoint') {
-    				if( i>row ){
-    					editor.gotoLine(i+1);
-    					return;
-    				}
+			for( var i=0; i<breakpoints.length; i++ ) {
+				if(breakpoints[i]=='ace_breakpoint') {
+					if( i>row ){
+						editor.gotoLine(i+1);
+						return;
+					}
 
-    				real_breakpoints.push(i);
-    			}
-    		}
+					real_breakpoints.push(i);
+				}
+			}
 
-    		//go back to beginning
-    		if( real_breakpoints[0] ){
-    			editor.gotoLine(real_breakpoints[0]+1);
-    		}
+			//go back to beginning
+			if( real_breakpoints[0] ){
+				editor.gotoLine(real_breakpoints[0]+1);
+			}
 		}
 	});
 
@@ -858,110 +858,110 @@ function create(file, content, siteId, options) {
 			sender: "editor"
 		},
 		exec: function (editor, args, request) {
-    		var breakpoints = editor.getSession().$breakpoints;
+			var breakpoints = editor.getSession().$breakpoints;
 
-    		var cursor = editor.getCursorPosition();
-    		var row = cursor.row;
+			var cursor = editor.getCursorPosition();
+			var row = cursor.row;
 
-    		var real_breakpoints = [];
+			var real_breakpoints = [];
 
-    		for( var i=breakpoints.length; i>0; i-- ) {
-    			if(breakpoints[i]=='ace_breakpoint') {
-    				if( i<row ){
-    					editor.gotoLine(i+1);
-    					return;
-    				}
+			for( var i=breakpoints.length; i>0; i-- ) {
+				if(breakpoints[i]=='ace_breakpoint') {
+					if( i<row ){
+						editor.gotoLine(i+1);
+						return;
+					}
 
-    				real_breakpoints.push(i);
-    			}
-    		}
+					real_breakpoints.push(i);
+				}
+			}
 
 
-    		if( real_breakpoints[0] ){
-    			editor.gotoLine(real_breakpoints[0]+1);
-    		}
+			if( real_breakpoints[0] ){
+				editor.gotoLine(real_breakpoints[0]+1);
+			}
 		}
 	});
 
 	editor.commands.addCommand({
 		name: "clearBreakpoints",
 		exec: function (editor, args, request) {
-    		if(typeof row === "undefined"){
-    			var cursor = editor.getCursorPosition();
-    			row = cursor.row;
-    		}
+			if(typeof row === "undefined"){
+				var cursor = editor.getCursorPosition();
+				row = cursor.row;
+			}
 
-    		var s = editor.getSession();
+			var s = editor.getSession();
 
-    		for( var row in s.$breakpoints ){
-    			if(s.$breakpoints[row])
-    				s.clearBreakpoint(row);
-    		}
+			for( var row in s.$breakpoints ){
+				if(s.$breakpoints[row])
+					s.clearBreakpoint(row);
+			}
 		}
 	});
 
 	editor.commands.addCommand({
 		name: "wrapSelection",
 		exec: function (editor, args, request) {
-		    var start = args[0];
-		    var end = args[1];
+			var start = args[0];
+			var end = args[1];
 
-    		var text = editor.getSelectedText();
+			var text = editor.getSelectedText();
 
-    		if (text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
-    			text = text.substr(start.length, text.length - start.length - end.length);
-    		} else {
-    			text = start + text + end;
-    		}
+			if (text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
+				text = text.substr(start.length, text.length - start.length - end.length);
+			} else {
+				text = start + text + end;
+			}
 
-    		editor.insert(text, true);
+			editor.insert(text, true);
 		}
 	});
 
 	editor.commands.addCommand({
 		name: "prependLineSelection",
 		exec: function (editor, args, request) {
-		    var string = args[0];
+			var string = args[0];
 
-    		var text = editor.getSelectedText();
-    		editor.insert(string + text.replace(new RegExp("\n", 'g'), "\n" + string), true);
+			var text = editor.getSelectedText();
+			editor.insert(string + text.replace(new RegExp("\n", 'g'), "\n" + string), true);
 		}
 	});
 
 	editor.commands.addCommand({
 		name: "appendLineSelection",
 		exec: function (editor, args, request) {
-		    var string = args[0];
+			var string = args[0];
 
-    		var text = editor.getSelectedText();
-    		editor.insert(text.replace(new RegExp("\n", 'g'), string + "\n") + string, true);
+			var text = editor.getSelectedText();
+			editor.insert(text.replace(new RegExp("\n", 'g'), string + "\n") + string, true);
 		}
 	});
 
 	editor.commands.addCommand({
 		name: "replaceInSelection",
 		exec: function (editor, args, request) {
-		    var needle = args[0];
-		    var replacement = args[1];
+			var needle = args[0];
+			var replacement = args[1];
 
-    		var text = editor.getSelectedText();
-    		editor.insert(text.replace(new RegExp(needle, 'g'), replacement), true);
+			var text = editor.getSelectedText();
+			editor.insert(text.replace(new RegExp(needle, 'g'), replacement), true);
 		}
 	});
 
 	editor.commands.addCommand({
 		name: "selectionToUppercase",
 		exec: function (editor, args, request) {
-    		var text = editor.getSelectedText();
-    		editor.insert(text.toUpperCase(), true);
+			var text = editor.getSelectedText();
+			editor.insert(text.toUpperCase(), true);
 		}
 	});
 
 	editor.commands.addCommand({
 		name: "selectionToLowercase",
 		exec: function (editor, args, request) {
-    		var text = editor.getSelectedText();
-    		editor.insert(text.toLowerCase(), true);
+			var text = editor.getSelectedText();
+			editor.insert(text.toLowerCase(), true);
 		}
 	});
 
@@ -1082,7 +1082,7 @@ function create(file, content, siteId, options) {
 
 	//console.log(options);
 	if (options && options.state) {
-	    restoreState(options.state);
+		restoreState(options.state);
 	}
 
 	//make toolbar
@@ -1095,13 +1095,13 @@ function create(file, content, siteId, options) {
 	//reactivate
 	$(tab).trigger('activate');
 
-    $(tab).closest('.ui-tabs').trigger('open');
+	$(tab).closest('.ui-tabs').trigger('open');
 
 	return $(tab);
 }
 
 function setMode(editor, mode) {
-    editor.getSession().setMode("ace/mode/" + mode);
+	editor.getSession().setMode("ace/mode/" + mode);
 
 	//worker settings
 	if (editor.getSession().$worker) {
@@ -1118,9 +1118,9 @@ function setMode(editor, mode) {
 
 				//console.log(options);
 
-                editor.session.$worker.send("changeOptions", [options]);
-                // or
-                //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
+				editor.session.$worker.send("changeOptions", [options]);
+				// or
+				//session.$worker.send("setOptions",[ {onevar: false, asi:true}])
 			break;
 			case 'css':
 				var csslint_options = preferences.csslint_options;
@@ -1133,29 +1133,29 @@ function setMode(editor, mode) {
 
 				//console.log(disable_rules);
 
-                editor.session.$worker.send("setDisabledRules", [disable_rules]);
-                // or
-                //session.$worker.send("setOptions",[ {onevar: false, asi:true}])
+				editor.session.$worker.send("setDisabledRules", [disable_rules]);
+				// or
+				//session.$worker.send("setOptions",[ {onevar: false, asi:true}])
 			break;
 		}
 	}
 }
 
 function init() {
-    editor_contextmenu.init();
+	editor_contextmenu.init();
 }
 
 //cleanup firepads on exit
 window.onunload = function(){
 	//remove redundant firebases
 	$('li[file]').each(function() {
-	    removeFirepad(this);
+		removeFirepad(this);
 	});
 };
 
 /*
 return {
-    create: create
+	create: create
 };*/
 
 exports.init = init;

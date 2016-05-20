@@ -4,86 +4,86 @@ var modes = require('app/modes');
 var revisionsEditor;
 
 function load(siteId, file) {
-    loading.fetch('/api/revisions?site='+siteId+'&file='+file, {
-        action: 'getting revisions',
-        success: function(data) {
-            //remove old options
-            $( "#revisionFile option, #revision option" ).remove();
+	loading.fetch('/api/revisions?site='+siteId+'&file='+file, {
+		action: 'getting revisions',
+		success: function(data) {
+			//remove old options
+			$( "#revisionFile option, #revision option" ).remove();
 
-            $.each(data.files, function( index, item ) {
-                $( '<option value="'+item+'">' + item + '</option>' ).appendTo( "#revisionFile" )
-                .data('content', item.content);
-            });
-            $( "#revisionFile" ).val(file);
-            $( "#revisionFile" ).selectmenu('refresh');
+			$.each(data.files, function( index, item ) {
+				$( '<option value="'+item+'">' + item + '</option>' ).appendTo( "#revisionFile" )
+				.data('content', item.content);
+			});
+			$( "#revisionFile" ).val(file);
+			$( "#revisionFile" ).selectmenu('refresh');
 
-            $.each(data.revisions, function( index, item ) {
-                $( '<option value="'+item.id+'">' + item.date + ' ' + item.author + '</option>' ).appendTo( "#revision" )
-                .data('content', item.content);
-            });
-            $( "#revision option:first-child" ).prop('selected', true);
-            $( "#revision" ).trigger('change');
-        }
-    });
+			$.each(data.revisions, function( index, item ) {
+				$( '<option value="'+item.id+'">' + item.date + ' ' + item.author + '</option>' ).appendTo( "#revision" )
+				.data('content', item.content);
+			});
+			$( "#revision option:first-child" ).prop('selected', true);
+			$( "#revision" ).trigger('change');
+		}
+	});
 }
 
 function open() {
-    tab = tabs.active();
+	tab = tabs.active();
 
-    if(!tab) {
-        return false;
-    }
-    
-    var siteId = tab.data('site');
-    var file = tab.data('file');
-    
-    if (!siteId) {
-    	return false;
-    }
+	if(!tab) {
+		return false;
+	}
+	
+	var siteId = tab.data('site');
+	var file = tab.data('file');
+	
+	if (!siteId) {
+		return false;
+	}
 
-    //revisions dialog
-    $( "body" ).append('<div id="dialog-revisions" title="Revisions">\
-        <div class="revisions">\
-            <p class="hbox"><select id="revisionFile" class="ui-widget ui-state-default ui-corner-all"></select></p>\
-            <p class="hbox"><select id="revision" size="20" class="ui-widget ui-state-default ui-corner-all flex"></select></p>\
-        </div>\
-        <div id="revisionDiff">\
-        </div>\
-    </div>');
+	//revisions dialog
+	$( "body" ).append('<div id="dialog-revisions" title="Revisions">\
+		<div class="revisions">\
+			<p class="hbox"><select id="revisionFile" class="ui-widget ui-state-default ui-corner-all"></select></p>\
+			<p class="hbox"><select id="revision" size="20" class="ui-widget ui-state-default ui-corner-all flex"></select></p>\
+		</div>\
+		<div id="revisionDiff">\
+		</div>\
+	</div>');
 
-    //open dialog
-    var dialog = $( "#dialog-revisions" ).dialog({
-        modal: true,
-        width: $(window).width()-20,
-        height: $(window).height()-20,
-        buttons: {
-            Revert: function() {
-                //revert file
-        	    var tab = tabs.active();
-        	    var editor = tabs.getEditor(tab);
-                var content = $( "#revision option:selected" ).data('content');
-                editor.setValue(content);
+	//open dialog
+	var dialog = $( "#dialog-revisions" ).dialog({
+		modal: true,
+		width: $(window).width()-20,
+		height: $(window).height()-20,
+		buttons: {
+			Revert: function() {
+				//revert file
+				var tab = tabs.active();
+				var editor = tabs.getEditor(tab);
+				var content = $( "#revision option:selected" ).data('content');
+				editor.setValue(content);
 
-                $( this ).dialog( "close" );
-            },
-            Cancel: function() {
-                $( this ).dialog( "close" );
-            }
-        },
-        resizeStop: function( event, ui ) {
-        	setTimeout(function() {
-        		revisionsEditor.resize();
-        	}, 250);
-        },
-        close: function( event, ui ) {
-            $( this ).remove();
-        }
-    });
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		resizeStop: function( event, ui ) {
+			setTimeout(function() {
+				revisionsEditor.resize();
+			}, 250);
+		},
+		close: function( event, ui ) {
+			$( this ).remove();
+		}
+	});
 
-    //load files and revisions
-    load(siteId, file);
+	//load files and revisions
+	load(siteId, file);
 
-    //revision panel
+	//revision panel
 	var container = $('#revisionDiff')[0];
 	revisionsEditor = ace.edit(container);
 	revisionsEditor.setReadOnly(true);
@@ -114,24 +114,24 @@ function open() {
 
 	$( "#revisionFile" ).selectmenu({
 		select: function() {
-		    //load revisions
-		    load(siteId, $(this).val());
+			//load revisions
+			load(siteId, $(this).val());
 		}
 	});
 
 	$( "#revision" ).change(function() {
-	    var content = $( "#revision option:selected" ).data('content');
-	    var tab = tabs.active();
-	    var editor = tabs.getEditor(tab);
+		var content = $( "#revision option:selected" ).data('content');
+		var tab = tabs.active();
+		var editor = tabs.getEditor(tab);
 
-	    //show diff
+		//show diff
 		//remove markers
 		var session = revisionsEditor.getSession();
 		var markers = session.getMarkers();
 		for (var i in markers) {
-            if (markers.hasOwnProperty(i)) {
-			    session.removeMarker(i);
-            }
+			if (markers.hasOwnProperty(i)) {
+				session.removeMarker(i);
+			}
 		}
 
 		// don't diff big files or the browser will crash
@@ -191,7 +191,7 @@ function open() {
 $('body').on('click', '#revisionHistory a', open);
 
 return {
-    open: open
+	open: open
 };
 
 

@@ -70,15 +70,15 @@ function inProgress() {
 }
 
 function fetch(url, options) {
-    var defaults = {
-        action: 'loading',
-        success: function(){},
-        data: []
-    };
+	var defaults = {
+		action: 'loading',
+		success: function(){},
+		data: []
+	};
 
-    options = $.extend({}, defaults, options);
+	options = $.extend({}, defaults, options);
 
-    var ajax;
+	var ajax;
 	if (!start(options.action, function(){
 		ajax.abort();
 	})) {
@@ -87,31 +87,31 @@ function fetch(url, options) {
 
 	var method = typeof(options.data)==='object' ? 'POST' : 'GET';
 
-    ajax = $.ajax({
-        url: url,
-	    method: method,
-	    dataType: 'json',
-	    data: options.data
-    });
-    
-    ajax.then(function (data) {
-        stop();
+	ajax = $.ajax({
+		url: url,
+		method: method,
+		dataType: 'json',
+		data: options.data
+	});
+	
+	ajax.then(function (data) {
+		stop();
 
-        if(data.success){
+		if(data.success){
 			options.success(data);
-        }else{
-            prompt.alert({title:'Error', msg:data.error});
-        }
-    }).fail(function() {
-        stop();
+		}else{
+			prompt.alert({title:'Error', msg:data.error});
+		}
+	}).fail(function() {
+		stop();
 		prompt.alert({title:lang.failedText, msg:'Error '+options.action});
-    });
+	});
 }
 
 return {
-    start: start,
-    stop: stop,
-    abort: abort,
-    fetch: fetch
+	start: start,
+	stop: stop,
+	abort: abort,
+	fetch: fetch
 };
 });
