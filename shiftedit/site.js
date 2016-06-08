@@ -746,8 +746,12 @@ function updateCategory() {
 	}
 
 	//domain placeholder
-	var domain_placeholder = 'e.g. ftp.mydomain.com';
-	if( category==='AJAX' ){
+	var domain_placeholder = '';
+	var domain_title = '';
+	if( category==='FTP' ){
+		domain_placeholder = 'e.g. mydomain.com';
+		domain_title = 'The address of the server, e.g:\n- ftp.mydomain.com\n- ftps://ftp.mydomain.com';
+	}else if( category==='AJAX' ){
 		domain_placeholder = 'e.g. www.mydomain.com/shiftedit-proxy.php';
 	} else if( category==='SFTP' ){
 		domain_placeholder = 'e.g. mydomain.com';
@@ -756,6 +760,7 @@ function updateCategory() {
 	}
 
 	$('#domain').attr('placeholder', domain_placeholder);
+	$('#domain').attr('title', domain_title);
 
 	//username placeholder
 	var username_placeholder = 'your username';
