@@ -430,7 +430,13 @@ function saveFiles(options) {
 				}
 			}
 		} else {
-			prompt.alert({title:lang.failedText, msg:'Error saving file' + ': ' + data.error});
+			if (data.require_master_password) {
+				site.masterPasswordPrompt(function() {
+					saveFiles(options);
+				});
+			} else {
+				prompt.alert({title:lang.failedText, msg:'Error saving file' + ': ' + data.error});
+			}
 		}
 	}
 

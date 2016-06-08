@@ -1571,5 +1571,6 @@ exports.getAjaxOptions = getAjaxOptions;
 exports.getdirectFn = function(){ return directFn; };
 exports.definitions = definitions;
 exports.focus = focus;
+exports.masterPasswordPrompt = masterPasswordPrompt;
 
 });
