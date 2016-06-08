@@ -273,6 +273,7 @@ function destroy(e) {
 	var tab = $(this);
 	var editor = tabs.getEditor($(tab));
 
+	delete window.shiftedit.defs[tab.attr('id')];
 	removeFirepad(tab);
 
 	editor.session.$stopWorker();

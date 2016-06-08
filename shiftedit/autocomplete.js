@@ -1,4 +1,4 @@
-define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','ace/ace'], function (site, util, php, wordpress) {
+define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','app/dictionary/bootstrap','ace/ace'], function (site, util, php, wordpress, bootstrap) {
 	phpDictionary = php.functions;
 
 	var wpFunctions = wordpress.functions;
@@ -428,7 +428,8 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		var items = {};
 		var container = editor.container;
 		var line = session.getLine(pos.row).substr(0, pos.column);
-		var wordpress = false;
+		var ac_wordpress = false;
+		var ac_bootstrap = false;
 		var siteDefinitions = {};
 		var className = '';
 		var functions = {};
@@ -438,7 +439,11 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			var settings = site.getSettings(tab.data('site'));
 
 			if( settings.ac_wordpress != '0' ){
-				wordpress = true;
+				ac_wordpress = true;
+			}
+
+			if( settings.ac_bootstrap != '0' ){
+				ac_bootstrap = true;
 			}
 
 			if (site.definitions[settings.id]) {
@@ -491,6 +496,10 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 					dom_ids = util.merge(dom_ids, defs[id].definitions.css.ids);
 				}
 			}
+		}
+
+		if(ac_bootstrap) {
+			css_classes = util.merge(css_classes, bootstrap.classes);
 		}
 
 		//custom definitions
@@ -551,7 +560,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			if( lang == 'php' ){
 				functions = util.merge(phpDictionary, php_functions);
 
-				if( wordpress ){
+				if( ac_wordpress ){
 					functions = util.merge(functions, wordpressFunctions);
 				}
 

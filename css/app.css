@@ -344,7 +344,8 @@ li[role=tab] .ui-icon {
     line-height: 16px;
 }
 
-#siteSettings label:first-child{
+#siteSettings label:first-child, #masterPasswordForm label:first-child{
+    display: inline-block;
     min-width: 110px;
     width: 110px;
     padding: 0;

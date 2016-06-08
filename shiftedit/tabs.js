@@ -430,7 +430,13 @@ function saveFiles(options) {
 				}
 			}
 		} else {
-			prompt.alert({title:lang.failedText, msg:'Error saving file' + ': ' + data.error});
+			if (data.require_master_password) {
+				site.masterPasswordPrompt(function() {
+					saveFiles(options);
+				});
+			} else {
+				prompt.alert({title:lang.failedText, msg:'Error saving file' + ': ' + data.error});
+			}
 		}
 	}
 
@@ -828,9 +834,10 @@ function tabActivate(tab) {
 	hash.set(hashVal);
 
 	var editor = getEditor(tab);
-	if (editor)
-		editor.focus();
-	else {
+	if (editor) {
+		//editor.focus();
+		setTimeout(function(){editor.focus();}, 0);
+	} else {
 		var tabpanel = $(tab).closest(".ui-tabs");
 		var panel = tabpanel.tabs('getPanelForTab', tab);
 		panel.find('a').first().focus();
