@@ -1322,6 +1322,10 @@ function edit(newSite, duplicate) {
 						<input type="checkbox" name="ac_wordpress" value="1" class="text ui-widget-content ui-corner-all">\
 					</p>\
 					<p>\
+						<label for="name">Bootstrap completions:</label>\
+						<input type="checkbox" name="ac_bootstrap" value="1" class="text ui-widget-content ui-corner-all">\
+					</p>\
+					<p>\
 						<label for="name">Custom completions:</label>\
 						<input type="text" name="ac_custom" value="" placeholder="e.g. http://domain.com/completions.json" class="text ui-widget-content ui-corner-all">\
 					</p>\
