@@ -433,11 +433,12 @@ function open(siteId, options) {
 		$('#tree').data('dir', site.dir);
 		$('#tree').data('dir_id', site.dir_id);
 
-		gdrive.authorise(function(){
+		gdrive.authorise(function() {
 			loading.stop();
 			$('#tree-container').show();
 			tree.setAjaxOptions(gdrive.directFn);
 			directFn = gdrive.directFn;
+			openCallback();
 		});
 		return;
 	}
@@ -459,6 +460,8 @@ function open(siteId, options) {
 		//console.log(data);
 
 		if(data.success){
+			console.log('connected');
+			
 	   		definitions[siteId] = data.definitions;
 
 			//load file tree
@@ -578,7 +581,7 @@ function loadRepos(val) {
 		});
 }
 
-function load() {
+function load(options) {
 	return $.getJSON('/api/sites')
 		.then(function (data) {
 			sites = data.sites;
@@ -601,7 +604,10 @@ function load() {
 			});
 
 			if(currentSite) {
-				return open(currentSite);
+				return open(currentSite, options);
+			} else {
+				if (options.callback)
+					options.callback();
 			}
 
 			return sites;

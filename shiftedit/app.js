@@ -3,8 +3,6 @@
 // Configure loading modules from the lib directory,
 // except for 'app' ones, which are in a sibling
 // directory.
-var ace_path = 'ace.20160218/src';
-
 requirejs.config({
 	baseUrl: "lib",
 	paths: {
@@ -15,19 +13,19 @@ requirejs.config({
 		"jquery.menubar": "menubar/jquery.menubar",
 		"ui.combobox": "combobox/ui.combobox",
 		"jstree": "jstree/jstree",
-		"ace": ace_path,
+		"ace": "ace.20160218/src",
 		//"ace/split": 'ace.20151029/src/ext-split',
-		"ace/ext/language_tools": ace_path+"/ext-language_tools",
-		"ace/autocomplete": ace_path+"/ext-language_tools",
-		"ace/mode/css/csslint": ace_path+"/worker-css",
+		"ace/ext/language_tools": "ace.20160218/src/ext-language_tools",
+		"ace/autocomplete": "ace.20160218/src/ext-language_tools",
+		"ace/mode/css/csslint": "ace.20160218/src/worker-css",
 		//"ace/ext/emmet": 'ace.20151029/src/ext-emmet',
 		//"firepad": 'firepad/firepad',
 		"firepad-userlist": 'firepad/firepad-userlist',
 		"jsdiff": 'jsdiff/diff',
 		"ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize',
-		"ace/keyboard/vim": ace_path+"/keybinding-vim",
-		"ace/keyboard/emacs": ace_path+"/keybinding-emacs",
-		"ace/ext/whitespace": ace_path+"/ext-whitespace",
+		"ace/keyboard/vim": "ace.20160218/src/keybinding-vim",
+		"ace/keyboard/emacs": "ace.20160218/src/keybinding-emacs",
+		"ace/ext/whitespace": "ace.20160218/src/ext-whitespace",
 		'beautify': 'js-beautify/beautify',
 		'beautify-css': 'js-beautify/beautify-css',
 		'beautify-html': 'js-beautify/beautify-html'

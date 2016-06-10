@@ -8,12 +8,17 @@ var close_delim = "\r\n--" + boundary + "--";
 
 var fullAccess = true;
 
-function authorise(callback) {
+function authorise(fn) {
 	var SCOPES;
 	if(fullAccess){
 		SCOPES = 'https://www.googleapis.com/auth/drive';
 	} else {
 		SCOPES = 'https://www.googleapis.com/auth/drive.file';
+	}
+	
+	var callback = function() {
+		console.log('connected to gdrive');
+		fn();
 	}
 
 	gapi.auth.authorize(
