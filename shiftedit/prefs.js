@@ -1137,6 +1137,7 @@ function open() {
 	</form>\
 	</div>');
 
+	tab.addClass('closable');
 	tab.attr('data-type', 'prefs');
 
 	//encoding dropdown
