@@ -905,17 +905,16 @@ function save(name, value) {
 	});
 }
 
-function open() {
+function open(tabpanel) {
 	var myLayout = layout.get();
 
 	//check if already open
 	var tab = $('li[data-type=prefs]');
-
 	var panel = 'east';
 	var minWidth = 300;
 
 	if(tab.length) {
-		var tabpanel = tab.closest('.ui-tabs');
+		tabpanel = tab.closest('.ui-tabs');
 		tabpanel.tabs("option", "active", tab.index());
 
 		//get nearest panel
@@ -931,14 +930,17 @@ function open() {
 		return;
 	}
 
-	//expand east panel
-	myLayout.open(panel);
-	if(myLayout.panes.east.outerWidth() < minWidth) {
-		myLayout.sizePane(panel, minWidth);
+	if (!tabpanel) {
+		tabpanel = '.ui-layout-east';
+		//expand east panel
+		myLayout.open(panel);
+		if(myLayout.panes.east.outerWidth() < minWidth) {
+			myLayout.sizePane(panel, minWidth);
+		}
 	}
 
 	//create tab
-	tab = $('.ui-layout-east').tabs('add', 'Preferences', '<div class="prefs">\
+	tab = $(tabpanel).tabs('add', 'Preferences', '<div class="prefs">\
 	<form id="prefsForm">\
 	<h2>General</h2>\
 	<label>Skin</label>\
@@ -1362,7 +1364,7 @@ $('body').on('click', 'a.preferences', function(e){
 	var tab = $('[aria-controls='+id+']');
 	tabs.close(tab);
 
-	open();
+	open(tabpanel);
 });
 
 $('body').on('click', '.editCustomTheme', function(e){
@@ -1385,6 +1387,3 @@ exports.createHash = createHash;
 exports.charsets = charsets;
 
 });
-
-
-
