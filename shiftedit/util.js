@@ -3,7 +3,7 @@ define(['app/modes', 'md5'], function (modes, md5) {
 modes = require('app/modes').modes;
 
 function clone(obj) {
-  return JSON.parse(JSON.stringify(obj));
+	return JSON.parse(JSON.stringify(obj));
 }
 
 function fileExtension(filename) {
@@ -43,7 +43,6 @@ function base64DecToArr (sBase64, nBlocksSize) {
 				taBytes[nOutIdx] = nUint24 >>> (16 >>> nMod3 & 24) & 255;
 			}
 			nUint24 = 0;
-
 		}
 	}
 
@@ -167,30 +166,29 @@ function strToUTF8Arr (sDOMStr) {
 
 return {
 	b64toBlob: function(b64Data, contentType, sliceSize) {
-			contentType = contentType || '';
-			sliceSize = sliceSize || 512;
+		contentType = contentType || '';
+		sliceSize = sliceSize || 512;
 
-			var byteCharacters = atob(b64Data);
-			var byteArrays = [];
+		var byteCharacters = atob(b64Data);
+		var byteArrays = [];
 
-			for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-					var slice = byteCharacters.slice(offset, offset + sliceSize);
+		for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+			var slice = byteCharacters.slice(offset, offset + sliceSize);
 
-					var byteNumbers = new Array(slice.length);
-					for (var i = 0; i < slice.length; i++) {
-																	byteNumbers[i] = slice.charCodeAt(i);
-					}
-
-					var byteArray = new Uint8Array(byteNumbers);
-
-					byteArrays.push(byteArray);
+			var byteNumbers = new Array(slice.length);
+			for (var i = 0; i < slice.length; i++) {
+				byteNumbers[i] = slice.charCodeAt(i);
 			}
 
-			var blob = new Blob(byteArrays, {type: contentType});
-			return blob;
+			var byteArray = new Uint8Array(byteNumbers);
+
+			byteArrays.push(byteArray);
+		}
+
+		var blob = new Blob(byteArrays, {type: contentType});
+		return blob;
 	},
-	basename: function(file)
-	{
+	basename: function(file) {
 		var pos = file.lastIndexOf('/');
 		return file.substring(pos+1,file.length);
 	},
@@ -342,7 +340,7 @@ return {
 			e: function() { // Timezone identifier; e.g. Atlantic/Azores, ...
 				// The following works, but requires inclusion of the very large
 				// timezone_abbreviations_list() function.
-				/*																	return that.date_default_timezone_get();
+				/* return that.date_default_timezone_get();
 				 */
 				throw 'Not supported (see source code of date() for timezone on how to add support)';
 			},
@@ -370,7 +368,7 @@ return {
 			T: function() { // Timezone abbreviation; e.g. EST, MDT, ...
 				// The following works, but requires inclusion of the very
 				// large timezone_abbreviations_list() function.
-				/*																	var abbr = '', i = 0, os = 0, default = 0;
+				/* var abbr = '', i = 0, os = 0, default = 0;
 				if (!tal.length) {
 					tal = that.timezone_abbreviations_list();
 				}
@@ -378,9 +376,9 @@ return {
 					default = that.php_js.default_timezone;
 					for (abbr in tal) {
 						for (i=0; i < tal[abbr].length; i++) {
-																	if (tal[abbr][i].timezone_id === default) {
-							return abbr.toUpperCase();
-																	}
+							if (tal[abbr][i].timezone_id === default) {
+								return abbr.toUpperCase();
+							}
 						}
 					}
 				}
@@ -388,7 +386,7 @@ return {
 					for (i = 0; i < tal[abbr].length; i++) {
 						os = -jsdate.getTimezoneOffset() * 60;
 						if (tal[abbr][i].offset === os) {
-																	return abbr.toUpperCase();
+							return abbr.toUpperCase();
 						}
 					}
 				}
@@ -421,29 +419,29 @@ return {
 		return this.date(format, timestamp);
 	},
 	dirname: function(path) {
-		if( path.indexOf('/')==-1 ){
+		if(path.indexOf('/')==-1) {
 			return '';
 		}
 
-			return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '');
+		return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '');
 	},
 	hexToRgb: function(hex) {
-			var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-			return result ? {
-					r: parseInt(result[1], 16),
-					g: parseInt(result[2], 16),
-					b: parseInt(result[3], 16)
-			} : null;
+		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result ? {
+			r: parseInt(result[1], 16),
+			g: parseInt(result[2], 16),
+			b: parseInt(result[3], 16)
+		} : null;
 	},
 	makeMenuText: function(text, key) {
-		if( !key ){
+		if(!key) {
 			key ='';
 		}
 
 		return '<div style="display:inline-block; width:160px;">' + text + '</div><div style="display:inline-block; color: gray;">' + key + '</div>';
 	},
 	fileExtension: fileExtension,
-	getMimetype: function(file){
+	getMimetype: function(file) {
 		var ext = fileExtension(file);
 		var mimeType = 'application/octet-stream';
 		$.each(modes, function (key) {
@@ -455,7 +453,7 @@ return {
 
 		return mimeType;
 	},
-												merge: function(obj1, obj2){
+	merge: function(obj1, obj2) {
 		/*
 		var obj3 = {};
 		for (var attrname in obj1) {obj3[attrname] = obj1[attrname]; }
@@ -469,18 +467,18 @@ return {
 	},
 	relative: function(from, to) {
 		function trim(arr) {
-													var start = 0;
-													for (; start < arr.length; start++) {
-														if (arr[start] !== '') break;
-													}
+			var start = 0;
+			for (; start < arr.length; start++) {
+				if (arr[start] !== '') break;
+			}
 
-													var end = arr.length - 1;
-													for (; end >= 0; end--) {
-														if (arr[end] !== '') break;
-													}
+			var end = arr.length - 1;
+			for (; end >= 0; end--) {
+				if (arr[end] !== '') break;
+			}
 
-													if (start > end) return [];
-													return arr.slice(start, end - start + 1);
+			if (start > end) return [];
+			return arr.slice(start, end - start + 1);
 		}
 
 		var fromParts = trim(from.split('/'));
@@ -489,232 +487,228 @@ return {
 		var length = Math.min(fromParts.length, toParts.length);
 		var samePartsLength = length;
 		for (var i = 0; i < length; i++) {
-													if (fromParts[i] !== toParts[i]) {
-														samePartsLength = i;
-														break;
-													}
+			if (fromParts[i] !== toParts[i]) {
+				samePartsLength = i;
+				break;
+			}
 		}
 
 		var outputParts = [];
 		for (var i = samePartsLength; i < fromParts.length; i++) {
-													outputParts.push('..');
+			outputParts.push('..');
 		}
 
 		outputParts = outputParts.concat(toParts.slice(samePartsLength));
 		return outputParts.join('/');
 	},
 	rgbToHex: function(r, g, b) {
-			function componentToHex(c) {
-				c = parseInt(c);
+		function componentToHex(c) {
+			c = parseInt(c);
 
-				if( isNaN(c) ){
-					return '00';
-				}
+			if(isNaN(c))
+				return '00';
 
-					var hex = c.toString(16);
-					return hex.length == 1 ? "0" + hex : hex;
-			}
+			var hex = c.toString(16);
+			return hex.length == 1 ? "0" + hex : hex;
+		}
 
-			return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+		return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 	},
-	selectFilename: function(){
-			var pos = this.value.lastIndexOf('.');
+	selectFilename: function() {
+		var pos = this.value.lastIndexOf('.');
 
-			if( pos!==-1 ){
-					this.setSelectionRange(0, pos);
-			}else{
-					this.select();
-			}
+		if(pos!==-1) {
+			this.setSelectionRange(0, pos);
+		} else {
+			this.select();
+		}
 	},
 	serializeObject: function(form) {
-			var paramObj = {};
-			$.each($(form).serializeArray(), function(_, kv) {
-				paramObj[kv.name] = kv.value;
-			});
-			return paramObj;
+		var paramObj = {};
+		$.each($(form).serializeArray(), function(_, kv) {
+			paramObj[kv.name] = kv.value;
+		});
+		return paramObj;
 	},
 	sha1: function(str) {
-			// http://kevin.vanzonneveld.net
-			// +											 original by: Webtoolkit.info (http://www.webtoolkit.info/)
-			// + namespaced by: Michael White (http://getsprink.com)
-			// +													input by: Brett Zamir (http://brett-zamir.me)
-			// +											 improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-			// -												depends on: utf8_encode
-			// *												 example 1: sha1('Kevin van Zonneveld');
-			// *												 returns 1: '54916d2e62f65b3afa6e192e6a601cdbe5cb5897'
+		// http://kevin.vanzonneveld.net
+		// + original by: Webtoolkit.info (http://www.webtoolkit.info/)
+		// + namespaced by: Michael White (http://getsprink.com)
+		// + input by: Brett Zamir (http://brett-zamir.me)
+		// + improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+		// - depends on: utf8_encode
+		// * example 1: sha1('Kevin van Zonneveld');
+		// * returns 1: '54916d2e62f65b3afa6e192e6a601cdbe5cb5897'
 
-			var rotate_left = function (n,s) {
-					var t4 = ( n<<s ) | (n>>>(32-s));
-					return t4;
-			};
+		var rotate_left = function (n,s) {
+			var t4 = ( n<<s ) | (n>>>(32-s));
+			return t4;
+		};
 
-			var cvt_hex = function (val) {
-					var str="";
-					var i;
-					var v;
+		var cvt_hex = function (val) {
+			var str="";
+			var i;
+			var v;
 
-					for (i=7; i>=0; i--) {
-																	v = (val>>>(i*4))&0x0f;
-																	str += v.toString(16);
-					}
-					return str;
-			};
+			for (i=7; i>=0; i--) {
+				v = (val>>>(i*4))&0x0f;
+				str += v.toString(16);
+			}
+			return str;
+		};
 
-			var blockstart;
-			var i, j;
-			var W = new Array(80);
-			var H0 = 0x67452301;
-			var H1 = 0xEFCDAB89;
-			var H2 = 0x98BADCFE;
-			var H3 = 0x10325476;
-			var H4 = 0xC3D2E1F0;
-			var A, B, C, D, E;
-			var temp;
+		var blockstart;
+		var i, j;
+		var W = new Array(80);
+		var H0 = 0x67452301;
+		var H1 = 0xEFCDAB89;
+		var H2 = 0x98BADCFE;
+		var H3 = 0x10325476;
+		var H4 = 0xC3D2E1F0;
+		var A, B, C, D, E;
+		var temp;
 
-			str = this.utf8_encode(str);
-			var str_len = str.length;
+		str = this.utf8_encode(str);
+		var str_len = str.length;
 
-			var word_array = [];
-			for (i=0; i<str_len-3; i+=4) {
-					j = str.charCodeAt(i)<<24 | str.charCodeAt(i+1)<<16 |
-					str.charCodeAt(i+2)<<8 | str.charCodeAt(i+3);
-					word_array.push( j );
+		var word_array = [];
+		for (i=0; i<str_len-3; i+=4) {
+			j = str.charCodeAt(i)<<24 | str.charCodeAt(i+1)<<16 |
+			str.charCodeAt(i+2)<<8 | str.charCodeAt(i+3);
+			word_array.push( j );
+		}
+
+		switch (str_len % 4) {
+			case 0:
+        i = 0x080000000;
+			break;
+			case 1:
+				i = str.charCodeAt(str_len-1)<<24 | 0x0800000;
+			break;
+			case 2:
+				i = str.charCodeAt(str_len-2)<<24 | str.charCodeAt(str_len-1)<<16 | 0x08000;
+			break;
+			case 3:
+				i = str.charCodeAt(str_len-3)<<24 | str.charCodeAt(str_len-2)<<16 | str.charCodeAt(str_len-1)<<8 | 0x80;
+			break;
+		}
+
+		word_array.push( i );
+
+		while ((word_array.length % 16) != 14 ) {word_array.push( 0 );}
+
+		word_array.push( str_len>>>29 );
+		word_array.push( (str_len<<3)&0x0ffffffff );
+
+		for ( blockstart=0; blockstart<word_array.length; blockstart+=16 ) {
+			for (i=0; i<16; i++) {W[i] = word_array[blockstart+i];}
+			for (i=16; i<=79; i++) {W[i] = rotate_left(W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16], 1);}
+
+			A = H0;
+			B = H1;
+			C = H2;
+			D = H3;
+			E = H4;
+
+			for (i= 0; i<=19; i++) {
+				temp = (rotate_left(A,5) + ((B&C) | (~B&D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;
+				E = D;
+				D = C;
+				C = rotate_left(B,30);
+				B = A;
+				A = temp;
 			}
 
-			switch (str_len % 4) {
-					case 0:
-            i = 0x080000000;
-					break;
-					case 1:
-						i = str.charCodeAt(str_len-1)<<24 | 0x0800000;
-					break;
-					case 2:
-						i = str.charCodeAt(str_len-2)<<24 | str.charCodeAt(str_len-1)<<16 | 0x08000;
-					break;
-					case 3:
-						i = str.charCodeAt(str_len-3)<<24 | str.charCodeAt(str_len-2)<<16 | str.charCodeAt(str_len-1)<<8												| 0x80;
-					break;
+			for (i=20; i<=39; i++) {
+				temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
+				E = D;
+				D = C;
+				C = rotate_left(B,30);
+				B = A;
+				A = temp;
 			}
 
-			word_array.push( i );
-
-			while ((word_array.length % 16) != 14 ) {word_array.push( 0 );}
-
-			word_array.push( str_len>>>29 );
-			word_array.push( (str_len<<3)&0x0ffffffff );
-
-			for ( blockstart=0; blockstart<word_array.length; blockstart+=16 ) {
-					for (i=0; i<16; i++) {W[i] = word_array[blockstart+i];}
-					for (i=16; i<=79; i++) {W[i] = rotate_left(W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16], 1);}
-
-
-					A = H0;
-					B = H1;
-					C = H2;
-					D = H3;
-					E = H4;
-
-					for (i= 0; i<=19; i++) {
-						temp = (rotate_left(A,5) + ((B&C) | (~B&D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;
-						E = D;
-						D = C;
-						C = rotate_left(B,30);
-						B = A;
-						A = temp;
-					}
-
-					for (i=20; i<=39; i++) {
-						temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
-						E = D;
-						D = C;
-						C = rotate_left(B,30);
-						B = A;
-						A = temp;
-					}
-
-					for (i=40; i<=59; i++) {
-						temp = (rotate_left(A,5) + ((B&C) | (B&D) | (C&D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
-						E = D;
-						D = C;
-						C = rotate_left(B,30);
-						B = A;
-						A = temp;
-					}
-
-					for (i=60; i<=79; i++) {
-						temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;
-						E = D;
-						D = C;
-						C = rotate_left(B,30);
-						B = A;
-						A = temp;
-					}
-
-					H0 = (H0 + A) & 0x0ffffffff;
-					H1 = (H1 + B) & 0x0ffffffff;
-					H2 = (H2 + C) & 0x0ffffffff;
-					H3 = (H3 + D) & 0x0ffffffff;
-					H4 = (H4 + E) & 0x0ffffffff;
+			for (i=40; i<=59; i++) {
+				temp = (rotate_left(A,5) + ((B&C) | (B&D) | (C&D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
+				E = D;
+				D = C;
+				C = rotate_left(B,30);
+				B = A;
+				A = temp;
 			}
 
-			temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
-			return temp.toLowerCase();
+			for (i=60; i<=79; i++) {
+				temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;
+				E = D;
+				D = C;
+				C = rotate_left(B,30);
+				B = A;
+				A = temp;
+			}
+
+			H0 = (H0 + A) & 0x0ffffffff;
+			H1 = (H1 + B) & 0x0ffffffff;
+			H2 = (H2 + C) & 0x0ffffffff;
+			H3 = (H3 + D) & 0x0ffffffff;
+			H4 = (H4 + E) & 0x0ffffffff;
+		}
+
+		temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
+		return temp.toLowerCase();
 	},
 	strToHex: function(str) {
-			return '#' + md5(str).slice(0, 6);
+		return '#' + md5(str).slice(0, 6);
 	},
 	startsWith: function(haystack, needle) {
-			if(haystack)
-					return needle === "" || haystack.indexOf(needle) === 0;
+		if(haystack)
+			return needle === "" || haystack.indexOf(needle) === 0;
 	},
 	utf8_encode: function( argString ) {
-			// http://kevin.vanzonneveld.net
-			// +											 original by: Webtoolkit.info (http://www.webtoolkit.info/)
-			// +											 improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-			// +											 improved by: sowberry
-			// +												tweaked by: Jack
-			// +											 bugfixed by: Onno Marsman
-			// +											 improved by: Yves Sucaet
-			// +											 bugfixed by: Onno Marsman
-			// +											 bugfixed by: Ulrich
-			// *												 example 1: utf8_encode('Kevin van Zonneveld');
-			// *												 returns 1: 'Kevin van Zonneveld'
+		// http://kevin.vanzonneveld.net
+		// + original by: Webtoolkit.info (http://www.webtoolkit.info/)
+		// + improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+		// + improved by: sowberry
+		// + tweaked by: Jack
+		// + bugfixed by: Onno Marsman
+		// + improved by: Yves Sucaet
+		// + bugfixed by: Onno Marsman
+		// + bugfixed by: Ulrich
+		// * example 1: utf8_encode('Kevin van Zonneveld');
+		// * returns 1: 'Kevin van Zonneveld'
 
-			var string = (argString+''); // .replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+		var string = (argString+''); // .replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+		var utftext = "";
+		var start, end;
+		var stringl = 0;
 
-			var utftext = "";
-			var start, end;
-			var stringl = 0;
+		start = end = 0;
+		stringl = string.length;
+		for (var n = 0; n < stringl; n++) {
+			var c1 = string.charCodeAt(n);
+			var enc = null;
 
-			start = end = 0;
-			stringl = string.length;
-			for (var n = 0; n < stringl; n++) {
-					var c1 = string.charCodeAt(n);
-					var enc = null;
-
-					if (c1 < 128) {
-						end++;
-					} else if (c1 > 127 && c1 < 2048) {
-						enc = String.fromCharCode((c1 >> 6) | 192) + String.fromCharCode((c1 & 63) | 128);
-					} else {
-						enc = String.fromCharCode((c1 >> 12) | 224) + String.fromCharCode(((c1 >> 6) & 63) | 128) + String.fromCharCode((c1 & 63) | 128);
-					}
-					if (enc !== null) {
-						if (end > start) {
-							utftext += string.substring(start, end);
-						}
-						utftext += enc;
-						start = end = n+1;
-					}
+			if (c1 < 128) {
+				end++;
+			} else if (c1 > 127 && c1 < 2048) {
+				enc = String.fromCharCode((c1 >> 6) | 192) + String.fromCharCode((c1 & 63) | 128);
+			} else {
+				enc = String.fromCharCode((c1 >> 12) | 224) + String.fromCharCode(((c1 >> 6) & 63) | 128) + String.fromCharCode((c1 & 63) | 128);
 			}
-
-			if (end > start) {
-					utftext += string.substring(start, string.length);
+			if (enc !== null) {
+				if (end > start) {
+					utftext += string.substring(start, end);
+				}
+				utftext += enc;
+				start = end = n+1;
 			}
+		}
 
-			return utftext;
+		if (end > start) {
+			utftext += string.substring(start, string.length);
+		}
+
+		return utftext;
 	},
-
 
 	base64EncArr: base64EncArr,
 	strToUTF8Arr: strToUTF8Arr
