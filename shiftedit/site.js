@@ -1318,7 +1318,7 @@ function edit(newSite, duplicate) {
 					</p>\
 					<p>\
 						<label for="name">Password:</label>\
-						<input type="password" name="db_password" value="" class="text ui-widget-content ui-corner-all">\
+						<input type="password" id="db_password" name="db_password" value="" class="text ui-widget-content ui-corner-all" disabled>\
 						<button type="button" id="showDbPassword">Show</button>\
 					</p>\
 				</div>\
@@ -1355,6 +1355,7 @@ function edit(newSite, duplicate) {
 	//defeat chrome autofill
 	setTimeout(function(){
 		$('#ftp_pass').removeAttr("disabled");
+		$('#db_password').removeAttr("disabled");
 	}, 100);
 
 	//encoding dropdown
