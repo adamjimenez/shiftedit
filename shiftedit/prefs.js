@@ -1,4 +1,4 @@
-define(['exports', 'app/editors', 'app/tabs', 'jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree', 'lzma/lzma_worker'], function (exports, editors, tabs) {
+define(['exports', 'app/config', 'app/editors', 'app/tabs', 'jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree', 'lzma/lzma_worker'], function (exports, config, editors, tabs) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
@@ -664,7 +664,7 @@ function createHash(password) {
 }
 
 function load() {
-	return $.getJSON('/api/prefs')
+	return $.getJSON(config.apiBaseUrl+'prefs')
 		.then(function (data) {
 			console.log('loaded prefs');
 			prefs = $.extend(defaultPrefs, data.prefs);
@@ -743,7 +743,7 @@ function parsethemeUrl(url) {
 	var zThemeParams = url.substr(pos+str.length);
 	
 	unzip( zThemeParams, function( unzipped ) {
-		var url = "/api/prefs?cmd=skin&" + $.param(unzipped);
+		var url = config.apiBaseUrl+'prefs?cmd=skin&' + $.param(unzipped);
 		$( "body" ).append( "<link href=\"" + url + "\" type=\"text/css\" rel=\"Stylesheet\" />");
 	});
 	
@@ -889,7 +889,7 @@ function save(name, value) {
 	}
 
 	$.ajax({
-		url: '/api/prefs?cmd=save&name='+name,
+		url: config.apiBaseUrl+'prefs?cmd=save&name='+name,
 		method: 'POST',
 		dataType: 'json',
 		data: {value: value}
@@ -1257,7 +1257,7 @@ function open(tabpanel) {
 						params.useMasterPassword = true;
 						params.newMasterPassword = createHash(values.newMasterPassword);
 
-						loading.fetch('/api/prefs?cmd=save_master_password', {
+						loading.fetch(config.apiBaseUrl+'prefs?cmd=save_master_password', {
 							action: 'saving master password',
 							data: params,
 							success: function(data) {
@@ -1316,7 +1316,7 @@ function open(tabpanel) {
 						params.masterPassword = createHash(values.currentMasterPassword);
 						params.forceRemovePassword = values.forceRemovePassword;
 
-						loading.fetch('/api/prefs?cmd=save_master_password', {
+						loading.fetch(config.apiBaseUrl+'prefs?cmd=save_master_password', {
 							action: 'removing master password',
 							data: params,
 							success: function(data) {

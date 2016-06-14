@@ -1,9 +1,9 @@
-define(["app/site"], function (site) {
+define(['app/config', "app/site"], function (config, site) {
 
 var recentFiles = [];
 
 function load() {
-	return $.getJSON('/api/prefs?cmd=recent')
+	return $.getJSON(config.apiBaseUrl+'prefs?cmd=recent')
 		.done(function (data) {
 			if(data.success){
 				recentFiles = data.recent;

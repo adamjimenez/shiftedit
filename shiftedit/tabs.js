@@ -1,4 +1,4 @@
-define(['app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script', 'app/hash'], function (editors, preferences, exports) {
+define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script', 'app/hash'], function (config, editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -130,7 +130,7 @@ function openFiles(options) {
 		return;
 	}
 
-	var ajaxOptions = site.getAjaxOptions("/api/files?site="+siteId);
+	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 	var ajax;
 	if (!loading.start('Opening ' + file, function(){
 		console.log('abort opening files');
@@ -323,7 +323,7 @@ function saveFiles(options) {
 		}
 	}
 
-	var ajaxOptions = site.getAjaxOptions("/api/files?site="+siteId);
+	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 
 	var params = util.clone(ajaxOptions.params);
 	params.content = content;
@@ -391,7 +391,7 @@ function saveFiles(options) {
 				settings = site.getSettings(siteId);
 				if( settings.turbo == 1 || settings.server_type=='AJAX' ){
 					$.ajax({
-						url: '/api/revisions?cmd=save&site='+siteId+'&file='+encodeURIComponent(params.file),
+						url: config.apiBaseUrl+'revisions?cmd=save&site='+siteId+'&file='+encodeURIComponent(params.file),
 						method: 'POST',
 						data: params,
 						dataType: 'json'
@@ -547,7 +547,7 @@ function saveAs(tab, options) {
 						callback: fileExistsCallback
 					});
 				} else {
-					var ajaxOptions = site.getAjaxOptions("/api/files?site="+siteId);
+					var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 					var params = util.clone(ajaxOptions.params);
 					
 					$.ajax({
@@ -662,7 +662,7 @@ function recordOpenFiles() {
 	});
 
 	$.ajax({
-		url: '/api/prefs?cmd=save_state',
+		url: config.apiBaseUrl+'prefs?cmd=save_state',
 		data: {
 			files: JSON.stringify(files)
 		},

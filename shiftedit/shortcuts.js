@@ -1,4 +1,4 @@
-define(['app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'jquery'], function (tabs, find, preferences, site, tree) {
+define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'jquery'], function (config, tabs, find, preferences, site, tree) {
 	var shortcuts = [];
 	var defaultShortcuts = [{ //escape
 		key: 27,
@@ -235,7 +235,7 @@ define(['app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'jquery'], f
 	this.load = function() {
 		$.ajax({
 			dataType: "json",
-			url: '/api/snippets?cmd=shortcuts',
+			url: config.apiBaseUrl+'snippets?cmd=shortcuts',
 			success: function(data) {
 				shortcuts = defaultShortcuts.slice(0);
 

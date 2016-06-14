@@ -1,4 +1,4 @@
-define(['app/tabs'], function (tabs) {
+define(['app/config', 'app/tabs'], function (config, tabs) {
 function create() {
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 	var editor = tabs.getEditor(tab);
@@ -74,7 +74,7 @@ function create() {
 		file_browser_callback :  function(field_name, url, type, win) {
 			var site = require('app/site');
 			var siteId = site.active();
-			var ajaxOptions = site.getAjaxOptions('/api/files?site='+siteId);
+			var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 			var settings = site.getSettings();
 
 			$( "body" ).append('<div id="dialog-choose-image" title="Choose image">\
