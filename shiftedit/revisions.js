@@ -1,10 +1,10 @@
-define(['app/loading','app/tabs', 'app/prefs', 'app/util', "app/modes", "jquery-ui",'ace/ace','jsdiff'], function (loading, tabs, preferences, util) {
+define(['app/config', 'app/loading','app/tabs', 'app/prefs', 'app/util', "app/modes", "jquery-ui",'ace/ace','jsdiff'], function (config, loading, tabs, preferences, util) {
 var modes = require('app/modes');
 
 var revisionsEditor;
 
 function load(siteId, file) {
-	loading.fetch('/api/revisions?site='+siteId+'&file='+file, {
+	loading.fetch(config.apiBaseUrl+'revisions?site='+siteId+'&file='+file, {
 		action: 'getting revisions',
 		success: function(data) {
 			//remove old options

@@ -1,4 +1,4 @@
-define(['app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/storage', 'jquery'], function (tabs, prompt, lang, loading, site, storage) {
+define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/storage', 'jquery'], function (config, tabs, prompt, lang, loading, site, storage) {
 	lang = lang.lang;
 /**
  * Tab
@@ -381,7 +381,7 @@ function new_session(tab, host, username, port){
 }
 
 function loadProfiles(val) {
-	return $.getJSON('/api/ssh')
+	return $.getJSON(config.apiBaseUrl+'ssh')
 		.then(function (data) {
 			var profiles = data.profiles;
 
@@ -456,7 +456,7 @@ function open(tabpanel){
 		$('#ssh [name=host]').val('');
 		$('#ssh [name=port]').val('');
 
-		loading.fetch('/api/ssh?cmd=delete&name='+name, {
+		loading.fetch(config.apiBaseUrl+'ssh?cmd=delete&name='+name, {
 			action: 'Deleting ssh profile',
 			success: function(data) {
 				$( "#sshName" ).combobox('val');
@@ -501,7 +501,7 @@ function open(tabpanel){
 				}
 
 				//save connection
-				loading.fetch('/api/ssh?cmd=save&name='+name+'&username='+username+'&host='+host+'&port='+port, {
+				loading.fetch(config.apiBaseUrl+'ssh?cmd=save&name='+name+'&username='+username+'&host='+host+'&port='+port, {
 					action: 'Saving ssh profile'
 				});
 

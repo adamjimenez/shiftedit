@@ -1,4 +1,4 @@
-define(['app/tabs', 'app/util', 'app/prompt', 'app/loading', 'app/shortcuts', 'app/lang', 'jstree'], function (tabs, util, prompt, loading, shortcuts) {
+define(['app/config', 'app/tabs', 'app/util', 'app/prompt', 'app/loading', 'app/shortcuts', 'app/lang', 'jstree'], function (config, tabs, util, prompt, loading, shortcuts) {
 var lang = require('app/lang').lang;
 var confirmed = false;
 var inst;
@@ -135,7 +135,7 @@ function edit(node) {
 				var params = util.serializeObject($('#snippetForm'));
 
 				//save and create node
-				loading.fetch('/api/snippets?cmd=edit', {
+				loading.fetch(config.apiBaseUrl+'snippets?cmd=edit', {
 					action: 'Saving snippet',
 					data: params,
 					success: function(data) {
@@ -174,7 +174,7 @@ function init() {
 				if(node.id!=='#root')
 					path = node.id;
 
-				$.ajax('/api/snippets?cmd=list&path='+encodeURIComponent(path), {
+				$.ajax(config.apiBaseUrl+'snippets?cmd=list&path='+encodeURIComponent(path), {
 					method: 'POST',
 					dataType: 'json',
 					//data: options.params,
@@ -320,7 +320,7 @@ function init() {
 				data.instance.refresh();
 			});*/
 
-		$.ajax('/api/snippets?cmd=delete&id='+data.node.id, {
+		$.ajax(config.apiBaseUrl+'snippets?cmd=delete&id='+data.node.id, {
 			dataType: 'json',
 			/*
 			data: options.params,
@@ -339,7 +339,7 @@ function init() {
 		if(data.node.parent!=='#root')
 			parent = data.node.parent;
 		
-		$.get('/api/snippets?cmd=new', { 'type' : data.node.type, 'parent' : parent, 'text' : data.node.text })
+		$.get(config.apiBaseUrl+'snippets?cmd=new', { 'type' : data.node.type, 'parent' : parent, 'text' : data.node.text })
 			.done(function (d) {
 				if (d.id) {
 					data.instance.set_id(data.node, d.id);
@@ -361,7 +361,7 @@ function init() {
 		params.id = data.node.id;
 		params.name = data.text;
 
-		$.ajax('/api/snippets?cmd=rename', {
+		$.ajax(config.apiBaseUrl+'snippets?cmd=rename', {
 			method: 'POST',
 			dataType: 'json',
 			data: params
@@ -410,7 +410,7 @@ function init() {
 
 			params.id = data.node.id;
 
-			$.ajax('/api/snippets?cmd=move', {
+			$.ajax(config.apiBaseUrl+'snippets?cmd=move', {
 				method: 'GET',
 				dataType: 'json',
 				data: params

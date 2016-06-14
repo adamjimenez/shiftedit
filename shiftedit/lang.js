@@ -1,4 +1,4 @@
-define(['json!locale/en.json', "app/storage"], function (data) {
+define(['app/config', 'json!locale/en.json', "app/storage"], function (config, data) {
 var storage = require('app/storage');
 var lang = data;
 var customLang = storage.get('strs');
@@ -8,7 +8,7 @@ if(customLang){
 }
 
 function load() {
-	return $.getJSON('/api/lang')
+	return $.getJSON(config.apiBaseUrl+'lang')
 		.then(function (data) {
 			if(!data.success){
 				console.log('lang not found');

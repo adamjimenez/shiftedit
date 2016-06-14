@@ -1,4 +1,4 @@
-define(['exports', 'resumable', "jstreetable","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading', 'app/site', 'app/layout'], function (exports, Resumable) {
+define(['exports', 'app/config', 'resumable', "jstreetable","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading', 'app/site', 'app/layout'], function (exports, config, Resumable) {
 var util = require('app/util');
 var editor = require('app/editors');
 var lang = require('app/lang').lang;
@@ -533,7 +533,7 @@ function uploadFolder() {
 }
 
 function loadUploadUrls() {
-	return $.getJSON('/api/uploadurls')
+	return $.getJSON(config.apiBaseUrl+'uploadurls')
 		.then(function (data) {
 			var urls = data.urls;
 
@@ -587,7 +587,7 @@ function uploadByURl() {
 		if(!url)
 			return;
 
-		loading.fetch('/api/uploadurls?cmd=delete', {
+		loading.fetch(config.apiBaseUrl+'uploadurls?cmd=delete', {
 			action: 'Deleting upload url',
 			data: {url: url},
 			success: function(data) {
@@ -651,7 +651,7 @@ function uploadByURl() {
 
 						//save url
 						/*
-						loading.fetch('/api/uploadurls', {
+						loading.fetch(config.apiBaseUrl+'uploadurls', {
 							action: 'saving url '+url
 							data: {url: url},
 						});

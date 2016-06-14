@@ -1,5 +1,5 @@
 		
-define(['exports', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'app/layout', 'aes', 'app/gdrive', 'app/editors'], function (exports) {
+define(['exports', 'app/config', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'app/layout', 'aes', 'app/gdrive', 'app/editors'], function (exports, config) {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
@@ -125,7 +125,7 @@ function init() {
 				return;
 			}
 
-			loading.fetch('/api/sites?cmd=delete&site='+currentSite, {
+			loading.fetch(config.apiBaseUrl+'sites?cmd=delete&site='+currentSite, {
 				action: 'Deleting site '+site.name,
 				success: function(data) {
 					//remove this site from any active tabs
@@ -165,7 +165,7 @@ function init() {
 				$( "#dialog-import" ).dialog( "close" );
 				$( "#dialog-import" ).remove();
 
-				loading.fetch('/api/sites?cmd=import', {
+				loading.fetch(config.apiBaseUrl+'sites?cmd=import', {
 					action: 'Importing site',
 					data: {
 						content: content
@@ -208,7 +208,7 @@ function init() {
 		id: 'export',
 		text: 'Export',
 		handler: function() {
-			loading.fetch('/api/sites?cmd=export&site='+currentSite, {
+			loading.fetch(config.apiBaseUrl+'sites?cmd=export&site='+currentSite, {
 				action: 'Exporting site',
 				success: function(data) {
 					var link = $('<a href="data:text/xml;base64,'+btoa(data.content)+'" download="'+data.file+'"></a>').appendTo('body');
@@ -243,7 +243,7 @@ function init() {
 			$('#shareSiteForm').submit(function(event){
 				event.preventDefault();
 
-				loading.fetch('/api/share?cmd=save&site=' + currentSite + '&email=' + $('#shareSiteForm input[name=email]').val(), {
+				loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + currentSite + '&email=' + $('#shareSiteForm input[name=email]').val(), {
 					action: 'saving user',
 					success: function(data) {
 						$('#shareSiteForm input[name=email]').val('');
@@ -254,7 +254,7 @@ function init() {
 
 			//handle remove user
 			$('#shareSiteForm').on('click', 'a.delete', function() {
-				loading.fetch('/api/share?cmd=delete&site='+currentSite+'&contact='+$(this).data('id'), {
+				loading.fetch(config.apiBaseUrl+'share?cmd=delete&site='+currentSite+'&contact='+$(this).data('id'), {
 					action: 'deleting user',
 					success: function(data) {
 						loadUsers();
@@ -312,7 +312,7 @@ function init() {
 		id: 'reboot',
 		text: 'Reboot',
 		handler: function() {
-			loading.fetch('/api/sites?cmd=reboot&site='+currentSite, {
+			loading.fetch(config.apiBaseUrl+'sites?cmd=reboot&site='+currentSite, {
 				action: 'Rebooting site '+site.name,
 				success: function(data) {
 				}
@@ -323,7 +323,7 @@ function init() {
 		id: 'logs',
 		text: 'Server logs',
 		handler: function() {
-			loading.fetch('/api/sites?cmd=logs&site='+currentSite, {
+			loading.fetch(config.apiBaseUrl+'sites?cmd=logs&site='+currentSite, {
 				action: 'Fetching logs '+site.name,
 				success: function(data) {
 					editors.create("server.log", data.content);
@@ -445,7 +445,7 @@ function open(siteId, options) {
 
 	directFn = null;
 	ajax = $.ajax({
-		url: '/api/sites?site='+siteId,
+		url: config.apiBaseUrl+'sites?site='+siteId,
 		method: 'POST',
 		dataType: 'json',
 		data: {
@@ -465,7 +465,7 @@ function open(siteId, options) {
 	   		definitions[siteId] = data.definitions;
 
 			//load file tree
-			var ajaxOptions = getAjaxOptions('/api/files?site='+siteId);
+			var ajaxOptions = getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 			tree.setAjaxOptions(ajaxOptions);
 			openCallback();
 		}else{
@@ -545,7 +545,7 @@ function masterPasswordPrompt(callback) {
 }
 
 function loadUsers() {
-	loading.fetch('/api/share?cmd=list&site='+currentSite, {
+	loading.fetch(config.apiBaseUrl+'share?cmd=list&site='+currentSite, {
 		action: 'getting users',
 		success: function(data) {
 			var html = '';
@@ -562,7 +562,7 @@ function loadUsers() {
 }
 
 function loadRepos(val) {
-	return $.getJSON('/api/repos')
+	return $.getJSON(config.apiBaseUrl+'repos')
 		.then(function (data) {
 			var repos = data.repos;
 
@@ -582,7 +582,7 @@ function loadRepos(val) {
 }
 
 function load(options) {
-	return $.getJSON('/api/sites')
+	return $.getJSON(config.apiBaseUrl+'sites')
 		.then(function (data) {
 			sites = data.sites;
 			$( "#sites" ).children('option').remove();
@@ -787,7 +787,7 @@ function updateCategory() {
 
 function chooseFolder() {
 	var prefs = preferences.get_prefs();
-	var ajaxOptions = getAjaxOptions('/api/files?site=');
+	var ajaxOptions = getAjaxOptions(config.apiBaseUrl+'files?site=');
 	var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
 
 	if (prefs.useMasterPassword) {
@@ -959,7 +959,7 @@ function test() {
 		}
 	}
 
-	var ajaxOptions = getAjaxOptions('/api/sites?site=');
+	var ajaxOptions = getAjaxOptions(config.apiBaseUrl+'sites?site=');
 	var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
 	var prefs = preferences.get_prefs();
 
@@ -1109,7 +1109,7 @@ function save() {
 	}
 
 	ajax = $.ajax({
-		url: '/api/sites?cmd=save&site='+$('#siteSettings [name=id]').val(),
+		url: config.apiBaseUrl+'sites?cmd=save&site='+$('#siteSettings [name=id]').val(),
 		method: 'POST',
 		dataType: 'json',
 		data: params
