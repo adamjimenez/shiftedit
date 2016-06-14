@@ -3,9 +3,6 @@
 // Configure loading modules from the lib directory,
 // except for 'app' ones, which are in a sibling
 // directory.
-(function() {
-    var aceDir = 'ace.20160218/src/';
-
 requirejs.config({
 	baseUrl: "lib",
 	paths: {
@@ -100,8 +97,6 @@ requirejs.config({
 		}
 	}
 });
-
-})();
 
 // Start loading the main app file
 requirejs(['app/main']);
