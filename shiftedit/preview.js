@@ -31,11 +31,11 @@ function refresh() {
 	}
 }
 
-function create() {
+function create(tabpanel) {
 	layout.get().open('east');
 
 	//create tab
-	tab = $(".ui-layout-east").tabs('add', 'Preview', '<div class="preview_toolbar ui-widget-header ui-corner-all">\
+	tab = $(tabpanel).tabs('add', 'Preview', '<div class="preview_toolbar ui-widget-header ui-corner-all">\
 	<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
 	<button type="button" class="refreshButton"><i class="fa fa-refresh"></i></button>\
 	<select class="address" class="flex"></select>\
@@ -124,18 +124,19 @@ function create() {
 	});
 }
 
-	$('body').on('click','.newTab .preview', function(){
-		var tabpanel = $(this).closest('.ui-tabs');
-		create(tabpanel);
+$('body').on('click','.newTab .preview', function(){
+	var tabpanel = $(this).closest('.ui-tabs');
+	create(tabpanel);
 
-		var id = $(this).closest('[role=tabpanel]').attr('id');
-		var tab = $('[aria-controls='+id+']');
-		tabs.close(tab);
-	});
+	var id = $(this).closest('[role=tabpanel]').attr('id');
+	var tab = $('[aria-controls='+id+']');
+	tabs.close(tab);
+});
 
-	//refresh on save
-	$('body').on('save','.ui-tabs', refresh);
+//refresh on save
+$('body').on('save','.ui-tabs', refresh);
 
-	return {
-	};
+return {
+};
+
 });

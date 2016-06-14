@@ -364,6 +364,7 @@ function create(tabpanel){
 
 	//create tab
 	tab = $(tabpanel).tabs('add', 'SSH', '<div id="sshContainer'+index+'" class="sshContainer" style="width:100%;height:100%;"></div>');
+	tab.addClass('closable');
 
 	tab.attr('data-ssh', index);
 	tab.attr('title', 'Secure Shell');

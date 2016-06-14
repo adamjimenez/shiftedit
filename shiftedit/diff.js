@@ -20,11 +20,9 @@ function updateOptions() {
 	});
 }
 
-function create() {
-	layout.get().open('east');
-
+function create(tabpanel) {
 	//create tab
-	tab = $(".ui-layout-east").tabs('add', 'File Compare', '<div class="vbox"><div class="diff_toolbar ui-widget-header ui-corner-all">\
+	tab = $(tabpanel).tabs('add', 'File Compare', '<div class="vbox"><div class="diff_toolbar ui-widget-header ui-corner-all">\
 	<select class="diffFiles flex"></select>\
 	<select class="diffFiles flex"></select>\
 	</div>\

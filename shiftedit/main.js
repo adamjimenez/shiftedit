@@ -13,7 +13,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 			window.onbeforeunload = null;
 			prompt.alert({title: 'Error', msg:data.error});
 			location.href = '/login';
-			return;
+			throw "logged out";
 		}
 		
 		splash.update('loading preferences..');
@@ -22,8 +22,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 	.fail(function () {
 		console.error("Cannot load language file");
 		location.href='/login';
-	})
-	.done(function () {
+		throw "logged out";
 	})
 	.done(function () {
 		var layout = require("app/layout");
