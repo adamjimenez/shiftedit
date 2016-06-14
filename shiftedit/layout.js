@@ -50,7 +50,7 @@ function init() {
 					</div>\
 				</div>\
 			</div>\
-	\
+			\
 			<div id="tabs-find"></div>\
 			<div id="tabs-definitions"></div>\
 			<div id="tabs-notes">\
@@ -75,12 +75,13 @@ function init() {
 	myLayout = $('body').layout({
 		resizable: true,
 		//showOverflowOnHover: true,
-		west__size:			300,
-		west__minSize:			200,
-		east__size:			300,
-		south__size:		300,
-		south__initClosed:	true,
-		livePaneResizing:   true,
+		west__size: 300,
+		west__minSize: 200,
+		east__size: 300,
+		east__initClosed: true,
+		south__size: 300,
+		south__initClosed: true,
+		livePaneResizing: true,
 		north: {
 			enableCursorHotkey: false,
 			closable: false,
@@ -91,10 +92,10 @@ function init() {
 			size: 30,
 			maxSize: 30
 		},
-		stateManagement__enabled:	true
+		stateManagement__enabled: true
 		// RESIZE Accordion widget when panes resize
-		//west__onresize:		$.layout.callbacks.resizePaneAccordions
-		//east__onresize:		$.layout.callbacks.resizePaneAccordions
+		//west__onresize: $.layout.callbacks.resizePaneAccordions
+		//east__onresize: $.layout.callbacks.resizePaneAccordions
 	});
 
 	$('body').on('menufocus focusin', '.ui-layout-pane', function() {
