@@ -547,6 +547,14 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		$('body').on('activate', 'li', function() {
 			update(null, true);
 		});
+		
+		var timer;
+		$('body').on('change', 'li[role=tab][data-file]', function() {
+			clearTimeout(timer);
+			timer = setTimeout(function() {
+				update(null, true);
+			}, 1000);
+		});
 	}
 
 	return {
