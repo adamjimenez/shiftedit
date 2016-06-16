@@ -137,6 +137,7 @@ function openFiles(options) {
 		ajax.abort();
 		opening = [];
 	})) {
+		opening.push(item);
 		console.log('in queue');
 		return;
 	}
