@@ -612,7 +612,7 @@ function load(options) {
 			if(currentSite) {
 				return open(currentSite, options);
 			} else {
-				if (options.callback)
+				if (options && options.callback)
 					options.callback();
 			}
 
