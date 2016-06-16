@@ -18,6 +18,7 @@ var currentSite = storage.get('currentSite');
 var combobox;
 var site = {};
 var definitions = {};
+var manuallyAborted = false;
 
 function setSiteValues(obj) {
 	for (var i in obj) {
@@ -400,6 +401,7 @@ function open(siteId, options) {
 	var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
 		console.log('abort opening site');
+		manuallyAborted = true;
 		ajax.abort();
 		opening = {};
 	})) {
@@ -512,7 +514,11 @@ function open(siteId, options) {
 		}
 	}).fail(function() {
 		loading.stop();
-		prompt.alert({title:lang.failedText, msg:'Error opening site'});
+		if (!manuallyAborted) {
+			prompt.alert({title:lang.failedText, msg:'Error opening site'});
+		} else {
+			manuallyAborted = false;
+		}
 	});
 
 	return ajax;

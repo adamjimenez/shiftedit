@@ -14,6 +14,7 @@ var saving = [];
 var opening = [];
 var autoSaveTimer;
 var CoffeeScript = require('coffee-script');
+var manuallyAborted = false;
 
 function active() {
 	return $('.ui-layout-center .ui-tabs-active');
@@ -134,6 +135,7 @@ function openFiles(options) {
 	var ajax;
 	if (!loading.start('Opening ' + file, function(){
 		console.log('abort opening files');
+		manuallyAborted = true;
 		ajax.abort();
 		opening = [];
 	})) {
@@ -210,7 +212,11 @@ function openFiles(options) {
 			success: openCallback
 		}, 'json').fail(function() {
 			loading.stop();
-			prompt.alert({title:lang.failedText, msg:'Error opening file'});
+			if (!manuallyAborted) {
+				prompt.alert({title:lang.failedText, msg:'Error opening file'});
+			} else {
+				manuallyAborted = false;
+			}
 			opening = [];
 		});
 	}
@@ -469,7 +475,12 @@ function saveFiles(options) {
 			success: saveCallback
 		}).fail(function() {
 			loading.stop();
-			prompt.alert({title:lang.failedText, msg:'Error saving file'});
+
+			if (!manuallyAborted) {
+				prompt.alert({title:lang.failedText, msg:'Error saving file'});
+			} else {
+				manuallyAborted = false;
+			}
 		});
 	}
 }
