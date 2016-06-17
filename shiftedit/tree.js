@@ -1609,7 +1609,7 @@ function init() {
 				data.instance.refresh();
 			});
 	})
-	.unbind('keydown.jstree')
+	.off('keydown.jstree')
 	.on('keydown.jstree', '.jstree-anchor', function (e) {
 		if($('.jstree-rename-input').length){
 			return;

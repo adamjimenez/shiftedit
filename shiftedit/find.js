@@ -487,12 +487,53 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		}).hide();
 
 		autosize($('#findForm textarea'));
+		
+		function insertNL() {
+			var val = this.value;
+			if (typeof this.selectionStart == "number" && typeof this.selectionEnd == "number") {
+				var start = this.selectionStart;
+				this.value = val.slice(0, start) + "\n" + val.slice(this.selectionEnd);
+				this.selectionStart = this.selectionEnd = start + 1;
+			} else if (document.selection && document.selection.createRange) {
+				this.focus();
+				var range = document.selection.createRange();
+				range.text = "\r\n";
+				range.collapse(false);
+				range.select();
+			}
+		}
 
 		//listeners
 		$('#findForm [name=find]').keypress(function(e) {
-			if(!e.ctrlKey && e.keyCode==13) {
-				e.preventDefault();
-				return nextSearch();
+			if (e.keyCode==10) {
+				$.proxy(insertNL, this)();
+				return true;
+			} else if (e.keyCode==13) {
+				if(e.ctrlKey) { // enter
+					$.proxy(insertNL, this)();
+					return true;
+				} else if (e.shiftKey) {
+					e.preventDefault();
+					return previousSearch();
+				} else  {
+					e.preventDefault();
+					return nextSearch();
+				}
+			}
+		});
+		$('#findForm [name=replace]').keypress(function(e) {
+			if (e.keyCode==10) {
+				$.proxy(insertNL, this)();
+				return true;
+			} else if (e.keyCode==13) {
+				if(e.ctrlKey) { // enter
+					$.proxy(insertNL, this)();
+					return true;
+				} else if (e.shiftKey) {
+				} else  {
+					e.preventDefault();
+					return searchReplace();
+				}
 			}
 		});
 		$('#findForm [name=find]').keyup(keyUp);
@@ -506,6 +547,14 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		$('body').on('activate', 'li', function() {
 			update(null, true);
 		});
+		
+		var timer;
+		$('body').on('change', 'li[role=tab][data-file]', function() {
+			clearTimeout(timer);
+			timer = setTimeout(function() {
+				update(null, true);
+			}, 1000);
+		});
 	}
 
 	return {
@@ -513,8 +562,3 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		open: open
 	};
 });
-
-
-
-
-

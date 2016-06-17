@@ -791,7 +791,7 @@ function updateSkin(name){
 	
 		style.appendTo("head");
 	
-		style.load(function(){
+		style.on('load', function(){
 			//set resizer color
 			var borderColor = $('.ui-widget-header').css('border-color');
 			$('.ui-layout-resizer').css('background', borderColor);
