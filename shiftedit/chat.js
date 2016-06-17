@@ -11,6 +11,7 @@ var userId = storage.get('user');
 var avatar = storage.get('avatar');
 var alertSound;
 var alertSoundURL = 'https://shiftedit.s3.amazonaws.com/assets/alert.wav';
+var initialized = false;
 
 function send(msg) {
 	var groupRef = groups[group];
@@ -178,8 +179,6 @@ function init() {
 	close();
 
 	//listener
-	$('body').on('click', '#chatButton a', function(e){ open(); });
-	$('body').on('firebaseon', 'li', add);
 	$('#chat').on('click', 'a', select);
 	$('#message').keypress(function( event ) {
 		if ( event.which == 13 ) {
@@ -202,9 +201,14 @@ function init() {
 			"delete": {name: 'Delete'}
 		}
 	});
+	
+	initialized = true;
 }
 
 function open() {
+	if (!initialized)
+		init();
+		
 	$('#dialog-chat').dialog( "open" );
 }
 
@@ -246,11 +250,10 @@ function remove(li) {
 	$('#messages').html('');
 }
 
-
+$('body').on('click', '#chatButton a', function(e){ open(); });
+$('body').on('firebaseon', 'li', add);
+	
 //revisions dialog
-init();
-
-return {
-};
+return {};
 
 });
