@@ -649,7 +649,8 @@ function updateCategory() {
 		's3_public',
 		's3info',
 		'gdrivelimited',
-		'testSiteButton'
+		'testSiteButton',
+		'connectBtn'
 	];
 
 	categories = {
@@ -662,7 +663,8 @@ function updateCategory() {
 			'dir_container',
 			'web_url',
 			'turbo_mode_container',
-			'testSiteButton'
+			'testSiteButton',
+			'connectBtn'
 		],
 		'SFTP': [
 			'host_container',
@@ -674,7 +676,7 @@ function updateCategory() {
 			'dir_container',
 			'web_url',
 			'turbo_mode_container',
-			'testSiteButton'
+			'connectBtn'
 		],
 		'Cloud': [
 			'cloud_container',
@@ -687,27 +689,27 @@ function updateCategory() {
 			'pass_container',
 			'dir_container',
 			'web_url',
-			'testSiteButton'
+			'connectBtn'
 		],
 		'Dropbox': [
 			'cloud_container',
 			'dir_container',
 			'web_url',
-			'testSiteButton'
+			'connectBtn'
 		],
 		'GDrive': [
 			'cloud_container',
 			'gdrivelimited',
 			'dir_container',
 			'web_url',
-			'testSiteButton'
+			'connectBtn'
 		],
 		'GDriveLimited': [
 			'cloud_container',
 			'gdrivelimited',
 			'dir_container',
 			'web_url',
-			'testSiteButton'
+			'connectBtn'
 		],
 		'Hosted': [
 			'ftp_user_container',
@@ -722,7 +724,7 @@ function updateCategory() {
 			'pass_container',
 			'dir_container',
 			'web_url',
-			'testSiteButton'
+			'connectBtn'
 		],
 		'WebDAV': [
 			'host_container',
@@ -730,7 +732,7 @@ function updateCategory() {
 			'pass_container',
 			'dir_container',
 			'web_url',
-			'testSiteButton'
+			'connectBtn'
 		]
 	};
 
@@ -1500,7 +1502,11 @@ function edit(newSite, duplicate) {
 			$( this ).remove();
 		},
 		buttons: {
-			Connect: test,
+			Connect: {
+				text: "Connect",
+				id: "connectBtn",
+				click: test
+			},
 			Save: save
 		},
 		width: 560,
