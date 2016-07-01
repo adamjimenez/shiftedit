@@ -627,7 +627,7 @@ function duplicate() {
 	edit(false, true);
 }
 
-function updateCategory() {
+function updateCategory(newSite) {
 	var category = $('input[name=server_type]').val();
 
 	fields = [
@@ -735,6 +735,10 @@ function updateCategory() {
 			'connectBtn'
 		]
 	};
+	
+	if (!newSite) {
+		categories['Hosted'] = categories['Hosted'].concat(['dir_container', 'web_url']);
+	}
 
 	fields.forEach(function(field){
 		$('#'+field).hide();
@@ -1485,7 +1489,7 @@ function edit(newSite, duplicate) {
 	//toggle fields
 	$('#cloud_container input:radio, #serverTypeRadio input:radio').change(function() {
 		$('input[name=server_type]').val(this.value);
-		updateCategory();
+		updateCategory(newSite);
 	});
 
 	//trim values
@@ -1493,7 +1497,7 @@ function edit(newSite, duplicate) {
 		$(this).val($(this).val().trim());
 	});
 
-	updateCategory();
+	updateCategory(newSite);
 
 	//open dialog
 	var dialog = $( "#dialog-site" ).dialog({
