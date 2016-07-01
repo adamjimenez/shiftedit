@@ -1201,7 +1201,7 @@ function edit(newSite, duplicate) {
 					<p>\
 						<label for="name">Server type:</label>\
 						<span id="serverTypeRadio">\
-							<input type="radio" name="serverTypeItem" value="FTP" id="radio1" checked><label for="radio1">FTP</label>\
+							<input type="radio" name="serverTypeItem" value="FTP" id="radio1"><label for="radio1">FTP</label>\
 							<input type="radio" name="serverTypeItem" value="SFTP" id="radio2"><label for="radio2">SFTP</label>\
 							<input type="radio" name="serverTypeItem" value="Cloud" id="radio3"><label for="radio3">Cloud Services</label>\
 							<input type="radio" name="serverTypeItem" value="Hosted" id="radio4"><label for="radio4">Hosted</label>\
