@@ -1222,13 +1222,11 @@ function edit(newSite, duplicate) {
 									<img src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="32" width="32"><br>\
 									PHP\
 								</label>\
-								<!--\
 								<input type="radio" name="stack" value="nodejs" id="stackRadio2">\
 								<label for="stackRadio2">\
 									<img src="https://shiftedit.s3.amazonaws.com/images/logos/nodejs.svg" height="32" width="32"><br>\
 									Node.js\
 								</label>\
-								-->\
 							</span>\
 						</p>\
 						<p>\
