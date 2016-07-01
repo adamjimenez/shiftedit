@@ -1412,6 +1412,7 @@ function edit(newSite, duplicate) {
 	});
 
 	$('#logon_key').click(function() {
+		$('#pass_container').hide();
 		$('#ssh_key_container').show();
 	});
 
