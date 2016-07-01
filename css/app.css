@@ -270,6 +270,13 @@ li[role=tab] .ui-icon {
 	margin: 10px;
 	opacity: 0.8;
 }
+
+.editor_toolbar .ui-menu {
+    max-height: 400px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
 /* syntax errors */
 .editor_status{
 	/*background: #C8E2F9;*/
