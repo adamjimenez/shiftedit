@@ -1,4 +1,4 @@
-define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/resize", "app/site", "app/designs", "app/revisions", "app/modes"], function (util, menus, tabs, editors, preferences, resize, site, designs, revisions ) {
+define(["app/util", "app/menus", "app/tabs", "app/editors", "app/prefs", "app/resize", "app/site", "app/designs", "app/revisions", "app/preview", "app/modes"], function (util, menus, tabs, editors, preferences, resize, site, designs, revisions, preview ) {
 var modes = require('app/modes').modes;
 
 var saveMode = true;
@@ -198,6 +198,14 @@ var menu = [{
 		var editor = tabs.getEditor(tab);
 		editor.focus();
 		revisions.open(tab);
+	}
+}, {
+	tooltip: 'Run',
+	text: '<i class="fa fa-play"></i>',
+	handler: function (button) {
+		preview.run(tab);
+		var editor = tabs.getEditor(tab);
+		editor.focus();
 	}
 }, '->', {
 	id: 'syntaxErrorsButton',

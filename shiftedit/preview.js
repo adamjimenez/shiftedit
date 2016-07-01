@@ -44,6 +44,7 @@ function create(tabpanel) {
 	<iframe id="preview" style="width:100%;height:100%;display:block;background:#fff;" src="/screens/default_live" frameborder=0></iframe>');
 
 	tab.addClass('closable');
+	tab.attr('data-type', 'preview');
 
 	//profile combo
 	var addressbar = $( ".address" ).combobox({
@@ -78,30 +79,7 @@ function create(tabpanel) {
 
 	$('.refreshButton').button().click(refresh);
 	$('.runButton').button().click(function() {
-		var tab = tabs.active();
-
-		if(tab) {
-			var siteId = tab.data('site');
-
-			if(siteId) {
-				var file = tab.data('file');
-				var url = tab.data('link');
-
-				if (!url) {
-					var settings = site.getSettings(siteId);
-					if(settings.web_url) {
-						url = settings.web_url+file;
-					}
-				}
-
-				if(url) {
-					combobox.input.val(url);
-					refresh();
-				}else{
-					prompt.alert({title:'Missing web url', msg:'Add a web url in site settings'});
-				}
-			}
-		}
+		load();
 	});
 
 	$('.popoutPreviewButton').click(function() {
@@ -124,6 +102,74 @@ function create(tabpanel) {
 	});
 }
 
+function load(tab) {
+	if (!tab) {
+		tab = tabs.active();
+	}
+
+	if(tab) {
+		var siteId = tab.data('site');
+
+		if(siteId) {
+			var file = tab.data('file');
+			var url = tab.data('link');
+
+			if (!url) {
+				var settings = site.getSettings(siteId);
+				if(settings.web_url) {
+					url = settings.web_url+file;
+				}
+			}
+
+			if(url) {
+				combobox.input.val(url);
+				refresh();
+			}else{
+				prompt.alert({title:'Missing web url', msg:'Add a web url in site settings'});
+			}
+		}
+	}
+}
+
+function run(fileTab) {
+	var myLayout = layout.get();
+	
+	// find existing
+	var tab = $('li[data-type=preview]');
+	
+	// open
+	var panel = 'east';
+	var minWidth = 300;
+
+	if(tab.length) {
+		tabpanel = tab.closest('.ui-tabs');
+		tabpanel.tabs("option", "active", tab.index());
+
+		//get nearest panel
+		var pane = tab.closest('.ui-layout-pane');
+		panel = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
+
+		//expand panel
+		myLayout.open(panel);
+		if (pane.outerWidth() < minWidth) {
+			myLayout.sizePane(panel, minWidth);
+		}
+		
+		load(fileTab);
+		return;
+	}
+
+	tabpanel = '.ui-layout-east';
+	//expand east panel
+	myLayout.open(panel);
+	if(myLayout.panes.east.outerWidth() < minWidth) {
+		myLayout.sizePane(panel, minWidth);
+	}
+	
+	create($(tabpanel));
+	load(fileTab);
+}
+
 $('body').on('click','.newTab .preview', function(){
 	var tabpanel = $(this).closest('.ui-tabs');
 	create(tabpanel);
@@ -137,6 +183,7 @@ $('body').on('click','.newTab .preview', function(){
 $('body').on('save','.ui-tabs', refresh);
 
 return {
+	run: run
 };
 
 });
