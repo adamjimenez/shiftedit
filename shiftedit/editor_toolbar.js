@@ -7,6 +7,8 @@ var changeMode = function(tab) {
 	var editor = tabs.getEditor(tab);
 	var label = $(this).text().trim();
 	var mode = $(this).attr('data-name');
+	
+	editor.focus();
 
 	//set editor mode
 	editors.setMode(editor, mode);
@@ -64,19 +66,25 @@ var menu = [{
 	tooltip: 'Save',
 	text: '<i class="fa fa-save"></i>',
 	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
 		tabs.save(tab);
 	}
 }, {
 	tooltip: 'Undo',
 	text: '<i class="fa fa-undo"></i>',
 	handler: function (tab) {
-		tabs.getEditor(tab).undo();
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.undo();
 	}
 }, {
 	tooltip: 'Redo',
 	text: '<i class="fa fa-undo fa-flip-horizontal"></i>',
 	handler: function (button) {
-		tabs.getEditor(tab).redo();
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.redo();
 	}
 }, {
 	id: 'codeButton',
@@ -100,10 +108,13 @@ var menu = [{
 			if(!tab.data('design-ready')) {
 				var designs = require('app/designs');
 				designs.create(tab);
+				inst = tinymce.get(panel.find('.design textarea').attr('id'));
 			} else {
 				var inst = tinymce.get(panel.find('.design textarea').attr('id'));
 				inst.setContent(editor.getValue());
 			}
+			
+			inst.focus();
 		} else {
 			panel.find('.editor_status').show();
 			panel.find('.design').hide();
@@ -111,6 +122,7 @@ var menu = [{
 
 			tab.data('view', 'code');
 			tab.attr('data-view', 'code');
+			editor.focus();
 		}
 
 		$(tab).trigger('activate');
@@ -130,6 +142,7 @@ var menu = [{
 				secondSession = sp.getEditor(1).session;
 			}
 			sp.setSplits(1);
+			editor.focus();
 		},
 		group: 'codeSplit'
 	}, {
@@ -148,6 +161,7 @@ var menu = [{
 				newSession.name = session.name;
 				editors.applyPrefs(tab);
 			}
+			editor.focus();
 		},
 		group: 'codeSplit'
 	}, {
@@ -166,6 +180,7 @@ var menu = [{
 				newSession.name = session.name;
 				editors.applyPrefs(tab);
 			}
+			editor.focus();
 		},
 		group: 'codeSplit'
 	}]
@@ -180,6 +195,8 @@ var menu = [{
 	text: '<i class="fa fa-clock-o"></i>',
 	tooltip: 'Revision History',
 	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
 		revisions.open(tab);
 	}
 }, '->', {
@@ -188,6 +205,9 @@ var menu = [{
 	text: '<i class="fa fa-warning"></i>',
 	enableToggle: true,
 	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		
 		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 		$(panel).find('.editor_status').toggle();
 		resize.resize();
