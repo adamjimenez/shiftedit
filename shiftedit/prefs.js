@@ -79,6 +79,7 @@ defaultPrefs.saveWithMinified = false;
 defaultPrefs.compileCoffeeScript = false;
 defaultPrefs.compileLESS = false;
 defaultPrefs.autoSave = false;
+defaultPrefs.maxFiles = 1000;
 defaultPrefs.revisions = 10;
 defaultPrefs.hideAds = false;
 defaultPrefs.useMasterPassword = false;
@@ -989,6 +990,10 @@ function open(tabpanel) {
 	<label>\
 		<input type="checkbox" name="autoSave" value="1">\
 		Autosave\
+	</label><br>\
+	<label>\
+		Maximum number of files in each folder<br>\
+		<input type="number" name="maxFiles" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label><br>\
 	<label>\
 		Default encoding<br>\
