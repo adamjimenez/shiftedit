@@ -530,7 +530,7 @@ function open(tabpanel){
 		var tabpanel = $('.ui-layout-center');
 		var tab = create(tabpanel);
 		var settings = site.getSettings(site.active());
-		new_session(tab, settings.domain, settings.ftp_user, settings.port);
+		new_session(tab, settings.domain, 'ec2-user', settings.port);
 	});
 
 

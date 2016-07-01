@@ -40,7 +40,6 @@ function enableMenuItems(site) {
 
 	if(site.server_type==='Hosted') {
 		items.push('reboot');
-		items.push('logs');
 	}
 
 	if(site.logon_type == 'key')
@@ -52,7 +51,7 @@ function enableMenuItems(site) {
 }
 
 function disableMenuItems() {
-	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions', 'phpmyadmin', 'ssh', 'reboot', 'logs'];
+	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions', 'phpmyadmin', 'ssh', 'reboot'];
 
 	items.forEach(function(item){
 		$('#'+item).removeClass('ui-state-disabled');
@@ -320,7 +319,7 @@ function init() {
 			});
 		},
 		disabled: true
-	}, {
+	}/*, {
 		id: 'logs',
 		text: 'Server logs',
 		handler: function() {
@@ -332,7 +331,7 @@ function init() {
 			});
 		},
 		disabled: true
-	}];
+	}*/];
 
 	var el = $("#siteMenu");
 	var context;
@@ -640,7 +639,7 @@ function updateCategory() {
 		'portContainer',
 		'timeoutContainer',
 		'authentication_container',
-		'ftp_user',
+		'ftp_user_container',
 		'pass_container',
 		'ssh_key_container',
 		'dir_container',
@@ -658,7 +657,7 @@ function updateCategory() {
 			'host_container',
 			'portContainer',
 			'timeoutContainer',
-			'ftp_user',
+			'ftp_user_container',
 			'pass_container',
 			'dir_container',
 			'web_url',
@@ -670,7 +669,7 @@ function updateCategory() {
 			'portContainer',
 			'timeoutContainer',
 			'authentication_container',
-			'ftp_user',
+			'ftp_user_container',
 			'pass_container',
 			'dir_container',
 			'web_url',
@@ -684,7 +683,7 @@ function updateCategory() {
 			'cloud_container',
 			's3_public',
 			's3info',
-			'ftp_user',
+			'ftp_user_container',
 			'pass_container',
 			'dir_container',
 			'web_url',
@@ -711,13 +710,15 @@ function updateCategory() {
 			'testSiteButton'
 		],
 		'Hosted': [
+			'ftp_user_container',
+			'pass_container',
 			'git_url',
 			'hosted_container'
 		],
 		'AJAX': [
 			'proxyfield',
 			'host_container',
-			'ftp_user',
+			'ftp_user_container',
 			'pass_container',
 			'dir_container',
 			'web_url',
@@ -725,7 +726,7 @@ function updateCategory() {
 		],
 		'WebDAV': [
 			'host_container',
-			'ftp_user',
+			'ftp_user_container',
 			'pass_container',
 			'dir_container',
 			'web_url',
@@ -776,7 +777,7 @@ function updateCategory() {
 
 	//username placeholder
 	var username_placeholder = 'your username';
-	if( category==='AmazonS3' ){
+	if( category === 'AmazonS3' || category === 'Hosted' ){
 		username_placeholder = 'access key id';
 	}
 
@@ -784,7 +785,7 @@ function updateCategory() {
 
 	//password placeholder
 	var password_placeholder = '';
-	if( category==='AmazonS3' ){
+	if( category==='AmazonS3' || category === 'Hosted' ){
 		password_placeholder = 'secret access key';
 	}
 
@@ -1090,7 +1091,12 @@ function save() {
 	var params = util.serializeObject($('#siteSettings'));
 
 	var ajax;
-	if (!loading.start('Saving site ' + params.name, function(){
+	var duration = '';
+	if (params.server_type==='Hosted') {
+		duration = ' (this may take a few minutes)';
+	}
+	
+	if (!loading.start('Saving site ' + params.name + duration, function(){
 		console.log('abort saving site');
 		ajax.abort();
 	})) {
@@ -1210,11 +1216,13 @@ function edit(newSite, duplicate) {
 									<img src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="32" width="32"><br>\
 									PHP\
 								</label>\
+								<!--\
 								<input type="radio" name="stack" value="nodejs" id="stackRadio2">\
 								<label for="stackRadio2">\
 									<img src="https://shiftedit.s3.amazonaws.com/images/logos/nodejs.svg" height="32" width="32"><br>\
 									Node.js\
 								</label>\
+								-->\
 							</span>\
 						</p>\
 						<p>\
@@ -1272,7 +1280,7 @@ function edit(newSite, duplicate) {
 							<input type="radio" name="logon_type" value="key" id="logon_key"><label for="logon_key">Public Key</label>\
 						</span>\
 					</p>\
-					<p id="ftp_user">\
+					<p id="ftp_user_container">\
 						<label for="name">Username:</label>\
 						<input type="text" id="ftp_user" name="ftp_user" value="" class="text ui-widget-content ui-corner-all" required>\
 					</p>\
