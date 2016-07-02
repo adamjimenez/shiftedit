@@ -35,13 +35,17 @@ function create(tabpanel) {
 	layout.get().open('east');
 
 	//create tab
-	tab = $(tabpanel).tabs('add', 'Preview', '<div class="preview_toolbar ui-widget-header ui-corner-all">\
-	<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
-	<button type="button" class="refreshButton"><i class="fa fa-refresh"></i></button>\
-	<select class="address" class="flex"></select>\
-	<button type="button" class="popoutPreviewButton"><i class="fa fa-external-link"></i></button>\
+	tab = $(tabpanel).tabs('add', 'Preview', '\
+	<div class="vbox">\
+		<div class="preview_toolbar ui-widget-header ui-corner-all">\
+			<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
+			<button type="button" class="refreshButton"><i class="fa fa-refresh"></i></button>\
+			<select class="address" class="flex"></select>\
+			<button type="button" class="popoutPreviewButton"><i class="fa fa-external-link"></i></button>\
+		</div>\
+		<iframe id="preview" style="width:100%;height:100%;display:block;background:#fff;" src="/screens/default_live" frameborder=0></iframe>\
 	</div>\
-	<iframe id="preview" style="width:100%;height:100%;display:block;background:#fff;" src="/screens/default_live" frameborder=0></iframe>');
+	');
 
 	tab.addClass('closable');
 	tab.attr('data-type', 'preview');
