@@ -750,18 +750,14 @@ function updateCategory(newSite) {
 		});
 
 		if( ['GDrive', 'GDriveLimited', 'Dropbox', 'AmazonS3'].indexOf(category) !== -1 ){
-			$('[name=serverTypeItem][value=Cloud]:first').attr("checked", "checked").button('refresh');
-
-			if( ['GDrive', 'GDriveLimited'].indexOf(category) !== -1 ){
-				$('[name=cloud][value=GDrive]:first').attr("checked", "checked").button('refresh');
-			} else {
-				$('[name=cloud][value=' + category + ']:first').attr("checked", "checked").button('refresh');
-			}
+			$('[name=serverTypeItem][value=Cloud]:first').prop("checked", true);
 		} else if( ['AJAX', 'WebDAV'].indexOf(category) !== -1 ) {
-			$('[name=serverTypeItem][value=Other]:first').attr("checked", "checked").button('refresh');
+			$('[name=serverTypeItem][value=Other]:first').prop("checked", true);
 		} else {
-			$('[name=serverTypeItem][value=' + category + ']:first').attr("checked", "checked").button('refresh');
+			$('[name=serverTypeItem][value=' + category + ']:first').prop("checked", true);
 		}
+
+		$( "#serverTypeRadio input[type='radio']" ).checkboxradio('refresh');
 	}
 
 	//domain placeholder
@@ -1227,8 +1223,8 @@ function edit(newSite, duplicate) {
 						<p>\
 							<label for="name">Stack:</label>\
 							<span id="stackRadio">\
-								<input type="radio" name="stack" value="php" id="stackRadio1">\
-								<label for="stackRadio1" checled>\
+								<input type="radio" name="stack" value="php" id="stackRadio1" checked>\
+								<label for="stackRadio1">\
 									<img src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="32" width="32"><br>\
 									PHP\
 								</label>\
@@ -1420,7 +1416,18 @@ function edit(newSite, duplicate) {
 			}
 		}
 	}
-
+	
+	// set cloud checkbox
+	if (settings.server_type) {
+		if( ['GDrive', 'GDriveLimited', 'Dropbox', 'AmazonS3'].indexOf(settings.server_type) !== -1 ){
+			if( ['GDrive', 'GDriveLimited'].indexOf(settings.server_type) !== -1 ){
+				$('[name=cloud][value=GDrive]:first').prop("checked", true);
+			} else {
+				$('[name=cloud][value=' + category + ']:first').prop("checked", true);
+			}
+		}
+	}
+	
 	$('#logon_password').click(function() {
 		$('#ssh_key_container').hide();
 	});
