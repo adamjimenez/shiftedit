@@ -737,7 +737,7 @@ function updateCategory(newSite) {
 	};
 	
 	if (!newSite) {
-		categories['Hosted'] = categories['Hosted'].concat(['dir_container', 'web_url']);
+		categories.Hosted = categories.Hosted.concat(['dir_container', 'web_url']);
 	}
 
 	fields.forEach(function(field){
