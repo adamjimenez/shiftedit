@@ -1,4 +1,4 @@
-define(['app/tabs', 'app/lang', 'app/layout', 'app/site', 'app/prompt', 'jquery'], function (tabs, lang, layout, site, prompt) {
+define(['app/tabs', 'app/lang', 'app/layout', 'app/site', 'app/prompt', 'app/util', 'app/ssl', 'jquery'], function (tabs, lang, layout, site, prompt, util, ssl) {
 	lang = lang.lang;
 
 	var combobox;
@@ -24,7 +24,13 @@ function refresh() {
 	var separator = (url.indexOf('?') === -1) ? '?' : '&';
 	var preview_url = url + separator + 'shiftedit=' + new Date().getTime();
 
-	$('#preview').attr('src', preview_url);
+	if($('#preview')) {
+		if(util.startsWith(url, 'http://') && ssl.check_blocked()){
+			prompt.alert({title:'Preview Blocked', msg:'Enable SSL or Click Shield icon in address bar, then "Load unsafe script"'});
+		}
+		
+		$('#preview').attr('src', preview_url);
+	}
 
 	if( childWindow ){
 		childWindow.location.href = preview_url;
