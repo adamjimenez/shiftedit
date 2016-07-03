@@ -1214,6 +1214,16 @@ function edit(newSite, duplicate) {
 					</p>\
 					\
 					<div id="hosted_container">\
+						<p>Create a hosted development environment, refer to <a href="https://shiftedit.net/docs/sites#hosted" target="_blank">instructions</a>. </p>\
+						<p>\
+							<label for="provider">Provider:</label>\
+							<span id="providerRadio">\
+								<input type="radio" name="provider" value="aws" id="providerRadio1" checked>\
+								<label for="providerRadio1">\
+									Amazon Web Services\
+								</label>\
+							</span>\
+						</p>\
 						<p>\
 							<label for="name">Stack:</label>\
 							<span id="stackRadio">\
@@ -1450,6 +1460,9 @@ function edit(newSite, duplicate) {
 	//tabs and buttons
 	$( "#siteTabs" ).tabs();
 	$( "#serverTypeRadio input[type='radio']" ).checkboxradio({
+		icon: false
+	});
+	$( "#providerRadio input[type='radio']" ).checkboxradio({
 		icon: false
 	});
 	$( "#stackRadio input[type='radio']" ).checkboxradio({
