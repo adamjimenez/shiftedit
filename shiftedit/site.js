@@ -1053,7 +1053,7 @@ function test() {
 						var hints = '';
 
 						if( params.web_url.substr(0, 7) == 'http://' ){
-							hints+= '<li>* Click the padlock in your browser address bar</li>';
+							hints+= '<li>* Enable SSL or click Shield icon in address bar, then "Load unsafe script</li>';
 						}
 
 						if( params.web_url.substr(0, 7) !== 'http://' && params.web_url.substr(0, 8) !== 'https://' ){
@@ -1589,7 +1589,7 @@ function getAjaxOptions(ajaxUrl) {
 		}
 
 		if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){
-			prompt.alert({title:'Proxy Blocked', msg:'Click Shield icon in address bar, then "Load Unsafe Script"'});
+			prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe script"'});
 		}
 	}
 
