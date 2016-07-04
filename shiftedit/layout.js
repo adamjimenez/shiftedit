@@ -93,7 +93,7 @@ function init() {
 			maxSize: 30
 		},
 		stateManagement__enabled: true,
-		maskContents: true
+		//maskContents: true
 		// RESIZE Accordion widget when panes resize
 		//west__onresize: $.layout.callbacks.resizePaneAccordions
 		//east__onresize: $.layout.callbacks.resizePaneAccordions
