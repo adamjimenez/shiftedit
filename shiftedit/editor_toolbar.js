@@ -202,7 +202,7 @@ var menu = [{
 }, {
 	tooltip: 'Run',
 	text: '<i class="fa fa-play"></i>',
-	handler: function (button) {
+	handler: function (tab) {
 		preview.run(tab);
 		var editor = tabs.getEditor(tab);
 		editor.focus();
