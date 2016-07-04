@@ -726,6 +726,19 @@ li[role=tab] .ui-icon {
     flex: 2;
 }
 
+/* stretch site dropdown */
+#addressbar{
+	padding: 2px;
+}
+
+#addressbar span{
+    display: block;
+}
+
+#addressbar .custom-combobox-input{
+    width: calc(100% - 50px);
+}
+
 .vbox {
     display: flex;
     height: 100%;

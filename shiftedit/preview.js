@@ -38,15 +38,15 @@ function refresh() {
 }
 
 function create(tabpanel) {
-	layout.get().open('east');
-
 	//create tab
 	tab = $(tabpanel).tabs('add', 'Preview', '\
 	<div class="vbox">\
 		<div class="preview_toolbar ui-widget-header ui-corner-all">\
 			<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
 			<button type="button" class="refreshButton"><i class="fa fa-refresh"></i></button>\
-			<select class="address" class="flex"></select>\
+			<div id="addressbar" class="flex">\
+				<select class="address"></select>\
+			</div>\
 			<button type="button" class="popoutPreviewButton"><i class="fa fa-external-link"></i></button>\
 		</div>\
 		<iframe id="preview" style="width:100%;height:100%;display:block;background:#fff;" src="/screens/default_live" frameborder=0></iframe>\
@@ -92,7 +92,7 @@ function create(tabpanel) {
 		load();
 	});
 
-	$('.popoutPreviewButton').click(function() {
+	$('.popoutPreviewButton').button().click(function() {
 		if( url ){
 			var separator;
 			if (url.indexOf('?') === -1) {
@@ -137,6 +137,8 @@ function load(tab) {
 			}else{
 				prompt.alert({title:'Missing web url', msg:'Add a web url in site settings'});
 			}
+		} else {
+			prompt.alert({title:'File is not saved', msg:'Save the file to a site first'});
 		}
 	}
 }
