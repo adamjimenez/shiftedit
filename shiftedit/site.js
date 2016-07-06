@@ -154,10 +154,12 @@ function init() {
 			//import site dialog
 			$( "body" ).append('<div id="dialog-import" title="Import site">\
 			  <form>\
-				<fieldset>\
-					Import a Dreamweaver or Filezilla xml file.\
+			  	<p>\
+					Import a Dreamweaver site definition or Filezilla xml file.\
+				</p>\
+				<p>\
 					<input type="file" name="file" id="importSite" class="text ui-widget-content ui-corner-all">\
-				</fieldset>\
+				</p>\
 			  </form>\
 			</div>');
 
