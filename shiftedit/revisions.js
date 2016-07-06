@@ -7,9 +7,10 @@ function load(siteId, file) {
 	loading.fetch(config.apiBaseUrl+'revisions?site='+siteId+'&file='+file, {
 		action: 'getting revisions',
 		success: function(data) {
-			//remove old options
+			// remove old options
 			$( "#revisionFile option, #revision option" ).remove();
-
+			
+			// add file options
 			$.each(data.files, function( index, item ) {
 				$( '<option value="'+item+'">' + item + '</option>' ).appendTo( "#revisionFile" )
 				.data('content', item.content);
@@ -17,9 +18,15 @@ function load(siteId, file) {
 			$( "#revisionFile" ).val(file);
 			$( "#revisionFile" ).selectmenu('refresh');
 
+			// add revision options if content is different
+			var tab = tabs.active();
+			var editor = tabs.getEditor(tab);
+			var content = editor.getValue();
 			$.each(data.revisions, function( index, item ) {
-				$( '<option value="'+item.id+'">' + item.date + ' ' + item.author + '</option>' ).appendTo( "#revision" )
-				.data('content', item.content);
+				if (item.content!==content) {
+					$( '<option value="'+item.id+'">' + item.date + ' ' + item.author + '</option>' ).appendTo( "#revision" )
+					.data('content', item.content);
+				}
 			});
 			$( "#revision option:first-child" ).prop('selected', true);
 			$( "#revision" ).trigger('change');
@@ -86,7 +93,9 @@ function open() {
 	//revision panel
 	var container = $('#revisionDiff')[0];
 	revisionsEditor = ace.edit(container);
+	revisionsEditor.$blockScrolling = Infinity; // disable warning
 	revisionsEditor.setReadOnly(true);
+	revisionsEditor.renderer.setShowGutter(false);
 	
 	$('#revision').focus();
 
@@ -153,6 +162,10 @@ function open() {
 			revisionsEditor.setValue(diffContent);
 			revisionsEditor.moveCursorToPosition({column:0, row:0});
 
+			var foldStart = 0;
+			var foldEnd = 0;
+			var lastRow = 0; // last diff row
+			var diffPadding = 3; // 3 lines of padding
 			for (i=0; i < diff.length; i++) {
 				if( diff[i].added || diff[i].removed ){
 					start = session.getDocument().indexToPosition(index);
@@ -169,8 +182,15 @@ function open() {
 					if( className ){
 						session.addMarker(new range(start.row, start.column, end.row, end.column), "ace_"+className, 'text');
 					}
+					
+					// fold rows before
+					foldEnd = start.row - diffPadding;
+					if (foldEnd > foldStart) {
+						session.addFold("", new range(foldStart, 0, foldEnd, 0));
+					}
+					foldStart = end.row + diffPadding;
 
-					//scroll to first marker
+					// scroll to first marker
 					if( firstDiff ){
 						revisionsEditor.scrollToRow(start.row-5);
 						firstDiff = false;
@@ -178,6 +198,12 @@ function open() {
 				}
 
 				index += diff[i].value.length;
+			}
+			
+			// final fold
+			foldEnd = session.getLength();					
+			if (foldEnd > foldStart) {
+				session.addFold("", new range(foldStart, 0, foldEnd, 0));
 			}
 		}else{
 			revisionsEditor.setValue(content);
