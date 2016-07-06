@@ -16,22 +16,22 @@ textarea{
 }
 
 ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+	width: 10px;
+	height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: transparent;
+	background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #bbb;
-    border-radius: 4px;
-    box-shadow: inset 0 0 1px 1px black;
+	background-color: #bbb;
+	border-radius: 4px;
+	box-shadow: inset 0 0 1px 1px black;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: #aaa;
+	background-color: #aaa;
 }
 
 /* START LAYOUT */
@@ -51,11 +51,11 @@ textarea{
 }
 
 .ui-layout-content > div {
-    height: 100%;
+	height: 100%;
 }
 
 .ui-layout-north {
-    overflow: hidden;
+	overflow: hidden;
 }
 
 /* TAB-THEME ADJUSTMENTS */
@@ -65,17 +65,17 @@ textarea{
 }
 
 .ui-layout-west li[role=tab]{
-    width: 30px;
+	width: 30px;
 }
 
 .ui-tabs-anchor{
-    float: left;
-    height: 21px;
-    line-height: 21px;
+	float: left;
+	height: 21px;
+	line-height: 21px;
 }
 
 .ui-tabs .ui-tabs-panel{
-    background: initial;
+	background: initial;
 }
 
 /*
@@ -108,10 +108,10 @@ li[role=tab] a {
 }
 
 li[role=tab] .ui-icon {
-    display: inline-block;
-    margin-right: 5px;
-    margin-top: 2px;
-    vertical-align: bottom;
+	display: inline-block;
+	margin-right: 5px;
+	margin-top: 2px;
+	vertical-align: bottom;
 }
 
 .addTab{
@@ -121,15 +121,15 @@ li[role=tab] .ui-icon {
 
 /* Menubar */
 .ui-menubar .ui-menu{
-    width: 300px;
+	width: 300px;
 }
 
 .ui-menubar{
-    font-size: 12px;
+	font-size: 12px;
 }
 
 .ui-widget {
-    font-size: 12px !important;
+	font-size: 12px !important;
 }
 
 .ui-menu-item a{
@@ -157,7 +157,7 @@ li[role=tab] .ui-icon {
 }
 
 .ui-button:focus{
-    outline: none;
+	outline: none;
 }
 
 .ui-widget-overlay
@@ -197,7 +197,7 @@ li[role=tab] .ui-icon {
 
 /* force tree table height to 100% */
 .jstree-table-wrapper{
-    height: 100%;
+	height: 100%;
 }
 
 .jstree-table-cell{
@@ -205,20 +205,20 @@ li[role=tab] .ui-icon {
 }
 
 .jstree-default .jstree-anchor, .jstree-ocl {
-    cursor: default;
+	cursor: default;
 }
 
 .vakata-context .vakata-contextmenu-shortcut{
-    display: inline;
-    opacity: 1;
+	display: inline;
+	opacity: 1;
 }
 
 .vakata-context {
-     z-index: 999 !important;
+	 z-index: 999 !important;
 }
 
 .vakata-context ul {
-    z-index: 2;
+	z-index: 2;
 }
 
 .filter{
@@ -278,10 +278,10 @@ li[role=tab] .ui-icon {
 }
 
 #serverProgress strong{
-    /*background: #f9edbe;*/
-    padding: 5px;
-    border-radius: 5px;
-    border: 1px solid #f0c36d;
+	/*background: #f9edbe;*/
+	padding: 5px;
+	border-radius: 5px;
+	border: 1px solid #f0c36d;
 }
 
 #shortcutsSheet{
@@ -300,9 +300,9 @@ li[role=tab] .ui-icon {
 }
 
 .editor_toolbar .ui-menu {
-    max-height: 400px;
-    overflow-x: hidden;
-    overflow-y: auto;
+	max-height: 400px;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 /* syntax errors */
@@ -325,11 +325,11 @@ li[role=tab] .ui-icon {
 */
 
 .editor_status button[disabled]{
-    opacity: 0.5;
+	opacity: 0.5;
 }
 
 .ace_gutter-cell.ace_breakpoint{
-    background-image: url(/images/icons/breakpoint.png);
+	background-image: url(/images/icons/breakpoint.png);
 	background-position: 4px center;
 }
 
@@ -354,60 +354,60 @@ li[role=tab] .ui-icon {
 }
 
 #quickOpenSearch, #quickOpenFile{
-    width: 100%;
+	width: 100%;
 }
 
 #siteMenu {
-    position: absolute;
-    z-index: 2;
+	position: absolute;
+	z-index: 2;
 }
 
 #siteSettings p, #snippetForm p{
-    display: flex;
-    vertical-align: middle;
-    align-items: center;
+	display: flex;
+	vertical-align: middle;
+	align-items: center;
 }
 
 #siteSettings input[name=port], #siteSettings input[name=timeout]{
-    max-width: 50px;
+	max-width: 50px;
 }
 
 #siteSettings label, #snippetForm label{
-    display: inline-block;
-    padding-left: 10px;
-    padding-right: 4px;
-    line-height: 16px;
+	display: inline-block;
+	padding-left: 10px;
+	padding-right: 4px;
+	line-height: 16px;
 }
 
 #siteSettings label:first-child, #masterPasswordForm label:first-child{
-    display: inline-block;
-    min-width: 110px;
-    width: 110px;
-    padding: 0;
+	display: inline-block;
+	min-width: 110px;
+	width: 110px;
+	padding: 0;
 }
 
 #siteSettings #portContainer label, #siteSettings #timeoutContainer label{
-    min-width: auto;
-    width: auto;
+	min-width: auto;
+	width: auto;
 }
 
 /*
 #siteSettings label.ui-button{
-    padding: 0;
+	padding: 0;
 }
 */
 
 #siteSettings input, #siteSettings textarea, #snippetForm input{
-    flex-grow: 1;
+	flex-grow: 1;
 }
 
 #siteSettings input[type=checkbox], #snippetForm input[type=checkbox]{
-    flex-grow: 0;
+	flex-grow: 0;
 }
 
 #siteSettings .ui-menu {
-    position: absolute;
-    width: 70px;
+	position: absolute;
+	width: 70px;
 }
 
 #siteTabs li {
@@ -415,11 +415,11 @@ li[role=tab] .ui-icon {
 }
 
 #cloudRadio .ui-button{
-    width: 100px;
+	width: 100px;
 }
 
 #stackRadio .ui-button{
-    width: 100px;
+	width: 100px;
 }
 
 #test_iframe{
@@ -432,119 +432,113 @@ li[role=tab] .ui-icon {
 	display: none;
 }
 
-.revisions{
-    float: left;
-    width: 260px;
-    margin-right: 10px;
-}
-
 /* chat panel */
 #dialog-chat{
-    display: flex;
+	display: flex;
 }
 
 .chats{
-    float: left;
-    width: 80px;
-    height: 100%;
-    overflow: auto;
+	float: left;
+	width: 80px;
+	height: 100%;
+	overflow: auto;
 }
 
 .chats ul{
-    width: 100%;
-    height: 100%;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+	width: 100%;
+	height: 100%;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
 .chats a{
-    padding: 2px;
-    display: block;
-    text-decoration: none;
+	padding: 2px;
+	display: block;
+	text-decoration: none;
 }
 
 .chats .unread{
-    font-weight: bold;
+	font-weight: bold;
 }
 
 /*
 .chats .selected{
-    background: #ccc;
+	background: #ccc;
 }
 */
 
 .messagePanel{
-    flex-grow: 1;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* align items in Main Axis */
-    align-items: stretch; /* align items in Cross Axis */
-    align-content: stretch; /* Extra space in Cross Axis */
+	flex-grow: 1;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start; /* align items in Main Axis */
+	align-items: stretch; /* align items in Cross Axis */
+	align-content: stretch; /* Extra space in Cross Axis */
 }
 
 #dialog-chat #messages{
-    height: 100%;
-    flex-grow: 1;
-    overflow: auto;
+	height: 100%;
+	flex-grow: 1;
+	overflow: auto;
 }
 
 #dialog-chat #message{
-    width: 100%;
-    height: 80px;
-    align-self: base-line;
+	width: 100%;
+	height: 80px;
+	align-self: base-line;
 }
 
 #ssh p{
-    display: flex;
-    vertical-align: middle;
-    align-items: center;
+	display: flex;
+	vertical-align: middle;
+	align-items: center;
 }
 
 #ssh input[name=port], #ssh input[name=timeout]{
-    max-width: 50px;
+	max-width: 50px;
 }
 
 #ssh label{
-    display: inline-block;
-    padding-left: 10px;
-    padding-right: 4px;
-    line-height: 16px;
+	display: inline-block;
+	padding-left: 10px;
+	padding-right: 4px;
+	line-height: 16px;
 }
 
 #ssh label:first-child{
-    min-width: 110px;
-    width: 110px;
-    padding: 0;
+	min-width: 110px;
+	width: 110px;
+	padding: 0;
 }
 
 #ssh #portContainer label{
-    min-width: auto;
-    width: auto;
+	min-width: auto;
+	width: auto;
 }
 
 #ssh label.ui-button{
-    padding: 0;
+	padding: 0;
 }
 
 #ssh input, #ssh textarea{
-    flex-grow: 1;
+	flex-grow: 1;
 }
 
 #ssh input[type=checkbox]{
-    flex-grow: 0;
+	flex-grow: 0;
 }
 
 #ssh .ui-menu {
-    position: absolute;
-    width: 70px;
+	position: absolute;
+	width: 70px;
 }
 
 #ssh .delete{
-    position: relative;
-    left: 40px;
+	position: relative;
+	left: 40px;
 }
 
 .sshContainer{
@@ -562,7 +556,7 @@ li[role=tab] .ui-icon {
 }
 
 .terminal div{
-    white-space: nowrap;
+	white-space: nowrap;
 }
 
 .reverse-video {
@@ -571,54 +565,54 @@ li[role=tab] .ui-icon {
 }
 
 #findForm{
-    padding: 6px;
+	padding: 6px;
 }
 
 #findForm .row{
-    display: flex;
-    vertical-align: middle;
-    align-items: center;
+	display: flex;
+	vertical-align: middle;
+	align-items: center;
 }
 
 #findForm textarea{
-    min-height: 100px;
-    max-height: 300px;
+	min-height: 100px;
+	max-height: 300px;
 }
 
 #findForm input[name=port], #findForm input[name=timeout]{
-    max-width: 50px;
+	max-width: 50px;
 }
 
 #findForm label{
-    display: inline-block;
-    padding-left: 10px;
-    padding-right: 4px;
-    line-height: 16px;
+	display: inline-block;
+	padding-left: 10px;
+	padding-right: 4px;
+	line-height: 16px;
 }
 
 #findForm label:first-child{
-    min-width: 110px;
-    width: 110px;
-    padding: 0;
+	min-width: 110px;
+	width: 110px;
+	padding: 0;
 }
 
 /*
 #findForm label.ui-button{
-    padding: 0;
+	padding: 0;
 }
 */
 
 #findForm input, #findForm textarea{
-    flex-grow: 1;
+	flex-grow: 1;
 }
 
 #findForm input[type=checkbox]{
-    flex-grow: 0;
+	flex-grow: 0;
 }
 
 #findForm .ui-menu {
-    position: absolute;
-    width: 70px;
+	position: absolute;
+	width: 70px;
 }
 
 .ui-progressbar-value {
@@ -626,91 +620,91 @@ li[role=tab] .ui-icon {
 }
 
 #uploadUrlForm p{
-    display: flex;
-    vertical-align: middle;
-    align-items: center;
+	display: flex;
+	vertical-align: middle;
+	align-items: center;
 }
 
 #uploadUrlForm label{
-    display: inline-block;
-    padding-left: 10px;
-    padding-right: 4px;
-    line-height: 16px;
+	display: inline-block;
+	padding-left: 10px;
+	padding-right: 4px;
+	line-height: 16px;
 }
 
 #uploadUrlForm label:first-child{
-    min-width: 110px;
-    padding: 0;
+	min-width: 110px;
+	padding: 0;
 }
 
 #uploadUrlForm label.ui-button{
-    padding: 0;
+	padding: 0;
 }
 
 #uploadUrlForm input, #uploadUrlForm textarea{
-    flex-grow: 1;
+	flex-grow: 1;
 }
 
 #uploadUrlForm input[type=checkbox]{
-    flex-grow: 0;
+	flex-grow: 0;
 }
 
 #uploadUrlForm .ui-menu {
-    position: absolute;
-    width: 70px;
+	position: absolute;
+	width: 70px;
 }
 
 #uploadUrlForm .custom-combobox {
-    flex: 1;
+	flex: 1;
 }
 
 #uploadUrlForm .custom-combobox-input{
-    width: calc(100% - 50px);
+	width: calc(100% - 50px);
 }
 
 .prefs{
-    padding: 0 10px;
-    padding-bottom: 20px;
+	padding: 0 10px;
+	padding-bottom: 20px;
 }
 
 .prefs p{
-    display: flex;
-    vertical-align: middle;
-    align-items: center;
+	display: flex;
+	vertical-align: middle;
+	align-items: center;
 }
 
 .prefs label{
-    display: block;
-    padding-left: 10px;
-    padding-right: 4px;
-    line-height: 16px;
+	display: block;
+	padding-left: 10px;
+	padding-right: 4px;
+	line-height: 16px;
 }
 
 .prefs label:first-child{
-    min-width: 110px;
-    width: 110px;
-    padding: 0;
+	min-width: 110px;
+	width: 110px;
+	padding: 0;
 }
 
 .prefs label.ui-button{
-    padding: 0;
+	padding: 0;
 }
 
 .prefs input, .prefs textarea{
-    flex-grow: 1;
+	flex-grow: 1;
 }
 
 .prefs input[type=checkbox]{
-    flex-grow: 0;
+	flex-grow: 0;
 }
 
 .prefs input[type=number]{
-    width: 50px;
+	width: 50px;
 }
 
 .prefs .ui-menu {
-    position: absolute;
-    width: 70px;
+	position: absolute;
+	width: 70px;
 }
 
 #skinUrl {
@@ -722,21 +716,21 @@ li[role=tab] .ui-icon {
 }
 
 #tabs-notes{
-    display: flex;
+	display: flex;
 }
 
 #notes{
-    width: 100%;
-    flex-grow: 1;
+	width: 100%;
+	flex-grow: 1;
 }
 
 .ui-menu .ui-menu-divider{
-    float: left;
-    clear: left;
+	float: left;
+	clear: left;
 }
 
 .ui-menu .ui-menu-item-wrapper{
-    display: block;
+	display: block;
 }
 
 #picker{
@@ -747,11 +741,11 @@ li[role=tab] .ui-icon {
 }
 
 .preview_toolbar, .preview_toolbar .custom-combobox{
-    display: flex;
+	display: flex;
 }
 
 .preview_toolbar .custom-combobox, .preview_toolbar .custom-combobox-input{
-    flex: 2;
+	flex: 2;
 }
 
 /* stretch site dropdown */
@@ -760,74 +754,74 @@ li[role=tab] .ui-icon {
 }
 
 #addressbar span{
-    display: block;
+	display: block;
 }
 
 #addressbar .custom-combobox-input{
-    width: calc(100% - 50px);
+	width: calc(100% - 50px);
 }
 
 .vbox {
-    display: flex;
-    height: 100%;
-    align-content: stretch;
-    flex-direction: column;
+	display: flex;
+	height: 100%;
+	align-content: stretch;
+	flex-direction: column;
 }
 
 .hbox {
-    display: flex;
-    align-content: stretch;
+	display: flex;
+	align-content: stretch;
 }
 
 .hbox p{
-    display: flex;
-    vertical-align: middle;
-    align-items: center;
+	display: flex;
+	vertical-align: middle;
+	align-items: center;
 }
 
 .hbox label:first-child{
-    min-width: 110px;
-    padding: 0;
+	min-width: 110px;
+	padding: 0;
 }
 
 .flex{
-    flex: 2;
+	flex: 2;
 }
 
 .newTab{
-    padding: 10px;
+	padding: 10px;
 }
 
 .newTab ul{
-    list-style: none;
-    padding: 0;
-    font-size: 12px;
-    overflow: hidden;
+	list-style: none;
+	padding: 0;
+	font-size: 12px;
+	overflow: hidden;
 }
 
 .newTab li{
-    text-overflow: ellipsis;
-    overflow: hidden;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .newTab h5{
-    margin: 0;
+	margin: 0;
 }
 
 .newTab a{
-    text-decoration: none;
+	text-decoration: none;
 }
 
 .newTab .column{
-    display: block;
-    width: 25%;
-    float: left;
-    margin: 10px;
+	display: block;
+	width: 25%;
+	float: left;
+	margin: 10px;
 }
 
 .editor{
-    flex-grow: 1;
-    position: relative;
+	flex-grow: 1;
+	position: relative;
 }
 
 .design{
@@ -835,7 +829,7 @@ li[role=tab] .ui-icon {
 }
 
 #filetree-buttons {
-    padding: 4px 0;
+	padding: 4px 0;
 }
 
 /* stretch site dropdown */
@@ -844,11 +838,11 @@ li[role=tab] .ui-icon {
 }
 
 #sitebar span{
-    display: block;
+	display: block;
 }
 
 #sitebar .custom-combobox-input{
-    width: calc(100% - 50px);
+	width: calc(100% - 50px);
 }
 
 .jstree-default .jstree-clicked{
@@ -860,16 +854,16 @@ li[role=tab] .ui-icon {
 }
 
 .jstree-default-small > .jstree-container-ul .jstree-loading > .jstree-ocl {
-    position: relative;
-    background: none;
+	position: relative;
+	background: none;
 }
 .jstree-default-small > .jstree-container-ul .jstree-loading > .jstree-ocl:before {
-    content: "\f110";
-    font-family: FontAwesome;
-    left:-5px;
-    position:absolute;
-    top:0;
-    animation: fa-spin 2s infinite linear;
+	content: "\f110";
+	font-family: FontAwesome;
+	left:-5px;
+	position:absolute;
+	top:0;
+	animation: fa-spin 2s infinite linear;
  }
 
 /* splashscreen */
@@ -885,9 +879,9 @@ li[role=tab] .ui-icon {
 	left: 0;
 	right: 0;
 	text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .splash .status{
@@ -964,13 +958,13 @@ li[role=tab] .ui-icon {
 }
 
 .tabCloseButton {
-    display: none;
+	display: none;
 }
 
 .tabCloseButton {
-    display: none;
+	display: none;
 }
 
 .closable:hover .tabCloseButton {
-    display: block;
+	display: block;
 }
