@@ -156,7 +156,7 @@ function add() {
 function init() {
 	$( "body" ).append('<div id="dialog-chat" title="Chat" style="display:none;">\
 		<div class="chats">\
-			<ul id="chat" size="20"></ul>\
+			<ul id="chat"></ul>\
 		</div>\
 		<div class="messagePanel">\
 			<div id="messages"></div>\
