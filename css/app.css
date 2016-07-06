@@ -226,6 +226,19 @@ li[role=tab] .ui-icon {
 	display: block;
 }
 /* END TREE */
+#revisionHolder {
+	overflow: auto;
+}
+
+.revisions{
+	float: left;
+	width: 260px;
+	margin-right: 10px;
+}
+
+#revisionFileHolder {
+    padding-bottom: 10px;
+}
 
 #revisionDiff {
 	height: 100%;
@@ -237,6 +250,21 @@ li[role=tab] .ui-icon {
 
 .revisionFile-button{
 	width: auto !important;
+}
+
+#revision{
+    position: relative;
+	width: 100%;
+	height: 100%;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.revisions a{
+	padding: 2px;
+	display: block;
+	text-decoration: none;
 }
 
 #serverProgress {
