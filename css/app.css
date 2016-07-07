@@ -5,6 +5,7 @@
 @import url("../lib/combobox/ui.combobox.css");
 @import url("../lib/jstree/themes/default/style.css");
 @import url("../lib/ui.tabs.overflowResize/ui.tabs.overflowResize.css");
+@import url("../lib/ui.basicMenu/ui.basicMenu.css");
 
 body{
 	font-size: 12px;
@@ -253,18 +254,17 @@ li[role=tab] .ui-icon {
 }
 
 #revision{
-    position: relative;
+	position: relative;
 	width: 100%;
 	height: 100%;
-	list-style: none;
-	margin: 0;
-	padding: 0;
 }
 
-.revisions a{
-	padding: 2px;
+#revision .date{
 	display: block;
-	text-decoration: none;
+}
+
+#revision .author{
+	font-size: 12px;
 }
 
 #serverProgress {

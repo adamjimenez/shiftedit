@@ -1,0 +1,15 @@
+.custom-basicMenu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.custom-basicMenu a{
+	display: block;
+	padding: .4em 1em;
+	text-decoration: none;
+}
+
+.custom-basicMenu li{
+	border: 1px solid #ccc;
+}

@@ -1,4 +1,4 @@
-define(['app/config', 'app/loading','app/tabs', 'app/prefs', 'app/util', "app/modes", "jquery-ui",'ace/ace','jsdiff'], function (config, loading, tabs, preferences, util) {
+define(['app/config', 'app/loading','app/tabs', 'app/prefs', 'app/util', "app/modes", "jquery-ui",'ace/ace','jsdiff',"ui.basicMenu"], function (config, loading, tabs, preferences, util) {
 var modes = require('app/modes');
 
 var revisionsEditor;
@@ -6,7 +6,6 @@ var lineNumbers = [];
 
 function show(li) {
 	var content = li.data('content');
-	
 	var tab = tabs.active();
 	var editor = tabs.getEditor(tab);
 
@@ -104,25 +103,19 @@ function show(li) {
 	}
 }
 
-function select() {
-	var li = $(this).parent();
-	li.parent().children().removeClass('ui-state-focus');
-	li.addClass('ui-state-focus');
+function select(li) {
+	li.parent().children().find('button').remove();
+	li.append('<button type="button" class="restore">Restore revision</button>');
 	
-	// scroll
-	var container = li.parent().parent();
-	var scrollPos = container.scrollTop();
-	var offset = li.position().top;
-	
-	// scroll down
-	if (offset+li.height() > scrollPos+container.height()) {
-		container.scrollTop((offset+li.height()) - container.height());
-	}
-	
-	// scroll up
-	if (offset-li.height() < scrollPos) {
-		container.scrollTop(offset);
-	}
+	$('.restore').button().click(function() {
+		//revert file
+		var tab = tabs.active();
+		var editor = tabs.getEditor(tab);
+		var content = $( this ).parent().data('content');
+		editor.setValue(content);
+
+		$( "#dialog-revisions" ).dialog( "close" );
+	});
 	
 	var content = li.data('content');
 	
@@ -169,7 +162,7 @@ function load(siteId, file, revision) {
 				var content = editor.getValue();
 				$.each(data.revisions, function( index, item ) {
 					if (item.content!==content) {
-						$( '<li><a href="#">' + item.date + ' ' + item.author + '</a></li>' ).appendTo( "#revision" )
+						$( '<li><a href="#"><span class="date">' + item.date + '</span><span class="author">' + item.author + '</span></a></li>' ).appendTo( "#revision" )
 						.attr('data-id', item.id);
 					}
 				});
@@ -212,20 +205,6 @@ function open() {
 		modal: true,
 		width: $(window).width()-20,
 		height: $(window).height()-20,
-		buttons: {
-			Revert: function() {
-				//revert file
-				var tab = tabs.active();
-				var editor = tabs.getEditor(tab);
-				var content = $( "#revision option:selected" ).data('content');
-				editor.setValue(content);
-
-				$( this ).dialog( "close" );
-			},
-			Cancel: function() {
-				$( this ).dialog( "close" );
-			}
-		},
 		resizeStop: function( event, ui ) {
 			setTimeout(function() {
 				revisionsEditor.resize();
@@ -235,45 +214,10 @@ function open() {
 			$( this ).remove();
 		}
 	});
-
-	$('#revision').on('click', 'a', select);
 	
-	//handle keyboard: up / down
-	$( "#revision" ).keydown(function(e) {
-		var activeEl = $('#revision .ui-state-focus');
-		var size = Math.floor($(this).height()/activeEl.height());
-		
-		switch(e.keyCode){
-			case 38: //up
-				activeEl.prev().children('a').click();
-				return false;
-			case 40: //down
-				activeEl.next().children('a').click();
-				return false;
-			case 33: //page up
-				next = activeEl.prevAll( ":eq("+size+")");
-
-				if(!next.length) {
-					next = activeEl.prevAll().last();
-				}
-
-				next.children('a').click();
-				return false;
-			case 34: //page down
-				next = activeEl.nextAll( ":eq("+size+")");
-
-				if(!next.length) {
-					next = activeEl.nextAll().last();
-				}
-
-				next.children('a').click();
-				return false;
-			case 35: //end
-				activeEl.nextAll().last().children('a').click();
-				return false;
-			case 36: //home
-				activeEl.prevAll().last().children('a').click();
-				return false;
+	$("#revision").basicMenu({
+		select: function (event, ui) {
+			select(ui.item);
 		}
 	});
 
@@ -303,7 +247,6 @@ function open() {
 			load(siteId, $(this).val());
 		}
 	});
-
 }
 
 //listener
@@ -312,6 +255,5 @@ $('body').on('click', '#revisionHistory a', open);
 return {
 	open: open
 };
-
 
 });

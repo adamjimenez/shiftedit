@@ -12,6 +12,7 @@ requirejs.config({
 		"jquery.contextMenu": "contextMenu/jquery.contextMenu",
 		"jquery.menubar": "menubar/jquery.menubar",
 		"ui.combobox": "combobox/ui.combobox",
+		"ui.basicMenu": "ui.basicMenu/ui.basicMenu",
 		"jstree": "jstree/jstree",
 		"ace": "ace.20160218/src",
 		//"ace/split": 'ace.20151029/src/ext-split',
@@ -60,6 +61,10 @@ requirejs.config({
 			deps: ["jquery-ui"]
 		},
 		"ui.combobox": {
+			exports: "$",
+			deps: ["jquery-ui"]
+		},
+		"ui.basicMenu": {
 			exports: "$",
 			deps: ["jquery-ui"]
 		},
