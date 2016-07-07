@@ -9,7 +9,7 @@ function updateOptions() {
 		select.children( "option" ).remove();
 
 		//add blank option
-		select.append('<option value=""></option>');
+		select.append('<option value="">Choose a file</option>');
 
 		//populate select menus
 		$( "li[data-file]" ).each(function(index) {
@@ -59,11 +59,18 @@ function select() {
 	var content2 = tabs.getEditor(tab2).getValue();
 
 	//show diff
-	//remove markers
 	var container = $(panel).find('div.editor')[0];
 	var editor = ace.edit(container);
+	editor.$blockScrolling = Infinity;
 	var session = editor.getSession();
+	
+	//remove markers
 	var markers = session.getMarkers();
+	for (var i in markers) {
+		if (markers.hasOwnProperty(i)) {
+			session.removeMarker(i);
+		}
+	}
 
 	/*
 	//set mode
@@ -73,11 +80,6 @@ function select() {
 	var mode = modes.find(ext);
 
 	session.setMode("ace/mode/" + mode);
-	for (var i in markers) {
-		if (markers.hasOwnProperty(i)) {
-			session.removeMarker(i);
-		}
-	}
 	*/
 
 	// don't diff big files or the browser will crash
