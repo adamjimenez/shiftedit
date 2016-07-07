@@ -1,4 +1,4 @@
-define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'jquery'], function (config, tabs, find, preferences, site, tree) {
+define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree', 'app/revisions', 'jquery'], function (config, tabs, find, preferences, site, tree, revisions) {
 	var shortcuts = [];
 	var defaultShortcuts = [{ //escape
 		key: 27,
@@ -213,6 +213,16 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		stopEvent: true,
 		fn: function (key, e) {
 			tree.toggle();
+		}
+	}, { //ctrl-alt-shift-h
+		key: 72,
+		ctrl: true,
+		alt: true,
+		shift: true,
+		scope: this,
+		stopEvent: true,
+		fn: function (key, e) {
+			revisions.open();
 		}
 	}];
 

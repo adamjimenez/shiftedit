@@ -285,7 +285,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'revisionHistory',
-				text: lang.revisionHistoryText,
+				text: makeMenuText(lang.revisionHistoryText + '...', 'Ctrl+Alt+Shift+H'),
 				disabled: true,
 				target: 'file'
 			},/*
