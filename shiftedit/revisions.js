@@ -4,27 +4,9 @@ var modes = require('app/modes');
 var revisionsEditor;
 var lineNumbers = [];
 
-function select() {
-	var li = $(this).parent();
-	li.parent().children().removeClass('ui-state-focus');
-	li.addClass('ui-state-focus');
-	
-	// scroll
-	var container = li.parent().parent();
-	var scrollPos = container.scrollTop();
-	var offset = li.position().top;
-	
-	// scroll down
-	if (offset+li.height() > scrollPos+container.height()) {
-		container.scrollTop((offset+li.height()) - container.height());
-	}
-	
-	// scroll up
-	if (offset-li.height() < scrollPos) {
-		container.scrollTop(offset);
-	}
-	
+function show(li) {
 	var content = li.data('content');
+	
 	var tab = tabs.active();
 	var editor = tabs.getEditor(tab);
 
@@ -114,7 +96,7 @@ function select() {
 		// final fold
 		foldEnd = session.getLength();					
 		if (foldEnd > foldStart) {
-			session.addFold("", new range(foldStart, 0, foldEnd, 0));
+			session.addFold("...", new range(foldStart, 0, foldEnd, 0));
 		}
 	}else{
 		revisionsEditor.setValue(content);
@@ -122,32 +104,77 @@ function select() {
 	}
 }
 
-function load(siteId, file) {
-	loading.fetch(config.apiBaseUrl+'revisions?site='+siteId+'&file='+file, {
+function select() {
+	var li = $(this).parent();
+	li.parent().children().removeClass('ui-state-focus');
+	li.addClass('ui-state-focus');
+	
+	// scroll
+	var container = li.parent().parent();
+	var scrollPos = container.scrollTop();
+	var offset = li.position().top;
+	
+	// scroll down
+	if (offset+li.height() > scrollPos+container.height()) {
+		container.scrollTop((offset+li.height()) - container.height());
+	}
+	
+	// scroll up
+	if (offset-li.height() < scrollPos) {
+		container.scrollTop(offset);
+	}
+	
+	var content = li.data('content');
+	
+	if (content) {
+		show(li);
+	} else {
+		tab = tabs.active();
+	
+		if(!tab) {
+			return false;
+		}
+		
+		var siteId = tab.data('site');
+		var file = $( "#revisionFile" ).val();
+		
+		load(siteId, file, li.data('id'));
+	}
+}
+
+function load(siteId, file, revision) {
+	revision = revision || '';
+	
+	loading.fetch(config.apiBaseUrl+'revisions?site='+siteId+'&file='+file+'&revision='+revision+'&no_content=1', {
 		action: 'getting revisions',
 		success: function(data) {
-			// remove old options
-			$( "#revisionFile option, #revision" ).children().remove();
-			
-			// add file options
-			$.each(data.files, function( index, item ) {
-				$( '<option value="'+item+'">' + item + '</option>' ).appendTo( "#revisionFile" )
-				.data('content', item.content);
-			});
-			$( "#revisionFile" ).val(file);
-			$( "#revisionFile" ).selectmenu('refresh');
-
-			// add revision options if content is different
-			var tab = tabs.active();
-			var editor = tabs.getEditor(tab);
-			var content = editor.getValue();
-			$.each(data.revisions, function( index, item ) {
-				if (item.content!==content) {
-					$( '<li value="'+item.id+'"><a href="#">' + item.date + ' ' + item.author + '</a></li>' ).appendTo( "#revision" )
+			if (typeof(data.content)!=='undefined') {
+				$( "#revision li[data-id='"+data.id+"']" ).data('content', data.content)
+				.children('a').click();
+			} else {
+				// add file options
+				$.each(data.files, function( index, item ) {
+					$( '<option value="'+item+'">' + item + '</option>' ).appendTo( "#revisionFile" )
 					.data('content', item.content);
-				}
-			});
-			$( "#revision li:first-child a" ).trigger('click');
+				});
+				$( "#revisionFile" ).val(file);
+				$( "#revisionFile" ).selectmenu('refresh');
+				
+				// remove existing revision options
+				$( "#revisionFile option, #revision" ).children().remove();
+	
+				// add revision options if content is different
+				var tab = tabs.active();
+				var editor = tabs.getEditor(tab);
+				var content = editor.getValue();
+				$.each(data.revisions, function( index, item ) {
+					if (item.content!==content) {
+						$( '<li><a href="#">' + item.date + ' ' + item.author + '</a></li>' ).appendTo( "#revision" )
+						.attr('data-id', item.id);
+					}
+				});
+				$( "#revision li:first-child a" ).trigger('click');
+			}
 		}
 	});
 }
