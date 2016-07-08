@@ -207,7 +207,7 @@ function init () {
 					tabs.open();
 				}
 			}, {
-				text: makeMenuText(lang.open + ' site', 'Ctrl+Shift+O'),
+				text: makeMenuText(lang.open + ' Site', 'Ctrl+Shift+O'),
 				handler: function () {
 					setTimeout(function() { site.focus(); }, 0);
 				}
@@ -591,7 +591,7 @@ function init () {
 				}
 			}, {
 				id: 'toggleTreeView',
-				text: 'Toggle Tree View',
+				text: makeMenuText('Toggle Tree View', 'Ctrl+\\'),
 				handler: function (item, checked) {
 					tree.toggle();
 				}
