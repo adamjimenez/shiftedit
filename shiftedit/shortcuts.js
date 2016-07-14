@@ -112,7 +112,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		scope: this,
 		stopEvent: true,
 		fn: function (key, e) {
-			tabs.getEditor().fullScreen();
+			tabs.fullscreen();
 		}
 	}, { //ctrl+u
 		key: 85,

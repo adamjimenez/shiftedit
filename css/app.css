@@ -328,6 +328,36 @@ li[role=tab] .ui-icon {
 	opacity: 0.5;
 }
 
+body.fullscreen .editor, body.fullscreen .ui-layout-content, body.fullscreen .ui-layout-pane{
+	position: static !important;
+}
+
+div.fullscreen{
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: auto !important;
+	width: auto !important;
+	z-index: 3;
+}
+
+.fullscreenBtn{
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	width: 15px;
+	height: 15px;
+	cursor: pointer;
+	z-index: 1000;
+	opacity: 0.4;
+}
+
+.fullscreenBtn:hover{
+	opacity:1;
+}
+
 .ace_gutter-cell.ace_breakpoint{
 	background-image: url(/images/icons/breakpoint.png);
 	background-position: 4px center;
