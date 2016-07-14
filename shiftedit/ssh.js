@@ -536,7 +536,19 @@ function open(tabpanel){
 		var tabpanel = $('.ui-layout-center');
 		var tab = create(tabpanel);
 		var settings = site.getSettings(site.active());
-		new_session(tab, settings.domain, 'ec2-user', settings.port);
+		
+		var username = 'admin-user';
+		
+		switch (settings.server_type=='AWS') {
+			case 'AWS':
+				username = 'ec2-user';
+			break;
+			case 'Linode':
+				username = 'admin-user';
+			break;
+		}
+		
+		new_session(tab, settings.domain, username, settings.port);
 	});
 
 

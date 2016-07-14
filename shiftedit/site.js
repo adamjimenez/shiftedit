@@ -634,6 +634,8 @@ function updateCategory(newSite) {
 
 	fields = [
 		'hosted_container',
+		'stack_container',
+		'git_container',
 		'cloud_container',
 		'host_container',
 		'proxyfield',
@@ -714,10 +716,22 @@ function updateCategory(newSite) {
 			'connectBtn'
 		],
 		'Hosted': [
+			'hosted_container'
+		],
+		'AWS': [
 			'ftp_user_container',
 			'pass_container',
 			'git_url',
-			'hosted_container'
+			'hosted_container',
+			'stack_container',
+			'git_container'
+		],
+		'Linode': [
+			'pass_container',
+			'git_url',
+			'hosted_container',
+			'stack_container',
+			'git_container'
 		],
 		'AJAX': [
 			'proxyfield',
@@ -755,6 +769,8 @@ function updateCategory(newSite) {
 			$('[name=serverTypeItem][value=Cloud]:first').prop("checked", true);
 		} else if( ['AJAX', 'WebDAV'].indexOf(category) !== -1 ) {
 			$('[name=serverTypeItem][value=Other]:first').prop("checked", true);
+		} else if( ['AWS', 'Linode'].indexOf(category) !== -1 ){
+			$('[name=serverTypeItem][value=Hosted]:first').prop("checked", true);
 		} else {
 			$('[name=serverTypeItem][value=' + category + ']:first').prop("checked", true);
 		}
@@ -781,7 +797,7 @@ function updateCategory(newSite) {
 
 	//username placeholder
 	var username_placeholder = 'your username';
-	if( category === 'AmazonS3' || category === 'Hosted' ){
+	if( category === 'AmazonS3' || category === 'AWS' ){
 		username_placeholder = 'access key id';
 	}
 
@@ -789,8 +805,10 @@ function updateCategory(newSite) {
 
 	//password placeholder
 	var password_placeholder = '';
-	if( category==='AmazonS3' || category === 'Hosted' ){
+	if( category==='AmazonS3' || category === 'AWS' ){
 		password_placeholder = 'secret access key';
+	} else if( category==='Linode' ){
+		password_placeholder = 'api key';
 	}
 
 	$('#ftp_pass').attr('placeholder', password_placeholder);
@@ -1094,10 +1112,13 @@ function test() {
 function save() {
 	var params = util.serializeObject($('#siteSettings'));
 
+	var siteId = $('#siteSettings [name=id]').val();
 	var ajax;
 	var duration = '';
-	if (params.server_type==='Hosted') {
+	var wait = false;
+	if (!params.domain && ['AWS', 'Linode'].indexOf(params.server_type) !== -1) {
 		duration = ' (this may take a few minutes)';
+		wait = true;
 	}
 	
 	if (!loading.start('Saving site ' + params.name + duration, function(){
@@ -1125,7 +1146,7 @@ function save() {
 	}
 
 	ajax = $.ajax({
-		url: config.apiBaseUrl+'sites?cmd=save&site='+$('#siteSettings [name=id]').val(),
+		url: config.apiBaseUrl+'sites?cmd=save&site='+siteId,
 		method: 'POST',
 		dataType: 'json',
 		data: params
@@ -1148,12 +1169,58 @@ function save() {
 				gdrive.set_public(dir_id, true);
 			}
 			*/
+			
+			if (!data.site) {
+				console.log('no site id');
+				return false;
+			}
+			
+			$('#siteSettings [name=id]').val(data.site);
+			
+			var finish = function() {
+				currentSite = data.site;
+				load();
+	
+				$( "#dialog-site" ).dialog( "close" );
+				$( "#dialog-site" ).remove();
+			};
+			
+			if (wait) {
+				var source = new EventSource(config.apiBaseUrl+'sites?cmd=create&site='+data.site, {withCredentials: true});
+				var abortFunction = function(){
+					if( source ){
+						source.close();
+					}
+				};
+			
+				var ready = false;
+				source.addEventListener('message', function(event) {
+					var result = JSON.parse(event.data);
+					var msg = result.msg;
 
-			currentSite = data.site;
-			load();
-
-			$( "#dialog-site" ).dialog( "close" );
-			$( "#dialog-site" ).remove();
+					loading.stop(false);
+					
+					if (msg.substr(0, 6)==='Error:') {
+						prompt.alert({title:'Error', msg: msg});
+					} else if (msg==='ready') {
+						ready = true;
+						finish();
+					} else {
+						loading.start(msg, abortFunction, true);
+					}
+				}, false);
+			
+				source.addEventListener('error', function(event) {
+					if (!ready) {
+						loading.stop(false);
+					}
+					if (event.eventPhase == 2) { //EventSource.CLOSED
+						abortFunction();
+					}
+				}, false);
+			} else {
+				finish();
+			}
 		}else{
 			var error = 'unknown';
 			if (data.error) {
@@ -1212,31 +1279,37 @@ function edit(newSite, duplicate) {
 					</p>\
 					\
 					<div id="hosted_container">\
-						<p>Create a hosted development environment, refer to <a href="https://shiftedit.net/docs/sites#hosted" target="_blank">instructions</a>. </p>\
+						<p>Create a hosted development environment, refer to the <a href="https://shiftedit.net/docs/sites#hosted" target="_blank">instructions</a>. </p>\
 						<p>\
 							<label for="provider">Provider:</label>\
 							<span id="providerRadio">\
-								<input type="radio" name="provider" value="aws" id="providerRadio1" checked>\
+								<input type="radio" name="provider" value="AWS" id="providerRadio1">\
 								<label for="providerRadio1">\
-									Amazon Web Services\
+									<img alt="Amazon Web Services" src="https://shiftedit.s3.amazonaws.com/images/logos/aws.svg" height="64">\
+								</label>\
+								<input type="radio" name="provider" value="Linode" id="providerRadio2">\
+								<label for="providerRadio2">\
+									<img alt="Linode" src="https://shiftedit.s3.amazonaws.com/images/logos/linode.svg" height="64">\
 								</label>\
 							</span>\
 						</p>\
+					</div>\
+					<div id="stack_container">\
 						<p>\
 							<label for="name">Stack:</label>\
 							<span id="stackRadio">\
 								<input type="radio" name="stack" value="php" id="stackRadio1" checked>\
 								<label for="stackRadio1">\
-									<img src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="32" width="32"><br>\
-									PHP\
+									<img alt="PHP" src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="64">\
 								</label>\
 								<input type="radio" name="stack" value="nodejs" id="stackRadio2">\
 								<label for="stackRadio2">\
-									<img src="https://shiftedit.s3.amazonaws.com/images/logos/nodejs.svg" height="32" width="32"><br>\
-									Node.js\
+									<img alt="Node.js" src="https://shiftedit.s3.amazonaws.com/images/logos/nodejs.svg" height="64">\
 								</label>\
 							</span>\
 						</p>\
+					</div>\
+					<div id="git_container">\
 						<p>\
 							<label for="name">Git URL:</label>\
 							<input type="hidden" id="git_url" name="git_url">\
@@ -1425,8 +1498,10 @@ function edit(newSite, duplicate) {
 			if( ['GDrive', 'GDriveLimited'].indexOf(settings.server_type) !== -1 ){
 				$('[name=cloud][value=GDrive]:first').prop("checked", true);
 			} else {
-				$('[name=cloud][value=' + category + ']:first').prop("checked", true);
+				$('[name=cloud][value=' + settings.server_type + ']:first').prop("checked", true);
 			}
+		} else if( ['AWS', 'Linode'].indexOf(settings.server_type) !== -1 ){
+			$('[name=provider][value=' + settings.server_type + ']:first').prop("checked", true);
 		}
 	}
 	
@@ -1507,7 +1582,7 @@ function edit(newSite, duplicate) {
 	});
 
 	//toggle fields
-	$('#cloud_container input:radio, #serverTypeRadio input:radio').change(function() {
+	$('#cloud_container input:radio, #serverTypeRadio input:radio, #providerRadio input:radio').change(function() {
 		$('input[name=server_type]').val(this.value);
 		updateCategory(newSite);
 	});

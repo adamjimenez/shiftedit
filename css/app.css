@@ -271,7 +271,7 @@ li[role=tab] .ui-icon {
 	position: absolute;
 	top: 0;
 	width: 100%;
-	z-index: 100000; /* higher than modal windows */
+	z-index: 1000000; /* higher than modal windows */
 	margin: 10px;
 	opacity: 0.8;
 	text-align: center;
@@ -445,10 +445,6 @@ div.fullscreen{
 }
 
 #cloudRadio .ui-button{
-	width: 100px;
-}
-
-#stackRadio .ui-button{
 	width: 100px;
 }
 
