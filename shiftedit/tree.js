@@ -976,6 +976,11 @@ function init() {
 								prompt.alert({title:'Error', msg:data.error});
 								return;
 							}
+							
+							if(data.success===false) {
+								prompt.alert({title:'Error', msg:'Can not get files'});
+								return;
+							}
 
 							//backcompat old turbo mode
 							if(!data)
