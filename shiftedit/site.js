@@ -1593,6 +1593,10 @@ function edit(newSite, duplicate) {
 	});
 
 	updateCategory(newSite);
+	
+	if (settings.logon_type=='key') {
+		$('#logon_key').click();
+	}
 
 	//open dialog
 	var dialog = $( "#dialog-site" ).dialog({
