@@ -40,15 +40,23 @@ if( typeof Terminal !== 'undefined' ){
 		tty.socket.on('connect', function() {
 			tty.reset();
 			tty.emit('connect');
+			
+			console.log('connect');
+			
+			setTimeout(function() {
+				var session = tab.data('session');
+				session.doResize();
+			}, 1000);
 		});
 
 		tty.socket.on('data', function(id, data) {
+			//console.log('data');
 			if (!tty.terms[id]) return;
 			tty.terms[id].write(data);
 		});
 
 		tty.socket.on('kill', function(id) {
-				prompt.alert({title:'Disconnected', msg: 'The connection has closed.'});
+			prompt.alert({title:'Disconnected', msg: 'The connection has closed.'});
 
 			console.log('ssh killed');
 
@@ -375,8 +383,6 @@ function create(tabpanel){
 function new_session(tab, host, username, port){
 	var session = new Tab('-p '+port+' '+username+'@'+host, index);
 	session.focus();
-	session.doResize();
-
 	tab.data('session', session);
 }
 

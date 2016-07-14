@@ -585,9 +585,11 @@ div.fullscreen{
 	background: #000;
 }
 
+/*
 .terminal div{
 	white-space: nowrap;
 }
+*/
 
 .reverse-video {
 	color: #000;
