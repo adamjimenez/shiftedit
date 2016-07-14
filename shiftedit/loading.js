@@ -5,13 +5,21 @@ require('jquery');
 var isLoading = false;
 var timer;
 var abortCallback;
+var overlay;
 
-function start(action, abortFunction) {
+function start(action, abortFunction, modal) {
 	if (isLoading) {
 		console.warn(lang.ftpBusyText, lang.waitForFtpText);
 		return false;
 	} else {
 		console.log(action);
+		
+		if (modal) {
+			overlay = $( "<div>" )
+			.appendTo( 'body' )
+			.addClass( "ui-widget-overlay ui-front" )
+			.css( "z-index", 100001 );
+		}
 
 		isLoading = true;
 		if (!action) {
@@ -35,6 +43,11 @@ function start(action, abortFunction) {
 
 function stop(animate) {
 	isLoading = false;
+	
+	if (overlay) {
+		overlay.remove();
+	}
+	
 	if (timer) {
 		clearInterval(timer);
 	}
