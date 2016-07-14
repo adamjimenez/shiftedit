@@ -709,7 +709,7 @@ function create(file, content, siteId, options) {
 		}
 	}else{
 		//if no firepad:
-		if (content.length) {
+		if (content !== null) {
 			editor.getSession().getDocument().setValue(content);
 		}
 
