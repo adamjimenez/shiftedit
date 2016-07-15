@@ -38,9 +38,8 @@ function enableMenuItems(site) {
 	if(site.db_phpmyadmin)
 		items.push('phpmyadmin');
 
-	if(site.server_type==='Hosted') {
+	if(['AWS', 'Linode'].indexOf(site.server_type) !== -1)
 		items.push('reboot');
-	}
 
 	if(site.logon_type == 'key')
 		items.push('sshSite');
