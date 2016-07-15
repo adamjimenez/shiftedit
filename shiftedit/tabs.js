@@ -653,7 +653,7 @@ function setTitle(tab, title) {
 	tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(title));
 
 	$( tab ).tooltip({
-		position: { my: "left top", at: "left bottom", collision: "flipfit" },
+		position: { my: "left bottom", at: "left top", collision: "flipfit" },
 		classes: {
 			"ui-tooltip": "highlight"
 		}
