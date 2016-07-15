@@ -711,6 +711,8 @@ function load() {
 		});
 }
 
+
+// from https://github.com/jquery/download.jqueryui.com/blob/288f21fed429b5f843cdd8b412aceb549c7be4a9/lib/zparams.js
 function unzip( zipped, callback ) {
 	var data,
 		intoDec = function( hex ) {
