@@ -1,34 +1,41 @@
-define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/storage', 'jquery'], function (config, tabs, prompt, lang, loading, site, storage) {
+define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/storage', 'xterm.js/src/xterm', 'jquery'], function (config, tabs, prompt, lang, loading, site, storage, Terminal) {
 	lang = lang.lang;
-/**
- * Tab
- */
+
+function Tab(shellArgs, index) {
+	var self = this;
+	var cols = Terminal.geometry[0];
+	var rows = Terminal.geometry[1];
+
+	Terminal.call(this, {
+		cursorBlink: true,
+		screenKeys: true
+	});
+
+	this.index = index;
+	this.id = '';
+	this.socket = tty.socket;
+	this.element = document.getElementById('sshContainer'+this.index);
+	this.process = '';
+	this.open(this.element);
+
+	this.socket.emit('create', cols, rows, shellArgs, function(err, data) {
+		//refresh panel
+		//ssh.session.resize();
+
+		if (err) return self._destroy();
+
+		//self.pty = data.pty;
+		self.id = data.id;
+		tty.terms[self.id] = self;
+		return;
+	});
+}
 
 if( typeof Terminal !== 'undefined' ){
-	var EventEmitter = Terminal.EventEmitter
-		, inherits = Terminal.inherits
-		, on = Terminal.on
-		, off = Terminal.off
-		, cancel = Terminal.cancel;
-
-	/**
-	 * tty
-	 */
-
+	var EventEmitter = Terminal.EventEmitter;
+	var inherits = Terminal.inherits;
 	var tty = new EventEmitter();
-
-	/**
-	 * Shared
-	 */
-
-	tty.socket;
-	tty.terms;
-	tty.elements;
-
-	/**
-	 * Open
-	 */
-
+	
 	tty.open = function() {
 		tty.socket = io.connect('https://ssh.shiftedit.net', {
 			resource: 'socket.io',
@@ -40,13 +47,6 @@ if( typeof Terminal !== 'undefined' ){
 		tty.socket.on('connect', function() {
 			tty.reset();
 			tty.emit('connect');
-			
-			console.log('connect');
-			
-			setTimeout(function() {
-				var session = tab.data('session');
-				session.doResize();
-			}, 1000);
 		});
 
 		tty.socket.on('data', function(id, data) {
@@ -59,9 +59,6 @@ if( typeof Terminal !== 'undefined' ){
 			prompt.alert({title:'Disconnected', msg: 'The connection has closed.'});
 
 			console.log('ssh killed');
-
-			//var title = $('#ssh').title;
-			//$('[data-ssh='+this.index+']').attr('title', title+=' - disconnected');
 
 			if (!tty.terms[id]) return;
 
@@ -93,9 +90,9 @@ if( typeof Terminal !== 'undefined' ){
 			tty.socket.emit = function() {};
 
 			Object.keys(terms).forEach(function(key) {
-				var data = terms[key]
-				, win = new Window()
-				, tab = win.tabs[0];
+				var data = terms[key];
+				var win = new Window();
+				var tab = win.tabs[0];
 
 				delete tty.terms[tab.id];
 				tab.pty = data.pty;
@@ -114,54 +111,10 @@ if( typeof Terminal !== 'undefined' ){
 		tty.emit('open');
 	};
 
-	/**
-	 * Reset
-	 */
-
 	tty.reset = function() {
 		tty.terms = {};
-
 		tty.emit('reset');
 	};
-
-	function Tab(address, index) {
-		var self = this;
-
-		var cols = Terminal.geometry[0];
-		var rows = Terminal.geometry[1];
-
-		Terminal.call(this, {
-			cols: cols,
-			rows: rows,
-			screenKeys: true
-		});
-
-		this.index = index;
-		this.id = '';
-		this.socket = tty.socket;
-		this.element = document.getElementById('sshContainer'+this.index);
-		this.process = '';
-		this.open(this.element);
-		this.hookKeys();
-
-		var shellArgs = address;
-
-		this.socket.emit('create', cols, rows, shellArgs, function(err, data) {
-			//refresh panel
-			//ssh.session.resize();
-
-			if (err) return self._destroy();
-
-			console.log(self)
-
-			//self.pty = data.pty;
-			self.id = data.id;
-			tty.terms[self.id] = self;
-			return;
-			self.setProcessName(data.process);
-			self.emit('open');
-		});
-	}
 
 	inherits(Tab, Terminal);
 
@@ -199,7 +152,6 @@ if( typeof Terminal !== 'undefined' ){
 
 	Tab.prototype.focus = function() {
 		if (Terminal.focus === this) return;
-
 		this._focus();
 	};
 
@@ -226,7 +178,7 @@ if( typeof Terminal !== 'undefined' ){
 		console.log('resize '+cols+'x'+rows);
 
 		this.resize(cols, rows);
-	}
+	};
 
 	Tab.prototype.__destroy = Tab.prototype.destroy;
 
@@ -234,9 +186,6 @@ if( typeof Terminal !== 'undefined' ){
 		if (this.destroyed) return;
 		this.destroyed = true;
 
-		//var win = this.window;
-
-		//this.button.parentNode.removeChild(this.button);
 		if (this.element.parentNode) {
 			this.element.parentNode.removeChild(this.element);
 		}
@@ -252,100 +201,12 @@ if( typeof Terminal !== 'undefined' ){
 		this._destroy();
 		this.emit('close');
 	};
-
-	Tab.prototype.hookKeys = function() {
-		var self = this;
-
-		this.on('request paste', function(key) {
-			this.socket.emit('request paste', function(err, text) {
-				if (err) return;
-				self.send(text);
-			});
-		});
-	};
-
-	Tab.prototype._ignoreNext = function() {
-		// Don't send the next key.
-		var handler = this.handler;
-		this.handler = function() {
-			this.handler = handler;
-		};
-		var showCursor = this.showCursor;
-		this.showCursor = function() {
-			this.showCursor = showCursor;
-		};
-	};
-
-	/**
-	 * Program-specific Features
-	 */
-
-	Tab.scrollable = {
-		irssi: true,
-		man: true,
-		less: true,
-		htop: true,
-		top: true,
-		w3m: true,
-		lynx: true,
-		mocp: true
-	};
-
-	Tab.prototype._bindMouse = Tab.prototype.bindMouse;
-
-	Tab.prototype.bindMouse = function() {
-		if (!Terminal.programFeatures) return this._bindMouse();
-
-		var self = this;
-
-		var wheelEvent = 'onmousewheel' in window
-		? 'mousewheel'
-		: 'DOMMouseScroll';
-
-		on(self.element, wheelEvent, function(ev) {
-			if (self.mouseEvents) return;
-			if (!Tab.scrollable[self.process]) return;
-
-			if ((ev.type === 'mousewheel' && ev.wheelDeltaY > 0)
-			|| (ev.type === 'DOMMouseScroll' && ev.detail < 0)) {
-				// page up
-				self.keyDown({keyCode: 33});
-			} else {
-				// page down
-				self.keyDown({keyCode: 34});
-			}
-
-			return cancel(ev);
-		});
-
-		return this._bindMouse();
-	};
-
-	Tab.prototype.pollProcessName = function(func) {
-		var self = this;
-		this.socket.emit('process', this.id, function(err, name) {
-			if (err) return func && func(err);
-			self.setProcessName(name);
-			return func && func(null, name);
-		});
-	};
-
-	Tab.prototype.setProcessName = function(name) {
-		name = sanitize(name);
-
-		if (this.process !== name) {
-			this.emit('process', name);
-		}
-
-		this.process = name;
-	};
 }
 
 function sanitize(text) {
 	if (!text) return '';
 	return (text + '').replace(/[&<>]/g, '');
 }
-
 
 var index = 0;
 
@@ -384,6 +245,11 @@ function new_session(tab, host, username, port){
 	var session = new Tab('-p '+port+' '+username+'@'+host, index);
 	session.focus();
 	tab.data('session', session);
+	
+	setTimeout(function() {
+		$('#sshContainer'+index+' .terminal').focus();
+		session.doResize();
+	}, 1000);
 }
 
 function loadProfiles(val) {
@@ -537,9 +403,8 @@ function open(tabpanel){
 		var tab = create(tabpanel);
 		var settings = site.getSettings(site.active());
 		
-		var username = 'admin-user';
-		
-		switch (settings.server_type=='AWS') {
+		var username = settings.ftp_user;
+		switch (settings.server_type) {
 			case 'AWS':
 				username = 'ec2-user';
 			break;
@@ -548,9 +413,11 @@ function open(tabpanel){
 			break;
 		}
 		
+		console.log('domain: '+settings.domain);
+		console.log('username: '+username);
+		console.log('port: '+settings.port);
 		new_session(tab, settings.domain, username, settings.port);
 	});
-
 
 	return {
 	};

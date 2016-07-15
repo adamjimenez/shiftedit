@@ -6,6 +6,7 @@
 @import url("../lib/jstree/themes/default/style.css");
 @import url("../lib/ui.tabs.overflowResize/ui.tabs.overflowResize.css");
 @import url("../lib/ui.basicMenu/ui.basicMenu.css");
+@import url("../lib/xterm.js/src/xterm.css");
 
 body{
 	font-size: 12px;
