@@ -637,8 +637,6 @@ function create(file, content, siteId, options) {
 	tab.data(file, file);
 	tab.attr('data-file', file);
 
-	tabs.setTitle(tab, title);
-
 	tab.data('view', 'code');
 	tab.attr('data-view', 'code');
 
@@ -646,7 +644,10 @@ function create(file, content, siteId, options) {
 		tab.data('site', siteId);
 		tab.attr('data-site', siteId);
 		settings = site.getSettings(siteId);
+		title = settings.name + '/' + title;
 	}
+	
+	tabs.setTitle(tab, title);
 
 	if(options.mdate) {
 		tab.data('mdate', options.mdate);
