@@ -1278,7 +1278,7 @@ function edit(newSite, duplicate) {
 					</p>\
 					\
 					<div id="hosted_container">\
-						<p>Create a hosted development environment, refer to the <a href="https://shiftedit.net/docs/sites#hosted" target="_blank">instructions</a>. </p>\
+						<p>Create a hosted development environment, refer to the &nbsp; <a href="https://shiftedit.net/docs/sites#hosted" target="_blank">instructions</a>. </p>\
 						<p>\
 							<label for="provider">Provider:</label>\
 							<span id="providerRadio">\
