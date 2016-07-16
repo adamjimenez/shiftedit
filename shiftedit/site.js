@@ -1297,7 +1297,7 @@ function edit(newSite, duplicate) {
 						<p>\
 							<label for="name">Stack:</label>\
 							<span id="stackRadio">\
-								<input type="radio" name="stack" value="php" id="stackRadio1" checked>\
+								<input type="radio" name="stack" value="php" id="stackRadio1">\
 								<label for="stackRadio1">\
 									<img alt="PHP" src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="64">\
 								</label>\
@@ -1581,8 +1581,15 @@ function edit(newSite, duplicate) {
 	});
 
 	//toggle fields
-	$('#cloud_container input:radio, #serverTypeRadio input:radio, #providerRadio input:radio').change(function() {
-		$('input[name=server_type]').val(this.value);
+	$('#serverTypeRadio input:radio, #cloud_container input:radio, #providerRadio input:radio').change(function() {
+		if (this.value==='Cloud' && $("#cloud_container input:checked").val()) {
+			$('input[name=server_type]').val($("#cloud_container input:checked").val());
+		} else if (this.value==='Hosted' && $("#providerRadio input:checked").val()) {
+			$('input[name=server_type]').val($("#providerRadio input:checked").val());
+		} else {
+			$('input[name=server_type]').val(this.value);
+		}
+		
 		updateCategory(newSite);
 	});
 
