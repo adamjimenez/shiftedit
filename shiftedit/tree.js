@@ -1,4 +1,4 @@
-define(['exports', 'app/config', 'resumable', "jstreetable","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading', 'app/site', 'app/layout'], function (exports, config, Resumable) {
+define(['exports', 'app/config', 'resumable', "jstreetable","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading', 'app/site', 'app/layout', 'app/ssh'], function (exports, config, Resumable) {
 var util = require('app/util');
 var editor = require('app/editors');
 var lang = require('app/lang').lang;
@@ -7,6 +7,7 @@ var tabs = require('app/tabs');
 var loading = require('app/loading');
 var site = require('app/site');
 var layout = require('app/layout');
+var ssh = require('app/ssh');
 var ajaxOptions = {};
 var tree;
 var confirmed = false;
@@ -684,7 +685,7 @@ function open(data) {
 				
 				window.open('http://apps.pixlr.com/editor/?referrer=ShiftEdit&image=' + encodeURIComponent(url + '?shiftedit=' + new Date().getTime()) + '&title=' + file + '&target=' + encodeURIComponent('https://shiftedit.net/api/files?cmd=save_image&site=' + site.active() + '&path=' + file) + '&redirect=false');
 			} else {
-			   	tabs.open(file, site.active());
+				tabs.open(file, site.active());
 			}
 		});
 	}
@@ -1043,7 +1044,7 @@ function init() {
 											var callback = function() {
 												if(queue.length) {
 													confirmed = true;
-											   		node = queue.shift();
+													node = queue.shift();
 													doDelete(node);
 												} else {
 													confirmed = false;
@@ -1133,7 +1134,7 @@ function init() {
 						});
 						return false;
 					}else{
-			   			confirmed = false;
+						confirmed = false;
 						return true;
 					}
 
@@ -1394,6 +1395,30 @@ function init() {
 						"label": "Set permissions",
 						"separator_after": true,
 						action: chmod
+					},
+					"ssh": {
+						"label": "Open in SSH",
+						"_disabled": function (data) {
+							var inst = $.jstree.reference(data.reference),
+								node = inst.get_node(data.reference);
+							
+							var settings = site.getSettings();
+
+							if(settings.logon_type=='key' && node.icon=="folder") {
+								return false;
+							}else{
+								return true;
+							}
+						},
+						action: function () {
+							var settings = site.getSettings();
+							var path = settings.dir;
+							if (node.id.substr(0,1)!=='#') {
+								path += node.id;
+							}
+							
+							ssh.connect(path);
+						}
 					}
 				};
 
@@ -1779,13 +1804,13 @@ function init() {
 		var valid =
 			(e.ctrlKey === false) &&
 			(
-				(keycode > 47 && keycode < 58)   || // number keys
-				keycode == 32					|| // spacebar
-				keycode == 8					 || // backspace
-				(keycode > 64 && keycode < 91)   || // letter keys
-				(keycode > 95 && keycode < 112)  || // numpad keys
+				(keycode > 47 && keycode < 58) || // number keys
+				keycode == 32 || // spacebar
+				keycode == 8 || // backspace
+				(keycode > 64 && keycode < 91) || // letter keys
+				(keycode > 95 && keycode < 112) || // numpad keys
 				(keycode > 185 && keycode < 193) || // ;=,-./` (in order)
-				(keycode > 218 && keycode < 223)   // [\]' (in order)
+				(keycode > 218 && keycode < 223) // [\]' (in order)
 			);
 
 		if(valid) {
@@ -1807,8 +1832,8 @@ function init() {
 					var inst = $.jstree.reference(ref),
 						node = inst.get_node(ref);
 
-   						if(node.id==='#root')
-  							return;
+						if(node.id==='#root')
+							return;
 
 						inst.edit(node);
 				}
@@ -1898,13 +1923,13 @@ function init() {
 	$('.filter').keydown(function (e) {
 		var keycode = e.keyCode;
 		var valid =
-			(keycode > 47 && keycode < 58)   || // number keys
-			keycode == 32					|| // spacebar
-			keycode == 8					 || // backspace
-			(keycode > 64 && keycode < 91)   || // letter keys
-			(keycode > 95 && keycode < 112)  || // numpad keys
+			(keycode > 47 && keycode < 58) || // number keys
+			keycode == 32 || // spacebar
+			keycode == 8 || // backspace
+			(keycode > 64 && keycode < 91) || // letter keys
+			(keycode > 95 && keycode < 112) || // numpad keys
 			(keycode > 185 && keycode < 193) || // ;=,-./` (in order)
-			(keycode > 218 && keycode < 223);   // [\]' (in order)
+			(keycode > 218 && keycode < 223); // [\]' (in order)
 
 		//$('#tree a.jstree-clicked').focus();
 

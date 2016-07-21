@@ -1,7 +1,8 @@
 define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/storage', 'xterm.js/src/xterm', 'jquery'], function (config, tabs, prompt, lang, loading, site, storage, Terminal) {
-	lang = lang.lang;
 
-function Tab(shellArgs, index) {
+lang = lang.lang;
+
+function Tab(shellArgs, index, cwd) {
 	var self = this;
 	var cols = Terminal.geometry[0];
 	var rows = Terminal.geometry[1];
@@ -27,6 +28,7 @@ function Tab(shellArgs, index) {
 		//self.pty = data.pty;
 		self.id = data.id;
 		tty.terms[self.id] = self;
+		tty.cwd[self.id] = cwd;
 		return;
 	});
 }
@@ -43,20 +45,30 @@ if( typeof Terminal !== 'undefined' ){
 		});
 
 		tty.terms = {};
+		tty.logged_in = {};
+		tty.cwd = {};
 
 		tty.socket.on('connect', function() {
+			console.log('connect');
 			tty.reset();
 			tty.emit('connect');
 		});
 
 		tty.socket.on('data', function(id, data) {
-			//console.log('data');
+			if (tty.logged_in[id]!==true && data.trim().substr(-1)==='$') {
+				console.log('logged in');
+				if (tty.cwd[id]) {
+					tty.socket.emit('data', id, "cd "+tty.cwd[id]+"\n");
+				}
+				tty.logged_in[id] = true;
+			}
+			
 			if (!tty.terms[id]) return;
 			tty.terms[id].write(data);
 		});
 
 		tty.socket.on('kill', function(id) {
-			prompt.alert({title:'Disconnected', msg: 'The connection has closed.'});
+			//prompt.alert({title:'Disconnected', msg: 'The connection has closed.'});
 
 			console.log('ssh killed');
 
@@ -81,7 +93,7 @@ if( typeof Terminal !== 'undefined' ){
 
 		// XXX Clean this up.
 		tty.socket.on('sync', function(terms) {
-			console.log('Attempting to sync...');
+			console.log('sync...');
 			//console.log(terms);
 
 			tty.reset();
@@ -241,10 +253,15 @@ function create(tabpanel){
 	return tab;
 }
 
-function new_session(tab, host, username, port){
-	var session = new Tab('-p '+port+' '+username+'@'+host, index);
+function new_session(tab, host, username, port, cwd){
+	var shellArgs = '-p '+port+' '+username+'@'+host;
+	var session = new Tab(shellArgs, index, cwd);
 	session.focus();
 	tab.data('session', session);
+	tab.on('beforeClose', function() {
+		console.log('close session');
+		session.destroy();
+	});
 	
 	setTimeout(function() {
 		$('#sshContainer'+index+' .terminal').focus();
@@ -389,36 +406,42 @@ function open(tabpanel){
 	});
 }
 
-	$('body').on('click','.newTab .ssh', function(){
-		var tabpanel = $(this).closest('.ui-tabs');
-		open(tabpanel);
+function connect(cwd) {
+	var tabpanel = $('.ui-layout-center');
+	var tab = create(tabpanel);
+	var settings = site.getSettings(site.active());
+	
+	var username = settings.ftp_user;
+	switch (settings.server_type) {
+		case 'AWS':
+			username = 'ec2-user';
+		break;
+		case 'Linode':
+			username = 'admin-user';
+		break;
+	}
+	
+	console.log('domain: '+settings.domain);
+	console.log('username: '+username);
+	console.log('port: '+settings.port);
+	new_session(tab, settings.domain, username, settings.port, cwd);
+}
 
-		var id = $(this).closest('[role=tabpanel]').attr('id');
-		var tab = $('[aria-controls='+id+']');
-		tabs.close(tab);
-	});
+$('body').on('click','.newTab .ssh', function(){
+	var tabpanel = $(this).closest('.ui-tabs');
+	open(tabpanel);
 
-	$('body').on('click', '#sshSite a', function(e){
-		var tabpanel = $('.ui-layout-center');
-		var tab = create(tabpanel);
-		var settings = site.getSettings(site.active());
-		
-		var username = settings.ftp_user;
-		switch (settings.server_type) {
-			case 'AWS':
-				username = 'ec2-user';
-			break;
-			case 'Linode':
-				username = 'admin-user';
-			break;
-		}
-		
-		console.log('domain: '+settings.domain);
-		console.log('username: '+username);
-		console.log('port: '+settings.port);
-		new_session(tab, settings.domain, username, settings.port);
-	});
+	var id = $(this).closest('[role=tabpanel]').attr('id');
+	var tab = $('[aria-controls='+id+']');
+	tabs.close(tab);
+});
 
-	return {
-	};
+$('body').on('click', '#sshSite a', function(e){
+	connect();
+});
+
+return {
+	connect: connect
+};
+
 });
