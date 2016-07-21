@@ -1,4 +1,4 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache', 'app/prompt'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache', 'app/prompt', 'app/git'], function (exports) {
 	var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
 	var locale = require("app/lang");
 	var preferences = require("app/prefs");
@@ -76,6 +76,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 		var exit = require("app/exit");
 		var notes = require("app/notes").init();
 		var snippets = require("app/snippets").init();
+		var git = require("app/git").init();
 		var resize = require("app/resize");
 		resize.init();
 

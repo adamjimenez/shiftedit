@@ -678,6 +678,15 @@ function init () {
 								<a href="https://raw.github.com/stubbornella/csslint/master/LICENSE" target="_blank">License</a>\
 							</td>\
 						</tr>\
+						</tr>\
+						<tr>\
+							<td>\
+								<a href="https://diff2html.rtfpessoa.xyz/" target="_blank">Diff2HTML</a>\
+							</td>\
+							<td>\
+								<a href="https://raw.githubusercontent.com/rtfpessoa/diff2html/master/LICENSE" target="_blank">License</a>\
+							</td>\
+						</tr>\
 						<tr>\
 							<td>\
 								<a href="http://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a>\

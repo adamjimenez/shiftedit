@@ -30,6 +30,7 @@ function init() {
 			<li><a href="#tabs-definitions" title="Definitions"><i class="fa fa-code"></i></a></li>\
 			<li><a href="#tabs-notes" title="Notes"><i class="fa fa-pencil"></i></a></li>\
 			<li><a href="#tabs-snippets" title="Snippets"><i class="fa fa-cut"></i></a></li>\
+			<li><a href="#tabs-git" title="Git"><i class="fa fa-git"></i></a></li>\
 		</ul>\
 		<!-- add wrapper that layout will auto-size to fill space -->\
 		<div class="ui-layout-content">\
@@ -59,6 +60,7 @@ function init() {
 			<div id="tabs-snippets">\
 				<div id="snippets"></div>\
 			</div>\
+			<div id="tabs-git"></div>\
 		</div>\
 	</div>\
 	\
