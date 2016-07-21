@@ -113,7 +113,11 @@ function fetch(url, options) {
 		if(data.success){
 			options.success(data);
 		}else{
-			prompt.alert({title:'Error', msg:data.error});
+			if (options.error) {
+				options.error(data.error);
+			} else {
+				prompt.alert({title:'Error', msg:data.error});
+			}
 		}
 	}).fail(function() {
 		stop();
