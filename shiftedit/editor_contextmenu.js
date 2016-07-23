@@ -28,7 +28,7 @@ function init() {
 	});
 
 	$.contextMenu({
-		selector: '.editor',
+		selector: '.ace_editor',
 		callback: function(key, opt){
 			var panel = $(this).closest("[role=tabpanel]");
 			var tab = $("[role=tab][aria-controls="+panel.attr('id')+"]");

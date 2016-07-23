@@ -596,6 +596,10 @@ function doSaveAs(tab, file, options) {
 		prompt.alert('Error', 'No site selected');
 		return false;
 	}
+	
+	settings = site.getSettings(siteId);
+	title = settings.name + '/' + file;
+	setTitle(tab, title);
 
 	tab.data(site, siteId);
 	tab.attr('data-site', siteId);
@@ -653,7 +657,7 @@ function setTitle(tab, title) {
 	tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(title));
 
 	$( tab ).tooltip({
-		position: { my: "left top", at: "left bottom", collision: "flipfit" },
+		position: { my: "left bottom", at: "left top", collision: "flipfit" },
 		classes: {
 			"ui-tooltip": "highlight"
 		}
@@ -862,7 +866,15 @@ function updateTabs(e, params) {
 	var tab = $('.ui-layout-center li[data-file="'+params.oldname+'"][data-site="'+params.site+'"]');
 	if(tab.length){
 		tab = $(tab);
-		setTitle(tab, params.newname);
+		
+		var title = params.newname;
+		
+		if (params.site) {
+			settings = site.getSettings(siteId);
+			title = settings.name + '/' + title;
+		}
+		
+		setTitle(tab, title);
 		tabActivate(tab);
 		recordOpenFiles();
 	}

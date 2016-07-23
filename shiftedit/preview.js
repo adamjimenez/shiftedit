@@ -1,4 +1,4 @@
-define(['app/tabs', 'app/lang', 'app/layout', 'app/site', 'app/prompt', 'jquery'], function (tabs, lang, layout, site, prompt) {
+define(['app/tabs', 'app/lang', 'app/layout', 'app/site', 'app/prompt', 'app/util', 'app/ssl', 'jquery'], function (tabs, lang, layout, site, prompt, util, ssl) {
 	lang = lang.lang;
 
 	var combobox;
@@ -24,7 +24,13 @@ function refresh() {
 	var separator = (url.indexOf('?') === -1) ? '?' : '&';
 	var preview_url = url + separator + 'shiftedit=' + new Date().getTime();
 
-	$('#preview').attr('src', preview_url);
+	if($('#preview')) {
+		if(util.startsWith(url, 'http://') && ssl.check_blocked()){
+			prompt.alert({title:'Preview Blocked', msg:'Enable SSL or Click Shield icon in address bar, then "Load unsafe script"'});
+		}
+		
+		$('#preview').attr('src', preview_url);
+	}
 
 	if( childWindow ){
 		childWindow.location.href = preview_url;
@@ -32,18 +38,23 @@ function refresh() {
 }
 
 function create(tabpanel) {
-	layout.get().open('east');
-
 	//create tab
-	tab = $(tabpanel).tabs('add', 'Preview', '<div class="preview_toolbar ui-widget-header ui-corner-all">\
-	<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
-	<button type="button" class="refreshButton"><i class="fa fa-refresh"></i></button>\
-	<select class="address" class="flex"></select>\
-	<button type="button" class="popoutPreviewButton"><i class="fa fa-external-link"></i></button>\
+	tab = $(tabpanel).tabs('add', 'Preview', '\
+	<div class="vbox">\
+		<div class="preview_toolbar ui-widget-header ui-corner-all">\
+			<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
+			<button type="button" class="refreshButton"><i class="fa fa-refresh"></i></button>\
+			<div id="addressbar" class="flex">\
+				<select class="address"></select>\
+			</div>\
+			<button type="button" class="popoutPreviewButton"><i class="fa fa-external-link"></i></button>\
+		</div>\
+		<iframe id="preview" style="width:100%;height:100%;display:block;background:#fff;" src="/screens/default_live" frameborder=0></iframe>\
 	</div>\
-	<iframe id="preview" style="width:100%;height:100%;display:block;background:#fff;" src="/screens/default_live" frameborder=0></iframe>');
+	');
 
 	tab.addClass('closable');
+	tab.attr('data-type', 'preview');
 
 	//profile combo
 	var addressbar = $( ".address" ).combobox({
@@ -78,33 +89,10 @@ function create(tabpanel) {
 
 	$('.refreshButton').button().click(refresh);
 	$('.runButton').button().click(function() {
-		var tab = tabs.active();
-
-		if(tab) {
-			var siteId = tab.data('site');
-
-			if(siteId) {
-				var file = tab.data('file');
-				var url = tab.data('link');
-
-				if (!url) {
-					var settings = site.getSettings(siteId);
-					if(settings.web_url) {
-						url = settings.web_url+file;
-					}
-				}
-
-				if(url) {
-					combobox.input.val(url);
-					refresh();
-				}else{
-					prompt.alert({title:'Missing web url', msg:'Add a web url in site settings'});
-				}
-			}
-		}
+		load();
 	});
 
-	$('.popoutPreviewButton').click(function() {
+	$('.popoutPreviewButton').button().click(function() {
 		if( url ){
 			var separator;
 			if (url.indexOf('?') === -1) {
@@ -124,6 +112,76 @@ function create(tabpanel) {
 	});
 }
 
+function load(tab) {
+	if (!tab) {
+		tab = tabs.active();
+	}
+
+	if(tab) {
+		var siteId = tab.data('site');
+
+		if(siteId) {
+			var file = tab.data('file');
+			var url = tab.data('link');
+
+			if (!url) {
+				var settings = site.getSettings(siteId);
+				if(settings.web_url) {
+					url = settings.web_url+file;
+				}
+			}
+
+			if(url) {
+				combobox.input.val(url);
+				refresh();
+			}else{
+				prompt.alert({title:'Missing web url', msg:'Add a web url in site settings'});
+			}
+		} else {
+			prompt.alert({title:'File is not saved', msg:'Save the file to a site first'});
+		}
+	}
+}
+
+function run(fileTab) {
+	var myLayout = layout.get();
+	
+	// find existing
+	var tab = $('li[data-type=preview]');
+	
+	// open
+	var panel = 'east';
+	var minWidth = 300;
+
+	if(tab.length) {
+		tabpanel = tab.closest('.ui-tabs');
+		tabpanel.tabs("option", "active", tab.index());
+
+		//get nearest panel
+		var pane = tab.closest('.ui-layout-pane');
+		panel = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
+
+		//expand panel
+		myLayout.open(panel);
+		if (pane.outerWidth() < minWidth) {
+			myLayout.sizePane(panel, minWidth);
+		}
+		
+		load(fileTab);
+		return;
+	}
+
+	tabpanel = '.ui-layout-east';
+	//expand east panel
+	myLayout.open(panel);
+	if(myLayout.panes.east.outerWidth() < minWidth) {
+		myLayout.sizePane(panel, minWidth);
+	}
+	
+	create($(tabpanel));
+	load(fileTab);
+}
+
 $('body').on('click','.newTab .preview', function(){
 	var tabpanel = $(this).closest('.ui-tabs');
 	create(tabpanel);
@@ -137,6 +195,7 @@ $('body').on('click','.newTab .preview', function(){
 $('body').on('save','.ui-tabs', refresh);
 
 return {
+	run: run
 };
 
 });

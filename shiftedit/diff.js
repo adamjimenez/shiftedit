@@ -9,7 +9,7 @@ function updateOptions() {
 		select.children( "option" ).remove();
 
 		//add blank option
-		select.append('<option value=""></option>');
+		select.append('<option value="">Choose a file</option>');
 
 		//populate select menus
 		$( "li[data-file]" ).each(function(index) {
@@ -22,11 +22,16 @@ function updateOptions() {
 
 function create(tabpanel) {
 	//create tab
-	tab = $(tabpanel).tabs('add', 'File Compare', '<div class="vbox"><div class="diff_toolbar ui-widget-header ui-corner-all">\
-	<select class="diffFiles flex"></select>\
-	<select class="diffFiles flex"></select>\
-	</div>\
-	<div class="editor"></div></div>');
+	tab = $(tabpanel).tabs('add', 'File Compare', '\
+		<div class="vbox">\
+			<div class="diff_toolbar ui-widget-header ui-corner-all">\
+				<select class="diffFiles flex"></select>\
+				<select class="diffFiles flex"></select>\
+				<label><input type="checkbox" id="autofold" value="1">Fold similar chunks</label>\
+			</div>\
+			<div class="editor"></div>\
+		</div>\
+	');
 
 	tab.addClass('closable');
 
@@ -36,13 +41,15 @@ function create(tabpanel) {
 	editor.renderer.setHScrollBarAlwaysVisible(true);
 	editor.renderer.setVScrollBarAlwaysVisible(true);
 	editor.setReadOnly(true);
-
 	updateOptions();
+	
+	$('#autofold').change(select);
 
 	return tab;
 }
 
 function select() {
+	var autofold = $('#autofold').is(':checked');
 	var panel = $(this).closest('.ui-tabs-panel');
 
 	var val1 = $(panel).find('select').eq(0).val();
@@ -59,11 +66,18 @@ function select() {
 	var content2 = tabs.getEditor(tab2).getValue();
 
 	//show diff
-	//remove markers
 	var container = $(panel).find('div.editor')[0];
 	var editor = ace.edit(container);
+	editor.$blockScrolling = Infinity;
 	var session = editor.getSession();
+	
+	//remove markers
 	var markers = session.getMarkers();
+	for (var i in markers) {
+		if (markers.hasOwnProperty(i)) {
+			session.removeMarker(i);
+		}
+	}
 
 	/*
 	//set mode
@@ -73,11 +87,6 @@ function select() {
 	var mode = modes.find(ext);
 
 	session.setMode("ace/mode/" + mode);
-	for (var i in markers) {
-		if (markers.hasOwnProperty(i)) {
-			session.removeMarker(i);
-		}
-	}
 	*/
 
 	// don't diff big files or the browser will crash
@@ -92,13 +101,34 @@ function select() {
 		var end = {};
 		var className = '';
 		var firstDiff = true;
-
+		
+		var lineCount = 0;
+		var lineNum = 0;
+		lineNumbers = [];
 		for (i=0; i < diff.length; i++) {
+			lineCount = diff[i].value.split(/\r\n|\r|\n/).length;
+			
+			if (i<diff.length-1) {
+				lineCount--;
+			}
+			
+			for (j=0; j<lineCount; j++) {
+				if( !diff[i].removed ){
+					lineNum += 1;
+				}
+				lineNumbers.push(lineNum);
+			}
+				
 			diffContent += diff[i].value;
 		}
+		
 		editor.setValue(diffContent);
 		editor.moveCursorToPosition({column:0, row:0});
 
+		var foldStart = 0;
+		var foldEnd = 0;
+		var lastRow = 0; // last diff row
+		var diffPadding = 3; // 3 lines of padding
 		for (i=0; i < diff.length; i++) {
 			if( diff[i].added || diff[i].removed ){
 				start = session.getDocument().indexToPosition(index);
@@ -115,15 +145,27 @@ function select() {
 				if( className ){
 					session.addMarker(new range(start.row, start.column, end.row, end.column), "ace_"+className, 'text');
 				}
+				
+				// fold rows before
+				foldEnd = start.row - diffPadding;
+				if (autofold && foldEnd > foldStart) {
+					session.addFold("...", new range(foldStart, 0, foldEnd, 0));
+				}
+				foldStart = end.row + diffPadding;
 
-				//scroll to first marker
+				// scroll to first marker
 				if( firstDiff ){
 					editor.scrollToRow(start.row-5);
 					firstDiff = false;
 				}
 			}
-
 			index += diff[i].value.length;
+		}
+		
+		// final fold
+		foldEnd = session.getLength();					
+		if (autofold && foldEnd > foldStart) {
+			session.addFold("...", new range(foldStart, 0, foldEnd, 0));
 		}
 	}else{
 		editor.setValue(content1);

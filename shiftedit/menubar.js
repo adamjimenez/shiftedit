@@ -207,7 +207,7 @@ function init () {
 					tabs.open();
 				}
 			}, {
-				text: makeMenuText(lang.open + ' site', 'Ctrl+Shift+O'),
+				text: makeMenuText(lang.open + ' Site', 'Ctrl+Shift+O'),
 				handler: function () {
 					setTimeout(function() { site.focus(); }, 0);
 				}
@@ -285,7 +285,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'revisionHistory',
-				text: lang.revisionHistoryText,
+				text: makeMenuText(lang.revisionHistoryText + '...', 'Ctrl+Alt+Shift+H'),
 				disabled: true,
 				target: 'file'
 			},/*
@@ -591,7 +591,7 @@ function init () {
 				}
 			}, {
 				id: 'toggleTreeView',
-				text: 'Toggle Tree View',
+				text: makeMenuText('Toggle Tree View', 'Ctrl+\\'),
 				handler: function (item, checked) {
 					tree.toggle();
 				}
@@ -676,6 +676,15 @@ function init () {
 							</td>\
 							<td>\
 								<a href="https://raw.github.com/stubbornella/csslint/master/LICENSE" target="_blank">License</a>\
+							</td>\
+						</tr>\
+						</tr>\
+						<tr>\
+							<td>\
+								<a href="https://diff2html.rtfpessoa.xyz/" target="_blank">Diff2HTML</a>\
+							</td>\
+							<td>\
+								<a href="https://raw.githubusercontent.com/rtfpessoa/diff2html/master/LICENSE" target="_blank">License</a>\
 							</td>\
 						</tr>\
 						<tr>\

@@ -1,4 +1,4 @@
-define(['app/config', 'ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'ace/ext/language_tools', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace'], function (config, ace, tabs, exports, preferences) {
+define(['app/config', 'ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'app/resize', 'ace/ext/language_tools', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace'], function (config, ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -15,6 +15,7 @@ var firebase = require('app/firebase');
 var Firepad = require('firepad/firepad');
 var find = require('app/find');
 var storage = require('app/storage');
+var resize = require('app/resize');
 var beautify = require('beautify');
 var css_beautify = require('beautify-css');
 var html_beautify = require('beautify-html');
@@ -416,6 +417,22 @@ function addFirepad(tab) {
 	}, tab));
 }
 
+fullscreen = function () {
+	var editor = tabs.getEditor(this);
+	var editorDiv = $(editor.container);
+	
+	if (!editorDiv.hasClass('fullscreen')) {
+		editorDiv.addClass('fullscreen');
+		$('body').addClass('fullscreen');
+	} else {
+		editorDiv.removeClass('fullscreen');
+		$('body').removeClass('fullscreen');
+	}
+	
+	editor.focus();
+	resize.resize();
+};
+
 _autoIndentOnPaste = function(editor, noidea, e) {
 	var session = editor.getSession();
 	var pos = editor.getSelectionRange().start;
@@ -620,8 +637,6 @@ function create(file, content, siteId, options) {
 	tab.data(file, file);
 	tab.attr('data-file', file);
 
-	tabs.setTitle(tab, title);
-
 	tab.data('view', 'code');
 	tab.attr('data-view', 'code');
 
@@ -629,7 +644,10 @@ function create(file, content, siteId, options) {
 		tab.data('site', siteId);
 		tab.attr('data-site', siteId);
 		settings = site.getSettings(siteId);
+		title = settings.name + '/' + title;
 	}
+	
+	tabs.setTitle(tab, title);
 
 	if(options.mdate) {
 		tab.data('mdate', options.mdate);
@@ -709,7 +727,9 @@ function create(file, content, siteId, options) {
 		}
 	}else{
 		//if no firepad:
-		editor.getSession().getDocument().setValue(content);
+		if (content !== null) {
+			editor.getSession().getDocument().setValue(content);
+		}
 
 		ready(tab);
 
@@ -1097,6 +1117,9 @@ function create(file, content, siteId, options) {
 	$(tab).trigger('activate');
 
 	$(tab).closest('.ui-tabs').trigger('open');
+	
+	$('<div class="fullscreenBtn" title="Full Screen (Ctrl+Shift+F)"><i class="fa fa-expand"></i></div>').appendTo($(editor.container))
+	.click(jQuery.proxy(fullscreen, tab));
 
 	return $(tab);
 }

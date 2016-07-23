@@ -60,6 +60,9 @@ define(["jquery.menubar"], function () {
 								}
 
 								jQuery.proxy(menu[i].handler, item, context, checkbox.prop("checked"))();
+								
+								// prevent hash change
+								return false;
 							};
 						}(i, item, context))
 					);
