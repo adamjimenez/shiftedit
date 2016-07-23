@@ -64,6 +64,7 @@ defaultPrefs.numberPicker = true;
 defaultPrefs.zen = true;
 defaultPrefs.behaviours = true;
 defaultPrefs.scrollPastEnd = true;
+defaultPrefs.sshPane = 'east';
 defaultPrefs.syntaxErrors = true;
 defaultPrefs.filePanelWidth = 250;
 defaultPrefs.designModeWarning = true;
@@ -913,7 +914,7 @@ function open(tabpanel) {
 
 	//check if already open
 	var tab = $('li[data-type=prefs]');
-	var panel = 'east';
+	var paneName = 'east';
 	var minWidth = 300;
 
 	if(tab.length) {
@@ -922,12 +923,12 @@ function open(tabpanel) {
 
 		//get nearest panel
 		var pane = tab.closest('.ui-layout-pane');
-		panel = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
+		paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 
 		//expand panel
-		myLayout.open(panel);
+		myLayout.open(paneName);
 		if (pane.outerWidth() < minWidth) {
-			myLayout.sizePane(panel, minWidth);
+			myLayout.sizePane(paneName, minWidth);
 		}
 
 		return;
@@ -936,9 +937,9 @@ function open(tabpanel) {
 	if (!tabpanel) {
 		tabpanel = '.ui-layout-east';
 		//expand east panel
-		myLayout.open(panel);
+		myLayout.open(paneName);
 		if(myLayout.panes.east.outerWidth() < minWidth) {
-			myLayout.sizePane(panel, minWidth);
+			myLayout.sizePane(paneName, minWidth);
 		}
 	}
 
@@ -1074,6 +1075,21 @@ function open(tabpanel) {
 		<input type="checkbox" name="scrollPastEnd" value="1">\
 		Scroll past end\
 	</label>\
+	<h2>SSH</h2>\
+	<label>Default Pane</label>\
+	<label>\
+		<input type="radio" name="sshPane" value="center">\
+		Center\
+	</label>\
+	<label>\
+		<input type="radio" name="sshPane" value="east">\
+		East\
+	</label>\
+	<label>\
+		<input type="radio" name="sshPane" value="south">\
+		South\
+	</label>\
+	<br>\
 	<h2>Security</h2>\
 	<p>A Master Password is used to protect your passwords.</p>\
 	<label>\

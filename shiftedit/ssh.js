@@ -1,4 +1,4 @@
-define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/storage', 'xterm.js/src/xterm', 'jquery'], function (config, tabs, prompt, lang, loading, site, storage, Terminal) {
+define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/prefs', 'app/layout', 'app/storage', 'xterm.js/src/xterm', 'jquery'], function (config, tabs, prompt, lang, loading, site, preferences, layout, storage, Terminal) {
 
 lang = lang.lang;
 
@@ -407,7 +407,9 @@ function open(tabpanel){
 }
 
 function connect(cwd) {
-	var tabpanel = $('.ui-layout-center');
+	var prefs = preferences.get_prefs();
+	var paneName = prefs.sshPane;
+	var tabpanel = $('.ui-layout-'+paneName);
 	var tab = create(tabpanel);
 	var settings = site.getSettings(site.active());
 	
@@ -425,6 +427,13 @@ function connect(cwd) {
 	console.log('username: '+username);
 	console.log('port: '+settings.port);
 	new_session(tab, settings.domain, username, settings.port, cwd);
+	
+	var minWidth = 300;
+	var myLayout = layout.get();
+	myLayout.open(paneName);
+	if(myLayout.panes[paneName].outerWidth() < minWidth) {
+		myLayout.sizePane(paneName, minWidth);
+	}
 }
 
 $('body').on('click','.newTab .ssh', function(){
