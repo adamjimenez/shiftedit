@@ -452,11 +452,11 @@ div.fullscreen{
 	width: 100px;
 }
 
-#siteSettings .ui-checkboxradio-label{
+#hosted_container .ui-checkboxradio-label, #stack_container .ui-checkboxradio-label{
 	background: #ccc;
 }
 
-#siteSettings .ui-checkboxradio-checked {
+#hosted_container .ui-checkboxradio-checked, #stack_container .ui-checkboxradio-checked{
 	background: #fff;
 }
 
@@ -884,7 +884,7 @@ div.fullscreen{
 	display: block;
 }
 
-#sitebar .custom-combobox-input{
+#sitebar .custom-combobox-input, #git_url_bar .custom-combobox-input{
 	width: calc(100% - 50px);
 }
 
