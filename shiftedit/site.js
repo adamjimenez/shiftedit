@@ -747,7 +747,8 @@ function updateCategory(newSite) {
 			'pass_container',
 			'dir_container',
 			'web_url',
-			'connectBtn'
+			'connectBtn',
+			'encryption'
 		],
 		'WebDAV': [
 			'host_container',
@@ -1358,7 +1359,11 @@ function edit(newSite, duplicate) {
 					<div id="host_container">\
 						<p>\
 							<label for="name">Host:</label>\
-							<input type="text" id="domain" name="domain" value="" class="text ui-widget-content ui-corner-all" required>\
+							<select id="encryption" name="encryption">\
+								<option value="0">http://</option>\
+								<option value="1">https://</option>\
+							</select>\
+							<input type="text" id="domain" name="domain" value="" class="text ui-widget-content ui-corner-all">\
 							<span id="portContainer">\
 								<label for="name">Port:</label>\
 								<input type="number" name="port" value="" class="text ui-widget-content ui-corner-all">\
