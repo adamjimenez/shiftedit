@@ -6,8 +6,19 @@ var isLoading = false;
 var timer;
 var abortCallback;
 var overlay;
+var ajax;
+var giveWay = false;
 
 function start(action, abortFunction, modal) {
+	if (giveWay) {
+		if (ajax) {
+			console.log('aborting last request to give way');
+			ajax.abort();
+		}
+		isLoading = false;
+		giveWay = false;
+	}
+	
 	if (isLoading) {
 		console.warn(lang.ftpBusyText, lang.waitForFtpText);
 		return false;
@@ -43,6 +54,7 @@ function start(action, abortFunction, modal) {
 
 function stop(animate) {
 	isLoading = false;
+	giveWay = false;
 	
 	if (overlay) {
 		overlay.remove();
@@ -107,6 +119,10 @@ function fetch(url, options) {
 		data: options.data
 	});
 	
+	if (options.giveWay) {
+		giveWay = true;
+	}
+		
 	ajax.then(function (data) {
 		stop();
 
