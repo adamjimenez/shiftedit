@@ -112,13 +112,13 @@ function init() {
 					title: 'Delete site',
 					msg: 'Are you sure?',
 					fn: function(value) {
-					   switch(value) {
+						switch(value) {
 							case 'yes':
 								$(me).trigger('click', [true]);
 								return;
 							default:
 								return false;
-					   }
+						}
 					}
 				});
 				return;
@@ -409,7 +409,10 @@ function open(siteId, options) {
 		return;
 	}
 
+	var refresh_icon = $( "#refresh_site" ).children('i').addClass('fa-spin');
 	function openCallback() {
+		refresh_icon.removeClass('fa-spin');
+		
 		$('#tree-container').show();
 
 		//highlight active tabs
@@ -458,13 +461,14 @@ function open(siteId, options) {
 	});
 	
 	ajax.then(function (data) {
+		refresh_icon.removeClass('fa-spin');
 		loading.stop();
 		//console.log(data);
 
 		if(data.success){
 			console.log('connected');
 			
-	   		definitions[siteId] = data.definitions;
+			definitions[siteId] = data.definitions;
 
 			//load file tree
 			var ajaxOptions = getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
@@ -513,6 +517,7 @@ function open(siteId, options) {
 			}
 		}
 	}).fail(function() {
+		refresh_icon.removeClass('fa-spin');
 		loading.stop();
 		if (!manuallyAborted) {
 			prompt.alert({title:lang.failedText, msg:'Error opening site'});
@@ -620,7 +625,6 @@ function load(options) {
 				if (options && options.callback)
 					options.callback();
 			}
-
 			return sites;
 		});
 }
