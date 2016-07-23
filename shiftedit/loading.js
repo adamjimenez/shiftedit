@@ -106,10 +106,9 @@ function fetch(url, options) {
 
 	options = $.extend({}, defaults, options);
 
-	var ajax;
 	if (!start(options.action, function(){
 		ajax.abort();
-	})) {
+	}), options.modal) {
 		return;
 	}
 
