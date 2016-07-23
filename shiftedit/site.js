@@ -661,8 +661,8 @@ function updateCategory(newSite) {
 		's3_public',
 		's3info',
 		'gdrivelimited',
-		'testSiteButton',
-		'connectBtn'
+		'connectBtn',
+		'encryption'
 	];
 
 	categories = {
@@ -675,7 +675,6 @@ function updateCategory(newSite) {
 			'dir_container',
 			'web_url',
 			'turbo_mode_container',
-			'testSiteButton',
 			'connectBtn'
 		],
 		'SFTP': [
@@ -1379,7 +1378,7 @@ function edit(newSite, duplicate) {
 					</p>\
 					<p id="ftp_user_container">\
 						<label for="name">Username:</label>\
-						<input type="text" id="ftp_user" name="ftp_user" value="" class="text ui-widget-content ui-corner-all" required>\
+						<input type="text" id="ftp_user" name="ftp_user" value="" class="text ui-widget-content ui-corner-all">\
 					</p>\
 					<p id="pass_container">\
 						<label for="name">Password:</label>\
@@ -1620,6 +1619,89 @@ function edit(newSite, duplicate) {
 	if (settings.logon_type=='key') {
 		$('#logon_key').click();
 	}
+	
+	// validation
+	$('#siteSettings input, #siteSettings input').on('change keyup input', function() {
+		var required = {
+			'FTP': [
+				'name',
+				'domain',
+				'ftp_user'
+			],
+			'SFTP': [
+				'name',
+				'domain',
+				'ftp_user'
+			],
+			'Hosted': [
+				'name',
+				'provider'
+			],
+			'AWS': [
+				'name',
+				'stack',
+				'ftp_user',
+				'ftp_pass'
+			],
+			'Linode': [
+				'name',
+				'stack',
+				'ftp_pass'
+			],
+			'Cloud': [
+				'cloud',
+			],
+			'Dropbox': [
+				'name'
+			],
+			'GDrive': [
+				'name'
+			],
+			'AmazonS3': [
+				'name',
+				'ftp_user',
+				'ftp_pass'
+			],
+			'AJAX': [
+				'name',
+				'domain'
+			],
+			'WebDAV': [
+				'name'
+			]
+		};
+		
+		var server_type = $('input[name=server_type]').val();
+		var valid = true;
+		if(required[server_type]) {
+			$.each(required[server_type], function( index, value ) {
+				var field = $('[name='+value+']');
+				switch(field.attr('type')){
+					case 'checkbox':
+					case 'radio':
+						if (field.is(':checked') === false) {
+							valid = false;
+							return false;
+						}
+					break;
+					default:
+						if (field.val() === '') {
+							valid = false;
+							return false;
+						}
+					break;
+				}
+			});
+		}
+		
+		if (valid) {
+			$('#saveBtn').button( "option", "disabled", false );
+			$('#connectBtn').button( "option", "disabled", false );
+		} else {
+			$('#saveBtn').button( "option", "disabled", true );
+			$('#connectBtn').button( "option", "disabled", true );
+		}
+	});
 
 	//open dialog
 	var dialog = $( "#dialog-site" ).dialog({
@@ -1631,9 +1713,15 @@ function edit(newSite, duplicate) {
 			Connect: {
 				text: "Connect",
 				id: "connectBtn",
-				click: test
+				click: test,
+				disabled: newSite
 			},
-			Save: save
+			Save: {
+				text: "Save",
+				id: "saveBtn",
+				click: save,
+				disabled: newSite
+			}
 		},
 		width: 560,
 		minWidth: 560,
