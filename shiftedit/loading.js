@@ -23,30 +23,33 @@ function start(action, abortFunction, modal) {
 		console.warn(lang.ftpBusyText, lang.waitForFtpText);
 		return false;
 	} else {
-		console.log(action);
-		
-		if (modal) {
-			overlay = $( "<div>" )
-			.appendTo( 'body' )
-			.addClass( "ui-widget-overlay ui-front" )
-			.css( "z-index", 100001 );
+		if (action !== false) {
+			console.log(action);
+			if (modal) {
+				overlay = $( "<div>" )
+				.appendTo( 'body' )
+				.addClass( "ui-widget-overlay ui-front" )
+				.css( "z-index", 100001 );
+			}
+			
+			isLoading = true;
+			if (!action) {
+				action = 'Loading';
+			}
+			if (!$('#serverProgress').length) {
+				$('body').append('<div id="serverProgress"></div>');
+			}
+	
+			serverProgress = $('#serverProgress');
+			serverProgress.html('<strong class="ui-state-highlight">' + action + '&nbsp;&nbsp; <a href="#" class="abort">cancel</a></strong>');
+			serverProgress.show();
+			timer = setInterval(title, 1000);
+	
+			abortCallback = abortFunction;
+			$('#serverProgress .abort').click(abort);
+		} else {
+			console.log('Loading');
 		}
-
-		isLoading = true;
-		if (!action) {
-			action = 'Loading';
-		}
-		if (!$('#serverProgress').length) {
-			$('body').append('<div id="serverProgress"></div>');
-		}
-
-		serverProgress = $('#serverProgress');
-		serverProgress.html('<strong class="ui-state-highlight">' + action + '&nbsp;&nbsp; <a href="#" class="abort">cancel</a></strong>');
-		serverProgress.show();
-		timer = setInterval(title, 1000);
-
-		abortCallback = abortFunction;
-		$('#serverProgress .abort').click(abort);
 
 		return true;
 	}
