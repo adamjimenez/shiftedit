@@ -1178,30 +1178,64 @@ function save() {
 			}
 			*/
 			
-			if (!data.site) {
+			var siteId = data.site;
+			if (!siteId) {
 				console.log('no site id');
 				return false;
 			}
 			
-			$('#siteSettings [name=id]').val(data.site);
+			$('#siteSettings [name=id]').val(siteId);
 			
 			var finish = function() {
-				currentSite = data.site;
+				currentSite = siteId;
 				load();
 	
 				$( "#dialog-site" ).dialog( "close" );
 				$( "#dialog-site" ).remove();
 			};
 			
+			var status = '';
+			var ajax;
+			var check_status = function() {
+				ajax = $.ajax({
+					url: config.apiBaseUrl+'sites?cmd=get_status&site='+siteId,
+					method: 'GET',
+					dataType: 'json',
+					data: {
+						status: status
+					}
+				}).then(function (data) {
+					loading.stop();
+					
+					if(data.success) {
+						status = data.status;
+						
+						if (status==='ready') {
+							finish();
+						} else {
+							check_status();
+						}
+					} else {
+						prompt.alert({title:'Error', msg:data.error});
+						return;
+					}
+				});
+				
+				loading.start(status, function(){
+					console.log('abort site status');
+					ajax.abort();
+				}, true);
+			};
+			
 			if (wait) {
-				var source = new EventSource(config.apiBaseUrl+'sites?cmd=create&site='+data.site, {withCredentials: true});
+				var source = new EventSource(config.apiBaseUrl+'sites?cmd=create&site='+siteId, {withCredentials: true});
 				var abortFunction = function(){
 					if( source ){
 						source.close();
 					}
 				};
 			
-				var ready = false;
+				var stopLoading = true;
 				source.addEventListener('message', function(event) {
 					var result = JSON.parse(event.data);
 					var msg = result.msg;
@@ -1210,8 +1244,11 @@ function save() {
 					
 					if (msg.substr(0, 6)==='Error:') {
 						prompt.alert({title:'Error', msg: msg});
+					} else if (msg==='waiting for server') {
+						stopLoading = false;
+						check_status();
 					} else if (msg==='ready') {
-						ready = true;
+						stopLoading = false;
 						finish();
 					} else {
 						loading.start(msg, abortFunction, true);
@@ -1219,7 +1256,7 @@ function save() {
 				}, false);
 			
 				source.addEventListener('error', function(event) {
-					if (!ready) {
+					if (stopLoading) {
 						loading.stop(false);
 					}
 					if (event.eventPhase == 2) { //EventSource.CLOSED
