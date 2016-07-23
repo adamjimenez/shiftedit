@@ -115,8 +115,9 @@ function init() {
 	
 	$("#gitHistory").basicMenu({
 		select: function (event, ui) {
+			var title = $(ui.item).find('.subject').text();
 			if ($(ui.item).data('diff')) {
-				show($(ui.item).data('diff'));
+				show(title, $(ui.item).data('diff'));
 			} else {
 				var hash = $(ui.item).data('hash');
 				var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
@@ -125,7 +126,7 @@ function init() {
 					success: function(data) {
 						if (data.success) {
 							$(ui.item).data('diff', data.result);
-							show($(ui.item).data('diff'));
+							show(title, $(ui.item).data('diff'));
 						} else {
 							prompt.alert({title:'Error', msg:data.error});
 						}
@@ -137,8 +138,9 @@ function init() {
 	
 	$("#gitChanges").basicMenu({
 		select: function (event, ui) {
+			var title = $(ui.item).text();
 			if ($(ui.item).data('diff')) {
-				show($(ui.item).data('diff'));
+				show(title, $(ui.item).data('diff'));
 			} else {
 				var path = $(ui.item).data('path');
 				var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
@@ -147,7 +149,7 @@ function init() {
 					success: function(data) {
 						if (data.success) {
 							$(ui.item).data('diff', data.result);
-							show($(ui.item).data('diff'));
+							show(title, $(ui.item).data('diff'));
 						} else {
 							prompt.alert({title:'Error', msg:data.error});
 						}
@@ -233,7 +235,7 @@ function init() {
 	});
 }
 
-function show(result) {
+function show(title, result) {
 	// check for tab or create it
 	
 	// add result to tab
@@ -260,18 +262,17 @@ function show(result) {
 		tab.attr('data-type', 'git');
 	}
 	
-	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	tab.children('.ui-tabs-anchor').attr('title', title);
+	tab.children('.ui-tabs-anchor').contents().last().replaceWith(title);
 	
-	console.log(result);
-    var diff2htmlUi = new Diff2HtmlUI({diff: result});
+	var diff2htmlUi = new Diff2HtmlUI({diff: result});
 
-    diff2htmlUi.draw('#gitDiff', {
-        inputFormat: 'json', //diff
-        showFiles: true,
-        matching: 'lines'
-    });
-    //diff2htmlUi.fileListCloseable('#gitDiff', false);
-    //diff2htmlUi.highlightCode('#gitDiff');
+	diff2htmlUi.draw('#gitDiff', {
+		inputFormat: 'json', //diff
+		//showFiles: true,
+		matching: 'lines'
+	});
+	//diff2htmlUi.highlightCode('#gitDiff');
 }
 
 function refresh() {
@@ -298,7 +299,8 @@ function gitLog() {
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
 	
 	loading.fetch(ajaxOptions.url+'&cmd=git_info', {
-		action: 'getting git info',
+		giveWay: true,
+		action: false,
 		success: function(data) {
 			// branches
 			$( "#gitBranch" ).children('option').remove();
@@ -320,7 +322,7 @@ function gitLog() {
 			// history
 			$( "#gitHistory" ).children().remove();
 			$.each(data.commits, function( index, item ) {
-				$( '<li><a href="#">' + item.subject + '<br><span class="date">' + item.date + '</span> by <span class="author">' + item.author + '</span></a></li>' ).appendTo( "#gitHistory" )
+				$( '<li><a href="#"><span class="subject">' + item.subject + '</span><br><span class="date">' + item.date + '</span> by <span class="author">' + item.author + '</span></a></li>' ).appendTo( "#gitHistory" )
 				.attr('data-hash', item.hash);
 			});
 			
