@@ -121,7 +121,11 @@ function fetch(url, options) {
 		}
 	}).fail(function() {
 		stop();
-		prompt.alert({title:lang.failedText, msg:'Error '+options.action});
+		if (options.error) {
+			options.error('Error '+options.action);
+		} else {
+			prompt.alert({title:lang.failedText, msg:'Error '+options.action});
+		}
 	});
 }
 
