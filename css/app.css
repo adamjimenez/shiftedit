@@ -888,6 +888,15 @@ div.fullscreen{
 	width: calc(100% - 50px);
 }
 
+#git_url_bar .custom-combobox{
+	width: 100%;
+}
+
+#git_container a{
+	display: inline-block;
+	padding: 1em;
+}
+
 .jstree-default .jstree-clicked{
 	background: none;
 }
@@ -958,6 +967,17 @@ div.fullscreen{
 	display: block;
 	width: calc(100% - 20px);
 	margin: 10px;
+}
+
+.d2h-file-list-title {
+	font-weight: bold;
+	padding: 1em;
+	padding-bottom: 0;
+	display: block;
+}
+
+.d2h-wrapper {
+	color: #000;
 }
 
 /* splashscreen */
