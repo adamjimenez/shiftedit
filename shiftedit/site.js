@@ -1538,6 +1538,9 @@ function edit(newSite, duplicate) {
 					if (settings[i]==1)
 						field.prop('checked', true);
 				break;
+				case 'radio':
+					field.filter('[value="'+settings[i]+'"]').prop('checked', true);
+				break;
 				default:
 					field.val(settings[i]);
 				break;
@@ -1629,7 +1632,7 @@ function edit(newSite, duplicate) {
 		loadRepos($( "#git_url_select" ).val());
 	});
 
-	$( "#showPassword, #showDbPassword" ).button().click(function(){
+	$( "#showPassword, #showDbPassword" ).button().click(function() {
 		var input = ($( this ).prev());
 		if(input.attr('type')==='text') {
 			input.attr('type', 'password');
@@ -1658,7 +1661,7 @@ function edit(newSite, duplicate) {
 
 	updateCategory(newSite);
 	
-	if (settings.logon_type=='key') {
+	if (settings.logon_type==='key') {
 		$('#logon_key').click();
 	}
 	
