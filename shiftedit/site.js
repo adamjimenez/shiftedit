@@ -568,8 +568,11 @@ function loadUsers() {
 }
 
 function loadRepos(val) {
+	var refresh_icon = $( "#refresh_repos" ).children('i').addClass('fa-spin');
+	
 	return $.getJSON(config.apiBaseUrl+'repos')
 		.then(function (data) {
+			refresh_icon.removeClass('fa-spin');
 			var repos = data.repos;
 
 			$( "#git_url_select" ).children('option').remove();
@@ -582,8 +585,10 @@ function loadRepos(val) {
 				$( "#git_url_select" ).append( '<option value="'+val+'">'+val+'</option>' );
 				$( "#git_url_select" ).val(val).change();
 			}
-
+			
 			return repos;
+		}).fail(function() {
+			refresh_icon.removeClass('fa-spin');
 		});
 }
 
@@ -1312,7 +1317,11 @@ function edit(newSite, duplicate) {
 						<p>\
 							<label for="name">Git URL:</label>\
 							<input type="hidden" id="git_url" name="git_url">\
-							<select id="git_url_select" name="git_url_select" class="text ui-widget-content ui-corner-all" required></select>\
+							<span id="git_url_bar" class="flex">\
+								<select id="git_url_select" name="git_url_select" class="text ui-widget-content ui-corner-all" required></select>\
+							</span>\
+							<button type="button" id="refresh_repos"><i class="fa fa-refresh"></i></button>\
+							<a href="https://shiftedit.net/account/services" target="_blank">Sources</a>\
 						</p>\
 					</div>\
 					\
@@ -1570,6 +1579,10 @@ function edit(newSite, duplicate) {
 		}
 	});
 	loadRepos(settings.git_url);
+	
+	$( "#refresh_repos" ).button().click(function() {
+		loadRepos($( "#git_url_select" ).val());
+	});
 
 	$( "#showPassword, #showDbPassword" ).button().click(function(){
 		var input = ($( this ).prev());
