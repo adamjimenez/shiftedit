@@ -1586,6 +1586,20 @@ function init() {
 			fn: function(btn) {
 				switch(btn){
 					case 'yes':
+						var selected = inst.get_selected();
+						queue = [];
+						selected.forEach(function(file) {
+							var newname = util.basename(file);
+							if(data.parent!=='#root') {
+								newname = data.parent + '/' + newname;
+							}
+							
+							queue.push({
+								oldname: file,
+								newname: newname
+							});
+						});
+						
 						doMove();
 					break;
 					default:
@@ -1596,22 +1610,20 @@ function init() {
 		});
 
 		function doMove() {
-			function moveCallback() {
-				//data.instance.load_node(data.parent);
+			if (queue.length) {
+				item = queue.shift();
+			} else {
 				data.instance.refresh();
+				return;
 			}
 
 			var parent = inst.get_node(data.parent);
 			if (treeFn) {
-				treeFn({cmd: 'rename', file: data.node.id, newname: data.node.text, parent: parent.id, callback: moveCallback});
+				treeFn({cmd: 'rename', file: item.oldname, newname: item.newname, parent: parent.id, callback: doMove});
 			}else{
 				var params = util.clone(ajaxOptions.params);
-				params.oldname = data.node.id;
-				params.newname = util.basename(data.node.id);
-				if(data.parent!=='#root') {
-					params.newname = data.parent + '/' + params.newname;
-				}
-
+				params.oldname = item.oldname;
+				params.newname = item.newname;
 				params.site = ajaxOptions.site;
 
 				$.ajax(ajaxOptions.url+'&cmd=rename', {
@@ -1622,8 +1634,9 @@ function init() {
 						withCredentials: true
 					}
 				})
-				.done(moveCallback)
+				.done(doMove)
 				.fail(function () {
+					queue = [];
 					data.instance.refresh();
 				});
 			}
