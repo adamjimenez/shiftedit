@@ -649,8 +649,6 @@ function setEdited(tab, edited) {
 }
 
 function setTitle(tab, title) {
-	//tab.data('file', file);
-	//tab.attr('data-file', file);
 	tab.data('title', title);
 	tab.attr('data-title', title);
 	tab.children('.ui-tabs-anchor').attr('title', title);
@@ -863,14 +861,17 @@ function tabActivate(tab) {
 }
 
 function updateTabs(e, params) {
-	var tab = $('.ui-layout-center li[data-file="'+params.oldname+'"][data-site="'+params.site+'"]');
+	var tab = $('li[data-file="'+params.oldname+'"][data-site="'+params.site+'"]');
 	if(tab.length){
 		tab = $(tab);
 		
-		var title = params.newname;
+		var file = params.newname;
+		tab.data('file', file);
+		tab.attr('data-file', file);
 		
+		var title = file;
 		if (params.site) {
-			settings = site.getSettings(siteId);
+			settings = site.getSettings(params.site);
 			title = settings.name + '/' + title;
 		}
 		
