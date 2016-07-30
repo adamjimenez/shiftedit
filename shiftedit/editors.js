@@ -691,14 +691,10 @@ function create(file, content, siteId, options) {
 
 	//syntax bar handlers
 	panel.find('.previous').button()
-	.click(function() {
-		jQuery.proxy(syntax_errors.previous, tab);
-	});
+	.click(jQuery.proxy(syntax_errors.previous, tab));
 
 	panel.find('.next').button()
-	.click(function() {
-		jQuery.proxy(syntax_errors.next, tab);
-	});
+	.click(jQuery.proxy(syntax_errors.next, tab));
 
 	//set mode
 	var ext = util.fileExtension(file);

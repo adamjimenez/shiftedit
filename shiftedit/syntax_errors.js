@@ -63,8 +63,8 @@ function update() {
 	var editor = tabs.getEditor(tab);
 	var session = editor.getSession();
 
-	//FIXME tab can be in any panel
-	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	// reset current error
+	var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
 	var editor_status = $(panel).find('.editor_status');
 	$(editor_status).attr('data-currentError', 0);
 
@@ -73,7 +73,7 @@ function update() {
 	if (!errors.length) {
 		$(panel).find('.status').html(lang.noSyntaxErrorsText);
 		$('.editor_status').removeClass('ui-state-highlight');
-		$('.editor_status').find('button').attr('disabled', 'disabled');
+		$('.editor_status').find('button').button('disable');
 		return;
 	}
 
@@ -87,8 +87,7 @@ function previous() {
 function next(forward) {
 	var tab = this;
 
-	//FIXME tab can be in any panel
-	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
 	var editor_status = $(panel).find('.editor_status');
 	var currentError = parseInt($(editor_status).attr('data-currentError'));
 	var nextError = forward ? currentError + 1 : currentError - 1;
@@ -103,14 +102,12 @@ function show() {
 	var editor = tabs.getEditor(tab);
 	var session = editor.getSession();
 
-	//FIXME tab can be in any panel
-	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
 	var editor_status = $(panel).find('.editor_status');
 	var errors = session.getAnnotations();
 
 	//show current error
 	var currentError = parseInt($(editor_status).attr('data-currentError'));
-
 	if(!errors[currentError]){
 		return;
 	}
@@ -132,15 +129,15 @@ function show() {
 
 	//activate buttons
 	if ((currentError+1)<errors.length) {
-		$(editor_status).find('.next').removeAttr('disabled');
+		$(editor_status).find('.next').button('enable');
 	} else {
-		$(editor_status).find('.next').attr('disabled', 'disabled');
+		$(editor_status).find('.next').button('disable');
 	}
 
 	if (currentError>0) {
-		$(editor_status).find('.previous').removeAttr('disabled');
+		$(editor_status).find('.previous').button('enable');
 	} else {
-		$(editor_status).find('.previous').attr('disabled', 'disabled');
+		$(editor_status).find('.previous').button('disable');
 	}
 }
 
@@ -148,7 +145,7 @@ function fixError () {
 	var tabs = shiftedit.app.get_tabs();
 	var tab = tabs.getActiveTab();
 
-	Ext.get('status_error_fix' + indexes[tabs.getActiveTab().id]).dom.disabled = true;
+	$('#status_error_fix' + indexes[tabs.getActiveTab().id]).attr('disabled', 'disable');
 	var editor = editors[tabs.getActiveTab().id];
 	var o = tabs.getActiveTab().errors[tabs.getActiveTab().currentError];
 
