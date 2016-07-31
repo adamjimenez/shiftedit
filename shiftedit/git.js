@@ -286,7 +286,6 @@ function show(title, result) {
 function refresh() {
 	// must have a git folder and use SFTP or a proxy
 	var settings = site.getSettings(site.active());
-	
 	if (
 		!$('#tree').jstree(true).get_node('.git') ||
 		(
@@ -294,8 +293,10 @@ function refresh() {
 			!settings.turbo 
 		)
 	) {
-		$('#gitContainer').hide();
-		$('#notAvailable').html('Git panel will appear here').show();
+		if ($("#gitContainer").css("display") !== "none") {
+			$('#gitContainer').hide();
+			$('#notAvailable').html('Git panel will appear here').show();
+		}
 		return;
 	}
 	
