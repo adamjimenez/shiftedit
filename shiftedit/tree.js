@@ -516,11 +516,11 @@ function uploadFolder() {
 			uploadFiles[i] = {path: f.webkitRelativePath};
 
 			var reader = new FileReader();
-			reader.onloadend = function (file, i) {
+			reader.onloadend = (function (file, i) {
 				return function () {
 					uploadFiles[i].content = this.result;
 				};
-			}(f, i);
+			}(f, i));
 
 			if (f.type.match('text.*')) {
 				reader.readAsText(f);
