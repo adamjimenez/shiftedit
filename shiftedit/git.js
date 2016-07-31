@@ -25,8 +25,8 @@ function init() {
 				<div id="changesContainer" class="vbox" style="display: none;">\
 					<ul id="gitChanges" class="flex"></ul>\
 					<div id="commitPanel">\
-						<input id="gitSubject" type="text" name="subject" placeholder="Summary">\
-						<textarea id="gitDescription" placeholder="Description"></textarea>\
+						<input id="gitSubject" type="text" name="subject" placeholder="Summary" class="text ui-widget-content ui-corner-all">\
+						<textarea id="gitDescription" placeholder="Description" class="text ui-widget-content ui-corner-all"></textarea>\
 						<button type="button" id="commitBtn" disabled>Commit to master</button>\
 					</div>\
 				</div>\
@@ -171,16 +171,16 @@ function init() {
 	
 	var checkCommit = function() {
 		if ($('#gitSubject').val() && $('#gitChanges input:checked').length) {
-			$('#commitBtn').removeAttr('disabled');
+			$('#commitBtn').button('enable');
 		} else {
-			$('#commitBtn').attr('disabled', 'disabled');
+			$('#commitBtn').button('disable');
 		}
 	};
 	
 	$('#gitChanges').on('change click input', 'input', checkCommit);
 	$('#gitSubject').on('change keyup input', checkCommit);
 	
-	$('#commitBtn').click(function() {
+	$('#commitBtn').button().click(function() {
 		var params = {};
 		params.subject = $('#gitSubject').val();
 		params.description = $('#gitDescription').val();
