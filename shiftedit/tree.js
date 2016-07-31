@@ -1539,7 +1539,7 @@ function init() {
 	.on('rename_node.jstree', function (e, data) {
 		if (treeFn) {
 			treeFn({cmd: 'rename', file: data.node.id, newname: data.text});
-		}else{
+		} else {
 			var params = util.clone(ajaxOptions.params);
 			params.oldname = data.node.id;
 			params.newname = data.text;
@@ -1561,12 +1561,12 @@ function init() {
 				data: params,
 				xhrFields: {
 					withCredentials: true
-				},
+				}
 			})
 			.done(function (d) {
 				if(!d.success){
 					prompt.alert({title:'Error', msg:d.error});
-				}else{
+				} else {
 					data.instance.set_id(data.node, params.newname);
 					$('#tree').trigger('rename', params);
 				}
