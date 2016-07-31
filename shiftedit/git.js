@@ -17,7 +17,7 @@ function init() {
 						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label for="historyRadio">History</label>\
 					</span>\
 				</div>\
-				<button id="gitNenuBtn"><i class="fa fa-bars"></i></button>\
+				<button id="gitMenuBtn"><i class="fa fa-bars"></i></button>\
 				<ul id="gitMenu"></ul>\
 			</div>\
 			<div id="gitContentContainer" class="vbox">\
@@ -87,7 +87,7 @@ function init() {
 
 	var menu = el.menu().hide();
 
-	$("#gitNenuBtn").button()
+	$("#gitMenuBtn").button()
 	.click(function() {
 		// Make use of the general purpose show and position operations
 		// open and place the menu where we want.
