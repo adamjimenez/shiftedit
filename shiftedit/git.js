@@ -107,10 +107,18 @@ function init() {
 		return false;
 	});
 	
+	// update on file rename / delete
+	$('#tree').on('rename delete', function(e, obj) {
+		refresh();
+	});
+	
+	// update on tree reload (extract/ move triggers a reload)
 	$('#tree').on('open_node.jstree', function(e, obj) {
 		if (obj.node.id==='#root')
 			refresh();
 	});
+	
+	// update on file save
 	$('body').on('save','.ui-tabs', refresh);
 	
 	$("#gitHistory").basicMenu({

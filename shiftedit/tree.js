@@ -1039,6 +1039,12 @@ function init() {
 											treeFn({cmd: 'delete', file: node.id, callback: callback});
 										}
 										
+										var finishDelete = function() {
+											queue = [];
+											confirmed = false;
+											$('#tree').trigger('delete');
+										};
+										
 										if (treeFn) {
 											var node;
 											var callback = function() {
@@ -1047,7 +1053,7 @@ function init() {
 													node = queue.shift();
 													doDelete(node);
 												} else {
-													confirmed = false;
+													finishDelete();
 												}
 											};
 											callback();
@@ -1099,13 +1105,13 @@ function init() {
 		
 														source.addEventListener('error', function(event) {
 															loading.stop(false);
-															confirmed = false;
-															queue = [];
 															if (event.eventPhase == 2) { //EventSource.CLOSED
 																if (source) {
 																	source.close();
 																}
 															}
+															
+															finishDelete();
 														}, false);
 													} else {
 														var file = files[0];
@@ -1117,8 +1123,7 @@ function init() {
 															prompt.alert({title:file, msg:r.error});
 														}
 														
-														queue = [];
-														confirmed = false;
+														finishDelete();
 													}
 												}
 											})
