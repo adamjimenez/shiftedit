@@ -661,8 +661,7 @@ function updateCategory(newSite) {
 		's3_public',
 		's3info',
 		'gdrivelimited',
-		'connectBtn',
-		'encryption'
+		'connectBtn'
 	];
 
 	categories = {
@@ -747,8 +746,7 @@ function updateCategory(newSite) {
 			'pass_container',
 			'dir_container',
 			'web_url',
-			'connectBtn',
-			'encryption'
+			'connectBtn'
 		],
 		'WebDAV': [
 			'host_container',
@@ -793,7 +791,7 @@ function updateCategory(newSite) {
 		domain_placeholder = 'e.g. mydomain.com';
 		domain_title = 'The address of the server, e.g:\n- ftp.mydomain.com\n- ftps://ftp.mydomain.com';
 	}else if( category==='AJAX' ){
-		domain_placeholder = 'e.g. www.mydomain.com/shiftedit-proxy.php';
+		domain_placeholder = 'e.g. localhost';
 	} else if( category==='SFTP' ){
 		domain_placeholder = 'e.g. mydomain.com';
 	} else if( category==='WebDAV' ){
@@ -996,8 +994,9 @@ function test() {
 		}
 	}
 
-	var ajaxOptions = getAjaxOptions(config.apiBaseUrl+'sites?site=');
-	var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
+	var params = util.serializeObject($('#siteSettings'));
+	var ajaxOptions = getAjaxOptions(config.apiBaseUrl+'sites?site=', params);
+	params = $.extend({}, ajaxOptions.params, params);
 	var prefs = preferences.get_prefs();
 
 	if (prefs.useMasterPassword) {
@@ -1815,17 +1814,36 @@ function getSettings(val) {
 	return util.clone(site);
 }
 
-function getAjaxOptions(ajaxUrl) {
-	var settings = getSettings();
+function getAjaxOptions(ajaxUrl, settings) {
+	if (!settings) {
+		settings = getSettings();
+	}
+	
 	var params = {};
 
 	if(settings.server_type == 'AJAX' || settings.turbo == 1) {
-		if(settings.turbo){
-			if( settings.web_url ){
-				ajaxUrl = settings.web_url+'shiftedit-proxy.php?ModPagespeed=off';
-			}else{
-				prompt.alert({title:lang.errorText, msg:'Missing website URL for proxy, edit site settings and set a website url or disable turbo option.'});
+		if( settings.web_url ){
+			ajaxUrl = settings.web_url;
+			
+			if (!util.endsWith(ajaxUrl, '/')) {
+				ajaxUrl = ajaxUrl+'/';
 			}
+			
+			ajaxUrl = ajaxUrl+'shiftedit-proxy.php?ModPagespeed=off';
+		}else{
+			prompt.alert({title:lang.errorText, msg:'Missing website URL for proxy, edit site settings and set a website url or disable turbo option.'});
+		}
+
+		if (!util.startsWith(ajaxUrl, 'http://') && !util.startsWith(ajaxUrl, 'https://')) {
+			if( settings.encryption == '1' ){
+				ajaxUrl = 'https://'+ajaxUrl;
+			}else{
+				ajaxUrl = 'http://'+ajaxUrl;
+			}
+		}
+		
+		if (settings.server_type == 'AJAX') {
+		} else if(settings.turbo){
 
 			//fixme prompt for master password
 			var prefs = preferences.get_prefs();
@@ -1835,14 +1853,6 @@ function getAjaxOptions(ajaxUrl) {
 				user: settings.ftp_user,
 				pass: util.sha1(pass)
 			};
-		}else{
-			ajaxUrl = settings.domain;
-
-			if( settings.encryption == '1' ){
-				ajaxUrl = 'https://'+ajaxUrl;
-			}else{
-				ajaxUrl = 'http://'+ajaxUrl;
-			}
 		}
 
 		if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){

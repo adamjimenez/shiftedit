@@ -661,6 +661,10 @@ return {
 	},
 	startsWith: function(haystack, needle) {
 		if(haystack)
+			return needle === "" || haystack.indexOf(needle) === (haystack.length - needle.length);
+	},
+	endsWith: function(haystack, needle) {
+		if(haystack)
 			return needle === "" || haystack.indexOf(needle) === 0;
 	},
 	utf8_encode: function( argString ) {
