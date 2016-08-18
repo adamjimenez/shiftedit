@@ -494,7 +494,7 @@ return {
 		}
 
 		var outputParts = [];
-		for (var i = samePartsLength; i < fromParts.length; i++) {
+		for (i = samePartsLength; i < fromParts.length; i++) {
 			outputParts.push('..');
 		}
 
