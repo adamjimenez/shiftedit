@@ -1043,8 +1043,14 @@ div.fullscreen{
 	right: 2px;
 }
 
-.ui-dialog {
-	z-index: 100000 !important; /*higher than tinymce*/
+
+/* tinymce dialog must be lower than jquery ui */
+.mce-fade {
+	z-index: 99 !important;
+}
+
+.mce-floatpanel {
+	z-index: 100 !important;
 }
 
 /*
