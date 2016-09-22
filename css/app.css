@@ -394,7 +394,7 @@ div.fullscreen{
 	z-index: 2;
 }
 
-#siteSettings p, #snippetForm p{
+#siteSettings p, #snippetForm p, #serverSettings p{
 	display: flex;
 	vertical-align: middle;
 	align-items: center;
@@ -413,7 +413,7 @@ div.fullscreen{
 	line-height: 16px;
 }
 
-#siteSettings label:first-child, #masterPasswordForm label:first-child, .tidy label:first-child{
+#siteSettings label:first-child, #serverSettings label:first-child, #masterPasswordForm label:first-child, .tidy label:first-child{
 	display: inline-block;
 	min-width: 110px;
 	width: 110px;

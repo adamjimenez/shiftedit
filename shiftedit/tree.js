@@ -1422,7 +1422,9 @@ function init() {
 								path += node.id;
 							}
 							
-							ssh.connect(path);
+							ssh.connect({
+								path: path
+							});
 						}
 					}
 				};

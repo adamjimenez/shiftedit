@@ -406,15 +406,22 @@ function open(tabpanel){
 	});
 }
 
-function connect(cwd) {
+function connect(options) {
+	cwd = options.path;
+	
 	var prefs = preferences.get_prefs();
 	var paneName = prefs.sshPane;
 	var tabpanel = $('.ui-layout-'+paneName);
 	var tab = create(tabpanel);
-	var settings = site.getSettings(site.active());
+	if (!options.domain) {
+		var settings = site.getSettings(site.active());
+		option.domain = settings.domain;
+		option.username = settings.ftp_user;
+		option.port = settings.port;
+	}
 	
-	var username = settings.ftp_user;
-	switch (settings.server_type) {
+	var username = options.username;
+	switch (options.server_type) {
 		case 'AWS':
 			username = 'ec2-user';
 		break;
@@ -423,10 +430,10 @@ function connect(cwd) {
 		break;
 	}
 	
-	console.log('domain: '+settings.domain);
+	console.log('domain: '+options.domain);
 	console.log('username: '+username);
-	console.log('port: '+settings.port);
-	new_session(tab, settings.domain, username, settings.port, cwd);
+	console.log('port: '+options.port);
+	new_session(tab, options.domain, username, options.port, cwd);
 	
 	var minWidth = 300;
 	var myLayout = layout.get();
@@ -445,9 +452,11 @@ $('body').on('click','.newTab .ssh', function(){
 	tabs.close(tab);
 });
 
+/*
 $('body').on('click', '#sshSite a', function(e){
 	connect();
 });
+*/
 
 return {
 	connect: connect
