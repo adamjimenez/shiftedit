@@ -1941,7 +1941,20 @@ function init() {
 	});
 
 	$('.filter').keydown(function (e) {
+		e.stopPropagation();
+		
 		var keycode = e.keyCode;
+		
+		switch(keycode) {
+			//escape
+			case 27:
+				$('.filter').val('').hide();
+				$('#tree').jstree(true).search('', true, true);
+				$('#tree').focus();
+				return;
+		}
+		
+		/*
 		var valid =
 			(keycode > 47 && keycode < 58) || // number keys
 			keycode == 32 || // spacebar
@@ -1958,6 +1971,13 @@ function init() {
 			e.target = $('#tree a.jstree-clicked')[0];
 			$('#tree a.jstree-clicked').trigger(e);
 			return false;
+		}
+		*/
+	});
+	
+	$('.filter').blur(function (e) {
+		if ($('.filter').val()==='') {
+			$('.filter').hide();
 		}
 	});
 
