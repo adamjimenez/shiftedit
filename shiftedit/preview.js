@@ -129,6 +129,12 @@ function load(tab) {
 				if(settings.web_url) {
 					url = settings.web_url+file;
 				}
+				
+				if (parseInt(settings.encryption)===1) {
+					url = 'https://' + url;
+				} else {
+					url = 'http://' + url;
+				}
 			}
 
 			if(url) {
