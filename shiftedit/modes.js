@@ -30,6 +30,7 @@ define(['app/prefs'], function (preferences) {
 		['jade', 'Jade', ['jade'], 'text/x-jade'],
 		['java', 'Java', ['java'], 'text/x-java'],
 		['jsx', 'JSX', ['jsx'], 'text/x-jsx'],
+		['julia', 'Julia', ['jl'], 'text/x-julia'],
 		['latex', 'Latex', ['latex'], 'text/x-latex'],
 		['less', 'LESS', ['less'], 'text/x-less'],
 		['liquid', 'Liquid', ['liquid'], 'text/liquid'],
