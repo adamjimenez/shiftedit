@@ -1327,7 +1327,7 @@ function edit(newSite, duplicate) {
 								<span id="server_bar" class="flex">\
 									<select id="server_select" name="server_select" class="text ui-widget-content ui-corner-all" required></select>\
 								</span>\
-								<button type="button" id="add_server">Add server</button>\
+								<button type="button" id="add_server">Servers</button>\
 								<button type="button" id="refresh_servers"><i class="fa fa-refresh"></i></button>\
 							</p>\
 						</div>\
