@@ -23,7 +23,7 @@ var html_beautify = require('beautify-html');
 //ace.config.set("packaged", true);
 //ace.config.set("basePath", require.toUrl("ace"));
 
-var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20151029';
+var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20160218';
 
 ace.config.set("modePath", acePath);
 //ace.config.set("workerPath", acePath); //disabled to fix firefox security issue
