@@ -260,8 +260,7 @@ function init () {
 					var content = editor.getValue();
 					var filename = util.basename(tab.attr('data-file'));
 					var blob = new Blob([content]);
-					var evt = document.createEvent("HTMLEvents");
-					evt.initEvent("click");
+					var evt = new MouseEvent('click');
 
 					var a = document.createElement('a');
 					a.download = filename;

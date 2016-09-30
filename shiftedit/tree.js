@@ -378,7 +378,7 @@ function downloadZip(data) {
 
 					source.close();
 
-					var evt = new Event('click');
+					var evt = new MouseEvent('click');
 					var a = document.createElement('a');
 					a.download = 1;
 					a.href = url+'&d=1';
@@ -1151,8 +1151,7 @@ function init() {
 			'force_text': true,
 			'themes': {
 				'responsive': false,
-				'variant': 'small',
-				'stripes': true
+				'variant': 'small'
 			}
 		},
 		'sort' : function(a, b) {
