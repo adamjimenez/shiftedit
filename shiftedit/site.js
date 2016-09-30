@@ -1,5 +1,5 @@
 		
-define(['exports', 'app/config', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'app/layout', 'aes', 'app/gdrive', 'app/editors'], function (exports, config) {
+define(['exports', 'app/config', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'app/layout', 'aes', 'app/gdrive', 'app/editors', 'app/servers'], function (exports, config) {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
@@ -11,6 +11,7 @@ var preferences = require('app/prefs');
 var layout = require('app/layout');
 var gdrive = require('app/gdrive');
 var editors = require('app/editors');
+var servers = require('app/servers');
 var Aes = require('aes');
 var directFn;
 var sites = [];
@@ -33,16 +34,10 @@ window.shiftedit = {};
 window.shiftedit.setSiteValues = setSiteValues;
 
 function enableMenuItems(site) {
-	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions'];
+	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite'];
 
 	if(site.db_phpmyadmin)
 		items.push('phpmyadmin');
-
-	if(['AWS', 'Linode'].indexOf(site.server_type) !== -1)
-		items.push('reboot');
-
-	if(site.logon_type == 'key')
-		items.push('sshSite');
 
 	items.forEach(function(item){
 		$('#'+item).removeClass('ui-state-disabled');
@@ -50,7 +45,7 @@ function enableMenuItems(site) {
 }
 
 function disableMenuItems() {
-	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'downloadRevisions', 'phpmyadmin', 'ssh', 'reboot'];
+	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'phpmyadmin'];
 
 	items.forEach(function(item){
 		$('#'+item).removeClass('ui-state-disabled');
@@ -152,14 +147,14 @@ function init() {
 		handler: function() {
 			//import site dialog
 			$( "body" ).append('<div id="dialog-import" title="Import site">\
-			  <form>\
-			  	<p>\
-					Import a Dreamweaver site definition or Filezilla xml file.\
-				</p>\
-				<p>\
-					<input type="file" name="file" id="importSite" class="text ui-widget-content ui-corner-all">\
-				</p>\
-			  </form>\
+				<form>\
+					<p>\
+						Import a Dreamweaver site definition or Filezilla xml file.\
+					</p>\
+					<p>\
+						<input type="file" name="file" id="importSite" class="text ui-widget-content ui-corner-all">\
+					</p>\
+				</form>\
 			</div>');
 
 			function doImport(content){
@@ -188,11 +183,11 @@ function init() {
 
 				var file = files[0];
 				var reader = new FileReader();
-				reader.onloadend = function (file) {
+				reader.onloadend = (function (file) {
 					return function () {
 						doImport(reader.result);
 					};
-				}(file);
+				}(file));
 
 				reader.readAsText(file);
 			});
@@ -225,15 +220,14 @@ function init() {
 		handler: function() {
 			//import site dialog
 			$( "body" ).append('<div id="dialog-share-site" title="Share site">\
-			  <form id="shareSiteForm">\
-				<div class="hbox">\
-					<label for="share_email">Email</label>\
-					<input id="share_email" type="text" name="email" class="flex text ui-widget-content ui-corner-all" required autofocus>\
-					<button type="submit">Add</button>\
-				</div>\
-				<div id="users">\
-				</div>\
-			  </form>\
+				<form id="shareSiteForm">\
+					<div class="hbox">\
+						<input id="share_email" type="text" name="email" placeholder="Email address" class="flex text ui-widget-content ui-corner-all" required autofocus>\
+						<button type="submit">Add</button>\
+					</div>\
+					<div id="users">\
+					</div>\
+				</form>\
 			</div>');
 
 			$('#shareSiteForm button').button();
@@ -274,14 +268,14 @@ function init() {
 			});
 		},
 		disabled: true
-	}, {
+	}, /*{
 		id: 'downloadRevisions',
 		text: 'Download revisions',
 		handler: function() {
 			window.open('_ajax/download_revisions.php?site='+currentSite);
 		},
 		disabled: true
-	}, '-', {
+	},*/ '-', {
 		id: 'phpmyadmin',
 		text: 'PhpMyAdmin',
 		handler: function() {
@@ -305,34 +299,9 @@ function init() {
 		},
 		disabled: true
 	}, '-', {
-		id: 'sshSite',
-		text: 'SSH Terminal',
-		handler: function() {},
-		disabled: true
-	}, {
-		id: 'reboot',
-		text: 'Reboot',
-		handler: function() {
-			loading.fetch(config.apiBaseUrl+'sites?cmd=reboot&site='+currentSite, {
-				action: 'Rebooting site '+site.name,
-				success: function(data) {
-				}
-			});
-		},
-		disabled: true
-	}/*, {
-		id: 'logs',
-		text: 'Server logs',
-		handler: function() {
-			loading.fetch(config.apiBaseUrl+'sites?cmd=logs&site='+currentSite, {
-				action: 'Fetching logs '+site.name,
-				success: function(data) {
-					editors.create("server.log", data.content);
-				}
-			});
-		},
-		disabled: true
-	}*/];
+		id: 'servers',
+		text: 'Servers..'
+	}];
 
 	var el = $("#siteMenu");
 	var context;
@@ -361,14 +330,14 @@ function init() {
 		// Make use of the general purpose show and position operations
 		// open and place the menu where we want.
 		menu.show().position({
-			  my: "left top",
-			  at: "left bottom",
-			  of: this
+			my: "left top",
+			at: "left bottom",
+			of: this
 		});
 
 		// Register a click outside the menu to close it
 		$( document ).on( "click", function() {
-			  menu.hide();
+			menu.hide();
 		});
 
 		// Make sure to return false here or the click registration
@@ -597,6 +566,31 @@ function loadRepos(val) {
 		});
 }
 
+function loadServers(val) {
+	//var refresh_icon = $( "#refresh_servers" ).children('i').addClass('fa-spin');
+	
+	return $.getJSON(config.apiBaseUrl+'servers')
+		.then(function (data) {
+			//refresh_icon.removeClass('fa-spin');
+			var servers = data.servers;
+
+			$( "#server_select" ).children('option').remove();
+
+			$.each(servers, function( index, item ) {
+				$( "#server_select" ).append( '<option value="'+item.id+'">'+item.name+'</option>' );
+			});
+
+			if(val) {
+				$( "#server_select" ).append( '<option value="'+val+'">'+val+'</option>' );
+				$( "#server_select" ).val(val).change();
+			}
+			
+			return servers;
+		}).fail(function() {
+			//refresh_icon.removeClass('fa-spin');
+		});
+}
+
 function load(options) {
 	return $.getJSON(config.apiBaseUrl+'sites')
 		.then(function (data) {
@@ -641,8 +635,9 @@ function updateCategory(newSite) {
 	var category = $('input[name=server_type]').val();
 
 	fields = [
-		'hosted_container',
+		'server_container',
 		'stack_container',
+		'database',
 		'git_container',
 		'cloud_container',
 		'host_container',
@@ -661,8 +656,7 @@ function updateCategory(newSite) {
 		's3_public',
 		's3info',
 		'gdrivelimited',
-		'connectBtn',
-		'encryption'
+		'connectBtn'
 	];
 
 	categories = {
@@ -722,21 +716,23 @@ function updateCategory(newSite) {
 			'web_url',
 			'connectBtn'
 		],
-		'Hosted': [
-			'hosted_container'
+		'Server': [
+			'server_container',
+			'git_container',
+			'database'
 		],
 		'AWS': [
 			'ftp_user_container',
 			'pass_container',
 			'git_url',
-			'hosted_container',
+			'server_container',
 			'stack_container',
 			'git_container'
 		],
 		'Linode': [
 			'pass_container',
 			'git_url',
-			'hosted_container',
+			'server_container',
 			'stack_container',
 			'git_container'
 		],
@@ -747,8 +743,7 @@ function updateCategory(newSite) {
 			'pass_container',
 			'dir_container',
 			'web_url',
-			'connectBtn',
-			'encryption'
+			'connectBtn'
 		],
 		'WebDAV': [
 			'host_container',
@@ -761,7 +756,7 @@ function updateCategory(newSite) {
 	};
 	
 	if (!newSite) {
-		categories.Hosted = categories.Hosted.concat(['dir_container', 'web_url']);
+		categories.Server = categories.Server.concat(['dir_container', 'web_url']);
 	}
 
 	fields.forEach(function(field){
@@ -778,7 +773,7 @@ function updateCategory(newSite) {
 		} else if( ['AJAX', 'WebDAV'].indexOf(category) !== -1 ) {
 			$('[name=serverTypeItem][value=Other]:first').prop("checked", true);
 		} else if( ['AWS', 'Linode'].indexOf(category) !== -1 ){
-			$('[name=serverTypeItem][value=Hosted]:first').prop("checked", true);
+			$('[name=serverTypeItem][value=Server]:first').prop("checked", true);
 		} else {
 			$('[name=serverTypeItem][value=' + category + ']:first').prop("checked", true);
 		}
@@ -793,7 +788,7 @@ function updateCategory(newSite) {
 		domain_placeholder = 'e.g. mydomain.com';
 		domain_title = 'The address of the server, e.g:\n- ftp.mydomain.com\n- ftps://ftp.mydomain.com';
 	}else if( category==='AJAX' ){
-		domain_placeholder = 'e.g. www.mydomain.com/shiftedit-proxy.php';
+		domain_placeholder = 'e.g. localhost';
 	} else if( category==='SFTP' ){
 		domain_placeholder = 'e.g. mydomain.com';
 	} else if( category==='WebDAV' ){
@@ -996,8 +991,9 @@ function test() {
 		}
 	}
 
-	var ajaxOptions = getAjaxOptions(config.apiBaseUrl+'sites?site=');
-	var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
+	var params = util.serializeObject($('#siteSettings'));
+	var ajaxOptions = getAjaxOptions(config.apiBaseUrl+'sites?site=', params);
+	params = $.extend({}, ajaxOptions.params, params);
 	var prefs = preferences.get_prefs();
 
 	if (prefs.useMasterPassword) {
@@ -1124,7 +1120,7 @@ function save() {
 	var ajax;
 	var duration = '';
 	var wait = false;
-	if (!params.domain && ['AWS', 'Linode'].indexOf(params.server_type) !== -1) {
+	if (['Server'].indexOf(params.server_type) !== -1) {
 		duration = ' (this may take a few minutes)';
 		wait = true;
 	}
@@ -1292,223 +1288,226 @@ function edit(newSite, duplicate) {
 
 	//create dialog BEWARE UGLY LONG STRING!
 	$( "body" ).append('<div id="dialog-site" title="Site settings">\
-	  <form id="siteSettings" autocomplete="off">\
-		<input type="hidden" name="server_type" value="">\
-		<input type="hidden" name="id" value="">\
-		<input type="hidden" name="share" value="">\
-		<div id="siteTabs">\
-			<ul>\
-				<li><a href="#tabs-site">Site</a></li>\
-				<li><a href="#tabs-database">Database</a></li>\
-				<li><a href="#tabs-advanced">Advanced</a></li>\
-			</ul>\
-			<div>\
-				<div id="tabs-site">\
-					<p>\
-						<label for="name">Name:</label>\
-						<input type="text" name="name" value="" class="text ui-widget-content ui-corner-all" required>\
-					</p>\
-					<p>\
-						<label for="name">Server type:</label>\
-						<span id="serverTypeRadio">\
-							<input type="radio" name="serverTypeItem" value="FTP" id="radio1"><label for="radio1">FTP</label>\
-							<input type="radio" name="serverTypeItem" value="SFTP" id="radio2"><label for="radio2">SFTP</label>\
-							<input type="radio" name="serverTypeItem" value="Cloud" id="radio3"><label for="radio3">Cloud Services</label>\
-							<input type="radio" name="serverTypeItem" value="Hosted" id="radio4"><label for="radio4">Hosted</label>\
-							<input type="radio" name="serverTypeItem" value="Other" id="other"><label for="other" id="otherLabel">Other</label>\
-							<ul id="otherMenu">\
-								<li><a href="#">AJAX</a></li>\
-								<li><a href="#">WebDAV</a></li>\
-							</ul>\
-						</span>\
-					</p>\
-					\
-					<div id="hosted_container">\
-						<p>Create a hosted development environment, refer to the &nbsp; <a href="https://shiftedit.net/docs/sites#hosted" target="_blank">instructions</a>. </p>\
+		<form id="siteSettings" autocomplete="off">\
+			<input type="hidden" name="server_type" value="">\
+			<input type="hidden" name="id" value="">\
+			<input type="hidden" name="share" value="">\
+			<div id="siteTabs">\
+				<ul>\
+					<li><a href="#tabs-site">Site</a></li>\
+					<li><a href="#tabs-database">Database</a></li>\
+					<li><a href="#tabs-advanced">Advanced</a></li>\
+				</ul>\
+				<div>\
+					<div id="tabs-site">\
 						<p>\
-							<label for="provider">Provider:</label>\
-							<span id="providerRadio">\
-								<input type="radio" name="provider" value="AWS" id="providerRadio1">\
-								<label for="providerRadio1">\
-									<img alt="Amazon Web Services" src="https://shiftedit.s3.amazonaws.com/images/logos/aws.svg" height="64">\
-								</label>\
-								<input type="radio" name="provider" value="Linode" id="providerRadio2">\
-								<label for="providerRadio2">\
-									<img alt="Linode" src="https://shiftedit.s3.amazonaws.com/images/logos/linode.svg" height="64">\
-								</label>\
+							<label for="name">Name:</label>\
+							<input type="text" name="name" value="" class="text ui-widget-content ui-corner-all" required>\
+						</p>\
+						<p>\
+							<label for="name">Server type:</label>\
+							<span id="serverTypeRadio">\
+								<input type="radio" name="serverTypeItem" value="FTP" id="radio1"><label for="radio1">FTP</label>\
+								<input type="radio" name="serverTypeItem" value="SFTP" id="radio2"><label for="radio2">SFTP</label>\
+								<input type="radio" name="serverTypeItem" value="Cloud" id="radio3"><label for="radio3">Cloud Services</label>\
+								<input type="radio" name="serverTypeItem" value="Server" id="radio4"><label for="radio4">Server</label>\
+								<input type="radio" name="serverTypeItem" value="Other" id="other"><label for="other" id="otherLabel">Other</label>\
+								<ul id="otherMenu">\
+									<li><a href="#">AJAX</a></li>\
+									<li><a href="#">WebDAV</a></li>\
+								</ul>\
 							</span>\
 						</p>\
-					</div>\
-					<div id="stack_container">\
-						<p>\
-							<label for="name">Stack:</label>\
-							<span id="stackRadio">\
-								<input type="radio" name="stack" value="php" id="stackRadio1">\
-								<label for="stackRadio1">\
-									<img alt="PHP" src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="64">\
-								</label>\
-								<input type="radio" name="stack" value="nodejs" id="stackRadio2">\
-								<label for="stackRadio2">\
-									<img alt="Node.js" src="https://shiftedit.s3.amazonaws.com/images/logos/nodejs.svg" height="64">\
-								</label>\
+						\
+						<div id="server_container">\
+							<p>Create a site on a development server, refer to the &nbsp; <a href="https://shiftedit.net/docs/sites#server" target="_blank">instructions</a>. </p>\
+							<p>\
+								<label for="server">Server:</label>\
+								<input type="hidden" id="server" name="server">\
+								<span id="server_bar" class="flex">\
+									<select id="server_select" name="server_select" class="text ui-widget-content ui-corner-all" required></select>\
+								</span>\
+								<button type="button" id="add_server">Servers</button>\
+								<button type="button" id="refresh_servers"><i class="fa fa-refresh"></i></button>\
+							</p>\
+						</div>\
+						\
+						<!--<div id="stack_container">\
+							<p>\
+								<label for="name">Stack:</label>\
+								<span id="stackRadio">\
+									<input type="radio" name="stack" value="php" id="stackRadio1">\
+									<label for="stackRadio1">\
+										<img alt="PHP" src="https://shiftedit.s3.amazonaws.com/images/logos/php.svg" height="64">\
+									</label>\
+									<input type="radio" name="stack" value="nodejs" id="stackRadio2">\
+									<label for="stackRadio2">\
+										<img alt="Node.js" src="https://shiftedit.s3.amazonaws.com/images/logos/nodejs.svg" height="64">\
+									</label>\
+								</span>\
+							</p>\
+						</div>-->\
+						\
+						<div id="git_container">\
+							<p>\
+								<label for="name">Git URL:</label>\
+								<input type="hidden" id="git_url" name="git_url">\
+								<span id="git_url_bar" class="flex">\
+									<select id="git_url_select" name="git_url_select" class="text ui-widget-content ui-corner-all" required></select>\
+								</span>\
+								<button type="button" id="refresh_repos"><i class="fa fa-refresh"></i></button>\
+								<a href="https://shiftedit.net/account/services" target="_blank">Sources</a>\
+							</p>\
+						</div>\
+						\
+						<p id="database">\
+							<label for="name">Create Database:</label>\
+							<input type="checkbox" name="database" value="1" class="text ui-widget-content ui-corner-all" >\
+						</p>\
+						\
+						<div id="cloud_container">\
+							<p>\
+								<label for="name">Cloud services:</label>\
+								<span id="cloudRadio">\
+									<input type="radio" name="cloud" value="Dropbox" id="cloudRadio1">\
+									<label for="cloudRadio1">\
+										<img src="https://shiftedit.s3.amazonaws.com/images/logos/dropbox.svg" height="32" width="32"><br>\
+										Dropbox\
+									</label>\
+									<input type="radio" name="cloud" value="GDrive" id="cloudRadio2">\
+									<label for="cloudRadio2">\
+										<img src="https://shiftedit.s3.amazonaws.com/images/logos/googledrive.svg" height="32" width="32"><br>\
+										Google Drive\
+									</label>\
+									<input type="radio" name="cloud" value="AmazonS3" id="cloudRadio3">\
+									<label for="cloudRadio3">\
+										<img src="https://shiftedit.s3.amazonaws.com/images/logos/amazons3.svg" height="32" width="32"><br>\
+										Amazon S3\
+									</label>\
+								</span>\
+							</p>\
+						</div>\
+						\
+						<label id="proxyfield">Use a PHP proxy file to handle connections. You will need to configure and upload the \
+						<a href="https://raw.githubusercontent.com/adamjimenez/shiftedit-ajax/master/shiftedit-proxy.php" target="_blank">proxy file</a>\
+						to your webspace.</label>\
+						\
+						<div id="host_container">\
+							<p>\
+								<label for="name">Host:</label>\
+								<input type="text" id="domain" name="domain" value="" class="text ui-widget-content ui-corner-all">\
+								<span id="portContainer">\
+									<label for="name">Port:</label>\
+									<input type="number" name="port" value="" class="text ui-widget-content ui-corner-all">\
+								</span>\
+								<span id="timeoutContainer">\
+									<label for="name">Timeout:</label>\
+									<input type="number" name="timeout" value="" class="text ui-widget-content ui-corner-all" required>\
+								</span>\
+							</p>\
+						</div>\
+						<p id="authentication_container">\
+							<label for="name">Authentication:</label>\
+							<span id="authenticationRadio">\
+								<input type="radio" name="logon_type" value="" id="logon_password" checked><label for="logon_password">Password</label>\
+								<input type="radio" name="logon_type" value="key" id="logon_key"><label for="logon_key">Public Key</label>\
 							</span>\
 						</p>\
-					</div>\
-					<div id="git_container">\
-						<p>\
-							<label for="name">Git URL:</label>\
-							<input type="hidden" id="git_url" name="git_url">\
-							<span id="git_url_bar" class="flex">\
-								<select id="git_url_select" name="git_url_select" class="text ui-widget-content ui-corner-all" required></select>\
-							</span>\
-							<button type="button" id="refresh_repos"><i class="fa fa-refresh"></i></button>\
-							<a href="https://shiftedit.net/account/services" target="_blank">Sources</a>\
+						<p id="ftp_user_container">\
+							<label for="name">Username:</label>\
+							<input type="text" id="ftp_user" name="ftp_user" value="" class="text ui-widget-content ui-corner-all">\
 						</p>\
-					</div>\
-					\
-					<div id="cloud_container">\
-						<p>\
-							<label for="name">Cloud services:</label>\
-							<span id="cloudRadio">\
-								<input type="radio" name="cloud" value="Dropbox" id="cloudRadio1">\
-								<label for="cloudRadio1">\
-									<img src="https://shiftedit.s3.amazonaws.com/images/logos/dropbox.svg" height="32" width="32"><br>\
-									Dropbox\
-								</label>\
-								<input type="radio" name="cloud" value="GDrive" id="cloudRadio2">\
-								<label for="cloudRadio2">\
-									<img src="https://shiftedit.s3.amazonaws.com/images/logos/googledrive.svg" height="32" width="32"><br>\
-									Google Drive\
-								</label>\
-								<input type="radio" name="cloud" value="AmazonS3" id="cloudRadio3">\
-								<label for="cloudRadio3">\
-									<img src="https://shiftedit.s3.amazonaws.com/images/logos/amazons3.svg" height="32" width="32"><br>\
-									Amazon S3\
-								</label>\
-							</span>\
+						<p id="pass_container">\
+							<label for="name">Password:</label>\
+							<input type="password" id="ftp_pass" name="ftp_pass" value="" class="text ui-widget-content ui-corner-all" required disabled>\
+							<button type="button" class="showPassword">Show</button>\
 						</p>\
-					</div>\
-					\
-					<label id="proxyfield">Use a PHP proxy file to handle connections. You will need to configure and upload the \
-					<a href="https://raw.githubusercontent.com/adamjimenez/shiftedit-ajax/master/shiftedit-proxy.php" target="_blank">proxy file</a>\
-					to your webspace.</label>\
-					\
-					<div id="host_container">\
-						<p>\
-							<label for="name">Host:</label>\
-							<select id="encryption" name="encryption">\
+						<p id="ssh_key_container">\
+							<label for="name">Your SSH key:</label>\
+							<textarea id="sshKey" rows="4" readonly>'+storage.get('public_key')+'</textarea>\
+							<label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
+						</p>\
+						<p id="dir_container">\
+							<label for="name">Path:</label>\
+							<input type="hidden" name="dir_id" value="">\
+							<input type="text" name="dir" value="" class="text ui-widget-content ui-corner-all">\
+							<button type="button" id="chooseFolder">Choose</button>\
+						</p>\
+						<p id="web_url">\
+							<label for="name">Website URL:</label>\
+							<select name="encryption">\
 								<option value="0">http://</option>\
 								<option value="1">https://</option>\
 							</select>\
-							<input type="text" id="domain" name="domain" value="" class="text ui-widget-content ui-corner-all">\
-							<span id="portContainer">\
-								<label for="name">Port:</label>\
-								<input type="number" name="port" value="" class="text ui-widget-content ui-corner-all">\
-							</span>\
-							<span id="timeoutContainer">\
-								<label for="name">Timeout:</label>\
-								<input type="number" name="timeout" value="" class="text ui-widget-content ui-corner-all" required>\
-							</span>\
+							<input type="text" name="web_url" value="" class="text ui-widget-content ui-corner-all">\
+						</p>\
+						<p id="turbo_mode_container">\
+							<label for="name">Turbo mode:</label>\
+							<label>\
+							<input type="checkbox" name="turbo" value="1" class="text ui-widget-content ui-corner-all" >\
+							Uploads a PHP proxy file for faster connections.\
+							</label>\
+						</p>\
+						<p id="gdrivelimited">\
+							<label for="name">Limited access:</label>\
+							<input type="checkbox" name="gdrivelimited" value="1" class="text ui-widget-content ui-corner-all" >\
+							Limit access to only files created in ShiftEdit.\
+						</p>\
+						<p id="s3_public">\
+							<label for="name">Save files with public access:</label>\
+							<input type="checkbox" name="s3_public" value="1" class="text ui-widget-content ui-corner-all" >\
 						</p>\
 					</div>\
-					<p id="authentication_container">\
-						<label for="name">Authentication:</label>\
-						<span id="authenticationRadio">\
-							<input type="radio" name="logon_type" value="" id="logon_password" checked><label for="logon_password">Password</label>\
-							<input type="radio" name="logon_type" value="key" id="logon_key"><label for="logon_key">Public Key</label>\
-						</span>\
-					</p>\
-					<p id="ftp_user_container">\
-						<label for="name">Username:</label>\
-						<input type="text" id="ftp_user" name="ftp_user" value="" class="text ui-widget-content ui-corner-all">\
-					</p>\
-					<p id="pass_container">\
-						<label for="name">Password:</label>\
-						<input type="password" id="ftp_pass" name="ftp_pass" value="" class="text ui-widget-content ui-corner-all" required disabled>\
-						<button type="button" id="showPassword">Show</button>\
-					</p>\
-					<p id="ssh_key_container">\
-						<label for="name">Your SSH key:</label>\
-						<textarea id="sshKey" rows="4" readonly>'+storage.get('public_key')+'</textarea>\
-						<label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
-					</p>\
-					<p id="dir_container">\
-						<label for="name">Path:</label>\
-						<input type="hidden" name="dir_id" value="">\
-						<input type="text" name="dir" value="" class="text ui-widget-content ui-corner-all">\
-						<button type="button" id="chooseFolder">Choose</button>\
-					</p>\
-					<p id="web_url">\
-						<label for="name">Website URL:</label>\
-						<input type="text" name="web_url" value="" class="text ui-widget-content ui-corner-all">\
-					</p>\
-					<p id="turbo_mode_container">\
-						<label for="name">Turbo mode:</label>\
-						<label>\
-						<input type="checkbox" name="turbo" value="1" class="text ui-widget-content ui-corner-all" >\
-						Uploads a PHP proxy file for faster connections.\
-						</label>\
-					</p>\
-					<p id="gdrivelimited">\
-						<label for="name">Limited access:</label>\
-						<input type="checkbox" name="gdrivelimited" value="1" class="text ui-widget-content ui-corner-all" >\
-						Limit access to only files created in ShiftEdit.\
-					</p>\
-					<p id="s3_public">\
-						<label for="name">Save files with public access:</label>\
-						<input type="checkbox" name="s3_public" value="1" class="text ui-widget-content ui-corner-all" >\
-					</p>\
-				</div>\
-				<div id="tabs-database">\
-					<p>\
-						<label for="name">PhpMyAdmin Url:</label>\
-						<input type="text" name="db_phpmyadmin" value="" class="text ui-widget-content ui-corner-all">\
-					</p>\
-					<p>\
-						<label for="name">Username:</label>\
-						<input type="text" name="db_username" value="" class="text ui-widget-content ui-corner-all">\
-					</p>\
-					<p>\
-						<label for="name">Password:</label>\
-						<input type="password" id="db_password" name="db_password" value="" class="text ui-widget-content ui-corner-all" disabled>\
-						<button type="button" id="showDbPassword">Show</button>\
-					</p>\
-				</div>\
-				<div id="tabs-advanced">\
-					<p>\
-						<label for="name">Wordpress completions:</label>\
-						<input type="checkbox" name="ac_wordpress" value="1" class="text ui-widget-content ui-corner-all">\
-					</p>\
-					<p>\
-						<label for="name">Bootstrap completions:</label>\
-						<input type="checkbox" name="ac_bootstrap" value="1" class="text ui-widget-content ui-corner-all">\
-					</p>\
-					<p>\
-						<label for="name">Custom completions:</label>\
-						<input type="text" name="ac_custom" value="" placeholder="e.g. http://domain.com/completions.json" class="text ui-widget-content ui-corner-all">\
-					</p>\
-					<p>\
-						<label for="encoding">Encoding</label>\
-						<select name="encoding" class="ui-widget ui-state-default ui-corner-all">\
-							<option value=""></option>\
-						</select>\
-					</p>\
-					<p>\
-						<label for="name">Revisions per file:</label>\
-						<input type="number" name="revisions" value="" min="-1" max="50" class="text ui-widget-content ui-corner-all">\
-					</p>\
+					<div id="tabs-database">\
+						<p>\
+							<label for="name">PhpMyAdmin Url:</label>\
+							<input type="text" name="db_phpmyadmin" value="" class="text ui-widget-content ui-corner-all">\
+						</p>\
+						<p>\
+							<label for="name">Username:</label>\
+							<input type="text" name="db_username" value="" class="text ui-widget-content ui-corner-all">\
+						</p>\
+						<p>\
+							<label for="name">Password:</label>\
+							<input type="password" id="db_password" name="db_password" value="" class="text ui-widget-content ui-corner-all" disabled>\
+							<button type="button" class="showPassword">Show</button>\
+						</p>\
+					</div>\
+					<div id="tabs-advanced">\
+						<p>\
+							<label for="name">Wordpress completions:</label>\
+							<input type="checkbox" name="ac_wordpress" value="1" class="text ui-widget-content ui-corner-all">\
+						</p>\
+						<p>\
+							<label for="name">Bootstrap completions:</label>\
+							<input type="checkbox" name="ac_bootstrap" value="1" class="text ui-widget-content ui-corner-all">\
+						</p>\
+						<p>\
+							<label for="name">Custom completions:</label>\
+							<input type="text" name="ac_custom" value="" placeholder="e.g. http://domain.com/completions.json" class="text ui-widget-content ui-corner-all">\
+						</p>\
+						<p>\
+							<label for="encoding">Encoding</label>\
+							<select name="encoding" class="ui-widget ui-state-default ui-corner-all">\
+								<option value=""></option>\
+							</select>\
+						</p>\
+						<p>\
+							<label for="name">Revisions per file:</label>\
+							<input type="number" name="revisions" value="" min="-1" max="50" class="text ui-widget-content ui-corner-all">\
+						</p>\
+					</div>\
 				</div>\
 			</div>\
-		</div>\
-		<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
-	  </form>\
+			<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
+		</form>\
 	</div>');
 
 	//defeat chrome autofill
 	setTimeout(function(){
 		$('#ftp_pass').removeAttr("disabled");
 		$('#db_password').removeAttr("disabled");
-	}, 100);
+	}, 500);
 
 	//encoding dropdown
 	var charsets = preferences.charsets;
@@ -1576,6 +1575,10 @@ function edit(newSite, duplicate) {
 	});
 
 	$('#chooseFolder').button().click(chooseFolder);
+	
+	$('#add_server').button().click(function() {
+		servers.open();
+	});
 
 	//"Other" split button
 	$('#otherMenu').menu().hide();
@@ -1587,9 +1590,9 @@ function edit(newSite, duplicate) {
 	});
 	$('#otherLabel').click(function() {
 		var menu = $('#otherMenu').show().position({
-			  my: "left top",
-			  at: "left bottom",
-			  of: this
+			my: "left top",
+			at: "left bottom",
+			of: this
 		});
 		$( document ).one( "click", function() {
 			menu.hide();
@@ -1615,6 +1618,23 @@ function edit(newSite, duplicate) {
 		icon: false
 	});
 
+	//server combo
+	serverCombo = $( "#server_select" ).combobox({
+		select: function (event, ui) {
+			$('#server').val(ui.item.value);
+		},
+		change: function (event, ui) {
+			$('#server').val(ui.item.value);
+		},
+		create: function( event, ui ) {
+		}
+	});
+	loadServers(settings.server);
+	
+	$( "#refresh_servers" ).button().click(function() {
+		loadServers($( "#server" ).val());
+	});
+
 	//git combo
 	gitCombo = $( "#git_url_select" ).combobox({
 		select: function (event, ui) {
@@ -1632,7 +1652,7 @@ function edit(newSite, duplicate) {
 		loadRepos($( "#git_url_select" ).val());
 	});
 
-	$( "#showPassword, #showDbPassword" ).button().click(function() {
+	$( ".showPassword" ).button().click(function() {
 		var input = ($( this ).prev());
 		if(input.attr('type')==='text') {
 			input.attr('type', 'password');
@@ -1645,7 +1665,7 @@ function edit(newSite, duplicate) {
 	$('#serverTypeRadio input:radio, #cloud_container input:radio, #providerRadio input:radio').change(function() {
 		if (this.value==='Cloud' && $("#cloud_container input:checked").val()) {
 			$('input[name=server_type]').val($("#cloud_container input:checked").val());
-		} else if (this.value==='Hosted' && $("#providerRadio input:checked").val()) {
+		} else if (this.value==='Server' && $("#providerRadio input:checked").val()) {
 			$('input[name=server_type]').val($("#providerRadio input:checked").val());
 		} else {
 			$('input[name=server_type]').val(this.value);
@@ -1678,7 +1698,7 @@ function edit(newSite, duplicate) {
 				'domain',
 				'ftp_user'
 			],
-			'Hosted': [
+			'Server': [
 				'name',
 				'provider'
 			],
@@ -1815,35 +1835,42 @@ function getSettings(val) {
 	return util.clone(site);
 }
 
-function getAjaxOptions(ajaxUrl) {
-	var settings = getSettings();
+function getAjaxOptions(ajaxUrl, settings) {
+	if (!settings) {
+		settings = getSettings();
+	}
+	
 	var params = {};
 
 	if(settings.server_type == 'AJAX' || settings.turbo == 1) {
-		if(settings.turbo){
-			if( settings.web_url ){
-				ajaxUrl = settings.web_url+'shiftedit-proxy.php?ModPagespeed=off';
-			}else{
-				prompt.alert({title:lang.errorText, msg:'Missing website URL for proxy, edit site settings and set a website url or disable turbo option.'});
+		if( settings.web_url ){
+			ajaxUrl = settings.web_url;
+			
+			if (!util.endsWith(ajaxUrl, '/')) {
+				ajaxUrl = ajaxUrl+'/';
 			}
-
-			//fixme prompt for master password
-			var prefs = preferences.get_prefs();
-			var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256) : settings.ftp_pass;
-
-			params = {
-				user: settings.ftp_user,
-				pass: util.sha1(pass)
-			};
+			
+			ajaxUrl = ajaxUrl+'shiftedit-proxy.php?ModPagespeed=off';
 		}else{
-			ajaxUrl = settings.domain;
+			prompt.alert({title:lang.errorText, msg:'Missing website URL for proxy, edit site settings and set a website url or disable turbo option.'});
+		}
 
+		if (!util.startsWith(ajaxUrl, 'http://') && !util.startsWith(ajaxUrl, 'https://')) {
 			if( settings.encryption == '1' ){
 				ajaxUrl = 'https://'+ajaxUrl;
 			}else{
 				ajaxUrl = 'http://'+ajaxUrl;
 			}
 		}
+		
+		//fixme prompt for master password
+		var prefs = preferences.get_prefs();
+		var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256) : settings.ftp_pass;
+
+		params = {
+			user: settings.ftp_user,
+			pass: util.sha1(pass)
+		};
 
 		if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){
 			prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe script"'});

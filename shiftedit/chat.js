@@ -43,6 +43,10 @@ function send(msg) {
 }
 
 function add() {
+	if (!initialized)
+		init();
+	
+	console.log('checking chat');
 	var tab = $(this);
 
 	var siteId = tab.attr('data-site');
@@ -64,6 +68,7 @@ function add() {
 	}
 
 	if( !groups[firebaseUrl] ){
+		console.log('adding chat');
 		var li = $('<li data-url="' + firebaseUrl + '"><a href="#">' + chatName + '</a></li>').appendTo('#chat');
 
 		var ref = new Firebase(firebaseUrl);

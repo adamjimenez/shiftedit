@@ -23,7 +23,7 @@ var html_beautify = require('beautify-html');
 //ace.config.set("packaged", true);
 //ace.config.set("basePath", require.toUrl("ace"));
 
-var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20151029';
+var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20160218';
 
 ace.config.set("modePath", acePath);
 //ace.config.set("workerPath", acePath); //disabled to fix firefox security issue
@@ -84,10 +84,106 @@ function onChangeCursor(e, selection) {
 	var prefix = line.slice(0, pos.column);
 	var value;
 	var convertToRgb = false;
+	var before;
+	var url;
+	var image = false;
+	var offset;
+	var container = editor.container;
+	var target = '';
 
 	$('#picker').remove();
 	$('#args').remove();
+	$('#link').remove();
 
+	//link to open url
+	if (/([\w.,@?^=%&amp;:\/~+#-]*)?$/g.test(prefix)) {
+		before = pos.column - RegExp.$1.length;
+
+		if (/^((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-]))/g.test(line.substr(before))) {
+			url = RegExp.$1;
+			target = '_blank';
+		}
+	}
+	
+	//link to open file
+	if (/href="([^"]+)$/i.test(prefix)) {
+		before = pos.column - RegExp.$1.length;
+
+		if (/([^"]+)/i.test(line.slice(before))) {
+			url = RegExp.$1;
+		}
+	}
+	
+	//css image url
+	if (tab.data("site")) {
+		if (/url\("([^"]+)$/i.test(prefix)) {
+			before = pos.column - RegExp.$1.length;
+	
+			if (/([^"]+)/i.test(line.slice(before))) {
+				url = RegExp.$1;
+				image = true;
+				
+				var settings = site.getSettings(tab.data("site"));
+				url = settings.web_url + url;
+				target = '_blank';
+			}
+		}
+	}
+	
+	if(url) {
+		if (document.getElementById('link')) {
+			el = document.getElementById('link');
+		} else {
+			el = document.createElement('a');
+		}
+
+		//calulate the container offset
+		range = {
+			start: {
+				row: pos.row,
+				column: before
+			},
+			end: {
+				row: pos.row,
+				column: before + url.length
+			}
+		};
+
+		pos = editor.renderer.textToScreenCoordinates(range.start.row, range.start.column);
+		offset = $(editor.container).offset();
+		pos.pageX -= offset.left;
+		pos.pageY -= offset.top;
+
+		el.id = 'link';
+		el.target = target;
+		if (target) {
+			el.href = url;
+		} else {
+			el.href = '#';
+			el.onclick = function(){
+				if (tab.data("site")) {
+					tabs.open(url, tab.data("site"));
+				}
+			};
+		}
+		
+		if (image) {
+			el.innerHTML = '<img src="' + url + '" style="max-width: 50px; max-height: 50px;">';
+		} else {
+			el.innerHTML = 'Open..';
+		}
+		
+		el.style.top = pos.pageY + 20 + "px";
+		el.style.left = pos.pageX + "px";
+		el.style.display = 'block';
+		el.style.position = 'absolute';
+		el.style.background = '#fff';
+		el.style.textDecoration = 'none';
+
+		container.parentNode.appendChild(el);
+		return;
+	}
+	
 	//color picker
 	if (/(#[0-9a-f]*)$/i.test(prefix)) {
 		before = pos.column - RegExp.$1.length;
@@ -140,7 +236,7 @@ function onChangeCursor(e, selection) {
 
 		//charCoords
 		pos = editor.renderer.textToScreenCoordinates(range.start.row, range.start.column);
-		var offset = $(editor.container).offset();
+		offset = $(editor.container).offset();
 		pos.pageX -= offset.left;
 		pos.pageY -= offset.top;
 
@@ -160,7 +256,6 @@ function onChangeCursor(e, selection) {
 		el.style.top = pos.pageY + 20 + "px";
 		el.style.left = pos.pageX +  "px";
 
-		var container = editor.container;
 		container.parentNode.appendChild(el);
 
 		el.onclick = function () {
@@ -691,14 +786,10 @@ function create(file, content, siteId, options) {
 
 	//syntax bar handlers
 	panel.find('.previous').button()
-	.click(function() {
-		jQuery.proxy(syntax_errors.previous, tab);
-	});
+	.click(jQuery.proxy(syntax_errors.previous, tab));
 
 	panel.find('.next').button()
-	.click(function() {
-		jQuery.proxy(syntax_errors.next, tab);
-	});
+	.click(jQuery.proxy(syntax_errors.next, tab));
 
 	//set mode
 	var ext = util.fileExtension(file);

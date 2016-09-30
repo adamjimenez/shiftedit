@@ -378,7 +378,7 @@ function downloadZip(data) {
 
 					source.close();
 
-					var evt = new Event('click');
+					var evt = new MouseEvent('click');
 					var a = document.createElement('a');
 					a.download = 1;
 					a.href = url+'&d=1';
@@ -516,11 +516,11 @@ function uploadFolder() {
 			uploadFiles[i] = {path: f.webkitRelativePath};
 
 			var reader = new FileReader();
-			reader.onloadend = function (file, i) {
+			reader.onloadend = (function (file, i) {
 				return function () {
 					uploadFiles[i].content = this.result;
 				};
-			}(f, i);
+			}(f, i));
 
 			if (f.type.match('text.*')) {
 				reader.readAsText(f);
@@ -1039,6 +1039,12 @@ function init() {
 											treeFn({cmd: 'delete', file: node.id, callback: callback});
 										}
 										
+										var finishDelete = function() {
+											queue = [];
+											confirmed = false;
+											$('#tree').trigger('delete');
+										};
+										
 										if (treeFn) {
 											var node;
 											var callback = function() {
@@ -1047,7 +1053,7 @@ function init() {
 													node = queue.shift();
 													doDelete(node);
 												} else {
-													confirmed = false;
+													finishDelete();
 												}
 											};
 											callback();
@@ -1099,13 +1105,13 @@ function init() {
 		
 														source.addEventListener('error', function(event) {
 															loading.stop(false);
-															confirmed = false;
-															queue = [];
 															if (event.eventPhase == 2) { //EventSource.CLOSED
 																if (source) {
 																	source.close();
 																}
 															}
+															
+															finishDelete();
 														}, false);
 													} else {
 														var file = files[0];
@@ -1117,8 +1123,7 @@ function init() {
 															prompt.alert({title:file, msg:r.error});
 														}
 														
-														queue = [];
-														confirmed = false;
+														finishDelete();
 													}
 												}
 											})
@@ -1146,8 +1151,7 @@ function init() {
 			'force_text': true,
 			'themes': {
 				'responsive': false,
-				'variant': 'small',
-				'stripes': true
+				'variant': 'small'
 			}
 		},
 		'sort' : function(a, b) {
@@ -1417,7 +1421,9 @@ function init() {
 								path += node.id;
 							}
 							
-							ssh.connect(path);
+							ssh.connect({
+								path: path
+							});
 						}
 					}
 				};
@@ -1539,7 +1545,7 @@ function init() {
 	.on('rename_node.jstree', function (e, data) {
 		if (treeFn) {
 			treeFn({cmd: 'rename', file: data.node.id, newname: data.text});
-		}else{
+		} else {
 			var params = util.clone(ajaxOptions.params);
 			params.oldname = data.node.id;
 			params.newname = data.text;
@@ -1561,12 +1567,12 @@ function init() {
 				data: params,
 				xhrFields: {
 					withCredentials: true
-				},
+				}
 			})
 			.done(function (d) {
 				if(!d.success){
 					prompt.alert({title:'Error', msg:d.error});
-				}else{
+				} else {
 					data.instance.set_id(data.node, params.newname);
 					$('#tree').trigger('rename', params);
 				}
@@ -1586,6 +1592,20 @@ function init() {
 			fn: function(btn) {
 				switch(btn){
 					case 'yes':
+						var selected = inst.get_selected();
+						queue = [];
+						selected.forEach(function(file) {
+							var newname = util.basename(file);
+							if(data.parent!=='#root') {
+								newname = data.parent + '/' + newname;
+							}
+							
+							queue.push({
+								oldname: file,
+								newname: newname
+							});
+						});
+						
 						doMove();
 					break;
 					default:
@@ -1596,22 +1616,20 @@ function init() {
 		});
 
 		function doMove() {
-			function moveCallback() {
-				//data.instance.load_node(data.parent);
+			if (queue.length) {
+				item = queue.shift();
+			} else {
 				data.instance.refresh();
+				return;
 			}
 
 			var parent = inst.get_node(data.parent);
 			if (treeFn) {
-				treeFn({cmd: 'rename', file: data.node.id, newname: data.node.text, parent: parent.id, callback: moveCallback});
+				treeFn({cmd: 'rename', file: item.oldname, newname: item.newname, parent: parent.id, callback: doMove});
 			}else{
 				var params = util.clone(ajaxOptions.params);
-				params.oldname = data.node.id;
-				params.newname = util.basename(data.node.id);
-				if(data.parent!=='#root') {
-					params.newname = data.parent + '/' + params.newname;
-				}
-
+				params.oldname = item.oldname;
+				params.newname = item.newname;
 				params.site = ajaxOptions.site;
 
 				$.ajax(ajaxOptions.url+'&cmd=rename', {
@@ -1622,8 +1640,9 @@ function init() {
 						withCredentials: true
 					}
 				})
-				.done(moveCallback)
+				.done(doMove)
 				.fail(function () {
+					queue = [];
 					data.instance.refresh();
 				});
 			}
@@ -1921,7 +1940,20 @@ function init() {
 	});
 
 	$('.filter').keydown(function (e) {
+		e.stopPropagation();
+		
 		var keycode = e.keyCode;
+		
+		switch(keycode) {
+			//escape
+			case 27:
+				$('.filter').val('').hide();
+				$('#tree').jstree(true).search('', true, true);
+				$('#tree').focus();
+				return;
+		}
+		
+		/*
 		var valid =
 			(keycode > 47 && keycode < 58) || // number keys
 			keycode == 32 || // spacebar
@@ -1938,6 +1970,13 @@ function init() {
 			e.target = $('#tree a.jstree-clicked')[0];
 			$('#tree a.jstree-clicked').trigger(e);
 			return false;
+		}
+		*/
+	});
+	
+	$('.filter').blur(function (e) {
+		if ($('.filter').val()==='') {
+			$('.filter').hide();
 		}
 	});
 

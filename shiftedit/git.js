@@ -17,7 +17,7 @@ function init() {
 						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label for="historyRadio">History</label>\
 					</span>\
 				</div>\
-				<button id="gitNenuBtn"><i class="fa fa-bars"></i></button>\
+				<button id="gitMenuBtn"><i class="fa fa-bars"></i></button>\
 				<ul id="gitMenu"></ul>\
 			</div>\
 			<div id="gitContentContainer" class="vbox">\
@@ -25,8 +25,8 @@ function init() {
 				<div id="changesContainer" class="vbox" style="display: none;">\
 					<ul id="gitChanges" class="flex"></ul>\
 					<div id="commitPanel">\
-						<input id="gitSubject" type="text" name="subject" placeholder="Summary">\
-						<textarea id="gitDescription" placeholder="Description"></textarea>\
+						<input id="gitSubject" type="text" name="subject" placeholder="Summary" class="text ui-widget-content ui-corner-all">\
+						<textarea id="gitDescription" placeholder="Description" class="text ui-widget-content ui-corner-all"></textarea>\
 						<button type="button" id="commitBtn" disabled>Commit to master</button>\
 					</div>\
 				</div>\
@@ -87,7 +87,7 @@ function init() {
 
 	var menu = el.menu().hide();
 
-	$("#gitNenuBtn").button()
+	$("#gitMenuBtn").button()
 	.click(function() {
 		// Make use of the general purpose show and position operations
 		// open and place the menu where we want.
@@ -107,10 +107,18 @@ function init() {
 		return false;
 	});
 	
+	// update on file rename / delete
+	$('#tree').on('rename delete', function(e, obj) {
+		refresh();
+	});
+	
+	// update on tree reload (extract/ move triggers a reload)
 	$('#tree').on('open_node.jstree', function(e, obj) {
 		if (obj.node.id==='#root')
 			refresh();
 	});
+	
+	// update on file save
 	$('body').on('save','.ui-tabs', refresh);
 	
 	$("#gitHistory").basicMenu({
@@ -171,16 +179,16 @@ function init() {
 	
 	var checkCommit = function() {
 		if ($('#gitSubject').val() && $('#gitChanges input:checked').length) {
-			$('#commitBtn').removeAttr('disabled');
+			$('#commitBtn').button('enable');
 		} else {
-			$('#commitBtn').attr('disabled', 'disabled');
+			$('#commitBtn').button('disable');
 		}
 	};
 	
 	$('#gitChanges').on('change click input', 'input', checkCommit);
 	$('#gitSubject').on('change keyup input', checkCommit);
 	
-	$('#commitBtn').click(function() {
+	$('#commitBtn').button().click(function() {
 		var params = {};
 		params.subject = $('#gitSubject').val();
 		params.description = $('#gitDescription').val();
@@ -278,7 +286,6 @@ function show(title, result) {
 function refresh() {
 	// must have a git folder and use SFTP or a proxy
 	var settings = site.getSettings(site.active());
-	
 	if (
 		!$('#tree').jstree(true).get_node('.git') ||
 		(
@@ -286,8 +293,10 @@ function refresh() {
 			!settings.turbo 
 		)
 	) {
-		$('#gitContainer').hide();
-		$('#notAvailable').html('Git panel will appear here').show();
+		if ($("#gitContainer").css("display") !== "none") {
+			$('#gitContainer').hide();
+			$('#notAvailable').html('Git panel will appear here').show();
+		}
 		return;
 	}
 	

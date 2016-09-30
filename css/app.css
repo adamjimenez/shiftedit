@@ -394,7 +394,7 @@ div.fullscreen{
 	z-index: 2;
 }
 
-#siteSettings p, #snippetForm p{
+#siteSettings p, #snippetForm p, #serverSettings p{
 	display: flex;
 	vertical-align: middle;
 	align-items: center;
@@ -413,7 +413,7 @@ div.fullscreen{
 	line-height: 16px;
 }
 
-#siteSettings label:first-child, #masterPasswordForm label:first-child, .tidy label:first-child{
+#siteSettings label:first-child, #serverSettings label:first-child, #masterPasswordForm label:first-child, .tidy label:first-child{
 	display: inline-block;
 	min-width: 110px;
 	width: 110px;
@@ -452,7 +452,7 @@ div.fullscreen{
 	width: 100px;
 }
 
-#hosted_container .ui-checkboxradio-label, #stack_container .ui-checkboxradio-label{
+#hosted_container .ui-checkboxradio-label, #stack_container .ui-checkboxradio-label, #providerRadio .ui-checkboxradio-label{
 	background: #ccc;
 }
 
@@ -978,6 +978,7 @@ div.fullscreen{
 
 .d2h-wrapper {
 	color: #000;
+	background: #fff;
 }
 
 /* splashscreen */
@@ -1042,8 +1043,14 @@ div.fullscreen{
 	right: 2px;
 }
 
-.ui-dialog {
-	z-index: 100000 !important; /*higher than tinymce*/
+
+/* tinymce dialog must be lower than jquery ui */
+.mce-fade {
+	z-index: 99 !important;
+}
+
+.mce-floatpanel {
+	z-index: 100 !important;
 }
 
 /*

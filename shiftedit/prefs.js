@@ -842,11 +842,11 @@ function updateSkin(name){
 			}\
 			\
 			.jstree-table-midwrapper a.jstree-hovered:before{\
-				background: '+hoverBackground+';\
+				background: '+hoverBackground+' !important;\
 			}\
 			\
 			.jstree-table-midwrapper a.jstree-clicked:before{\
-				background: '+activeBackground+';\
+				background: '+activeBackground+' !important;\
 			}\
 			</style>').appendTo('head');
 	

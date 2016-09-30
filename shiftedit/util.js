@@ -494,7 +494,7 @@ return {
 		}
 
 		var outputParts = [];
-		for (var i = samePartsLength; i < fromParts.length; i++) {
+		for (i = samePartsLength; i < fromParts.length; i++) {
 			outputParts.push('..');
 		}
 
@@ -662,6 +662,10 @@ return {
 	startsWith: function(haystack, needle) {
 		if(haystack)
 			return needle === "" || haystack.indexOf(needle) === 0;
+	},
+	endsWith: function(haystack, needle) {
+		if(haystack)
+			return needle === "" || haystack.indexOf(needle) === (haystack.length - needle.length);
 	},
 	utf8_encode: function( argString ) {
 		// http://kevin.vanzonneveld.net
