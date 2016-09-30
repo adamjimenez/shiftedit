@@ -452,7 +452,7 @@ div.fullscreen{
 	width: 100px;
 }
 
-#hosted_container .ui-checkboxradio-label, #stack_container .ui-checkboxradio-label{
+#hosted_container .ui-checkboxradio-label, #stack_container .ui-checkboxradio-label, #providerRadio .ui-checkboxradio-label{
 	background: #ccc;
 }
 
