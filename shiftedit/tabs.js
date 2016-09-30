@@ -1098,6 +1098,8 @@ function init() {
 			//reinstate tooltip
 			ui.item.tooltip( "enable" );
 			$( ui.item ).children('.ui-tabs-anchor').attr( "title", ui.item.data('title') );
+
+			tabs.tabs('refresh');
 		}
 	});
 }
