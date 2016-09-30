@@ -661,11 +661,11 @@ return {
 	},
 	startsWith: function(haystack, needle) {
 		if(haystack)
-			return needle === "" || haystack.indexOf(needle) === (haystack.length - needle.length);
+			return needle === "" || haystack.indexOf(needle) === 0;
 	},
 	endsWith: function(haystack, needle) {
 		if(haystack)
-			return needle === "" || haystack.indexOf(needle) === 0;
+			return needle === "" || haystack.indexOf(needle) === (haystack.length - needle.length);
 	},
 	utf8_encode: function( argString ) {
 		// http://kevin.vanzonneveld.net
