@@ -1863,18 +1863,14 @@ function getAjaxOptions(ajaxUrl, settings) {
 			}
 		}
 		
-		if (settings.server_type == 'AJAX') {
-		} else if(settings.turbo){
+		//fixme prompt for master password
+		var prefs = preferences.get_prefs();
+		var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256) : settings.ftp_pass;
 
-			//fixme prompt for master password
-			var prefs = preferences.get_prefs();
-			var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256) : settings.ftp_pass;
-
-			params = {
-				user: settings.ftp_user,
-				pass: util.sha1(pass)
-			};
-		}
+		params = {
+			user: settings.ftp_user,
+			pass: util.sha1(pass)
+		};
 
 		if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){
 			prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe script"'});
