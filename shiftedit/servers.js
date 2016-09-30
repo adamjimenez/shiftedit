@@ -39,6 +39,7 @@ function edit(add) {
 	$( "body" ).append('<div id="dialog-server" title="Server">\
 		<form id="serverSettings" autocomplete="off">\
 			<input type="hidden" name="id" value="">\
+			<p>Create a development server, refer to the &nbsp; <a href="https://shiftedit.net/docs/servers" target="_blank">instructions</a>.</p>\
 			<p>\
 				<label for="name">Name:</label>\
 				<input type="text" name="name" value="" class="text ui-widget-content ui-corner-all" required>\
@@ -71,11 +72,11 @@ function edit(add) {
 					</label>\
 				</span>\
 			</p>\
-			<p id="user_container" style="display: none;">\
+			<p id="server_user_container" style="display: none;">\
 				<label for="name">Username:</label>\
 				<input type="text" id="username" name="username" value="" class="text ui-widget-content ui-corner-all">\
 			</p>\
-			<p id="pass_container" style="display: none;">\
+			<p id="server_pass_container" style="display: none;">\
 				<label for="name">Password:</label>\
 				<input type="password" id="password" name="password" value="" placeholder="api key" class="text ui-widget-content ui-corner-all" required disabled>\
 				<button type="button" class="showPassword">Show</button>\
@@ -91,17 +92,17 @@ function edit(add) {
 	//toggle fields
 	$("#providerRadio input[type='radio']").change(function() {
 		if (this.value==='AWS') {
-			$('#user_container').show();
-			$('#pass_container').show();
+			$('#server_user_container').show();
+			$('#server_pass_container').show();
 			$('#username').attr('placeholder', 'Access Key ID');
 			$('#password').attr('placeholder', 'Secret Access Key');
 		} else if (this.value==='Linode') {
-			$('#user_container').hide();
-			$('#pass_container').show();
+			$('#server_user_container').hide();
+			$('#server_pass_container').show();
 			$('#username').attr('placeholder', 'Api Key');
 		} else {
-			$('#user_container').hide();
-			$('#pass_container').hide();
+			$('#server_user_container').hide();
+			$('#server_pass_container').hide();
 		}
 	});
 	
