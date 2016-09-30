@@ -415,9 +415,9 @@ function connect(options) {
 	var tab = create(tabpanel);
 	if (!options.domain) {
 		var settings = site.getSettings(site.active());
-		option.domain = settings.domain;
-		option.username = settings.ftp_user;
-		option.port = settings.port;
+		options.domain = settings.domain;
+		options.username = settings.ftp_user;
+		options.port = settings.port;
 	}
 	
 	var username = options.username;
