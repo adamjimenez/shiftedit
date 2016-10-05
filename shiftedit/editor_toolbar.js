@@ -208,7 +208,7 @@ var menu = [{
 		editor.focus();
 	}
 }, '->', {
-	id: 'syntaxErrorsButton',
+	className: 'syntaxErrorsButton',
 	tooltip: 'Syntax Errors',
 	text: '<i class="fa fa-warning"></i>',
 	enableToggle: true,

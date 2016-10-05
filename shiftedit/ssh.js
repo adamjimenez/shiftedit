@@ -183,9 +183,10 @@ if( typeof Terminal !== 'undefined' ){
 
 	Tab.prototype.doResize = function(){
 		var term = tty.terms[this.id];
-
+		var rowHeight = $(this.element).children(":first").children(":first").height();
+		
 		cols = Math.floor($(this.element).parent().width() / 7);
-		rows = Math.floor($(this.element).parent().height() / 13);
+		rows = Math.floor($(this.element).parent().height() / rowHeight);
 
 		console.log('resize '+cols+'x'+rows);
 

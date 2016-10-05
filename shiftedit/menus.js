@@ -7,7 +7,7 @@ define(["jquery.menubar"], function () {
 				el.append('<li>-</li>');
 			}else if(menu[i]==='->') {
 				el.css('display', 'flex');
-				el.append('<li style="flex-grow:2"></li>');
+				el.append('<li class="ui-state-default" style="flex-grow:2"></li>');
 			}else{
 				var tooltip = menu[i].tooltip ? menu[i].tooltip : '';
 
@@ -17,6 +17,10 @@ define(["jquery.menubar"], function () {
 
 				if(menu[i].id) {
 					item.attr('id', menu[i].id);
+				}
+
+				if(menu[i].className) {
+					item.attr('class', menu[i].className);
 				}
 
 				if(menu[i].disabled) {
