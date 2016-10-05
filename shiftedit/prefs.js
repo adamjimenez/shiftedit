@@ -89,6 +89,9 @@ defaultPrefs.fileExtensions = '';
 defaultPrefs.fileAssocations = '';
 defaultPrefs.standardToolbar = true;
 defaultPrefs.fixmyjs = false;
+defaultPrefs.jslint_disable = false;
+defaultPrefs.csslint_disable = false;
+defaultPrefs.coffeescriptlint_disable = false;
 defaultPrefs.jslint_environment = 'browser';
 defaultPrefs.beautifier_old  = false;
 defaultPrefs.beautifier_indent_scripts  = 'keep';
@@ -1099,10 +1102,22 @@ function open(tabpanel) {
 	<p><button type="button" id="changeMasterPassword">Change master password</button></p>\
 	<h2>Lint Checking</h2>\
 	<h3>Javascript</h3>\
+	<label>\
+		<input type="checkbox" name="jslint_disable" value="1">\
+		Disable lint checking\
+	</label>\
 	'+ jslintHTML +'<br>\
 	<h3>CSS</h3>\
+	<label>\
+		<input type="checkbox" name="csslint_disable" value="1">\
+		Disable lint checking\
+	</label>\
 	'+ csslintHTML +'<br>\
 	<h3>Coffeescript</h3>\
+	<label>\
+		<input type="checkbox" name="coffeescriptlint_disable" value="1">\
+		Disable lint checking\
+	</label>\
 	'+ coffeescriptlintHTML +'<br>\
 	<h2>Beautifier</h2>\
 	<h3>HTML</h3>\

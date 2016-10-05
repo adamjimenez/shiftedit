@@ -1219,41 +1219,59 @@ function setMode(editor, mode) {
 	editor.getSession().setMode("ace/mode/" + mode);
 
 	//worker settings
-	if (editor.getSession().$worker) {
-		var options = {};
-		var prefs = preferences.get_prefs();
-
-		switch (mode){
-			case 'javascript':
+	var options = {};
+	var prefs = preferences.get_prefs();
+	var panel = $(editor.container).closest('.ui-tabs-panel');
+	
+	var useLint = true;
+	switch (mode){
+		case 'javascript':
+			useLint = !prefs.jslint_disable;
+			
+			if (useLint) {
+				// set lint prefs
 				var jslint_options = preferences.jslint_options;
-
+	
 				$.each(jslint_options, function (key, item) {
 					options[item.name] = prefs['jslint_' + item.name];
 				});
-
-				//console.log(options);
-
-				editor.session.$worker.send("changeOptions", [options]);
-				// or
-				//session.$worker.send("setOptions",[ {onevar: false, asi:true}])
-			break;
-			case 'css':
+	
+				if (editor.session.$worker) {
+					editor.session.$worker.send("changeOptions", [options]);
+				}
+			}
+		break;
+		case 'css':
+			useLint = !prefs.csslint_disable;
+			
+			if (useLint) {
 				var csslint_options = preferences.csslint_options;
-
 				var disable_rules = [];
-
+	
 				$.each(csslint_options, function (key, item) {
 					disable_rules.push(item.name);
 				});
-
-				//console.log(disable_rules);
-
-				editor.session.$worker.send("setDisabledRules", [disable_rules]);
-				// or
-				//session.$worker.send("setOptions",[ {onevar: false, asi:true}])
-			break;
-		}
+	
+				if (editor.session.$worker) {
+					editor.session.$worker.send("setDisabledRules", [disable_rules]);
+				}
+			}
+		break;
+		case 'coffee':
+			useLint = !prefs.coffeelint_disable;
+		break;
 	}
+	
+	// disable for modes that don't have a linter
+	if (['coffee','css','html','javascript','json','lua','php','xquery'].indexOf(mode)===-1) {
+		useLint = false;
+	}
+
+	// toggle lint checking
+	editor.session.setUseWorker(useLint);
+	$(panel).find('.editor_status').toggle(useLint);
+	$(panel).find('.syntaxErrorsButton').toggleClass('ui-state-disabled', !useLint);
+	resize.resize();
 }
 
 function init() {

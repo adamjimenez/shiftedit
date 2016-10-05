@@ -19,6 +19,10 @@ define(["jquery.menubar"], function () {
 					item.attr('id', menu[i].id);
 				}
 
+				if(menu[i].className) {
+					item.attr('class', menu[i].className);
+				}
+
 				if(menu[i].disabled) {
 					item.addClass('ui-state-disabled');
 				}
