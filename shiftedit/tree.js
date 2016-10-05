@@ -411,7 +411,7 @@ function downloadFile(data) {
 		action: 'downloading file',
 		success: function(data) {
 			var blob = util.b64toBlob(data.content);
-			var evt = new Event('click');
+			var evt = new MouseEvent('click');
 			var a = document.createElement('a');
 			a.download = util.basename(file);
 			a.href = URL.createObjectURL(blob);
@@ -1239,11 +1239,7 @@ function init() {
 							"open_tab": {
 								"label": "Open in new browser tab",
 								action: openTab
-							},
-							"download": {
-								"label": "Download",
-								action: downloadFile
-							},
+							}
 						}
 					},
 					"ccp": {
@@ -1379,6 +1375,10 @@ function init() {
 							}
 						},
 						action: extract
+					},
+					"download": {
+						"label": "Download",
+						action: downloadFile
 					},
 					"downloadzip": {
 						"label": "Download as zip",
