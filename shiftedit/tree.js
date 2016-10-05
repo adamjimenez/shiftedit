@@ -1593,6 +1593,12 @@ function init() {
 				switch(btn){
 					case 'yes':
 						var selected = inst.get_selected();
+						
+						// handle single file
+						if (!selected.length) {
+							selected = [data.node.id];
+						}
+						
 						queue = [];
 						selected.forEach(function(file) {
 							var newname = util.basename(file);
@@ -1605,7 +1611,6 @@ function init() {
 								newname: newname
 							});
 						});
-						
 						doMove();
 					break;
 					default:
