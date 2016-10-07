@@ -476,9 +476,9 @@ function init () {
 				text: makeMenuText('Keyboard Bindings'),
 				handler: preferences.openKeyBindings
 			}, {
-				id: 'openPreferences',
+				id: 'preferences',
 				text: makeMenuText(lang.preferencesText, 'Ctrl-U'),
-				scope: this
+				handler: preferences.open
 			}]
 		},
 
