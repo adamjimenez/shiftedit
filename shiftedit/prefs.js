@@ -945,11 +945,6 @@ function open(tabpanel) {
 
 	if (!tabpanel) {
 		tabpanel = '.ui-layout-east';
-		//expand east panel
-		myLayout.open(paneName);
-		if(myLayout.panes.east.outerWidth() < minWidth) {
-			myLayout.sizePane(paneName, minWidth);
-		}
 	}
 
 	//create tab
@@ -1398,6 +1393,12 @@ function open(tabpanel) {
 
 		return false;
 	});
+
+	//expand panel
+	myLayout.open(paneName);
+	if(myLayout.panes.east.outerWidth() < minWidth) {
+		myLayout.sizePane(paneName, minWidth);
+	}
 }
 
 $('body').on('click', '#openPreferences a', function(e){
