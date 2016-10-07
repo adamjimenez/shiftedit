@@ -1,4 +1,4 @@
-define(['exports', 'app/config', 'app/editors', 'app/tabs', 'jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree', 'lzma/lzma_worker'], function (exports, config, editors, tabs) {
+define(['exports', 'app/config', 'app/editors', 'app/tabs', 'jquery', 'app/storage', 'ace/mode/css/csslint', 'app/lang', 'app/layout', "app/modes", 'app/util', 'app/prompt', 'app/loading', 'app/tree', 'app/keybindings', 'lzma/lzma_worker'], function (exports, config, editors, tabs) {
 var storage = require('app/storage');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
@@ -8,6 +8,7 @@ var util = require('app/util');
 var prompt = require('app/prompt');
 var loading = require('app/loading');
 var tree = require('app/tree');
+var keybindings = require('app/keybindings');
 var openingFilesBatch = [];
 
 var defaultPrefs = {};
@@ -51,6 +52,7 @@ defaultPrefs.fullLineSelection = false;
 defaultPrefs.highlightActiveLine = false;
 defaultPrefs.showInvisibles = false;
 defaultPrefs.lineNumbers = true;
+defaultPrefs.customKeyBindings = JSON.stringify({});
 defaultPrefs.keyBinding = 'default';
 defaultPrefs.codeFolding = 'manual';
 defaultPrefs.scrollSpeed = 2;
@@ -93,8 +95,8 @@ defaultPrefs.jslint_disable = false;
 defaultPrefs.csslint_disable = false;
 defaultPrefs.coffeescriptlint_disable = false;
 defaultPrefs.jslint_environment = 'browser';
-defaultPrefs.beautifier_old  = false;
-defaultPrefs.beautifier_indent_scripts  = 'keep';
+defaultPrefs.beautifier_old = false;
+defaultPrefs.beautifier_indent_scripts = 'keep';
 defaultPrefs.beautifier_open_brace = 'end-of-line';
 defaultPrefs.beautifier_brace_style = 'collapse';
 defaultPrefs.beautifier_preserve_newlines = true;
@@ -682,7 +684,7 @@ function load() {
 					}
 				}
 			}
-
+			
 			openingFilesBatch = data.openingFilesBatch;
 			storage.set('prefs', prefs);
 
@@ -706,10 +708,12 @@ function load() {
 			
 			//prompt
 			if(data.expired) {
-				prompt.alert({title:'Your Subscription has Expired',  msg:'Your account has reverted to Standard edition. Unlock all sites and features by upgrading to <a href="premier" target="_blank">Premier</a>.'});
+				prompt.alert({title:'Your Subscription has Expired', msg:'Your account has reverted to Standard edition. Unlock all sites and features by upgrading to <a href="premier" target="_blank">Premier</a>.'});
 			} else if(data.edition == 'Standard') {
-				prompt.alert({title:'Free Trial Expired',  msg:'Support ShiftEdit by <a href="/premier" target="_blank">picking a plan</a>.'});
+				prompt.alert({title:'Free Trial Expired', msg:'Support ShiftEdit by <a href="/premier" target="_blank">picking a plan</a>.'});
 			}
+			
+			keybindings.updateKeyBindings();
 
 			return prefs;
 		});
@@ -894,6 +898,8 @@ function save(name, value) {
 	if(typeof(prefs[name])==='object') {
 		value = JSON.stringify(prefs[name]);
 	}
+	
+	keybindings.updateKeyBindings();
 
 	$.ajax({
 		url: config.apiBaseUrl+'prefs?cmd=save&name='+name,
@@ -1019,7 +1025,8 @@ function open(tabpanel) {
 	<label>\
 		<input type="radio" name="keyBinding" value="emacs">\
 		Emacs\
-	</label><br>\
+	</label>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="autoTabs" value="1">\
 		Detect tab type\
@@ -1234,23 +1241,24 @@ function open(tabpanel) {
 		prefs[name] = val;
 		save(name, val);
 	});
-
-	//edit default code
+	
+	// edit default code
 	$('#editDefaultCode').button().click(function() {
 		var val = $('#defaultCode').val();
 		var tab = editors.create('defaultCode.'+val, prefs.defaultCode[val], 0);
 		tab.data('pref', 'defaultCode.'+val);
 	});
 
+	// master password
 	function changeMasterPassword() {
 		$( "body" ).append('<div id="dialog-changeMasterPasword" title="'+lang.changeMasterPasswordText+'">\
-		  <form id="masterPasswordForm">\
+			<form id="masterPasswordForm">\
 			<p>'+lang.masterPasswordInfoText+'</p>\
 			<p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
 			<p><label for="newMasterPassword">'+lang.enterNewPasswordText+'</label> <input type="password" name="newMasterPassword" id="newMasterPassword"></p>\
 			<p><label for="confirmMasterPassword">'+lang.reenterPasswordText+'</label> <input type="password" name="confirmMasterPassword" id="confirmMasterPassword"></p>\
 			<p>'+lang.masterPasswordRememberText+'</p>\
-		  </form>\
+			</form>\
 		</div>');
 
 		if(!prefs.useMasterPassword){
@@ -1316,11 +1324,11 @@ function open(tabpanel) {
 
 	function removeMasterPassword() {
 		$( "body" ).append('<div id="dialog-removeMasterPasword" title="'+lang.removeMasterPasswordText+'">\
-		  <form id="removeMasterPasswordForm">\
+			<form id="removeMasterPasswordForm">\
 			<p>'+lang.removedMasterPasswordText+'</p>\
 			<p><label for="currentMasterPassword">Current password</label> <input type="password" name="currentMasterPassword" id="currentMasterPassword"></p>\
 			<p><input type="checkbox" name="forceRemovePassword" id="forceRemovePassword" value="1"> <label for="forceRemovePassword">'+lang.forceRemoveMasterPasswordText+'</label></p>\
-		  </form>\
+			</form>\
 		</div>');
 
 		$('#forceRemovePassword').click(function() {
@@ -1374,7 +1382,7 @@ function open(tabpanel) {
 		});
 	}
 
-	//master password
+	// master password
 	$('#changeMasterPassword').button().click(changeMasterPassword);
 
 	if(!prefs.useMasterPassword){
@@ -1423,5 +1431,7 @@ exports.jslint_options = jslint_options;
 exports.csslint_options = csslint_options;
 exports.createHash = createHash;
 exports.charsets = charsets;
+exports.getKeyBinding = keybindings.getKeyBinding;
+exports.openKeyBindings = keybindings.openKeyBindings;
 
 });

@@ -697,6 +697,388 @@ function applyPrefs(tab) {
 			editor.completer.exactMatch = true;
 			editor.completer.autoSelect = true;
 		}
+		
+		//shortcuts
+		editor.commands.removeCommands([
+			'save', 
+			'saveAs', 
+			'findPanel', 
+			'gotoLinePrompt', 
+			'toggleBreakpoint', 
+			'nextBreakpoint', 
+			'prevBreakpoint',
+			'clearBreakpoints',
+			'wrapSelection',
+			'prependLineSelection',
+			'appendLineSelection',
+			'replaceInSelection',
+			'selectionToUppercase',
+			'selectionToLowercase',
+			'tabPrev',
+			'tabNext',
+			'applySourceFormatting',
+			'br',
+			'copylinesup',
+			'copylinesdown',
+			'movelinesup',
+			'movelinesdown',
+			'removeline',
+		]);
+		
+		editor.commands.addCommands([{
+			name: "save",
+			bindKey: {
+				win: preferences.getKeyBinding('save'),
+				mac: preferences.getKeyBinding('save', 'mac'),
+				sender: "editor"
+			},
+			exec: jQuery.proxy(function (editor, args, request) {
+				return tabs.save(this);
+			}, tab)
+		}, {
+			name: "saveAs",
+			bindKey: {
+				win: preferences.getKeyBinding('saveAs'),
+				mac: preferences.getKeyBinding('saveAs', 'mac'),
+				sender: "editor"
+			},
+			exec: jQuery.proxy(function (editor, args, request) {
+				return tabs.saveAs(this);
+			}, tab)
+		}, {
+			name: "findPanel",
+			bindKey: {
+				win: preferences.getKeyBinding('find'),
+				mac: preferences.getKeyBinding('find', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				find.open(editor.getSelectedText());
+				return true;
+			}
+		}, {
+			name: "gotoLinePrompt",
+			bindKey: {
+				win: preferences.getKeyBinding('gotoLinePrompt'),
+				mac: preferences.getKeyBinding('gotoLinePrompt', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				prompt.prompt({
+					title: 'Go to Line',
+					fn :function (button, line) {
+						if (button == 'ok') {
+							editor.gotoLine(line);
+							setTimeout(function(){editor.focus();}, 50);
+						}
+					}
+				});
+				return true;
+			}
+		}, {
+			name: "toggleBreakpoint",
+			bindKey: {
+				win: preferences.getKeyBinding('toggleBreakpoint'),
+				mac: preferences.getKeyBinding('toggleBreakpoint', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				var cursor = editor.getCursorPosition();
+				row = cursor.row;
+	
+				var s = editor.getSession();
+	
+				if( s.$breakpoints[row] ){
+					s.clearBreakpoint(row);
+				}else{
+					s.setBreakpoint(row);
+				}
+			}
+		}, {
+			name: "nextBreakpoint",
+			bindKey: {
+				win: preferences.getKeyBinding('nextBreakpoint'),
+				mac: preferences.getKeyBinding('nextBreakpoint', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				var breakpoints = editor.getSession().$breakpoints;
+	
+				var cursor = editor.getCursorPosition();
+				var row = cursor.row;
+	
+				var real_breakpoints = [];
+	
+				for( var i=0; i<breakpoints.length; i++ ) {
+					if(breakpoints[i]=='ace_breakpoint') {
+						if( i>row ){
+							editor.gotoLine(i+1);
+							return;
+						}
+	
+						real_breakpoints.push(i);
+					}
+				}
+	
+				//go back to beginning
+				if( real_breakpoints[0] ){
+					editor.gotoLine(real_breakpoints[0]+1);
+				}
+			}
+		}, {
+			name: "prevBreakpoint",
+			bindKey: {
+				win: preferences.getKeyBinding('prevBreakpoint'),
+				mac: preferences.getKeyBinding('prevBreakpoint', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				var breakpoints = editor.getSession().$breakpoints;
+	
+				var cursor = editor.getCursorPosition();
+				var row = cursor.row;
+	
+				var real_breakpoints = [];
+	
+				for( var i=breakpoints.length; i>0; i-- ) {
+					if(breakpoints[i]=='ace_breakpoint') {
+						if( i<row ){
+							editor.gotoLine(i+1);
+							return;
+						}
+	
+						real_breakpoints.push(i);
+					}
+				}
+	
+	
+				if( real_breakpoints[0] ){
+					editor.gotoLine(real_breakpoints[0]+1);
+				}
+			}
+		}, {
+			name: "clearBreakpoints",
+			exec: function (editor, args, request) {
+				if(typeof row === "undefined"){
+					var cursor = editor.getCursorPosition();
+					row = cursor.row;
+				}
+	
+				var s = editor.getSession();
+	
+				for( var row in s.$breakpoints ){
+					if(s.$breakpoints[row])
+						s.clearBreakpoint(row);
+				}
+			}
+		}, {
+			name: "wrapSelection",
+			exec: function (editor, args, request) {
+				var start = args[0];
+				var end = args[1];
+	
+				var text = editor.getSelectedText();
+	
+				if (text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
+					text = text.substr(start.length, text.length - start.length - end.length);
+				} else {
+					text = start + text + end;
+				}
+	
+				editor.insert(text, true);
+			}
+		}, {
+			name: "prependLineSelection",
+			exec: function (editor, args, request) {
+				var string = args[0];
+	
+				var text = editor.getSelectedText();
+				editor.insert(string + text.replace(new RegExp("\n", 'g'), "\n" + string), true);
+			}
+		}, {
+			name: "appendLineSelection",
+			exec: function (editor, args, request) {
+				var string = args[0];
+	
+				var text = editor.getSelectedText();
+				editor.insert(text.replace(new RegExp("\n", 'g'), string + "\n") + string, true);
+			}
+		}, {
+			name: "replaceInSelection",
+			exec: function (editor, args, request) {
+				var needle = args[0];
+				var replacement = args[1];
+	
+				var text = editor.getSelectedText();
+				editor.insert(text.replace(new RegExp(needle, 'g'), replacement), true);
+			}
+		}, {
+			name: "selectionToUppercase",
+			exec: function (editor, args, request) {
+				var text = editor.getSelectedText();
+				editor.insert(text.toUpperCase(), true);
+			}
+		}, {
+			name: "selectionToLowercase",
+			exec: function (editor, args, request) {
+				var text = editor.getSelectedText();
+				editor.insert(text.toLowerCase(), true);
+			}
+		}, {
+			name: "tabPrev",
+			bindKey: {
+				win: preferences.getKeyBinding('tabPrev'),
+				mac: preferences.getKeyBinding('tabPrev', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				tabs.prev();
+				return true;
+			}
+		}, {
+			name: "tabNext",
+			bindKey: {
+				win: preferences.getKeyBinding('tabNext'),
+				mac: preferences.getKeyBinding('tabNext', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				tabs.next();
+				return true;
+			}
+		}, {
+			name: "applySourceFormatting",
+			bindKey: {
+				win: preferences.getKeyBinding('applySourceFormatting'),
+				mac: preferences.getKeyBinding('applySourceFormatting', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				var prefs = preferences.get_prefs();
+				var toSelection = !editor.getSelection().isEmpty();
+				var mode = editor.getSession().$modeId.substr(9);
+	
+				var tab = '';
+				for (i = 0; i < prefs.tabSize; i++) {
+					tab += ' ';
+				}
+	
+				var code = toSelection ? editor.getSelectedText() : code = editor.getValue();
+	
+				switch (mode) {
+				case 'javascript':
+				case 'json':
+					code = beautify.js_beautify(code, {
+						'indent_size': prefs.softTabs ? prefs.tabSize : 1,
+						'indent_char': prefs.softTabs ? ' ' : '\t',
+						'brace_style': prefs.beautifier_brace_style,
+						'preserve_newlines': prefs.beautifier_preserve_newlines,
+						'keep_array_indentation': prefs.beautifier_keep_array_indentation,
+						'break_chained_methods': prefs.beautifier_break_chained_methods,
+						'space_before_conditional': prefs.beautifier_space_before_conditional,
+						'indent_scripts': prefs.beautifier_indent_scripts
+					});
+					break;
+				case 'css':
+					code = css_beautify.css_beautify(code, {
+						indent: tab,
+						openbrace: prefs.beautifier_open_brace
+					});
+					break;
+				case 'html':
+				case 'php':
+				case 'xml':
+					code = html_beautify.html_beautify(code, {
+						'indent_size': prefs.softTabs ? prefs.tabSize : 1,
+						'indent_char': prefs.softTabs ? ' ' : '\t',
+						'indent_scripts': prefs.beautifier_indent_scripts,
+						'max_char': 78,
+						'brace_style': prefs.beautifier_brace_style,
+						'unformatted': ['?', '?=', '?php', 'a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+						'extra_liners': []
+					});
+					break;
+				default:
+					return;
+				}
+	
+				if (toSelection) {
+					editor.insert(code);
+				} else {
+					editor.setValue(code);
+				}
+			}
+		}, {
+			name: "br",
+			bindKey: {
+				win: "Shift-Return",
+				mac: "Shift-Return",
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				var sel = editor.getSelectionRange();
+				var line = editor.getSession().getLine(sel.start.row);
+				var whitespace = '';
+		
+				for (i = 0; i < line.length; i++) {
+					if (line[i].match(/\s/)) {
+						whitespace += line[i];
+					} else {
+						break;
+					}
+				}
+		
+				editor.insert('<br>\n'+whitespace);
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "copylinesup",
+			bindKey: {
+				win: preferences.getKeyBinding('copyLinesUp'),
+				mac: preferences.getKeyBinding('copyLinesUp', 'mac'),
+				sender: "editor"
+			},
+			exec: function(editor) { editor.copyLinesUp(); },
+			scrollIntoView: "cursor"
+		}, {
+			name: "movelinesup",
+			bindKey: {
+				win: preferences.getKeyBinding('moveLinesUp'),
+				mac: preferences.getKeyBinding('moveLinesUp', 'mac'),
+				sender: "editor"
+			},
+			exec: function(editor) { editor.moveLinesUp(); },
+			scrollIntoView: "cursor"
+		}, {
+			name: "copylinesdown",
+			bindKey: {
+				win: preferences.getKeyBinding('copyLinesDown'),
+				mac: preferences.getKeyBinding('copyLinesDown', 'mac'),
+				sender: "editor"
+			},
+			exec: function(editor) { editor.copyLinesDown(); },
+			scrollIntoView: "cursor"
+		}, {
+			name: "movelinesdown",
+			bindKey: {
+				win: preferences.getKeyBinding('moveLinesDown'),
+				mac: preferences.getKeyBinding('moveLinesDown', 'mac'),
+				sender: "editor"
+			},
+			exec: function(editor) { editor.moveLinesDown(); },
+			scrollIntoView: "cursor"
+		}, {
+			name: "removeline",
+			bindKey: {
+				win: preferences.getKeyBinding('removeLine'),
+				mac: preferences.getKeyBinding('removeLine', 'mac'),
+				sender: "editor"
+			},
+		    exec: function(editor) { editor.removeLines(); },
+		    scrollIntoView: "cursor",
+		    multiSelectAction: "forEachLine"
+		}
+		]);
 	});
 }
 
@@ -854,344 +1236,6 @@ function create(file, content, siteId, options) {
 
 	//editor.completers = [shifteditCompleter];
 
-	//shortcuts
-	editor.commands.addCommand({
-		name: "save",
-		bindKey: {
-			win: "Ctrl-S",
-			mac: "Command-S",
-			sender: "editor"
-		},
-		exec: jQuery.proxy(function (editor, args, request) {
-			return tabs.save(this);
-		}, tab)
-	});
-	editor.commands.addCommand({
-		name: "find",
-		bindKey: {
-			win: "Ctrl-F",
-			mac: "Command-F",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			find.open(editor.getSelectedText());
-			return true;
-		}
-	});
-	editor.commands.addCommand({
-		name: "saveAs",
-		bindKey: {
-			win: "Ctrl-Alt-S",
-			mac: "Command-Alt-S",
-			sender: "editor"
-		},
-		exec: jQuery.proxy(function (editor, args, request) {
-			return tabs.saveAs(this);
-		}, tab)
-	});
-	editor.commands.addCommand({
-		name: "gotoLinePrompt",
-		bindKey: {
-			win: "Ctrl-G",
-			mac: "Command-G",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			prompt.prompt({
-				title: 'Go to Line',
-				fn :function (button, line) {
-					if (button == 'ok') {
-						editor.gotoLine(line);
-						setTimeout(function(){editor.focus();}, 50);
-					}
-				}
-			});
-			return true;
-		}
-	});
-	editor.commands.addCommand({
-		name: "toggleBreakpoint",
-		bindKey: {
-			win: "Ctrl-F2|Alt-b",
-			mac: "Command-F2|Alt-b",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			var cursor = editor.getCursorPosition();
-			row = cursor.row;
-
-			var s = editor.getSession();
-
-			if( s.$breakpoints[row] ){
-				s.clearBreakpoint(row);
-			}else{
-				s.setBreakpoint(row);
-			}
-		}
-	});
-	editor.commands.addCommand({
-		name: "nextBreakpoint",
-		bindKey: {
-			win: "F2|Ctrl-b",
-			mac: "F2|Command-b",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			var breakpoints = editor.getSession().$breakpoints;
-
-			var cursor = editor.getCursorPosition();
-			var row = cursor.row;
-
-			var real_breakpoints = [];
-
-			for( var i=0; i<breakpoints.length; i++ ) {
-				if(breakpoints[i]=='ace_breakpoint') {
-					if( i>row ){
-						editor.gotoLine(i+1);
-						return;
-					}
-
-					real_breakpoints.push(i);
-				}
-			}
-
-			//go back to beginning
-			if( real_breakpoints[0] ){
-				editor.gotoLine(real_breakpoints[0]+1);
-			}
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "prevBreakpoint",
-		bindKey: {
-			win: "Shift-F2|Ctrl-Shift-b",
-			mac: "Shift-F2|Command-Shift-b",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			var breakpoints = editor.getSession().$breakpoints;
-
-			var cursor = editor.getCursorPosition();
-			var row = cursor.row;
-
-			var real_breakpoints = [];
-
-			for( var i=breakpoints.length; i>0; i-- ) {
-				if(breakpoints[i]=='ace_breakpoint') {
-					if( i<row ){
-						editor.gotoLine(i+1);
-						return;
-					}
-
-					real_breakpoints.push(i);
-				}
-			}
-
-
-			if( real_breakpoints[0] ){
-				editor.gotoLine(real_breakpoints[0]+1);
-			}
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "clearBreakpoints",
-		exec: function (editor, args, request) {
-			if(typeof row === "undefined"){
-				var cursor = editor.getCursorPosition();
-				row = cursor.row;
-			}
-
-			var s = editor.getSession();
-
-			for( var row in s.$breakpoints ){
-				if(s.$breakpoints[row])
-					s.clearBreakpoint(row);
-			}
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "wrapSelection",
-		exec: function (editor, args, request) {
-			var start = args[0];
-			var end = args[1];
-
-			var text = editor.getSelectedText();
-
-			if (text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
-				text = text.substr(start.length, text.length - start.length - end.length);
-			} else {
-				text = start + text + end;
-			}
-
-			editor.insert(text, true);
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "prependLineSelection",
-		exec: function (editor, args, request) {
-			var string = args[0];
-
-			var text = editor.getSelectedText();
-			editor.insert(string + text.replace(new RegExp("\n", 'g'), "\n" + string), true);
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "appendLineSelection",
-		exec: function (editor, args, request) {
-			var string = args[0];
-
-			var text = editor.getSelectedText();
-			editor.insert(text.replace(new RegExp("\n", 'g'), string + "\n") + string, true);
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "replaceInSelection",
-		exec: function (editor, args, request) {
-			var needle = args[0];
-			var replacement = args[1];
-
-			var text = editor.getSelectedText();
-			editor.insert(text.replace(new RegExp(needle, 'g'), replacement), true);
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "selectionToUppercase",
-		exec: function (editor, args, request) {
-			var text = editor.getSelectedText();
-			editor.insert(text.toUpperCase(), true);
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "selectionToLowercase",
-		exec: function (editor, args, request) {
-			var text = editor.getSelectedText();
-			editor.insert(text.toLowerCase(), true);
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "tabPrev",
-		bindKey: {
-			win: "Alt-Left",
-			mac: "Command-Left",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			tabs.prev();
-			return true;
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "tabNext",
-		bindKey: {
-			win: "Alt-Right",
-			mac: "Command-Right",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			tabs.next();
-			return true;
-		}
-	});
-
-	editor.commands.addCommand({
-		name: "applySourceFormatting",
-		bindKey: {
-			win: "Alt-Shift-f",
-			mac: "Alt-Shift-f",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			var prefs = preferences.get_prefs();
-			var toSelection = !editor.getSelection().isEmpty();
-			var mode = editor.getSession().$modeId.substr(9);
-
-			var tab = '';
-			for (i = 0; i < prefs.tabSize; i++) {
-				tab += ' ';
-			}
-
-			var code = toSelection ? editor.getSelectedText() : code = editor.getValue();
-
-			switch (mode) {
-			case 'javascript':
-			case 'json':
-				code = beautify.js_beautify(code, {
-					'indent_size': prefs.softTabs ? prefs.tabSize : 1,
-					'indent_char': prefs.softTabs ? ' ' : '\t',
-					'brace_style': prefs.beautifier_brace_style,
-					'preserve_newlines': prefs.beautifier_preserve_newlines,
-					'keep_array_indentation': prefs.beautifier_keep_array_indentation,
-					'break_chained_methods': prefs.beautifier_break_chained_methods,
-					'space_before_conditional': prefs.beautifier_space_before_conditional,
-					'indent_scripts': prefs.beautifier_indent_scripts
-				});
-				break;
-			case 'css':
-				code = css_beautify.css_beautify(code, {
-					indent: tab,
-					openbrace: prefs.beautifier_open_brace
-				});
-				break;
-			case 'html':
-			case 'php':
-			case 'xml':
-				code = html_beautify.html_beautify(code, {
-					'indent_size': prefs.softTabs ? prefs.tabSize : 1,
-					'indent_char': prefs.softTabs ? ' ' : '\t',
-					'indent_scripts': prefs.beautifier_indent_scripts,
-					'max_char': 78,
-					'brace_style': prefs.beautifier_brace_style,
-					'unformatted': ['?', '?=', '?php', 'a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-					'extra_liners': []
-				});
-				break;
-			default:
-				return;
-			}
-
-			if (toSelection) {
-				editor.insert(code);
-			} else {
-				editor.setValue(code);
-			}
-		}
-	});
-	
-	editor.commands.addCommand({
-		name: "br",
-		bindKey: {
-			win: "Shift-Return",
-			mac: "Shift-Return",
-			sender: "editor"
-		},
-		exec: function (editor, args, request) {
-			var sel = editor.getSelectionRange();
-			var line = editor.getSession().getLine(sel.start.row);
-			var whitespace = '';
-	
-			for (i = 0; i < line.length; i++) {
-				if (line[i].match(/\s/)) {
-					whitespace += line[i];
-				} else {
-					break;
-				}
-			}
-	
-			editor.insert('<br>\n'+whitespace);
-		},
-		multiSelectAction: "forEach"
-	});
-
 	//console.log(options);
 	if (options && options.state) {
 		restoreState(options.state);
@@ -1209,7 +1253,7 @@ function create(file, content, siteId, options) {
 
 	$(tab).closest('.ui-tabs').trigger('open');
 	
-	$('<div class="fullscreenBtn" title="Full Screen (Ctrl+Shift+F)"><i class="fa fa-expand"></i></div>').appendTo($(editor.container))
+	$('<div class="fullscreenBtn" title="Full Screen (Ctrl-Shift-F)"><i class="fa fa-expand"></i></div>').appendTo($(editor.container))
 	.click(jQuery.proxy(fullscreen, tab));
 
 	return $(tab);

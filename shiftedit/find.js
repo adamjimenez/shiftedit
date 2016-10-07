@@ -334,6 +334,13 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 	}
 
 	function keyUp(e){
+		if (e.key === 'Escape') {
+			//focus editor
+			var tab = tabs.active();
+			$(".ui-layout-center").trigger("tabsactivate", [{newTab: tab}]);
+			return;
+		}
+		
 		if (['remote'].indexOf(findIn) !== -1) {
 			var s = $('#find').val();
 			$('#findResults').html('');
