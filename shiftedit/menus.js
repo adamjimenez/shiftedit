@@ -66,7 +66,9 @@ define(["jquery.menubar"], function () {
 								jQuery.proxy(menu[i].handler, item, context, checkbox.prop("checked"))();
 								
 								// prevent hash change
-								e.preventDefault();
+								if (e.target.nodeName === 'A') {
+									e.preventDefault();
+								}
 							};
 						}(i, item, context))
 					);
