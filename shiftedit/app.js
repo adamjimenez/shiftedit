@@ -19,6 +19,7 @@ requirejs.config({
 		"ace/ext/language_tools": "ace.20160218/src/ext-language_tools",
 		"ace/autocomplete": "ace.20160218/src/ext-language_tools",
 		"ace/mode/css/csslint": "ace.20160218/src/worker-css",
+		"ace/ext/searchbox": "ace.20160218/src/ext-searchbox",
 		//"ace/ext/emmet": 'ace.20151029/src/ext-emmet',
 		//"firepad": 'firepad/firepad',
 		"firepad-userlist": 'firepad/firepad-userlist',
