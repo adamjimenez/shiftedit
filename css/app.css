@@ -897,6 +897,11 @@ div.fullscreen{
 	padding: 1em;
 }
 
+/* fixes bug in FF where scroll goes off screen*/
+#tree-container {
+	overflow: hidden;
+}
+
 .jstree-default .jstree-clicked{
 	background: none;
 }
