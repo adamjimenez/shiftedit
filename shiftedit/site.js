@@ -531,7 +531,7 @@ function loadUsers() {
 			var html = '';
 
 			data.shared.forEach(function(item){
-				html = '<p>' + item.name + ' <a href="#" data-id="'+item.id+'" class="delete">X</a></p>';
+				html += '<p>' + item.name + ' <a href="#" data-id="'+item.id+'" class="delete">X</a></p>';
 			});
 
 			$('#users').html(html);
