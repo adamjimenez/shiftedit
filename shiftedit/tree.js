@@ -1458,8 +1458,9 @@ function init() {
 						if( v === '' ){
 							return '';
 						}
-
-						return new Date(v*1000).toLocaleString();
+						
+						var d = new Date(v*1000);
+						return d.toLocaleDateString() + ' ' + d.toTimeString().substr(0,5);
 					}
 				},
 				{
