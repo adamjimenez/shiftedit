@@ -87,7 +87,7 @@ function isOpen(file, siteId) {
 	if(li.length && li.index()!==-1){
 		console.log('file already open');
 		li.closest('.ui-tabs').tabs("option", "active", li.index());
-		return true;
+		return li;
 	}
 	
 	return false;
@@ -112,8 +112,8 @@ function openFiles(options) {
 		console.log(item);
 		return false;
 	}
-	
-	if (isOpen(file, siteId)) {
+
+	if (!options.reload && isOpen(file, siteId)) {
 		if (options.callback)
 			options.callback(active(), false);
 		return;
@@ -177,8 +177,21 @@ function openFiles(options) {
 				break;
 				default:
 					//$('#data .default').html(d.content).show();
-					editors.create(file, data.content, ajaxOptions.site, data);
-					recent.add(file, ajaxOptions.site);
+					if (options.reload) {
+						tab = isOpen(file, siteId);
+						
+						if (tab) {
+							editor = getEditor(tab);
+							editor.setValue(data.content);
+							editor.moveCursorToPosition({column:0, row:0});
+							editor.focus();
+						} else {
+							console.error('reload tab not found');
+						}
+					} else {
+						editors.create(file, data.content, ajaxOptions.site, data);
+						recent.add(file, ajaxOptions.site);
+					}
 				break;
 			}
 
@@ -220,6 +233,10 @@ function openFiles(options) {
 			opening = [];
 		});
 	}
+}
+
+function reload(tab) {
+	open(tab.attr('data-file'), tab.attr('data-site'), {reload: true});
 }
 
 function save(tab, options) {
@@ -1121,6 +1138,7 @@ $('body').on('click', 'a.openfile', function() {
 	exports.closeOther = closeOther;
 	exports.closeTabsRight = closeTabsRight;
 	exports.open = open;
+	exports.reload = reload;
 	exports.isOpen = isOpen;
 	exports.recordOpenFiles = recordOpenFiles;
 	exports.next = next;

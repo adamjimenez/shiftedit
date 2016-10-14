@@ -61,6 +61,10 @@ var actions = {
 		label: 'Remove Line',
 		defaultKeyBinding: 'Ctrl-D'
 	},
+	'reload': {
+		label: 'Reload tab',
+		defaultKeyBinding: ''
+	},
 	/*
 	'newTab': {
 		label: 'New Tab',

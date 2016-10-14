@@ -1,4 +1,4 @@
-define(['app/config', 'ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'app/resize', 'ace/ext/language_tools', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace'], function (config, ace, tabs, exports, preferences) {
+define(['app/config', 'ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'app/resize', 'ace/ext/language_tools', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace', 'ace/ext/searchbox'], function (config, ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -723,6 +723,7 @@ function applyPrefs(tab) {
 			'movelinesup',
 			'movelinesdown',
 			'removeline',
+			'reload',
 		]);
 		
 		editor.commands.addCommands([{
@@ -1077,8 +1078,17 @@ function applyPrefs(tab) {
 		    exec: function(editor) { editor.removeLines(); },
 		    scrollIntoView: "cursor",
 		    multiSelectAction: "forEachLine"
-		}
-		]);
+		}, {
+			name: "reload",
+			bindKey: {
+				win: preferences.getKeyBinding('reload'),
+				mac: preferences.getKeyBinding('reload', 'mac'),
+				sender: "editor"
+			},
+			exec: jQuery.proxy(function (editor, args, request) {
+				return tabs.reload(this);
+			}, tab)
+		}]);
 	});
 }
 

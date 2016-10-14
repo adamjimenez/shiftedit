@@ -20,21 +20,7 @@ function init() {
 				break;
 				case 'reload':
 					var tabpanel = tab.closest(".ui-tabs");
-
-					function reloadTab() {
-						tabs.open(file, siteId);
-					}
-
-					tabpanel.one('close', reloadTab);
-					tab.one('closeCancel', function() {
-						tabpanel.off('close', reloadTab);
-					});
-
-					var file = tab.data('file');
-					siteId = tab.data('site');
-					if (file && siteId) {
-						tabs.close(tab);
-					}
+					tabs.reload(tab);
 				break;
 				case 'close':
 					return tabs.close($(this));
@@ -89,7 +75,7 @@ function init() {
 		},
 		items: {
 			"new": {name: makeMenuText(lang.newText + '...', 'Alt-N')},
-			"reload": {name: makeMenuText('Reload', '')},
+			"reload": {name: makeMenuText('Reload', preferences.getKeyBinding('reload'), 'reload')},
 			"close": {name: makeMenuText('Close Tab', 'Alt-W')},
 			"sep1": "---------",
 			"closeOtherTabs": {name: "Close other tabs"},
