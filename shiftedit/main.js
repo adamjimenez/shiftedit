@@ -52,8 +52,6 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 		splash.update('loading sites..');
 		site.load({
 			callback: function() {
-				console.log('load hash');
-	   			require("app/hash").load();
 				if(prefs.restoreTabs) {
 					require('app/restore').restoreBatch(preferences.getOpeningFilesBatch(), function() {
 						$( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).each(function( index ) {
@@ -63,6 +61,8 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 						});
 					});
 				}
+				console.log('load hash');
+	   			require("app/hash").load();
 			}
 		});
 
