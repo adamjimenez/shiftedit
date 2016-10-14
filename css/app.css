@@ -1096,7 +1096,7 @@ div.fullscreen{
 }
 
 .keyboard{
-  width:800px; height: 260px;
+  width:790px; height: 260px;
   background-color: #111;
   margin: 0px auto;
   border-radius: 9px;
@@ -1118,7 +1118,7 @@ div.fullscreen{
 }
 
 .keyboard .section-a{width:650px; height:260px; float:left;}
-.keyboard .section-b{width:150px; height:260px; float:left;}
+.keyboard .section-b{width:126px; height:260px; float:left;}
 
 .keyboard .function{font-size: 12px; width:30px; height:30px; margin-bottom:15px;}
 .keyboard .small{font-size:10px; line-height:13px; text-align: center; padding:0 5px; padding-top:2px; height:28px !important;}
