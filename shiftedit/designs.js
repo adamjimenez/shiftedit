@@ -110,6 +110,11 @@ function create() {
 								}
 							});
 						}
+					},
+					'force_text': true,
+					'themes': {
+						'responsive': false,
+						'variant': 'small'
 					}
 				},
 				'types' : {
@@ -120,7 +125,7 @@ function create() {
 					return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
 				},
 				'plugins' : [
-					'sort','types'
+					'sort', 'types'
 				]
 			}).on('refresh.jstree', function(e, data){
 				//expand root node
@@ -154,6 +159,14 @@ function create() {
 
 								if( settings.web_url ){
 									path = settings.web_url;
+									
+									if (path.indexOf('://') ==-1) {
+										if (parseInt(settings.encryption)) {
+											path = 'https://'+path;
+										} else {
+											path = 'http://'+path;
+										}
+									}
 								}else{
 									path = 	'//'+settings.domain;
 								}
@@ -173,6 +186,9 @@ function create() {
 					Cancel: function() {
 						$( this ).dialog( "close" );
 						$( "#dialog-choose-image" ).remove();
+					},
+					close: function( event, ui ) {
+						$( this ).remove();
 					}
 				}
 			});
