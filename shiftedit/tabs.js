@@ -1,4 +1,4 @@
-define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script', 'app/hash'], function (config, editors, preferences, exports) {
+define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script', 'app/hash', 'uglify/compress'], function (config, editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -297,6 +297,7 @@ function saveFiles(options) {
 	} else if (item.content) {
 		siteId = item.site;
 		title = item.title;
+		file = item.file;
 		content = item.content;
 		mdate = -1;
 	}
@@ -332,7 +333,10 @@ function saveFiles(options) {
 		content = content.substr(0, content.length-1);
 	}
 
+	var confirmed = 1;
 	if (tab) {
+		title = tab.data('title');
+		
 		//save pref
 		if(tab.data('pref')){
 			preferences.save(tab.data('pref'), content);
@@ -345,6 +349,8 @@ function saveFiles(options) {
 			saveAs(tab, options);
 			return;
 		}
+
+		confirmed = tab.data('overwrite') ? tab.data('overwrite') : 0;
 	}
 
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
@@ -364,15 +370,13 @@ function saveFiles(options) {
 	}
 
 	var ajax;
-	if (!loading.start('Saving ' + tab.data('title'), function(){
+	if (!loading.start('Saving ' + title, function(){
 		console.log('abort saving files');
 		ajax.abort();
 	})) {
 		console.log('in queued save');
 		return;
 	}
-
-	var confirmed = tab.data('overwrite') ? tab.data('overwrite') : 0;
 
 	function saveCallback(data) {
 		loading.stop();
@@ -427,7 +431,7 @@ function saveFiles(options) {
 					var newTitle = tab.data('title');
 					var pos = newTitle.indexOf('.');
 					newTitle = newTitle.substr(0, pos) + '.js';
-					var parent = tree.getNode(tree.getNode(tab.data('file')).parent).id;
+					var parent = tree.getNode(tree.getNode(tab.data('file')).parent);
 					content = CoffeeScript.compile(content);
 					var node = tree.findChild(parent, newTitle);
 					var file;
@@ -436,17 +440,48 @@ function saveFiles(options) {
 					}
 
 					saving.push({
+						site: tab.data('site'),
 						title: newTitle,
 						file: file,
 						parent: parent,
 						content: content
 					});
 				}
+				
+				//minify
+				if (minify && util.fileExtension(title)==='js' && !util.endsWith(title, '.min.js')) {
+					var newTitle = tab.data('title');
+					var pos = newTitle.lastIndexOf('.');
+					newTitle = newTitle.substr(0, pos) + '.min.js';
+					var file = tab.data('file');
+					pos = file.lastIndexOf('.');
+					newFile = file.substr(0, pos) + '.min.js';
+					
+					uglify_options = {};
+					
+					content = uglify(content, uglify_options);
+
+					saving.push({
+						site: tab.data('site'),
+						title: newTitle,
+						file: newFile,
+						content: content
+					});
+				}
+				
+				// reload if file doesn't exist
+				if (!tree.getNode(file)) {
+					parent = util.dirname(data.file_id);
+					if (!parent) {
+						parent = '#root';
+					}
+					tree.refresh(parent);
+				}
 
 				//continue with next save
 				if (saving.length) {
 					saveFiles(options);
-				}else if (options.callback) {
+				} else if (options.callback) {
 					if (tab) {
 						tab.closest('.ui-tabs').trigger('save');
 					}
@@ -474,7 +509,7 @@ function saveFiles(options) {
 			callback: saveCallback,
 			mdate: mdate,
 			confirmed: confirmed,
-			minify: minify,
+			//minify: minify,
 			parent: options.parent
 		});
 	} else {
@@ -482,9 +517,9 @@ function saveFiles(options) {
 		params.file = file;
 		params.mdate = mdate;
 		params.confirmed = confirmed;
-		params.minify = minify;
+		//params.minify = minify;
 
-		ajax = $.ajax(ajaxOptions.url+"&cmd=save&file="+encodeURIComponent(file)+"&mdate="+mdate+"&confirmed="+confirmed+"&minify="+minify, {
+		ajax = $.ajax(ajaxOptions.url+"&cmd=save&file="+encodeURIComponent(file)+"&mdate="+mdate+"&confirmed="+confirmed, {
 			method: 'POST',
 			dataType: 'json',
 			data: params,
@@ -1119,6 +1154,82 @@ function init() {
 			tabs.tabs('refresh');
 		}
 	});
+}
+
+var default_options = {
+	parse: {
+		strict: false
+	},
+	compress: {
+		sequences     : true,
+		properties    : true,
+		dead_code     : true,
+		drop_debugger : true,
+		unsafe        : true,
+		unsafe_comps  : true,
+		conditionals  : true,
+		comparisons   : true,
+		evaluate      : true,
+		booleans      : true,
+		loops         : true,
+		unused        : true,
+		hoist_funs    : true,
+		hoist_vars    : false,
+		if_return     : true,
+		join_vars     : true,
+		cascade       : true,
+		side_effects  : true,
+		negate_iife   : true,
+		screw_ie8     : false,
+		
+		warnings      : true,
+		global_defs   : {}
+	},
+	output: {
+		indent_start  : 0,
+		indent_level  : 4,
+		quote_keys    : false,
+		space_colon   : true,
+		ascii_only    : false,
+		inline_script : true,
+		width         : 80,
+		max_line_len  : 32000,
+		beautify      : false,
+		source_map    : null,
+		bracketize    : false,
+		semicolons    : true,
+		comments      : /@license|@preserve|^!/,
+		preserve_line : false,
+		screw_ie8     : false
+	}
+};
+function uglify(code, options) {
+	// Create copies of the options
+	var parse_options = defaults({}, options.parse);
+	var compress_options = defaults({}, options.compress);
+	var output_options = defaults({}, options.output);
+
+	parse_options = defaults(parse_options, default_options.parse, true);
+	compress_options = defaults(compress_options, default_options.compress, true);
+	output_options = defaults(output_options, default_options.output, true);
+
+	// 1. Parse
+	var toplevel_ast = parse(code, parse_options);
+	toplevel_ast.figure_out_scope();
+
+	// 2. Compress
+	var compressor = new Compressor(compress_options);
+	var compressed_ast = toplevel_ast.transform(compressor);
+
+	// 3. Mangle
+	compressed_ast.figure_out_scope();
+	compressed_ast.compute_char_frequency();
+	compressed_ast.mangle_names();
+
+	// 4. Generate output
+	code = compressed_ast.print_to_string(output_options);
+
+	return code;
 }
 
 //listeners

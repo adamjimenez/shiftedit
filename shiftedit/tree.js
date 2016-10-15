@@ -2106,8 +2106,12 @@ function getNode(file){
 	return tree.jstree(true).get_node(file);
 }
 
-function refresh() {
-	tree.jstree(true).refresh();
+function refresh(node) {
+	if (node) {
+		tree.jstree(true).refresh_node(node);
+	} else {
+		tree.jstree(true).refresh();
+	}
 }
 
 function setAjaxOptions(siteOptions) {
