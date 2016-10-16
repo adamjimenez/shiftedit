@@ -1,4 +1,4 @@
-define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script', 'app/hash', 'uglify/compress'], function (config, editors, preferences, exports) {
+define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script', 'app/hash', 'uglify/compress', 'cssmin/cssmin'], function (config, editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -427,17 +427,16 @@ function saveFiles(options) {
 				}
 
 				//compile coffee
+				var newTitle, pos, file;
 				if (prefs.compileCoffeeScript && util.fileExtension(title)==='coffee') {
-					var newTitle = tab.data('title');
-					var pos = newTitle.indexOf('.');
+					newTitle = tab.data('title');
+					pos = newTitle.indexOf('.');
 					newTitle = newTitle.substr(0, pos) + '.js';
-					var parent = tree.getNode(tree.getNode(tab.data('file')).parent);
+					file = tab.data('file');
+					pos = file.lastIndexOf('.');
+					newFile = file.substr(0, pos) + '.js';
+					
 					content = CoffeeScript.compile(content);
-					var node = tree.findChild(parent, newTitle);
-					var file;
-					if(node) {
-						file = node.text;
-					}
 
 					saving.push({
 						site: tab.data('site'),
@@ -450,16 +449,34 @@ function saveFiles(options) {
 				
 				//minify
 				if (minify && util.fileExtension(title)==='js' && !util.endsWith(title, '.min.js')) {
-					var newTitle = tab.data('title');
-					var pos = newTitle.lastIndexOf('.');
+					newTitle = tab.data('title');
+					pos = newTitle.lastIndexOf('.');
 					newTitle = newTitle.substr(0, pos) + '.min.js';
-					var file = tab.data('file');
+					file = tab.data('file');
 					pos = file.lastIndexOf('.');
 					newFile = file.substr(0, pos) + '.min.js';
 					
 					uglify_options = {};
 					
 					content = uglify(content, uglify_options);
+
+					saving.push({
+						site: tab.data('site'),
+						title: newTitle,
+						file: newFile,
+						content: content
+					});
+				}
+				
+				if (minify && util.fileExtension(title)==='css' && !util.endsWith(title, '.min.css')) {
+					newTitle = tab.data('title');
+					pos = newTitle.lastIndexOf('.');
+					newTitle = newTitle.substr(0, pos) + '.min.css';
+					file = tab.data('file');
+					pos = file.lastIndexOf('.');
+					newFile = file.substr(0, pos) + '.min.css';
+					
+					content = cssmin(content);
 
 					saving.push({
 						site: tab.data('site'),
