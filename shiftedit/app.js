@@ -19,6 +19,7 @@ requirejs.config({
 		"ace/ext/language_tools": "ace.20160218/src/ext-language_tools",
 		"ace/autocomplete": "ace.20160218/src/ext-language_tools",
 		"ace/mode/css/csslint": "ace.20160218/src/worker-css",
+		"ace/ext/searchbox": "ace.20160218/src/ext-searchbox",
 		//"ace/ext/emmet": 'ace.20151029/src/ext-emmet',
 		//"firepad": 'firepad/firepad',
 		"firepad-userlist": 'firepad/firepad-userlist',
@@ -99,6 +100,18 @@ requirejs.config({
 			deps: [
 				//"https://apis.google.com/js/client.js"
 			]
+		},
+		"uglify/output": {
+			deps: ['uglify/ast']
+		},
+		"uglify/scope": {
+			deps: ['uglify/ast']
+		},
+		"uglify/transform": {
+			deps: ['uglify/ast']
+		},
+		"uglify/compress": {
+			deps: ['uglify/utils', 'uglify/ast', 'uglify/parse', 'uglify/transform', 'uglify/scope', 'uglify/output']
 		}
 	}
 });

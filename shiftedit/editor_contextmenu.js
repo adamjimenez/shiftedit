@@ -1,8 +1,9 @@
-define(["jquery.contextMenu","app/util",'app/lang','app/tabs','app/menubar'], function () {
+define(["jquery.contextMenu","app/util",'app/lang','app/tabs','app/menubar','app/prefs'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var tabs = require('app/tabs');
 var selectionMenuItems = require('app/menubar').selectionMenuItems;
+var preferences = require('app/prefs');
 
 var items = {};
 var i = 0;
@@ -66,7 +67,7 @@ function init() {
 				"name": "Selection",
 				"items": items
 			},
-			"find": {name: makeMenuText('Find', 'Ctrl-F')},
+			"find": {name: makeMenuText('Find', preferences.getKeyBinding('find'), 'find')},
 			"findPrev": {name: makeMenuText('Find Previous', 'Ctrl-Shift-K')},
 			"findNext": {name: makeMenuText('Find Next', 'Ctrl-K')},
 			"replace": {name: makeMenuText('Replace', 'Ctrl-R')},

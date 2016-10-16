@@ -95,14 +95,42 @@ function init() {
 			maxSize: 30
 		},
 		stateManagement__enabled: true,
+		slideTrigger_close: 'click'
 		//maskContents: true
 		// RESIZE Accordion widget when panes resize
 		//west__onresize: $.layout.callbacks.resizePaneAccordions
 		//east__onresize: $.layout.callbacks.resizePaneAccordions
 	});
 
+	// allow contextmenu to overflow
 	$('body').on('menufocus focusin', '.ui-layout-pane', function() {
 		myLayout.allowOverflow($(this));
+	});
+	
+	// close slide out panes
+	$('body').on('mousedown', function(e) {
+		console.log('hide');
+		if (myLayout.state.west.isSliding) {
+			if ($(e.target).closest('.ui-layout-west').length===0) {
+				console.log(e.target);
+				myLayout.slideClose('west');
+			}
+		}
+		if (myLayout.state.east.isSliding) {
+			if ($(e.target).closest('.ui-layout-east').length===0) {
+				myLayout.slideClose('east');
+			}
+		}
+		if (myLayout.state.south.isSliding) {
+			if ($(e.target).closest('.ui-layout-south').length===0) {
+				myLayout.slideClose('south');
+			}
+		}
+	});
+	
+	// unless using tree context menu
+	$('body').on('mousedown', '.jstree-contextmenu', function(e) {
+		e.stopPropagation();
 	});
 
 	// if a new theme is applied, it could change the height of some content,

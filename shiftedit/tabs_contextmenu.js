@@ -1,10 +1,11 @@
-define(["jquery.contextMenu","app/util",'app/lang','app/tabs','app/prompt','app/site','app/tree'], function () {
+define(["jquery.contextMenu","app/util",'app/lang','app/tabs','app/prompt','app/site','app/tree','app/prefs'], function () {
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var tabs = require('app/tabs');
 var site = require('app/site');
 var prompt = require('app/prompt');
 var tree = require('app/tree');
+var preferences = require('app/prefs');
 
 function init() {
 	$.contextMenu({
@@ -19,21 +20,7 @@ function init() {
 				break;
 				case 'reload':
 					var tabpanel = tab.closest(".ui-tabs");
-
-					function reloadTab() {
-						tabs.open(file, siteId);
-					}
-
-					tabpanel.one('close', reloadTab);
-					tab.one('closeCancel', function() {
-						tabpanel.off('close', reloadTab);
-					});
-
-					var file = tab.data('file');
-					siteId = tab.data('site');
-					if (file && siteId) {
-						tabs.close(tab);
-					}
+					tabs.reload(tab);
 				break;
 				case 'close':
 					return tabs.close($(this));
@@ -87,16 +74,16 @@ function init() {
 			}
 		},
 		items: {
-			"new": {name: makeMenuText(lang.newText + '...', 'Alt+N')},
-			"reload": {name: makeMenuText('Reload', '')},
-			"close": {name: makeMenuText('Close Tab', 'Alt+W')},
+			"new": {name: makeMenuText(lang.newText + '...', 'Alt-N')},
+			"reload": {name: makeMenuText('Reload', preferences.getKeyBinding('reload'), 'reload')},
+			"close": {name: makeMenuText('Close Tab', 'Alt-W')},
 			"sep1": "---------",
 			"closeOtherTabs": {name: "Close other tabs"},
-			"closeAllTabs": {name: makeMenuText('Close all tabs', 'Ctrl+Shift+W')},
+			"closeAllTabs": {name: makeMenuText('Close all tabs', 'Ctrl-Shift-W')},
 			"closeTabsRight": {name: "Close tabs to the right"},
-			"save": {name: makeMenuText('Save', 'Ctrl+S')},
-			"saveAs": {name: makeMenuText('Save as...', 'Ctrl+Alt+S')},
-			"saveAll": {name: makeMenuText('Save all', 'Ctrl+Shift+S')},
+			"save": {name: makeMenuText('Save', preferences.getKeyBinding('save'), 'save')},
+			"saveAs": {name: makeMenuText('Save as...', preferences.getKeyBinding('saveAs'), 'saveAs')},
+			"saveAll": {name: makeMenuText('Save all', 'Ctrl-Shift-S')},
 			"revealInTree": {name: "Reveal in file tree"},
 			"bookmarkAll": {name: "Bookmark all files"}
 		}

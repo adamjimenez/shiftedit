@@ -897,6 +897,11 @@ div.fullscreen{
 	padding: 1em;
 }
 
+/* fixes bug in FF where scroll goes off screen*/
+#tree-container {
+	overflow: hidden;
+}
+
 .jstree-default .jstree-clicked{
 	background: none;
 }
@@ -1089,3 +1094,71 @@ div.fullscreen{
 .closable:hover .tabCloseButton {
 	display: block;
 }
+
+.keyboard{
+  width:790px; height: 260px;
+  background-color: #111;
+  margin: 0px auto;
+  border-radius: 9px;
+  padding: 30px;
+  color: #eee;
+}
+
+.keyboard .key{
+  width: 40px; height:40px;
+  display:block;
+  background-color:#333;
+  text-align: left;
+  padding-left: 8px;
+  line-height: 29px;
+  border-radius:2px;
+  float:left; margin-left: 2px;
+  margin-bottom:2px;
+  /*transition: box-shadow 0.7s ease;*/
+}
+
+.keyboard .section-a{width:650px; height:260px; float:left;}
+.keyboard .section-b{width:126px; height:260px; float:left;}
+
+.keyboard .function{font-size: 12px; width:30px; height:30px; margin-bottom:15px;}
+.keyboard .small{font-size:10px; line-height:13px; text-align: center; padding:0 5px; padding-top:2px; height:28px !important;}
+.keyboard .space1{margin-right: 43px !important;}
+.keyboard .space2{margin-right: 25px !important;}
+.keyboard .dual {font-size: 14px; line-height: 20px; width:30px; }
+.keyboard .backspace {width:84px; font-size: 12px;}
+.keyboard .tab {width: 50px; line-height: 40px; font-size:13px;}
+.keyboard .letter{width:30px;}
+.keyboard .slash{width:64px;}
+.keyboard .caps{width:70px; font-size:12px; line-height:18px;}
+.keyboard .enter{width:92px; line-height:40px; text-align: center; padding-left:0;}
+.keyboard .shift.left{width: 90px;line-height: 40px; font-size:13px;}
+.keyboard .shift.right{width: 104px;line-height: 40px; font-size:13px;}
+.keyboard .ctrl{width: 50px; line-height: 40px; font-size:13px;}
+.keyboard .space{width:234px;}
+.keyboard .arrows{position:relative; top:42px;}
+.keyboard .sec-func .key{width: 32px; font-size:10px; text-align:left; line-height:40px; float:left;}
+.keyboard .sec-func div.dual{line-height:20px;}
+.keyboard .arrows .key{text-align: center; padding-left: 7px; margin-left:2px;}
+.keyboard .hidden{visibility: hidden;}
+
+.keyboard .available {
+	background: green;
+}
+.keyboard .pressed {
+	background: orange !important;
+}
+
+#keyBindingInput{
+	height: 0;
+	width: 0;
+	padding: 0;
+	border: 0;
+	font-size: 0;
+}
+
+#dialog-keyBindings .prefs button{
+	margin: 0 10px;
+	width: 140px;
+}
+
+/*.key:hover{box-shadow:0px 0px 10px #14B524; z-index:1000;}*/

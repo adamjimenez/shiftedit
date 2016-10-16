@@ -433,12 +433,11 @@ return {
 			b: parseInt(result[3], 16)
 		} : null;
 	},
-	makeMenuText: function(text, key) {
-		if(!key) {
-			key ='';
-		}
+	makeMenuText: function(text, key, name) {
+		key = key || '';
+		name = name || '';
 
-		return '<div style="display:inline-block; width:160px;">' + text + '</div><div style="display:inline-block; color: gray;">' + key + '</div>';
+		return '<div class="'+name+'"><div class="label" style="display:inline-block; width:160px;">' + text + '</div><div class="shortcut" style="display:inline-block; color: gray;">' + key + '</div></div>';
 	},
 	fileExtension: fileExtension,
 	getMimetype: function(file) {

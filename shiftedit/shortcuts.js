@@ -9,7 +9,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		fn: function (key, e) {
 			$('#shortcutsSheet').remove();
 		}
-	}, { //close ctrl-alt-n
+	}, { //new tab alt-n
 		key: 78,
 		ctrl: false,
 		alt: true,
@@ -18,7 +18,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		fn: function (key, e) {
 			$('.ui-layout-center').tabs('add');
 		}
-	}, { //close ctrl-o
+	}, { //open ctrl-o
 		key: 79,
 		ctrl: true,
 		scope: this,
@@ -26,7 +26,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		fn: function (key, e) {
 			tabs.open();
 		}
-	}, { //close ctrl-shift-o
+	}, { //choose site ctrl-shift-o
 		key: 79,
 		ctrl: true,
 		shift: true,
@@ -62,7 +62,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		fn: function (key, e) {
 			tabs.closeAll();
 		}
-	}, { //find ctrl+f
+	}, /*{ //find Ctrl-f
 		key: 70,
 		ctrl: true,
 		shift: false,
@@ -75,7 +75,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 				find.open();
 			//}
 		}
-	}, /*{ //find ctrl+k
+	},*/ /*{ //find Ctrl-k
 		key: 75,
 		ctrl: true,
 		shift: false,
@@ -86,7 +86,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 				tabs.getEditor().editor.findNext();
 			}
 		}
-	}, { //find ctrl+shift+k
+	}, { //find Ctrl-Shift-k
 		key: 75,
 		ctrl: true,
 		shift: true,
@@ -105,7 +105,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		fn: function (key, e) {
 			tabs.run();
 		}
-	},*/ { //fullscreen ctrl+shift+f
+	},*/ { //fullscreen Ctrl-Shift-f
 		key: 70,
 		ctrl: true,
 		shift: true,
@@ -114,7 +114,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		fn: function (key, e) {
 			tabs.fullscreen();
 		}
-	}, { //ctrl+u
+	}, { //Ctrl-u
 		key: 85,
 		ctrl: true,
 		shift: false,
@@ -124,7 +124,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 			preferences.open();
 		}
 	},
-	{ //refresh view shift+F5
+	{ //refresh view Shift-F5
 		key: 116,
 		shift: true,
 		scope: this,

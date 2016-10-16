@@ -16,7 +16,7 @@ var tree = require('app/tree');
 
 var selectionMenuItems = [{
 	id: 'collapseSelection',
-	text: makeMenuText(lang.collapseSelection, 'Ctrl+Shift+C'),
+	text: makeMenuText(lang.collapseSelection, 'Ctrl-Shift-C'),
 	handler: function () {
 		var tab = $('.ui-layout-center .ui-tabs-active');
 		var editor = tabs.getEditor(tab);
@@ -26,7 +26,7 @@ var selectionMenuItems = [{
 	target: 'file'
 }, {
 	id: 'expandSelection',
-	text: makeMenuText(lang.expandSelection, 'Ctrl+Shift+E'),
+	text: makeMenuText(lang.expandSelection, 'Ctrl-Shift-E'),
 	handler: function () {
 		var tab = $('.ui-layout-center .ui-tabs-active');
 		var editor = tabs.getEditor(tab);
@@ -197,17 +197,17 @@ function init () {
 			items: [
 			{
 				id: 'new',
-				text: makeMenuText(lang.newText + '...', 'Alt+N'),
+				text: makeMenuText(lang.newText + '...', 'Alt-N'),
 				handler: function () {
 					$('.ui-layout-center').tabs('add');
 				}
 			}, {
-				text: makeMenuText(lang.open + '...', 'Ctrl+O'),
+				text: makeMenuText(lang.open + '...', 'Ctrl-O'),
 				handler: function () {
 					tabs.open();
 				}
 			}, {
-				text: makeMenuText(lang.open + ' Site', 'Ctrl+Shift+O'),
+				text: makeMenuText(lang.open + ' Site', 'Ctrl-Shift-O'),
 				handler: function () {
 					setTimeout(function() { site.focus(); }, 0);
 				}
@@ -218,7 +218,7 @@ function init () {
 				}
 			}, '-', {
 				id: 'save',
-				text: makeMenuText(lang.saveText, 'Ctrl+S'),
+				text: makeMenuText(lang.saveText, preferences.getKeyBinding('save'), 'save'),
 				handler: function () {
 					tabs.save($('.ui-layout-center .ui-tabs-active'));
 				},
@@ -226,7 +226,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'saveAs',
-				text: makeMenuText(lang.saveAsText + '...'),
+				text: makeMenuText(lang.saveAsText + '...', preferences.getKeyBinding('saveAs'), 'saveAs'),
 				handler: function () {
 					tabs.saveAs($('.ui-layout-center .ui-tabs-active'));
 				},
@@ -234,7 +234,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'saveAll',
-				text: makeMenuText(lang.saveAllText + '...', 'Ctrl+Shift+S'),
+				text: makeMenuText(lang.saveAllText + '...', 'Ctrl-Shift-S'),
 				handler: function () {
 					tabs.saveAll();
 				},
@@ -284,7 +284,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'revisionHistory',
-				text: makeMenuText(lang.revisionHistoryText + '...', 'Ctrl+Alt+Shift+H'),
+				text: makeMenuText(lang.revisionHistoryText + '...', 'Ctrl-Alt-Shift-H'),
 				disabled: true,
 				target: 'file'
 			},/*
@@ -296,7 +296,7 @@ function init () {
 			},*/ '-',
 			{
 				id: 'print',
-				text: makeMenuText(lang.print+'...', 'Ctrl+P'),
+				text: makeMenuText(lang.print+'...', 'Ctrl-P'),
 				disabled: true,
 				target: 'file',
 				handler: function() {
@@ -309,7 +309,7 @@ function init () {
 			text: lang.editText,
 			items: [{
 				id: 'goToLine',
-				text: makeMenuText(lang.goToLineText, 'Ctrl+L'),
+				text: makeMenuText(lang.goToLineText, preferences.getKeyBinding('gotoLinePrompt'), 'gotoLinePrompt'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -319,7 +319,7 @@ function init () {
 				target: 'file'
 			}, '-', {
 				id: 'toggleBreakpoint',
-				text: makeMenuText('Toggle Breakpoint', 'Alt+B'),
+				text: makeMenuText('Toggle Breakpoint', preferences.getKeyBinding('toggleBreakpoint'), 'toggleBreakpoint'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -329,7 +329,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'nextBreakpoint',
-				text: makeMenuText('Next Breakpoint', 'Ctrl+B'),
+				text: makeMenuText('Next Breakpoint', preferences.getKeyBinding('nextBreakpoint'), 'nextBreakpoint'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -340,7 +340,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'prevBreakpoint',
-				text: makeMenuText('Previous Breakpoint', 'Ctrl+Shift+B'),
+				text: makeMenuText('Previous Breakpoint', preferences.getKeyBinding('prevBreakpoint'), 'prevBreakpoint'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -361,7 +361,7 @@ function init () {
 				target: 'file'
 			}, '-', {
 				id: 'toggleComment',
-				text: makeMenuText(lang.toggleComment, 'Ctrl+/'),
+				text: makeMenuText(lang.toggleComment, 'Ctrl-/'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -371,7 +371,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'jumpToMatching',
-				text: makeMenuText('Jump to Matching', 'Ctrl+P'),
+				text: makeMenuText('Jump to Matching', 'Ctrl-P'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -382,7 +382,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'selectToMatching',
-				text: makeMenuText('Select to Matching', 'Ctrl+Shift+P'),
+				text: makeMenuText('Select to Matching', 'Ctrl-Shift-P'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -402,7 +402,7 @@ function init () {
 				}
 			}, '-', {
 				id: 'copyLinesUp',
-				text: makeMenuText(lang.copyLinesUp, 'Shift+Alt+Up'),
+				text: makeMenuText(lang.copyLinesUp, preferences.getKeyBinding('copyLinesUp'), 'copyLinesUp'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -412,7 +412,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'copyLinesDown',
-				text: makeMenuText(lang.copyLinesDown, 'Shift+Alt+Down'),
+				text: makeMenuText(lang.copyLinesDown, preferences.getKeyBinding('copyLinesDown'), 'copyLinesDown'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -422,7 +422,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'moveLinesUp',
-				text: makeMenuText(lang.moveLinesUp, 'Alt+Up'),
+				text: makeMenuText(lang.moveLinesUp, preferences.getKeyBinding('moveLinesUp'), 'moveLinesUp'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -432,7 +432,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'moveLinesDown',
-				text: makeMenuText(lang.moveLinesDown, 'Alt+Down'),
+				text: makeMenuText(lang.moveLinesDown, preferences.getKeyBinding('moveLinesDown'), 'moveLinesDown'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -442,7 +442,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'deleteLines',
-				text: makeMenuText(lang.deleteLines, 'Ctrl+D'),
+				text: makeMenuText(lang.deleteLines, preferences.getKeyBinding('removeLine'), 'removeLine'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -452,7 +452,7 @@ function init () {
 				target: 'file'
 			}, '-', {
 				id: 'addSemicolon',
-				text: makeMenuText(lang.addSemicolon, 'Ctrl+;'),
+				text: makeMenuText(lang.addSemicolon, 'Ctrl-;'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -462,7 +462,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'applySourceFormatting',
-				text: makeMenuText('Beautify', 'Alt+Shift+F'),
+				text: makeMenuText('Beautify', 'Alt-Shift-F'),
 				handler: function () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
@@ -472,9 +472,13 @@ function init () {
 				disabled: true,
 				target: 'file'
 			}, {
-				id: 'openPreferences',
-				text: makeMenuText(lang.preferencesText, 'Ctrl+U'),
-				scope: this
+				id: 'keyboardShortcuts',
+				text: makeMenuText('Keyboard Bindings'),
+				handler: preferences.openKeyBindings
+			}, {
+				id: 'preferences',
+				text: makeMenuText(lang.preferencesText, 'Ctrl-U'),
+				handler: preferences.open
 			}]
 		},
 
@@ -590,7 +594,7 @@ function init () {
 				}
 			}, {
 				id: 'toggleTreeView',
-				text: makeMenuText('Toggle Tree View', 'Ctrl+\\'),
+				text: makeMenuText('Toggle Tree View', 'Ctrl-\\'),
 				handler: function (item, checked) {
 					tree.toggle();
 				}
@@ -636,10 +640,6 @@ function init () {
 				handler: function() {
 					window.open('/changelog');
 				}
-			}, {
-				id: 'keyboardShortcuts',
-				text: makeMenuText('Shortcuts', 'Ctrl+/'),
-				handler: shortcuts.show
 			}, {
 				id: 'about',
 				text: lang.aboutShiftEdit,
