@@ -101,16 +101,8 @@ requirejs.config({
 				//"https://apis.google.com/js/client.js"
 			]
 		},
-		"uglify/output": {
-			deps: ['uglify/ast']
-		},
-		"uglify/scope": {
-			deps: ['uglify/ast']
-		},
-		"uglify/transform": {
-			deps: ['uglify/ast']
-		},
 		"uglify/compress": {
+			exports: "Compressor",
 			deps: ['uglify/utils', 'uglify/ast', 'uglify/parse', 'uglify/transform', 'uglify/scope', 'uglify/output']
 		}
 	}
