@@ -391,10 +391,11 @@ function saveFiles(options) {
 					title: 'File changed',
 					msg: 'File has changed since last save.. save anyway?',
 					fn: function(value) {
-					   switch(value) {
+						switch(value) {
 							case 'yes':
-							   tab.data('overwrite', 1);
-							   saveFiles();
+								saving.unshift(item);
+								tab.data('overwrite', 1);
+								saveFiles();
 							break;
 							case 'no':
 							case 'cancel':
