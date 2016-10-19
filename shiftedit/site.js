@@ -1076,10 +1076,6 @@ function test() {
 							hints+= '<li>* Enable SSL or click Shield icon in address bar, then "Load unsafe script</li>';
 						}
 
-						if( params.web_url.substr(0, 7) !== 'http://' && params.web_url.substr(0, 8) !== 'https://' ){
-							hints+= '<li>* Web url should begin with http:// or https://</li>';
-						}
-
 						hints += '<li>* Ensure Dir points to web root e.g. /httpdocs/</li>';
 
 						prompt.alert({title: 'Error', msg: "Couldn't access web url:<ul>"+hints+'</ul>'});
