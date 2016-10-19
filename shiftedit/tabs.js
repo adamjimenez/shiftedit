@@ -1,4 +1,4 @@
-define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'coffee-script', 'app/hash', 'uglify/compress', 'cssmin/cssmin'], function (config, editors, preferences, exports) {
+define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'app/resize', 'coffee-script', 'app/hash', 'uglify/compress', 'cssmin/cssmin'], function (config, editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -9,6 +9,7 @@ var modes = require('app/modes').modes;
 var recent = require('app/recent');
 var tree = require('app/tree');
 var hash = require('app/hash');
+var resize = require('app/resize');
 var closing = [];
 var saving = [];
 var opening = [];
@@ -1250,6 +1251,21 @@ function uglify(code, options) {
 	return code;
 }
 
+fullScreen = function (toggle) {
+	var editor = getEditor(this);
+	var editorDiv = $(editor.container);
+	
+	if (toggle!== false && !editorDiv.hasClass('fullScreen')) {
+		editorDiv.addClass('fullScreen');
+		$('body').addClass('fullScreen');
+	} else {
+		$('.fullScreen').removeClass('fullScreen');
+	}
+	
+	editor.focus();
+	resize.resize();
+};
+
 //listeners
 $('body').on('click', 'a.openfile', function() {
 	open($(this).data('file'), $(this).data('site'));
@@ -1273,4 +1289,5 @@ $('body').on('click', 'a.openfile', function() {
 	exports.next = next;
 	exports.prev = prev;
 	exports.setTitle = setTitle;
+	exports.fullScreen = fullScreen;
 });
