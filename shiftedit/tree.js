@@ -257,7 +257,7 @@ function newFile(data) {
 	var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
 
 	var extension = data.item.extension;
-	var prefix = data.item.name ? data.item.name : 'untitled';
+	var prefix = data.item.hasOwnProperty('name') ? data.item.name : 'untitled';
 	var newName = prefix + '.' + extension;
 
 	var i = 0;
