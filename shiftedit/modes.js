@@ -26,7 +26,6 @@ define(['app/prefs'], function (preferences) {
 		['fsharp', 'F#', ['fs'], 'text/x-f#src'],
 		['golang', 'Go', ['go'], 'text/x-go'],
 		['groovy', 'Groovy', ['groovy'], 'text/x-groovy'],
-		['htaccess', 'Htaccess', ['htaccess'], 'text/plain'],
 		['jade', 'Jade', ['jade'], 'text/x-jade'],
 		['java', 'Java', ['java'], 'text/x-java'],
 		['jsx', 'JSX', ['jsx'], 'text/x-jsx'],
