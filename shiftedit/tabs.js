@@ -869,7 +869,7 @@ function newTab (e, ui) {
 	var addedModes = [];
 	prefs.newFiles.forEach(function(value) {
 		modes.forEach(function(mode) {
-			if (mode[2][0]===value) {
+			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
 				HTML += '<li class="'+mode[0]+'"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
 				addedModes.push(mode[2][0]);
 			}
@@ -881,7 +881,7 @@ function newTab (e, ui) {
 	HTML = '';
 	prefs.newFilesOther.forEach(function(value) {
 		modes.forEach(function(mode) {
-			if (mode[2][0]===value) {
+			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
 				HTML += '<li class="'+mode[0]+'"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
 				addedModes.push(mode[2][0]);
 			}
