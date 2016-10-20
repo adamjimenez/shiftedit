@@ -849,6 +849,8 @@ function newTab (e, ui) {
 			<div class="column">\
 				<h5>Recent</h5>\
 				<ul class="recentFiles"></ul>\
+				<ul class="moreRecentFiles" style="display:none;"></ul>\
+				<a href="#" class="toggleMoreRecent">' + showMoreText + '</i></a>\
 			</div>\
 			<div class="column">\
 				<h5>Other</h5>\
@@ -941,14 +943,27 @@ function newTab (e, ui) {
 
 	//recent files
 	var recentFiles = recent.getRecent();
-	HTML = '';
-	for (i in recentFiles) {
+	HTML = {0:'', 1:''};
+	var key = 0;
+	for (var i in recentFiles) {
 		if (recentFiles.hasOwnProperty(i)) {
-			HTML += '<li><a href="#" title="'+recentFiles[i].file+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + util.basename(recentFiles[i].file)+ '</a></li>';
+			if (i==10){
+				key = 1;
+			}
+		
+			HTML[key] += '<li><a href="#" title="'+recentFiles[i].file+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + util.basename(recentFiles[i].file)+ '</a></li>';
 		}
 	}
 
-	panel.find('ul.recentFiles').append(HTML);
+	panel.find('ul.recentFiles').append(HTML[0]);
+	panel.find('ul.moreRecentFiles').append(HTML[1]);
+	
+	panel.find('.toggleMoreRecent').click(function() { 
+		var el = this;
+		panel.find('.moreRecentFiles').slideToggle(400, function() {
+			$(el).text(panel.find('.moreRecentFiles').is(':visible') ? showLessText : showMoreText);
+		}); 
+	});
 
 	panel.find('a.openfile').click(function() {
 		var tabpanel = $(ui.tab.closest('.ui-tabs'));
