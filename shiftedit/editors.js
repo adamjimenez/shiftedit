@@ -512,22 +512,6 @@ function addFirepad(tab) {
 	}, tab));
 }
 
-fullscreen = function () {
-	var editor = tabs.getEditor(this);
-	var editorDiv = $(editor.container);
-	
-	if (!editorDiv.hasClass('fullscreen')) {
-		editorDiv.addClass('fullscreen');
-		$('body').addClass('fullscreen');
-	} else {
-		editorDiv.removeClass('fullscreen');
-		$('body').removeClass('fullscreen');
-	}
-	
-	editor.focus();
-	resize.resize();
-};
-
 _autoIndentOnPaste = function(editor, noidea, e) {
 	var session = editor.getSession();
 	var pos = editor.getSelectionRange().start;
@@ -724,6 +708,7 @@ function applyPrefs(tab) {
 			'movelinesdown',
 			'removeline',
 			'reload',
+			'fullScreen',
 		]);
 		
 		editor.commands.addCommands([{
@@ -1088,6 +1073,16 @@ function applyPrefs(tab) {
 			exec: jQuery.proxy(function (editor, args, request) {
 				return tabs.reload(this);
 			}, tab)
+		}, {
+			name: "fullScreen",
+			bindKey: {
+				win: preferences.getKeyBinding('fullScreen'),
+				mac: preferences.getKeyBinding('fullScreen', 'mac'),
+				sender: "editor"
+			},
+			exec: jQuery.proxy(function (editor, args, request) {
+				return jQuery.proxy(tabs.fullScreen, this)();
+			}, tab)
 		}]);
 	});
 }
@@ -1263,8 +1258,8 @@ function create(file, content, siteId, options) {
 
 	$(tab).closest('.ui-tabs').trigger('open');
 	
-	$('<div class="fullscreenBtn" title="Full Screen (Ctrl-Shift-F)"><i class="fa fa-expand"></i></div>').appendTo($(editor.container))
-	.click(jQuery.proxy(fullscreen, tab));
+	$('<div class="fullScreenBtn" title="Full Screen (Ctrl-Shift-F)"><i class="fa fa-expand"></i></div>').appendTo($(editor.container))
+	.click(jQuery.proxy(tabs.fullScreen, tab));
 
 	return $(tab);
 }

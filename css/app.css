@@ -330,11 +330,11 @@ li[role=tab] .ui-icon {
 	opacity: 0.5;
 }
 
-body.fullscreen .editor, body.fullscreen .ui-layout-content, body.fullscreen .ui-layout-pane{
+body.fullScreen .editor, body.fullScreen .ui-layout-content, body.fullScreen .ui-layout-pane{
 	position: static !important;
 }
 
-div.fullscreen{
+div.fullScreen{
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -345,7 +345,7 @@ div.fullscreen{
 	z-index: 3;
 }
 
-.fullscreenBtn{
+.fullScreenBtn{
 	position: absolute;
 	top: 15px;
 	right: 15px;
@@ -356,7 +356,7 @@ div.fullscreen{
 	opacity: 0.4;
 }
 
-.fullscreenBtn:hover{
+.fullScreenBtn:hover{
 	opacity:1;
 }
 
@@ -860,6 +860,14 @@ div.fullscreen{
 	width: 25%;
 	float: left;
 	margin: 10px;
+}
+
+.fileTypes, .moreFileTypes{
+	min-height: 20px;
+}
+
+.dropable{
+	border: 2px dashed #ccc;
 }
 
 .editor{

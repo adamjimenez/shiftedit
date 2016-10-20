@@ -15,7 +15,7 @@ define(['app/prefs'], function (preferences) {
 		['python', 'Python', ['py'], 'application/x-python'],
 
 		//the rest
-		['apache_conf', 'Apache Conf', ['htaccess', 'htpasswd'], 'text/htaccess'],
+		['apache_conf', 'Apache Conf', ['htaccess', 'htpasswd'], 'text/htaccess', ''],
 		['autohotkey', 'AutoHotkey', ['ahk'], 'text/autohotkey'],
 		['c_cpp', 'C++', ['cpp', 'h'], 'text/x-c++src'],
 		['clojure', 'Clojure', ['clojure'], 'text/x-clojure'],
@@ -26,7 +26,6 @@ define(['app/prefs'], function (preferences) {
 		['fsharp', 'F#', ['fs'], 'text/x-f#src'],
 		['golang', 'Go', ['go'], 'text/x-go'],
 		['groovy', 'Groovy', ['groovy'], 'text/x-groovy'],
-		['htaccess', 'Plain Text', ['htaccess'], 'text/plain'],
 		['jade', 'Jade', ['jade'], 'text/x-jade'],
 		['java', 'Java', ['java'], 'text/x-java'],
 		['jsx', 'JSX', ['jsx'], 'text/x-jsx'],

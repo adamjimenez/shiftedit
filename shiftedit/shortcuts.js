@@ -105,16 +105,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		fn: function (key, e) {
 			tabs.run();
 		}
-	},*/ { //fullscreen Ctrl-Shift-f
-		key: 70,
-		ctrl: true,
-		shift: true,
-		scope: this,
-		stopEvent: true,
-		fn: function (key, e) {
-			tabs.fullscreen();
-		}
-	}, { //Ctrl-u
+	},*/ { //Ctrl-u
 		key: 85,
 		ctrl: true,
 		shift: false,
@@ -212,6 +203,7 @@ define(['app/config', 'app/tabs','app/find', 'app/prefs', 'app/site', 'app/tree'
 		scope: this,
 		stopEvent: true,
 		fn: function (key, e) {
+			jQuery.proxy(tabs.fullScreen, tabs.active())(false);
 			tree.toggle();
 		}
 	}, { //ctrl-alt-shift-h

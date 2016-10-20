@@ -65,6 +65,10 @@ var actions = {
 		label: 'Reload tab',
 		defaultKeyBinding: ''
 	},
+	'fullScreen': {
+		label: 'FullScreen',
+		defaultKeyBinding: 'Ctrl-Shift-F'
+	},
 	/*
 	'newTab': {
 		label: 'New Tab',
