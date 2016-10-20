@@ -930,7 +930,7 @@ function newTab (e, ui) {
 			});
 			
 			preferences.save('newFiles', newFiles);
-			preferences.save('moreFileTypes', newFilesOther);
+			preferences.save('newFilesOther', newFilesOther);
 		}
 	});
 	
