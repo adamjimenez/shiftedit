@@ -862,6 +862,14 @@ div.fullScreen{
 	margin: 10px;
 }
 
+.fileTypes, .moreFileTypes{
+	min-height: 20px;
+}
+
+.dropable{
+	border: 2px dashed #ccc;
+}
+
 .editor{
 	flex-grow: 1;
 	position: relative;

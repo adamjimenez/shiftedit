@@ -832,44 +832,72 @@ function newTab (e, ui) {
 	var editors = require('app/editors');
 	var panelId = tab.attr( "aria-controls" );
 	var panel = $( "#"+panelId );
+	
+	var showMoreText = 'Show more';
+	var showLessText = 'Show less';
+	
+	var prefs = preferences.get_prefs();
 
 	panel.append('\
-			<div class="newTab">\
-				<div class="column">\
-					<h5>Create</h5>\
-					<ul class="fileTypes"></ul>\
-				</div>\
-				<div class="column">\
-					<h5>Recent</h5>\
-					<ul class="recentFiles"></ul>\
-				</div>\
-				<div class="column">\
-					<h5>Other</h5>\
-					<ul class="other">\
-						<li><a href="#" class="site">New Site</a></li>\
-						<li><a href="#" class="preview">Preview</a></li>\
-						<li><a href="#" class="ssh">SSH</a></li>\
-						<li><a href="#" class="diff">File Compare</a></li>\
-						<li><a href="#" class="preferences">Preferences</a></li>\
-					</ul>\
-				</div>\
+		<div class="newTab">\
+			<div class="column">\
+				<h5>Create</h5>\
+				<ul class="fileTypes"></ul>\
+				<ul class="moreFileTypes" style="display:none;"></ul>\
+				<a href="#" class="toggleMore">' + showMoreText + '</i></a>\
 			</div>\
-			<br style="clear: both">\
-		');
+			<div class="column">\
+				<h5>Recent</h5>\
+				<ul class="recentFiles"></ul>\
+			</div>\
+			<div class="column">\
+				<h5>Other</h5>\
+				<ul class="other">\
+					<li><a href="#" class="site">New Site</a></li>\
+					<li><a href="#" class="preview">Preview</a></li>\
+					<li><a href="#" class="ssh">SSH</a></li>\
+					<li><a href="#" class="diff">File Compare</a></li>\
+					<li><a href="#" class="preferences">Preferences</a></li>\
+				</ul>\
+			</div>\
+		</div>\
+		<br style="clear: both">\
+	');
 
-	//new files
+	// new files
 	var HTML = '';
-	for (var i in modes) {
-		if (modes.hasOwnProperty(i)) {
-			HTML += '<li class="'+modes[i][0]+'"><a href="#" data-filetype="'+modes[i][2][0]+'" class="newfile file-' + modes[i][2][0] + '">' + modes[i][1] + '</a></li>';
-		}
-	}
-
+	var addedModes = [];
+	prefs.newFiles.forEach(function(value) {
+		modes.forEach(function(mode) {
+			if (mode[2][0]===value) {
+				HTML += '<li class="'+mode[0]+'"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+				addedModes.push(mode[2][0]);
+			}
+		});
+	});
 	panel.find('ul.fileTypes').append(HTML);
+	
+	// other file types
+	HTML = '';
+	prefs.newFilesOther.forEach(function(value) {
+		modes.forEach(function(mode) {
+			if (mode[2][0]===value) {
+				HTML += '<li class="'+mode[0]+'"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+				addedModes.push(mode[2][0]);
+			}
+		});
+	});
+	
+	// lump any that aren't found into other
+	modes.forEach(function(mode) {
+		if (addedModes.indexOf(mode[2][0])===-1) {
+			HTML += '<li class="'+mode[0]+'"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+		}
+	});
+	panel.find('ul.moreFileTypes').append(HTML);
 
 	panel.find('a.newfile').click(function() {
 		var tabpanel = $(ui.tab.closest('.ui-tabs'));
-		var prefs = preferences.get_prefs();
 
 		var content = '';
 		if( prefs.defaultCode && prefs.defaultCode[this.dataset.filetype] ){
@@ -878,6 +906,37 @@ function newTab (e, ui) {
 
 		close(ui.tab);
 		editors.create("untitled."+this.dataset.filetype, content, null, {tabpanel: tabpanel});
+	});
+	
+	panel.find( ".fileTypes, .moreFileTypes" ).sortable({
+		axis: "y",
+		connectWith: panel.find( ".fileTypes, .moreFileTypes" ),
+		start: function( event, ui ) {
+			panel.find( ".fileTypes, .moreFileTypes" ).addClass('dropable');
+			panel.find('.toggleMore').text(showLessText);
+			panel.find('.moreFileTypes').show();
+		},
+		stop: function( event, ui ) {
+			panel.find( ".fileTypes, .moreFileTypes" ).removeClass('dropable');
+			
+			var newFiles = [];
+			panel.find('.fileTypes li a').each(function( index ) {
+				newFiles.push($(this).data('filetype'));
+			});
+			
+			var newFilesOther = [];
+			panel.find('.moreFileTypes li a').each(function( index ) {
+				newFilesOther.push($(this).data('filetype'));
+			});
+			
+			preferences.save('newFiles', newFiles);
+			preferences.save('moreFileTypes', newFilesOther);
+		}
+	});
+	
+	panel.find('.toggleMore').click(function() { 
+		panel.find('.moreFileTypes').toggle(); 
+		$(this).text(panel.find('.moreFileTypes').is(':visible') ? showLessText : showMoreText);
 	});
 
 	//recent files

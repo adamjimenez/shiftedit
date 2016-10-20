@@ -107,6 +107,8 @@ defaultPrefs.fileColumns = true;
 defaultPrefs.notes = '';
 defaultPrefs.find = '{}';
 defaultPrefs.skinUrl = '';
+defaultPrefs.newFiles = ['html', 'js', 'css', 'php', 'json', 'xml', 'txt'];
+defaultPrefs.newFilesOther = [];
 
 var skins = [{
 	title: "Dark Orange",
