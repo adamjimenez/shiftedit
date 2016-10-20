@@ -916,7 +916,7 @@ function newTab (e, ui) {
 		start: function( event, ui ) {
 			panel.find( ".fileTypes, .moreFileTypes" ).addClass('dropable');
 			panel.find('.toggleMore').text(showLessText);
-			panel.find('.moreFileTypes').show();
+			panel.find('.moreFileTypes').slideDown();
 		},
 		stop: function( event, ui ) {
 			panel.find( ".fileTypes, .moreFileTypes" ).removeClass('dropable');
@@ -936,9 +936,11 @@ function newTab (e, ui) {
 		}
 	});
 	
-	panel.find('.toggleMore').click(function() { 
-		panel.find('.moreFileTypes').toggle(); 
-		$(this).text(panel.find('.moreFileTypes').is(':visible') ? showLessText : showMoreText);
+	panel.find('.toggleMore').click(function() {
+		var el = this;
+		panel.find('.moreFileTypes').slideToggle(400, function() {
+			$(el).text(panel.find('.moreFileTypes').is(':visible') ? showLessText : showMoreText);
+		}); 
 	});
 
 	//recent files
