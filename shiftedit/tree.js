@@ -1,4 +1,4 @@
-define(['exports', 'app/config', 'resumable', "jstreetable","app/util","app/editors","app/prompt",'app/lang','app/tabs','app/loading', 'app/site', 'app/layout', 'app/ssh'], function (exports, config, Resumable) {
+define(['exports', 'app/config', 'app/prefs', 'resumable', "jstreetable","app/util","app/editors","app/prompt",'app/lang', 'app/tabs' ,'app/loading', 'app/site', 'app/layout', 'app/ssh', "app/modes"], function (exports, config, preferences, Resumable) {
 var util = require('app/util');
 var editor = require('app/editors');
 var lang = require('app/lang').lang;
@@ -8,6 +8,7 @@ var loading = require('app/loading');
 var site = require('app/site');
 var layout = require('app/layout');
 var ssh = require('app/ssh');
+var modes = require('app/modes').modes;
 var ajaxOptions = {};
 var tree;
 var confirmed = false;
@@ -257,7 +258,7 @@ function newFile(data) {
 	var parent = obj.type == 'default' ? obj : inst.get_node(obj.parent);
 
 	var extension = data.item.extension;
-	var prefix = data.item.hasOwnProperty('name') ? data.item.name : 'untitled';
+	var prefix = typeof(data.item.name) === 'string' ? data.item.name : 'untitled';
 	var newName = prefix + '.' + extension;
 
 	var i = 0;
@@ -1159,74 +1160,34 @@ function init() {
 		},
 		'contextmenu' : {
 			'items' : function(node) {
-				//var tmp = $.jstree.defaults.contextmenu.items();
+				var prefs = preferences.get_prefs();
+
+				var submenu = {
+					"create_folder": {
+					"separator_after": true,
+					"label": "Folder",
+					"action": newFolder
+				}};
+				
+				var addedModes = [];
+				prefs.newFiles.forEach(function(value) {
+					modes.forEach(function(mode) {
+						if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
+							submenu["create_"+mode[2][0]] = {
+								"label": mode[1]+" file",
+								"action": newFile,
+								"extension": mode[2][0],
+								"name": mode[4]
+							};
+							addedModes.push(mode[2][0]);
+						}
+					});
+				});
 
 				var tmp = {
 					"create": {
 						"label": "New",
-						"submenu": {
-							"create_folder": {
-								"separator_after": true,
-								"label": "Folder",
-								"action": newFolder
-							},
-							"create_html": {
-								"label": "HTML file",
-								"action": newFile,
-								"extension": 'html'
-							},
-							"create_php": {
-								"label": "PHP file",
-								"action": newFile,
-								"extension": 'php'
-							},
-							"create_css": {
-								"label": "CSS file",
-								"action": newFile,
-								"extension": 'css'
-							},
-							"create_js": {
-								"label": "JS file",
-								"action": newFile,
-								"extension": 'js'
-							},
-							"create_json": {
-								"label": "JSON file",
-								"action": newFile,
-								"extension": 'json'
-							},
-							"create_htaccess": {
-								"label": "Htaccess file",
-								"action": newFile,
-								"extension": 'htaccess',
-								"name": ''
-							},
-							"create_ruby": {
-								"label": "Ruby file",
-								"action": newFile,
-								"extension": 'rb'
-							},
-							"create_python": {
-								"label": "Python file",
-								"action": newFile,
-								"extension": 'py'
-							},
-							"create_perl": {
-								"label": "Perl file",
-								"action": newFile,
-								"extension": 'pl'
-							},
-							"create_text": {
-								"label": "Text file",
-								"action": newFile,
-								"extension": 'txt'
-							},
-							"create_xml": {
-								"label": "XML file",
-								"action": newFile,
-								"extension": 'xml'
-							}
-						}
+						"submenu": submenu
 					},
 					"open": {
 						"label": "Open",

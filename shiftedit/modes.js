@@ -15,7 +15,7 @@ define(['app/prefs'], function (preferences) {
 		['python', 'Python', ['py'], 'application/x-python'],
 
 		//the rest
-		['apache_conf', 'Apache Conf', ['htaccess', 'htpasswd'], 'text/htaccess'],
+		['apache_conf', 'Apache Conf', ['htaccess', 'htpasswd'], 'text/htaccess', ''],
 		['autohotkey', 'AutoHotkey', ['ahk'], 'text/autohotkey'],
 		['c_cpp', 'C++', ['cpp', 'h'], 'text/x-c++src'],
 		['clojure', 'Clojure', ['clojure'], 'text/x-clojure'],
