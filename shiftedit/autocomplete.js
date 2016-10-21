@@ -657,7 +657,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 				}
 			}
 
-			if( def ){
+			if( typeof(def)==='string' ){
 				console.log('Def: '+ def);
 
 				var count = 0;
