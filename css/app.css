@@ -135,6 +135,10 @@ li[role=tab] .ui-icon {
 	font-size: 12px !important;
 }
 
+.ui-menu-item {
+	display: block;
+}
+
 .ui-menu-item a{
 	text-decoration: none;
 }
@@ -144,6 +148,30 @@ li[role=tab] .ui-icon {
 	overflow-x: hidden;
 	overflow-y: scroll;
 	z-index: 1000000 !important;
+}
+
+.menu-item {
+	display: flex;
+	justify-content: space-between;
+}
+
+.menu-item .label {
+	min-width: 160px;
+	display: inline-block;
+}
+
+.menu-item .shortcut {
+	color: gray;
+	text-align: right;
+	display: inline-block;
+}
+
+.context-menu-list {
+	min-width: 280px !important;
+}
+
+.context-menu-item {
+	padding: 2px 20px;
 }
 
 /* dialogs */
