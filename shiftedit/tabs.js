@@ -953,7 +953,14 @@ function newTab (e, ui) {
 				key = 1;
 			}
 		
-			HTML[key] += '<li><a href="#" title="'+recentFiles[i].file+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + util.basename(recentFiles[i].file)+ '</a></li>';
+			var title = recentFiles[i].file;
+			settings = site.getSettings(recentFiles[i].site);
+			
+			if (settings) {
+				title = settings.name+'/'+title;
+			}
+		
+			HTML[key] += '<li><a href="#" title="'+title+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + util.basename(recentFiles[i].file)+ '</a></li>';
 		}
 	}
 
