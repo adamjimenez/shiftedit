@@ -84,8 +84,8 @@ function init() {
 		south__size: 300,
 		south__initClosed: true,
 		livePaneResizing: true,
+		enableCursorHotkey: false,
 		north: {
-			enableCursorHotkey: false,
 			closable: false,
 			resizable: false,
 			spacing_open: 0,
