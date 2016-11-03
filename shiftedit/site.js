@@ -84,17 +84,17 @@ function init() {
 	//button menu
 	var items = [{
 		id: 'newsite',
-		text: 'New site..',
+		text: 'New site...',
 		handler: create,
 		disabled: false
 	}, {
 		id: 'editsite',
-		text: 'Edit site..',
+		text: 'Edit site...',
 		handler: edit,
 		disabled: true
 	}, {
 		id: 'duplicate',
-		text: 'Duplicate..',
+		text: 'Duplicate...',
 		handler: duplicate,
 		disabled: true
 	}, {
