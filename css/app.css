@@ -62,9 +62,9 @@ textarea{
 }
 
 /* TAB-THEME ADJUSTMENTS */
-.ui-tabs-panel {
-	font-size: 1em !important;
-	padding: 0 !important;
+.ui-widget-header, .ui-tabs .ui-tabs-panel {
+	font-size: 1em;
+	padding: 0;
 }
 
 .ui-layout-west li[role=tab]{
@@ -132,7 +132,7 @@ li[role=tab] .ui-icon {
 }
 
 .ui-widget {
-	font-size: 12px !important;
+	font-size: 12px;
 }
 
 .ui-menu-item {
@@ -242,14 +242,16 @@ li[role=tab] .ui-icon {
 .vakata-context .vakata-contextmenu-shortcut{
 	display: inline;
 	opacity: 1;
+	margin-left: auto;
 }
 
-.vakata-context {
-	 z-index: 999 !important;
+.vakata-context, .vakata-context ul {
+	z-index: 999 !important;
+	min-width: 200px;
 }
 
-.vakata-context ul {
-	z-index: 2;
+.vakata-context li > a {
+	display: flex;
 }
 
 .filter{
@@ -482,9 +484,10 @@ div.fullScreen{
 
 #hosted_container .ui-checkboxradio-label, #stack_container .ui-checkboxradio-label, #providerRadio .ui-checkboxradio-label{
 	background: #ccc;
+	min-width: 106px;
 }
 
-#hosted_container .ui-checkboxradio-checked, #stack_container .ui-checkboxradio-checked{
+#hosted_container .ui-checkboxradio-checked, #stack_container .ui-checkboxradio-checked, #providerRadio .ui-checkboxradio-checked{
 	background: #fff;
 }
 
@@ -867,15 +870,6 @@ div.fullScreen{
 	list-style: none;
 	padding: 0;
 	font-size: 12px;
-	overflow: hidden;
-}
-
-.newTab li{
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
-
-.newTab h5{
 	margin: 0;
 }
 
@@ -883,11 +877,96 @@ div.fullScreen{
 	text-decoration: none;
 }
 
-.newTab .column{
+.newTab a:hover{
+	text-decoration: underline !important;
+}
+
+.newTab .box li a, .newTab .box > a{
 	display: block;
-	width: 25%;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	padding: 6px 10px;
+	white-space: nowrap;
+}
+
+.newTab .box{
+    padding-bottom: 10px;
+    margin: 10px;
+}
+
+.newTab .columns{
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.newTab .columns .box{
+	min-width: 200px;
+	flex: 1;
+}
+
+.newTab h3{
+	margin: 0;
+	padding: 10px;
+}
+
+.newTab button{
+	float: right;
+	margin-top: -6px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 50%;
+	white-space: nowrap;
+}
+
+.newTab .other li a, .newTab .repos li a, .newTab .moreRepos li a{
+	padding-left: 30px;
+}
+
+.newTab .other li a i, .newTab .repos li a i, .newTab .moreRepos li a i{
+	margin-top: 2px;
+	margin-left: -20px;
 	float: left;
-	margin: 10px;
+}
+
+.newTab .news{
+	margin-bottom: 0;
+}
+
+.newTab .news .copy{
+	padding: 0 10px 10px
+}
+
+.newTab .news .inner{
+	position: relative;
+}
+
+.newTab .news h3{
+	padding: 6px 10px 4px 10px;
+}
+
+.newTab .news .closeButton{
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	opacity: 0.5;
+}
+
+.newTab .news .closeButton:hover {
+	opacity: 1;
+}
+
+#dialog-addRepositories button{
+	line-height: 48px;
+	width: 100%;
+	padding-left: 60px;
+	font-size: 20px;
+	margin: 10px 0;
+}
+
+#dialog-addRepositories i{
+	font-size: 50px;
+	position: absolute;
+	left: 20px;
 }
 
 .fileTypes, .moreFileTypes{

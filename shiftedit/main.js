@@ -1,4 +1,4 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache', 'app/prompt', 'app/git', 'app/servers'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/repositories','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache', 'app/prompt', 'app/git', 'app/servers'], function (exports) {
 	var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
 	var locale = require("app/lang");
 	var preferences = require("app/prefs");
@@ -68,6 +68,8 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 
 		var recent = require("app/recent");
 		recent.load();
+		var repositories = require("app/repositories");
+		repositories.load();
 		var shortcuts = require("app/shortcuts");
 		shortcuts.load();
 		var definitions = require("app/definitions");
