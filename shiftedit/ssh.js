@@ -78,17 +78,6 @@ if( typeof Terminal !== 'undefined' ){
 			var tabId = $(el).closest('[role=tabpanel]').attr('id');
 			var tab = $('[aria-controls='+tabId+']');
 			tab.attr('title', tab.attr('title')+' - disconnected');
-
-			var session = tab.data('session');
-			if(session)
-				session.destroy();
-
-			//session = null;
-
-			console.log('tty destroyed');
-
-			if (tty.terms[id])
-				tty.terms[id].destroy();
 		});
 
 		// XXX Clean this up.
@@ -456,6 +445,33 @@ $('body').on('click','.newTab .ssh', function(){
 	var id = $(this).closest('[role=tabpanel]').attr('id');
 	var tab = $('[aria-controls='+id+']');
 	tabs.close(tab);
+});
+
+// clean up closed tabs
+$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', function(e, ui) {
+	var id = $(this).data('ssh');
+	
+	if (!id) {
+		return;
+	}
+
+	if (!tty.terms[id]) return;
+
+	var el = tty.terms[id].element;
+	var tabId = $(ui.tab).attr('id');
+	var tab = $('[aria-controls='+tabId+']');
+	var session = tab.data('session');
+	
+	if(session)
+		session.destroy();
+		
+	//session = null;
+
+	console.log('tty destroyed');
+
+	if (tty.terms[id]) {
+		tty.terms[id].destroy();
+	}
 });
 
 /*
