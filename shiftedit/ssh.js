@@ -183,10 +183,15 @@ if( typeof Terminal !== 'undefined' ){
 
 	Tab.prototype.doResize = function(){
 		var term = tty.terms[this.id];
-		var rowHeight = $(this.element).children(":first").children(":first").height();
+		var charEl = $('<span>M</span>').appendTo($(this.element));
+		var charWidth = Math.ceil(charEl.width());
+		var charHeight = Math.ceil(charEl.height());
+		charEl.remove();
 		
-		cols = Math.floor($(this.element).parent().width() / 7);
-		rows = Math.floor($(this.element).parent().height() / rowHeight);
+		// console.log('resize '+charWidth+'x'+charHeight);
+		
+		cols = Math.floor($(this.element).parent().outerWidth() / charWidth)-1;
+		rows = Math.floor($(this.element).parent().outerHeight() / charHeight)-1;
 
 		console.log('resize '+cols+'x'+rows);
 
