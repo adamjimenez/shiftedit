@@ -68,16 +68,44 @@ if( typeof Terminal !== 'undefined' ){
 		});
 
 		tty.socket.on('kill', function(id) {
-			//prompt.alert({title:'Disconnected', msg: 'The connection has closed.'});
-
-			console.log('ssh killed');
+			console.log('ssh disconnected');
 
 			if (!tty.terms[id]) return;
-
 			var el = tty.terms[id].element;
 			var tabId = $(el).closest('[role=tabpanel]').attr('id');
 			var tab = $('[aria-controls='+tabId+']');
 			tab.attr('title', tab.attr('title')+' - disconnected');
+			
+			$( "body" ).append('<div id="dialog-ssh-disconnected" class="ui-front" title="SSH disconnected">\
+				Session has disconnected\
+			</div>');
+		
+			//open dialog
+			var dialog = $( "#dialog-ssh-disconnected" ).dialog({
+				modal: true,
+				width: 420,
+				height: 300,
+				close: function( event, ui ) {
+					$( this ).remove();
+				},
+				buttons: {
+					Reconnect: function() {
+						$( this ).dialog( "close" );
+						var id = tab.data('ssh');
+						var session = tab.data('session');
+						var shellArgs = tab.data('shellArgs');
+						session.destroy();
+						session = new Tab(shellArgs, id);
+						tab.data('session', session);
+						session.focus();
+					},
+					"Choose connection": function() {
+						$( this ).dialog( "close" );
+						var tabpanel = $(tab).closest('.ui-tabs');
+						open(tabpanel);
+					}
+				}
+			});
 		});
 
 		// XXX Clean this up.
@@ -131,21 +159,21 @@ if( typeof Terminal !== 'undefined' ){
 		if (!title) return;
 		//console.log('ssh title '+title);
 
-		$('[data-ssh='+this.index+']').attr('title', title);
+		var tab = $('[data-ssh='+this.index+']');
+		tab.attr('title', title);
+		tab.children('.ui-tabs-anchor').contents().last().replaceWith(title);
 
 		title = sanitize(title);
 		this.title = title;
 
 		if (Terminal.focus === this) {
 			document.title = title;
-			// if (h1) h1.innerHTML = title;
 		}
 	};
 
 	Tab.prototype._write = Tab.prototype.write;
 
 	Tab.prototype.write = function(data) {
-		//if (this.window.focused !== this) this.button.style.color = 'red';
 		return this._write(data);
 	};
 
@@ -252,6 +280,7 @@ function new_session(tab, host, username, port, cwd){
 	var shellArgs = '-p '+port+' '+username+'@'+host;
 	var session = new Tab(shellArgs, index, cwd);
 	session.focus();
+	tab.data('shellArgs', shellArgs);
 	tab.data('session', session);
 	tab.on('beforeClose', function() {
 		console.log('close session');
@@ -352,7 +381,7 @@ function open(tabpanel){
 	//open dialog
 	var dialog = $( "#dialog-ssh" ).dialog({
 		modal: true,
-		width: 400,
+		width: 420,
 		height: 300,
 		close: function( event, ui ) {
 			$( this ).remove();
