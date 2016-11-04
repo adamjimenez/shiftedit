@@ -875,6 +875,7 @@ div.fullScreen{
 
 .newTab a{
 	text-decoration: none;
+	font-size: 12px;
 }
 
 .newTab a:hover{
