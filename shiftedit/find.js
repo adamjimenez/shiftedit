@@ -543,6 +543,12 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 				}
 			}
 		});
+		$('#findForm [name=find], #findForm [name=replace]').keydown(function(e) {
+			if (e.keyCode==70 && e.ctrlKey) {
+				open();
+				e.preventDefault();
+			}
+		});
 		$('#findForm [name=find]').keyup(keyUp);
 		$('#findNextBtn').click(nextSearch);
 		$('#findPrevBtn').click(previousSearch);
