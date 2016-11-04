@@ -205,6 +205,11 @@ if( typeof Terminal !== 'undefined' ){
 		var charHeight = Math.ceil(charEl.height());
 		charEl.remove();
 		
+		// prevent divide by zero
+		if (!charWidth || !charHeight) {
+			return false;
+		}
+		
 		// console.log('resize '+charWidth+'x'+charHeight);
 		
 		cols = Math.floor($(this.element).parent().outerWidth() / charWidth)-1;
