@@ -14,7 +14,8 @@ selectionMenuItems.forEach(function(item) {
 	}else{
 		items[item.id] = {
 			"name": item.text,
-			"callback": item.handler
+			"callback": item.handler,
+			isHtmlName: true
 		};
 	}
 });
@@ -67,16 +68,16 @@ function init() {
 				"name": "Selection",
 				"items": items
 			},
-			"find": {name: makeMenuText('Find', preferences.getKeyBinding('find'), 'find')},
-			"findPrev": {name: makeMenuText('Find Previous', 'Ctrl-Shift-K')},
-			"findNext": {name: makeMenuText('Find Next', 'Ctrl-K')},
-			"replace": {name: makeMenuText('Replace', 'Ctrl-R')},
-			"replaceAll": {name: makeMenuText('Replace All', 'Ctrl-Shift-R')},
+			"find": {name: makeMenuText('Find', preferences.getKeyBinding('find'), 'find'), isHtmlName: true},
+			"findPrev": {name: makeMenuText('Find Previous', 'Ctrl-Shift-K'), isHtmlName: true},
+			"findNext": {name: makeMenuText('Find Next', 'Ctrl-K'), isHtmlName: true},
+			"replace": {name: makeMenuText('Replace', 'Ctrl-R'), isHtmlName: true},
+			"replaceAll": {name: makeMenuText('Replace All', 'Ctrl-Shift-R'), isHtmlName: true},
 			"sep1": "---------",
-			"selectAll": {name: makeMenuText('Select All', 'Ctrl-A')},
+			"selectAll": {name: makeMenuText('Select All', 'Ctrl-A'), isHtmlName: true},
 			"sep2": "---------",
-			"undo": {name: makeMenuText('Undo', 'Ctrl-Z')},
-			"redo": {name: makeMenuText('Redo', 'Ctrl-Y')}
+			"undo": {name: makeMenuText('Undo', 'Ctrl-Z'), isHtmlName: true},
+			"redo": {name: makeMenuText('Redo', 'Ctrl-Y'), isHtmlName: true}
 		}
 	});
 }

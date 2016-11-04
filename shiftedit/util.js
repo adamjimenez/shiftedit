@@ -437,7 +437,7 @@ return {
 		key = key || '';
 		name = name || '';
 
-		return '<div class="'+name+'"><div class="label" style="display:inline-block; width:160px;">' + text + '</div><div class="shortcut" style="display:inline-block; color: gray;">' + key + '</div></div>';
+		return '<div class="'+name+' menu-item"><div class="label">' + text + '</div><div class="shortcut">' + key + '</div></div>';
 	},
 	fileExtension: fileExtension,
 	getMimetype: function(file) {

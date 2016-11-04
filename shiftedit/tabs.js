@@ -1,4 +1,4 @@
-define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'app/resize', 'coffee-script', 'app/hash', 'uglify/compress', 'cssmin/cssmin'], function (config, editors, preferences, exports) {
+define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/repositories', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'app/resize', 'coffee-script', 'app/hash', 'uglify/compress', 'cssmin/cssmin'], function (config, editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -7,6 +7,7 @@ var util = require('app/util');
 var lang = require('app/lang').lang;
 var modes = require('app/modes').modes;
 var recent = require('app/recent');
+var repositories = require('app/repositories');
 var tree = require('app/tree');
 var hash = require('app/hash');
 var resize = require('app/resize');
@@ -837,34 +838,70 @@ function newTab (e, ui) {
 	var showLessText = 'Show less';
 	
 	var prefs = preferences.get_prefs();
+	var news = preferences.getNews();
 
 	panel.append('\
 		<div class="newTab">\
-			<div class="column">\
-				<h5>Create</h5>\
-				<ul class="fileTypes"></ul>\
-				<ul class="moreFileTypes" style="display:none;"></ul>\
-				<a href="#" class="toggleMore">' + showMoreText + '</i></a>\
+			<div class="box news">\
+				<div class="ui-widget-content inner">\
+					<h3><a href="/blog/' + news.page_name + '" target="_blank">' + news.headline + '</a></h3>\
+					<div class="copy">' + news.copy + '</div>\
+					<a href="#" class="closeButton" data-name="' + news.page_name + '"><i class="fa fa-times"></i></a>\
+				</div>\
 			</div>\
-			<div class="column">\
-				<h5>Recent</h5>\
-				<ul class="recentFiles"></ul>\
-				<ul class="moreRecentFiles" style="display:none;"></ul>\
-				<a href="#" class="toggleMoreRecent">' + showMoreText + '</i></a>\
-			</div>\
-			<div class="column">\
-				<h5>Other</h5>\
-				<ul class="other">\
-					<li><a href="#" class="site">New Site</a></li>\
-					<li><a href="#" class="preview">Preview</a></li>\
-					<li><a href="#" class="ssh">SSH</a></li>\
-					<li><a href="#" class="diff">File Compare</a></li>\
-					<li><a href="#" class="preferences">Preferences</a></li>\
-				</ul>\
+			<div class="columns">\
+				<div class="box create">\
+					<h3 class="ui-widget-header">Create</h3>\
+					<ul class="fileTypes"></ul>\
+					<ul class="moreFileTypes" style="display:none; margin-top: 10px;"></ul>\
+					<a href="#" class="toggleMore ui-state-default">' + showMoreText + '</i></a>\
+				</div>\
+				<div class="box recent">\
+					<h3 class="ui-widget-header">Recent</h3>\
+					<ul class="recentFiles"></ul>\
+					<ul class="moreRecentFiles" style="display:none;"></ul>\
+					<a href="#" class="toggleMore ui-state-default">' + showMoreText + '</i></a>\
+				</div>\
+				<div class="box repositories">\
+					<h3 class="ui-widget-header">\
+						Repositories\
+						<button type="button" class="addRepositories">Add repositories</button>\
+					</h3>\
+					<ul class="repos"></ul>\
+					<ul class="moreRepos" style="display:none;"></ul>\
+					<a href="#" class="toggleMore ui-state-default">' + showMoreText + '</i></a>\
+				</div>\
+				<div class="box tools">\
+					<h3 class="ui-widget-header">Tools</h3>\
+					<ul class="other">\
+						<li class="ui-state-default"><a href="#" class="ssh"><i class="fa fa-terminal"></i> Terminal</a></li>\
+						<li class="ui-state-default"><a href="#" class="preview"><i class="fa fa-desktop"></i> Preview</a></li>\
+						<li class="ui-state-default"><a href="#" class="diff"><i class="fa fa-files-o"></i> File Compare</a></li>\
+						<li class="ui-state-default"><a href="#" class="preferences"><i class="fa fa-wrench"></i> Preferences</a></li>\
+						<li class="ui-state-default"><a href="#" class="server"><i class="fa fa-server"></i> Servers</a></li>\
+					</ul>\
+				</div>\
 			</div>\
 		</div>\
 		<br style="clear: both">\
 	');
+	
+	// hide for non-center panel
+	var pane = tab.closest('.ui-layout-pane');
+	var paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
+	if (paneName!='center') {
+		panel.find('.news, .create, .recent, .repositories').hide();
+	}
+	
+	// news
+	if (!news.page_name || localStorage.read === news.page_name) {
+		panel.find('.news').hide();
+	}
+	
+	panel.find('.news .closeButton').click(function() {
+		$(this).parent().hide();
+		localStorage.read = $(this).data('name');
+	});
 
 	// new files
 	var HTML = '';
@@ -872,7 +909,7 @@ function newTab (e, ui) {
 	prefs.newFiles.forEach(function(value) {
 		modes.forEach(function(mode) {
 			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
-				HTML += '<li class="'+mode[0]+'"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
@@ -884,7 +921,7 @@ function newTab (e, ui) {
 	prefs.newFilesOther.forEach(function(value) {
 		modes.forEach(function(mode) {
 			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
-				HTML += '<li class="'+mode[0]+'"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
@@ -893,7 +930,7 @@ function newTab (e, ui) {
 	// lump any that aren't found into other
 	modes.forEach(function(mode) {
 		if (addedModes.indexOf(mode[2][0])===-1) {
-			HTML += '<li class="'+mode[0]+'"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+			HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
 		}
 	});
 	panel.find('ul.moreFileTypes').append(HTML);
@@ -914,8 +951,8 @@ function newTab (e, ui) {
 		axis: "y",
 		connectWith: panel.find( ".fileTypes, .moreFileTypes" ),
 		start: function( event, ui ) {
-			panel.find( ".fileTypes, .moreFileTypes" ).addClass('dropable');
-			panel.find('.toggleMore').text(showLessText);
+			panel.find( ".fileTypes, .moreFileTypes" ).addClass('dropable')
+			.next('.toggleMore').text(showLessText);
 			panel.find('.moreFileTypes').slideDown();
 		},
 		stop: function( event, ui ) {
@@ -938,8 +975,9 @@ function newTab (e, ui) {
 	
 	panel.find('.toggleMore').click(function() {
 		var el = this;
-		panel.find('.moreFileTypes').slideToggle(400, function() {
-			$(el).text(panel.find('.moreFileTypes').is(':visible') ? showLessText : showMoreText);
+		var more = $(el).prev();
+		more.slideToggle(400, function() {
+			$(el).text(more.is(':visible') ? showLessText : showMoreText);
 		}); 
 	});
 
@@ -953,24 +991,159 @@ function newTab (e, ui) {
 				key = 1;
 			}
 		
-			HTML[key] += '<li><a href="#" title="'+recentFiles[i].file+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + util.basename(recentFiles[i].file)+ '</a></li>';
+			var title = recentFiles[i].file;
+			settings = site.getSettings(recentFiles[i].site);
+			
+			if (settings) {
+				title = settings.name+'/'+title;
+			}
+		
+			HTML[key] += '<li class="ui-state-default"><a href="#" title="'+title+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + title + '</a></li>';
 		}
 	}
 
 	panel.find('ul.recentFiles').append(HTML[0]);
 	panel.find('ul.moreRecentFiles').append(HTML[1]);
 	
-	panel.find('.toggleMoreRecent').click(function() { 
-		var el = this;
-		panel.find('.moreRecentFiles').slideToggle(400, function() {
-			$(el).text(panel.find('.moreRecentFiles').is(':visible') ? showLessText : showMoreText);
-		}); 
-	});
-
 	panel.find('a.openfile').click(function() {
 		var tabpanel = $(ui.tab.closest('.ui-tabs'));
 		close(ui.tab);
 		open($(this).data('file'), $(this).data('site'), {tabpanel: tabpanel});
+	});
+	
+	function updateToggleMore() {
+		panel.find('.toggleMore').each(function( index ) {
+			var el = this;
+			var more = $(el).prev();
+			if (!more.children().length) {
+				$(el).hide();
+			}
+		});
+	}
+
+	//repos
+	var sources = {};
+	function updateRepos() {
+		panel.find('ul.moreRepos, ul.repos').html('');
+		
+		var items = repositories.getAll();
+		var HTML = {0:'', 1:''};
+		var key = 0;
+		$.each(items, function( index, item ) {
+			if (index==10){
+				key = 1;
+			}
+			
+			var icon = '';
+			
+			switch(item.source) {
+				case 'github':
+					icon = '<i class="fa fa-github"></i>';
+				break;
+				case 'bitbucket':
+					icon = '<i class="fa fa-bitbucket"></i>';
+				break;
+			}
+		
+			HTML[key] += '<li class="ui-state-default"><a href="#" title="'+item.name+'" data-url="'+item.url+'" class="openRepo">' + icon + ' ' + item.name + '</a></li>';
+		});
+		
+		panel.find('ul.repos').append(HTML[0]);
+		panel.find('ul.moreRepos').append(HTML[1]);
+		
+		updateToggleMore();
+		
+		sources = repositories.getSources();
+		if (sources && (!sources.github.active || !sources.bitbucket.active)) {
+			$('.addRepositories').show();
+		} else {
+			$('.addRepositories').hide();
+		}
+	}
+	updateRepos();
+
+	panel.find('a.openRepo').click(function() {
+		//close(ui.tab);
+		var url = $(this).data('url');
+		var name = $(this).attr('title');
+		
+		// load site if it exists or prompt to create one
+		items = site.get();
+		
+		var found = false;
+		$.each(items, function( index, item ) {
+			//console.log(item);
+			if (item.git_url == url) {
+				console.log('load site');
+				found = true;
+				site.open(item.id);
+				return false;
+			}
+		});
+		
+		if (!found) {
+			site.edit(true);
+			
+			// set name
+			$('#siteSettings input[name="name"]').val(name).focus();
+			
+			// select tab
+			$('[name=serverTypeItem][value="Server"]:first').prop("checked", true).change();
+			$( "#serverTypeRadio input[type='radio']" ).checkboxradio('refresh');
+			
+			// select repo
+			$( "#git_url_select" ).combobox('val', url);
+			$( "#git_url" ).val(url);
+		}
+	});
+	
+	panel.find('.addRepositories').button().click(function() {
+		//import site dialog
+		$( "body" ).append('<div id="dialog-addRepositories" title="Add Repositories">\
+			<form>\
+				<button type="button" class="connect-github" data-url="/account/services/github">\
+					<i class="fa fa-github"></i>\
+					Connect to Github\
+				</button>\
+				<button type="button" class="connect-bitbucket" data-url="/account/services/bitbucket">\
+					<i class="fa fa-bitbucket"></i>\
+					Connect to Bitbucket\
+				</button>\
+			</form>\
+		</div>');
+		
+		$('.connect-github, .connect-bitbucket').button()
+		.click(function() {
+			window.open($(this).data('url'));
+		});
+		
+		if (sources.github.active) {
+			$('.connect-github').button( "option", "disabled", true );
+		}
+		
+		if (sources.bitbucket.active) {
+			$('.connect-bitbucket').button( "option", "disabled", true );
+		}
+
+		//open dialog
+		var dialog = $( "#dialog-addRepositories" ).dialog({
+			modal: true,
+			width: 400,
+			height: 220,
+			resizable: false,
+			close: function( event, ui ) {
+				$( this ).remove();
+				
+				// refresh repos
+				panel.find('ul.moreRepos, ul.repos').html('<div style="text-align: center; margin: 10px;"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
+				
+				repositories.load()
+				.then(function (data) {
+					updateRepos();
+				});
+			}
+		});
+		
 	});
 
 	$(this).trigger("tabsactivate", [{newTab:ui.tab}]);
@@ -1001,7 +1174,7 @@ function tabActivate(tab) {
 	} else {
 		var tabpanel = $(tab).closest(".ui-tabs");
 		var panel = tabpanel.tabs('getPanelForTab', tab);
-		panel.find('a').first().focus();
+		panel.find('.columns a').first().focus();
 	}
 
 	$(tab).trigger('activate');

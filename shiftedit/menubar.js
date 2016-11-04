@@ -212,7 +212,7 @@ function init () {
 					setTimeout(function() { site.focus(); }, 0);
 				}
 			}, {
-				text: 'Upload',
+				text: 'Upload...',
 				handler: function(){
 					$('#upload').click();
 				}
@@ -473,7 +473,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'keyboardShortcuts',
-				text: makeMenuText('Keyboard Bindings'),
+				text: makeMenuText('Keyboard Bindings...'),
 				handler: preferences.openKeyBindings
 			}, {
 				id: 'preferences',
@@ -642,7 +642,7 @@ function init () {
 				}
 			}, {
 				id: 'about',
-				text: lang.aboutShiftEdit,
+				text: lang.aboutShiftEdit + '...',
 				handler: function() {
 					var d = new Date();
 					var year = d.getFullYear();

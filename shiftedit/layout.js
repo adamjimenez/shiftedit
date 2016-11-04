@@ -84,8 +84,8 @@ function init() {
 		south__size: 300,
 		south__initClosed: true,
 		livePaneResizing: true,
+		enableCursorHotkey: false,
 		north: {
-			enableCursorHotkey: false,
 			closable: false,
 			resizable: false,
 			spacing_open: 0,
@@ -150,6 +150,20 @@ function init() {
 
 	//send resize events to window
 	$('.ui-layout-pane').on('layoutpaneonresize', function() { $(window).trigger('resize'); });
+	
+	// expand panes when tab is dragged over
+	$('.ui-layout-resizer').droppable({
+		over: function( e, ui ) {
+			// get nearest panel
+			var paneName = this.className.match('ui-layout-resizer-([a-z]*)')[1];
+	
+			// expand panel
+			myLayout.open(paneName);
+			
+			// refresh target dropzones
+			$( ".ui-layout-"+paneName+" .ui-tabs-nav" ).sortable( "refresh" );
+		}
+	});
 }
 
 exports.init = init;

@@ -10,6 +10,7 @@ var loading = require('app/loading');
 var tree = require('app/tree');
 var keybindings = require('app/keybindings');
 var openingFilesBatch = [];
+var news = {};
 
 var defaultPrefs = {};
 defaultPrefs.skin = 'mint-choc';
@@ -702,6 +703,8 @@ function load() {
 			storage.set('authToken', data.authToken);
 			storage.set('avatar', data.avatar);
 			storage.set('public_key', data.public_key);
+			
+			news = data.news;
 
 			//load skin
 			if(prefs.skin) {
@@ -925,6 +928,7 @@ function open(tabpanel) {
 
 	//check if already open
 	var tab = $('li[data-type=prefs]');
+	var pane;
 	var paneName = 'east';
 	var minWidth = 300;
 
@@ -933,7 +937,7 @@ function open(tabpanel) {
 		tabpanel.tabs("option", "active", tab.index());
 
 		//get nearest panel
-		var pane = tab.closest('.ui-layout-pane');
+		pane = tab.closest('.ui-layout-pane');
 		paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 
 		//expand panel
@@ -947,6 +951,9 @@ function open(tabpanel) {
 
 	if (!tabpanel) {
 		tabpanel = '.ui-layout-east';
+	} else {
+		pane = tabpanel.closest('.ui-layout-pane');
+		paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 	}
 
 	//create tab
@@ -1436,5 +1443,8 @@ exports.createHash = createHash;
 exports.charsets = charsets;
 exports.getKeyBinding = keybindings.getKeyBinding;
 exports.openKeyBindings = keybindings.openKeyBindings;
+exports.getNews = function() {
+	return news;
+};
 
 });

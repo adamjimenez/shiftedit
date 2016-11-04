@@ -68,27 +68,44 @@ if( typeof Terminal !== 'undefined' ){
 		});
 
 		tty.socket.on('kill', function(id) {
-			//prompt.alert({title:'Disconnected', msg: 'The connection has closed.'});
-
-			console.log('ssh killed');
+			console.log('ssh disconnected');
 
 			if (!tty.terms[id]) return;
-
 			var el = tty.terms[id].element;
 			var tabId = $(el).closest('[role=tabpanel]').attr('id');
 			var tab = $('[aria-controls='+tabId+']');
 			tab.attr('title', tab.attr('title')+' - disconnected');
-
-			var session = tab.data('session');
-			if(session)
-				session.destroy();
-
-			//session = null;
-
-			console.log('tty destroyed');
-
-			if (tty.terms[id])
-				tty.terms[id].destroy();
+			
+			$( "body" ).append('<div id="dialog-ssh-disconnected" class="ui-front" title="SSH disconnected">\
+				Session has disconnected\
+			</div>');
+		
+			//open dialog
+			var dialog = $( "#dialog-ssh-disconnected" ).dialog({
+				modal: true,
+				width: 420,
+				height: 300,
+				close: function( event, ui ) {
+					$( this ).remove();
+				},
+				buttons: {
+					Reconnect: function() {
+						$( this ).dialog( "close" );
+						var id = tab.data('ssh');
+						var session = tab.data('session');
+						var shellArgs = tab.data('shellArgs');
+						session.destroy();
+						session = new Tab(shellArgs, id);
+						tab.data('session', session);
+						session.focus();
+					},
+					"Choose connection": function() {
+						$( this ).dialog( "close" );
+						var tabpanel = $(tab).closest('.ui-tabs');
+						open(tabpanel);
+					}
+				}
+			});
 		});
 
 		// XXX Clean this up.
@@ -142,21 +159,21 @@ if( typeof Terminal !== 'undefined' ){
 		if (!title) return;
 		//console.log('ssh title '+title);
 
-		$('[data-ssh='+this.index+']').attr('title', title);
+		var tab = $('[data-ssh='+this.index+']');
+		tab.attr('title', title);
+		tab.children('.ui-tabs-anchor').contents().last().replaceWith(title);
 
 		title = sanitize(title);
 		this.title = title;
 
 		if (Terminal.focus === this) {
 			document.title = title;
-			// if (h1) h1.innerHTML = title;
 		}
 	};
 
 	Tab.prototype._write = Tab.prototype.write;
 
 	Tab.prototype.write = function(data) {
-		//if (this.window.focused !== this) this.button.style.color = 'red';
 		return this._write(data);
 	};
 
@@ -183,10 +200,20 @@ if( typeof Terminal !== 'undefined' ){
 
 	Tab.prototype.doResize = function(){
 		var term = tty.terms[this.id];
-		var rowHeight = $(this.element).children(":first").children(":first").height();
+		var charEl = $('<span>M</span>').appendTo($(this.element));
+		var charWidth = Math.ceil(charEl.width());
+		var charHeight = Math.ceil(charEl.height());
+		charEl.remove();
 		
-		cols = Math.floor($(this.element).parent().width() / 7);
-		rows = Math.floor($(this.element).parent().height() / rowHeight);
+		// prevent divide by zero
+		if (!charWidth || !charHeight) {
+			return false;
+		}
+		
+		// console.log('resize '+charWidth+'x'+charHeight);
+		
+		cols = Math.floor($(this.element).parent().outerWidth() / charWidth)-1;
+		rows = Math.floor($(this.element).parent().outerHeight() / charHeight)-1;
 
 		console.log('resize '+cols+'x'+rows);
 
@@ -258,6 +285,7 @@ function new_session(tab, host, username, port, cwd){
 	var shellArgs = '-p '+port+' '+username+'@'+host;
 	var session = new Tab(shellArgs, index, cwd);
 	session.focus();
+	tab.data('shellArgs', shellArgs);
 	tab.data('session', session);
 	tab.on('beforeClose', function() {
 		console.log('close session');
@@ -358,7 +386,7 @@ function open(tabpanel){
 	//open dialog
 	var dialog = $( "#dialog-ssh" ).dialog({
 		modal: true,
-		width: 400,
+		width: 420,
 		height: 300,
 		close: function( event, ui ) {
 			$( this ).remove();
@@ -451,6 +479,33 @@ $('body').on('click','.newTab .ssh', function(){
 	var id = $(this).closest('[role=tabpanel]').attr('id');
 	var tab = $('[aria-controls='+id+']');
 	tabs.close(tab);
+});
+
+// clean up closed tabs
+$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', function(e, ui) {
+	var id = $(this).data('ssh');
+	
+	if (!id) {
+		return;
+	}
+
+	if (!tty.terms[id]) return;
+
+	var el = tty.terms[id].element;
+	var tabId = $(ui.tab).attr('id');
+	var tab = $('[aria-controls='+tabId+']');
+	var session = tab.data('session');
+	
+	if(session)
+		session.destroy();
+		
+	//session = null;
+
+	console.log('tty destroyed');
+
+	if (tty.terms[id]) {
+		tty.terms[id].destroy();
+	}
 });
 
 /*

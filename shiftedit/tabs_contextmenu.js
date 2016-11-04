@@ -74,18 +74,18 @@ function init() {
 			}
 		},
 		items: {
-			"new": {name: makeMenuText(lang.newText + '...', 'Alt-N')},
-			"reload": {name: makeMenuText('Reload', preferences.getKeyBinding('reload'), 'reload')},
-			"close": {name: makeMenuText('Close Tab', 'Alt-W')},
+			"new": {name: makeMenuText(lang.newText + '...', 'Alt-N'), isHtmlName: true},
+			"reload": {name: makeMenuText('Reload', preferences.getKeyBinding('reload'), 'reload'), isHtmlName: true},
+			"close": {name: makeMenuText('Close Tab', 'Alt-W'), isHtmlName: true},
 			"sep1": "---------",
-			"closeOtherTabs": {name: "Close other tabs"},
-			"closeAllTabs": {name: makeMenuText('Close all tabs', 'Ctrl-Shift-W')},
-			"closeTabsRight": {name: "Close tabs to the right"},
-			"save": {name: makeMenuText('Save', preferences.getKeyBinding('save'), 'save')},
-			"saveAs": {name: makeMenuText('Save as...', preferences.getKeyBinding('saveAs'), 'saveAs')},
-			"saveAll": {name: makeMenuText('Save all', 'Ctrl-Shift-S')},
-			"revealInTree": {name: "Reveal in file tree"},
-			"bookmarkAll": {name: "Bookmark all files"}
+			"closeOtherTabs": {name: "Close other tabs", isHtmlName: true},
+			"closeAllTabs": {name: makeMenuText('Close all tabs', 'Ctrl-Shift-W'), isHtmlName: true},
+			"closeTabsRight": {name: "Close tabs to the right", isHtmlName: true},
+			"save": {name: makeMenuText('Save', preferences.getKeyBinding('save'), 'save'), isHtmlName: true},
+			"saveAs": {name: makeMenuText('Save as...', preferences.getKeyBinding('saveAs'), 'saveAs'), isHtmlName: true},
+			"saveAll": {name: makeMenuText('Save all', 'Ctrl-Shift-S'), isHtmlName: true},
+			"revealInTree": {name: "Reveal in file tree", isHtmlName: true},
+			"bookmarkAll": {name: "Bookmark all files", isHtmlName: true}
 		}
 	});
 }

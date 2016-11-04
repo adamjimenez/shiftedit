@@ -1,5 +1,5 @@
 		
-define(['exports', 'app/config', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'app/layout', 'aes', 'app/gdrive', 'app/editors', 'app/servers'], function (exports, config) {
+define(['exports', 'app/config', "jquery-ui","app/prompt", "app/tree", "app/storage", "ui.combobox", "app/util", "app/ssl", "app/loading", 'app/prefs', 'app/layout', 'aes', 'app/gdrive', 'app/editors', 'app/servers', 'app/repositories'], function (exports, config) {
 var prompt = require('app/prompt');
 var tree = require('app/tree');
 var storage = require('app/storage');
@@ -12,6 +12,7 @@ var layout = require('app/layout');
 var gdrive = require('app/gdrive');
 var editors = require('app/editors');
 var servers = require('app/servers');
+var repositories = require('app/repositories');
 var Aes = require('aes');
 var directFn;
 var sites = [];
@@ -84,17 +85,17 @@ function init() {
 	//button menu
 	var items = [{
 		id: 'newsite',
-		text: 'New site..',
+		text: 'New site...',
 		handler: create,
 		disabled: false
 	}, {
 		id: 'editsite',
-		text: 'Edit site..',
+		text: 'Edit site...',
 		handler: edit,
 		disabled: true
 	}, {
 		id: 'duplicate',
-		text: 'Duplicate..',
+		text: 'Duplicate...',
 		handler: duplicate,
 		disabled: true
 	}, {
@@ -196,7 +197,10 @@ function init() {
 			var dialog = $( "#dialog-import" ).dialog({
 				modal: true,
 				width: 400,
-				height: 300
+				height: 300,
+				close: function( event, ui ) {
+					$( this ).remove();
+				}
 			});
 		},
 		disabled: false
@@ -541,37 +545,12 @@ function loadUsers() {
 	});
 }
 
-function loadRepos(val) {
-	var refresh_icon = $( "#refresh_repos" ).children('i').addClass('fa-spin');
-	
-	return $.getJSON(config.apiBaseUrl+'repos')
-		.then(function (data) {
-			refresh_icon.removeClass('fa-spin');
-			var repos = data.repos;
-
-			$( "#git_url_select" ).children('option').remove();
-
-			$.each(repos, function( index, item ) {
-				$( "#git_url_select" ).append( '<option value="'+item.url+'">'+item.name+'</option>' );
-			});
-
-			if(val) {
-				$( "#git_url_select" ).append( '<option value="'+val+'">'+val+'</option>' );
-				$( "#git_url_select" ).val(val).change();
-			}
-			
-			return repos;
-		}).fail(function() {
-			refresh_icon.removeClass('fa-spin');
-		});
-}
-
 function loadServers(val) {
-	//var refresh_icon = $( "#refresh_servers" ).children('i').addClass('fa-spin');
+	var refresh_icon = $( "#refresh_servers" ).children('i').addClass('fa-spin');
 	
 	return $.getJSON(config.apiBaseUrl+'servers')
 		.then(function (data) {
-			//refresh_icon.removeClass('fa-spin');
+			refresh_icon.removeClass('fa-spin');
 			var servers = data.servers;
 
 			$( "#server_select" ).children('option').remove();
@@ -583,11 +562,15 @@ function loadServers(val) {
 			if(val) {
 				$( "#server_select" ).append( '<option value="'+val+'">'+val+'</option>' );
 				$( "#server_select" ).val(val).change();
+			} else {
+				// default to first server
+				$( "#server_select" ).combobox('val', $( "#server_select option:first" ).attr('value'));
+				$( "#server" ).val($( "#server_select option:first" ).attr('value'));
 			}
 			
 			return servers;
 		}).fail(function() {
-			//refresh_icon.removeClass('fa-spin');
+			refresh_icon.removeClass('fa-spin');
 		});
 }
 
@@ -1642,10 +1625,35 @@ function edit(newSite, duplicate) {
 		create: function( event, ui ) {
 		}
 	});
-	loadRepos(settings.git_url);
+	
+	function updateRepos() {
+		var val = $( "#git_url_select" ).val();
+		var repos = repositories.getAll();
+
+		$( "#git_url_select" ).children('option').remove();
+
+		$.each(repos, function( index, item ) {
+			$( "#git_url_select" ).append( '<option value="'+item.url+'">'+item.name+'</option>' );
+		});
+
+		if(val) {
+			$( "#git_url_select" ).appendTo( '<option value="'+val+'">'+val+'</option>' )
+			.val(val).change();
+		}
+		
+		return repos;
+	}
+	
+	updateRepos();
 	
 	$( "#refresh_repos" ).button().click(function() {
-		loadRepos($( "#git_url_select" ).val());
+		var refresh_icon = $( "#refresh_repos" ).children('i').addClass('fa-spin');
+		repositories.load()
+		.then(function (data) {
+			updateRepos();
+		}).done(function() {
+			refresh_icon.removeClass('fa-spin');
+		});
 	});
 
 	$( ".showPassword" ).button().click(function() {
@@ -1881,6 +1889,10 @@ function getAjaxOptions(ajaxUrl, settings) {
 	};
 }
 
+function get() {
+	return sites;
+}
+
 exports.init = init;
 exports.load = load;
 exports.open = open;
@@ -1891,5 +1903,7 @@ exports.getdirectFn = function(){ return directFn; };
 exports.definitions = definitions;
 exports.focus = focus;
 exports.masterPasswordPrompt = masterPasswordPrompt;
+exports.get = get;
+exports.edit = edit;
 
 });
