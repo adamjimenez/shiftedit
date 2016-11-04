@@ -975,7 +975,7 @@ function newTab (e, ui) {
 	
 	panel.find('.toggleMore').click(function() {
 		var el = this;
-		var more = $(this).prev();
+		var more = $(el).prev();
 		more.slideToggle(400, function() {
 			$(el).text(more.is(':visible') ? showLessText : showMoreText);
 		}); 
@@ -1010,6 +1010,16 @@ function newTab (e, ui) {
 		close(ui.tab);
 		open($(this).data('file'), $(this).data('site'), {tabpanel: tabpanel});
 	});
+	
+	function updateToggleMore() {
+		panel.find('.toggleMore').each(function( index ) {
+			var el = this;
+			var more = $(el).prev();
+			if (!more.children().length) {
+				$(el).hide();
+			}
+		});
+	}
 
 	//repos
 	var sources = {};
@@ -1040,6 +1050,8 @@ function newTab (e, ui) {
 		
 		panel.find('ul.repos').append(HTML[0]);
 		panel.find('ul.moreRepos').append(HTML[1]);
+		
+		updateToggleMore();
 		
 		sources = repositories.getSources();
 		if (sources && (!sources.github.active || !sources.bitbucket.active)) {
