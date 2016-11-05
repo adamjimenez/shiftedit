@@ -108,7 +108,7 @@ function init() {
 	});
 	
 	// close slide out panes
-	$('body').on('mousedown', function(e) {
+	$('body').on('mouseup', function(e) {
 		if (myLayout.state.west.isSliding) {
 			if ($(e.target).closest('.ui-layout-west').length===0) {
 				console.log(e.target);
