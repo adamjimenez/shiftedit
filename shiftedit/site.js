@@ -144,7 +144,7 @@ function init() {
 		disabled: true
 	}, '-', {
 		id: 'import',
-		text: 'Import..',
+		text: 'Import...',
 		handler: function() {
 			//import site dialog
 			$( "body" ).append('<div id="dialog-import" title="Import site">\
@@ -304,7 +304,7 @@ function init() {
 		disabled: true
 	}, '-', {
 		id: 'servers',
-		text: 'Servers..'
+		text: 'Servers...'
 	}];
 
 	var el = $("#siteMenu");
