@@ -53,6 +53,11 @@ textarea{
 	overflow: visible;
 }
 
+/* ensure site menu can be seen */
+.ui-layout-west{
+	overflow: visible !important
+}
+
 .ui-layout-content > div {
 	height: 100%;
 }
