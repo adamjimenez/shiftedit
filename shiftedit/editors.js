@@ -1236,7 +1236,8 @@ function create(file, content, siteId, options) {
 
 	window.shiftedit.defs[$(tab).attr('id')] = {
 		'definitions': {},
-		'definitionRanges': {}
+		'definitionRanges': {},
+		'definitionLibs': {}
 	};
 
 	//editor.completers = [shifteditCompleter];
