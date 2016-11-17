@@ -4,6 +4,8 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 	var findIn = 'current';
 	var lastSearch = '';
 	var searchSource;
+	var history = [''];
+	var historyIndex = 0;
 
 	function find(needle, options) {
 		if( !options ){
@@ -96,6 +98,16 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		}
 
 		var needle = $("#find").val();
+		
+		// save history
+		if(next && history[history.length-2]!==needle) {
+			history[history.length-1] = needle;
+			history.push('');
+			historyIndex = history.length-1;
+		} else if (needle && historyIndex===history.length-1) {
+			history[historyIndex] = needle;
+		}
+		
 		$("#findStatus").text('');
 
 		//count all results
@@ -332,6 +344,29 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 			}
 		}
 	}
+	
+	function keyDown(e){
+		if (['ArrowUp', 'ArrowDown'].indexOf(e.key) != -1) {
+			// skip back if current entry hasn't changed
+			if (e.key === 'ArrowUp' && history.length && historyIndex == history.length-1 && history[history.length-1]==history[history.length-2]) {
+				historyIndex--;
+			}
+			
+			// skip to last if current entry is the same
+			if (e.key === 'ArrowDown' && history.length && historyIndex == history.length-3 && history[history.length-1]==history[history.length-2]) {
+				historyIndex++;
+			}
+			
+			if (e.key === 'ArrowUp' && historyIndex > 0) {
+				historyIndex--;
+			} else if (e.key === 'ArrowDown' && historyIndex < (history.length-1) ) {
+				historyIndex++;
+			}
+			
+			$('#find').val(history[historyIndex]);
+			e.preventDefault();
+		}
+	}
 
 	function keyUp(e){
 		if (e.key === 'Escape') {
@@ -548,8 +583,12 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 				open();
 				e.preventDefault();
 			}
+			if (['ArrowUp', 'ArrowDown'].indexOf(e.key)!=-1) {
+				e.preventDefault();
+			}
 		});
 		$('#findForm [name=find]').keyup(keyUp);
+		$('#findForm [name=find]').keydown(keyDown);
 		$('#findNextBtn').click(nextSearch);
 		$('#findPrevBtn').click(previousSearch);
 		$('#replaceBtn').click(searchReplace);
