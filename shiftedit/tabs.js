@@ -571,7 +571,7 @@ function saveAs(tab, options) {
 	prompt.prompt({
 		title: lang.saveChangesText,
 		msg: 'Save as:',
-		value: tab.attr('data-title'),
+		value: tab.attr('data-file'),
 		buttons: 'YESNOCANCEL',
 		fn: function (btn, file) {
 			function fileExistsCallback(data) {
@@ -909,7 +909,7 @@ function newTab (e, ui) {
 	prefs.newFiles.forEach(function(value) {
 		modes.forEach(function(mode) {
 			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
-				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
@@ -921,7 +921,7 @@ function newTab (e, ui) {
 	prefs.newFilesOther.forEach(function(value) {
 		modes.forEach(function(mode) {
 			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
-				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
@@ -930,7 +930,7 @@ function newTab (e, ui) {
 	// lump any that aren't found into other
 	modes.forEach(function(mode) {
 		if (addedModes.indexOf(mode[2][0])===-1) {
-			HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+			HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
 		}
 	});
 	panel.find('ul.moreFileTypes').append(HTML);
