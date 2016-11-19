@@ -16,6 +16,7 @@ define(['app/prefs'], function (preferences) {
 
 		//the rest
 		['apache_conf', 'Apache Conf', ['htaccess', 'htpasswd'], 'text/htaccess', ''],
+		['aspx', 'ASPX', ['aspx', 'asp'], 'text/x-aspx'],
 		['autohotkey', 'AutoHotkey', ['ahk'], 'text/autohotkey'],
 		['c_cpp', 'C++', ['cpp', 'h'], 'text/x-c++src'],
 		['clojure', 'Clojure', ['clojure'], 'text/x-clojure'],
@@ -44,7 +45,7 @@ define(['app/prefs'], function (preferences) {
 		['sh', 'Shell', ['sh'], 'text/x-sh'],
 		['tcl', 'TCL', ['tcl'], 'text/tcl'],
 		['textile', 'Textile', ['textile'], 'text/textile'],
-		['vbscript', 'VBScript', ['vbs', 'asp', 'aspx'], 'text/vbscript'],
+		['vbscript', 'VBScript', ['vbs'], 'text/vbscript'],
 		['yaml', 'YAML', ['yaml', 'yml'], 'text/yaml']
 	];
 
