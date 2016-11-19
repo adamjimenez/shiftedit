@@ -12,6 +12,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 		var i;
 		var definitions = {};
 		var definitionRanges = {};
+		var definitionLibs = {};
 		var session = editor.getSession();
 		var iterator = new TokenIterator(session, 0, 0);
 		var token = iterator.getCurrentToken();
@@ -151,6 +152,22 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 			}else{
 				func = false;
 			}
+			
+			//functions that aren't defined
+			if (!func && token.type == 'identifier' && !definitions[context].functions[token.value]) {
+				definitions[context].functions[token.value] = '()';
+				definitionRanges[context].functions[token.value] = {
+					start: {
+						column: iterator.getCurrentTokenColumn(),
+						row: iterator.getCurrentTokenRow()
+					}
+				};
+				
+				//check for wordpress
+				if (token.value.match(/wp_(.*)/)) {
+					definitionLibs['wordpress'] = true;
+				}
+			}
 
 			//php classes
 			if(
@@ -276,6 +293,11 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 								row: iterator.getCurrentTokenRow()
 							}
 						};
+						
+						//check for bootstrap
+						if (name.match(/col-[a-z]{2}-/)) {
+							definitionLibs['bootstrap'] = true;
+						}
 					}
 				}
 
@@ -338,7 +360,8 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 
 		window.shiftedit.defs[$(tab).attr('id')] = {
 			'definitions': definitions,
-			'definitionRanges': definitionRanges
+			'definitionRanges': definitionRanges,
+			'definitionLibs': definitionLibs
 		};
 
 		update(tab);

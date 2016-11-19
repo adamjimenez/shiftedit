@@ -17,7 +17,7 @@ requirejs.config({
 		"ace": "ace.20160218/src",
 		//"ace/split": 'ace.20151029/src/ext-split',
 		"ace/ext/language_tools": "ace.20160218/src/ext-language_tools",
-		"ace/autocomplete": "ace.20160218/src/ext-language_tools",
+		"ace/autocomplete": "ace.20160218/src/ext-tern",
 		"ace/mode/css/csslint": "ace.20160218/src/worker-css",
 		"ace/ext/searchbox": "ace.20160218/src/ext-searchbox",
 		//"ace/ext/emmet": 'ace.20151029/src/ext-emmet',
@@ -28,6 +28,7 @@ requirejs.config({
 		"ace/keyboard/vim": "ace.20160218/src/keybinding-vim",
 		"ace/keyboard/emacs": "ace.20160218/src/keybinding-emacs",
 		"ace/ext/whitespace": "ace.20160218/src/ext-whitespace",
+		"ace/ext/tern": "ace.20160218/src/ext-tern",
 		'beautify': 'js-beautify/beautify',
 		'beautify-css': 'js-beautify/beautify-css',
 		'beautify-html': 'js-beautify/beautify-html'
@@ -42,8 +43,11 @@ requirejs.config({
 		"ace/ext-split": {
 			deps: ["ace/ace"]
 		},
-		"ace/autocomplete": {
+		"ace/ext-tern": {
 			deps: ["ace/ace"]
+		},
+		"ace/autocomplete": {
+			deps: ["ace/ace", "ace/ext/tern"]
 		},
 		"jquery-ui": {
 			exports: "$",

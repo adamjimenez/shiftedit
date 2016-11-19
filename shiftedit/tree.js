@@ -1294,6 +1294,10 @@ function init() {
 								"icon": false,
 								"separator_after": false,
 								"label": "Duplicate",
+								"stop_event": true,
+								"shortcut": 68,
+								"shortcut_ctrl": true,
+								"shortcut_label": "Ctrl+D",
 								"action": function (data) {
 									var instance = $.jstree.reference(data.reference);
 									duplicate(instance.get_selected(true));

@@ -495,6 +495,12 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 					css_classes = util.merge(css_classes, defs[id].definitions.css.classes);
 					dom_ids = util.merge(dom_ids, defs[id].definitions.css.ids);
 				}
+				if( defs[id].definitionLibs.wordpress ){
+					ac_wordpress = true;
+				}
+				if( defs[id].definitionLibs.bootstrap ){
+					ac_bootstrap = true;
+				}
 			}
 		}
 
@@ -850,7 +856,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			subject = 'php_function';
 			functions = util.merge(phpDictionary, php_functions);
 
-			if( wordpress ){
+			if( ac_wordpress ){
 				functions = util.merge(functions, wordpressFunctions);
 			}
 

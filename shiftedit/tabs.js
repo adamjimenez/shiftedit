@@ -571,7 +571,7 @@ function saveAs(tab, options) {
 	prompt.prompt({
 		title: lang.saveChangesText,
 		msg: 'Save as:',
-		value: tab.attr('data-title'),
+		value: tab.attr('data-file'),
 		buttons: 'YESNOCANCEL',
 		fn: function (btn, file) {
 			function fileExistsCallback(data) {
@@ -909,7 +909,7 @@ function newTab (e, ui) {
 	prefs.newFiles.forEach(function(value) {
 		modes.forEach(function(mode) {
 			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
-				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
@@ -921,7 +921,7 @@ function newTab (e, ui) {
 	prefs.newFilesOther.forEach(function(value) {
 		modes.forEach(function(mode) {
 			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
-				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
@@ -930,7 +930,7 @@ function newTab (e, ui) {
 	// lump any that aren't found into other
 	modes.forEach(function(mode) {
 		if (addedModes.indexOf(mode[2][0])===-1) {
-			HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '">' + mode[1] + '</a></li>';
+			HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
 		}
 	});
 	panel.find('ul.moreFileTypes').append(HTML);
@@ -983,6 +983,23 @@ function newTab (e, ui) {
 
 	//recent files
 	var recentFiles = recent.getRecent();
+	
+	//put current site files at the top
+	recentFiles.sort(function(a, b){
+	    var aCurrent = (a.site == site.active());
+	    var bCurrent = (b.site == site.active());
+	    
+	    // compare if it has the current site
+	    if(aCurrent && !bCurrent) return -1;
+	    if(!aCurrent && bCurrent) return 1;
+	    
+	    // compare the 2 dates
+	    if (a.date < b.date) return -1;
+	    if (a.date > b.date) return 1;
+	    
+	    return 0;
+	});
+	
 	HTML = {0:'', 1:''};
 	var key = 0;
 	for (var i in recentFiles) {
@@ -998,7 +1015,12 @@ function newTab (e, ui) {
 				title = settings.name+'/'+title;
 			}
 		
-			HTML[key] += '<li class="ui-state-default"><a href="#" title="'+title+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + title + '</a></li>';
+			HTML[key] += '<li class="ui-state-default">\
+					<a href="#" title="'+title+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + 
+						title + 
+						'<i title="Remove" class="fa fa-times remove"></i>\
+					</a>\
+				</li>';
 		}
 	}
 
@@ -1009,6 +1031,14 @@ function newTab (e, ui) {
 		var tabpanel = $(ui.tab.closest('.ui-tabs'));
 		close(ui.tab);
 		open($(this).data('file'), $(this).data('site'), {tabpanel: tabpanel});
+	});
+	
+	panel.find('.remove').click(function(e) {
+		e.stopPropagation();
+
+		var el = $(this).parent();
+		recent.remove(el.data('file'), el.data('site'));
+		el.parent().fadeOut(300, function(){ $(this).remove();});
 	});
 	
 	function updateToggleMore() {
