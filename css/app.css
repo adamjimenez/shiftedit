@@ -974,6 +974,24 @@ div.fullScreen{
 	opacity: 1;
 }
 
+.newTab .remove {
+	position: absolute;
+	right: 0;
+	top: 0;
+	opacity: 0.5;
+	display: none;
+	padding: 10px;
+	cursor: default;
+}
+
+.newTab a:hover > .remove {
+	display: inline;
+}
+
+.newTab .remove:hover {
+	opacity: 1;
+}
+
 #dialog-addRepositories button{
 	line-height: 48px;
 	width: 100%;

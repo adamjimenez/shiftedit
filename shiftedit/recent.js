@@ -34,10 +34,29 @@ function add(file, siteId) {
 	});
 }
 
+function remove(file, siteId) {
+	$.ajax(config.apiBaseUrl+'prefs?&cmd=delete_recent&site='+siteId+'&file='+encodeURIComponent(file), {
+		method: 'POST',
+		dataType: 'json',
+		xhrFields: {
+			withCredentials: true
+		}
+	});
+	
+	// remove from list
+	for (var i in recentFiles) {
+		if (recentFiles[i].file === file && parseInt(recentFiles[i].site) === parseInt(siteId)) {
+			recentFiles.splice(i, 1);
+			break;
+		}
+	}
+}
+
 return {
 	load: load,
 	getRecent: getRecent,
-	add: add
+	add: add,
+	remove: remove
 };
 
 });
