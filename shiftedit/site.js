@@ -57,23 +57,30 @@ function init() {
 	$('body').on('click','.newTab .site', function(){
 		create();
 	});
-
-	combobox = $( "#sites" ).combobox({
-		forceSelection: true,
-		selectOnFocus: true,
-		selectFirst: true,
-		select: function (event, ui) {
-			//connect to site
-			open(ui.item.value);
-		},
-		change: function (event, ui) {
-			//connect to site
-			open(ui.item.value);
-		},
-		create: function( event, ui ) {
-			//load();
-		}
-	});
+	
+	function initCombo() {
+		combobox = $( "#sites" ).combobox({
+			forceSelection: true,
+			selectOnFocus: true,
+			selectFirst: true,
+			select: function (event, ui) {
+				//connect to site
+				open(ui.item.value);
+				
+				//clear memory usage
+				$( "#sites" ).combobox('destroy');
+				initCombo();
+			},
+			change: function (event, ui) {
+				//connect to site
+				open(ui.item.value);
+			},
+			create: function( event, ui ) {
+				//load();
+			}
+		});
+	}
+	initCombo();
 
 	$( "#refresh_site" ).button()
 	.click(function() {
