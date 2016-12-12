@@ -4,7 +4,7 @@ define(["jquery.menubar"], function () {
 	function build(el, menu){
 		for(var i in menu) {
 			if(menu[i]==='-') {
-				el.append('<li>-</li>');
+				el.append('<li>&nbsp;</li>');
 			}else if(menu[i]==='->') {
 				el.css('display', 'flex');
 				el.append('<li class="ui-state-default" style="flex-grow:2"></li>');

@@ -189,6 +189,8 @@ function onChangeCursor(e, selection) {
 		el.style.display = 'block';
 		el.style.position = 'absolute';
 		el.style.background = '#fff';
+		el.style.color = '#000';
+		el.style.zIndex = 1;
 		el.style.textDecoration = 'none';
 
 		container.parentNode.appendChild(el);
@@ -922,7 +924,8 @@ function applyPrefs(tab) {
 			exec: function (editor, args, request) {
 				var start = args[0];
 				var end = args[1];
-	
+				
+				var selStart = editor.getSelectionRange();
 				var text = editor.getSelectedText();
 	
 				if (text.substr(0, start.length) == start && text.substr(text.length - end.length) == end) {
@@ -930,16 +933,74 @@ function applyPrefs(tab) {
 				} else {
 					text = start + text + end;
 				}
+
+				editor.insert(text);
+				
+				// set selection
+				var selEnd = editor.getSelectionRange();
+				editor.selection.setSelectionRange({
+					start: selStart.start,
+					end: selEnd.end
+				});
+			}
+		}, {
+			name: "wrapLineSelection",
+			exec: function (editor, args, request) {
+				var start = args[0];
+				var end = args[1];
+				
+				var sel = editor.getSelectionRange();
+				var newSel = sel.clone();
+				newSel.start.column = 0;
+				newSel.end.column = editor.getSession().getLine(newSel.end.row).length;
+				editor.selection.setSelectionRange(newSel);
 	
-				editor.insert(text, true);
+				var text = editor.getSelectedText();
+				var newText = start + text.replace(new RegExp(/(?:\r\n|\r|\n)/, 'g'), end + "\n" + start) + end;
+				editor.insert(newText);
+				
+				// set selection
+				var selEnd = editor.getSelectionRange();
+				editor.selection.setSelectionRange({
+					start: newSel.start,
+					end: selEnd.end
+				});
 			}
 		}, {
 			name: "prependLineSelection",
 			exec: function (editor, args, request) {
+				function escapeRegExp(str) {
+					return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+				}
+				
 				var string = args[0];
+				var toggle = args[1];
+				
+				var sel = editor.getSelectionRange();
+				var newSel = sel.clone();
+				newSel.start.column = 0;
+				editor.selection.setSelectionRange(newSel);
 	
 				var text = editor.getSelectedText();
-				editor.insert(string + text.replace(new RegExp("\n", 'g'), "\n" + string), true);
+				
+				var newText = '';
+				if (toggle && text.startsWith(string)) {
+					newText = text.substr(string.length).replace(new RegExp("\n" + escapeRegExp(string), 'g'), "\n");
+					sel.start.column -= string.length;
+				} else {
+					newText = string + text.replace(new RegExp("\n", 'g'), "\n" + string);
+					sel.start.column += string.length;
+				}
+				editor.insert(newText);
+				
+				// restore selection if multiline
+				var selEnd = editor.getSelectionRange();
+				if (sel.isMultiLine()) {
+					editor.selection.setSelectionRange({
+						start: sel.start,
+						end: selEnd.end
+					});
+				}
 			}
 		}, {
 			name: "appendLineSelection",
@@ -1075,6 +1136,168 @@ function applyPrefs(tab) {
 				}
 		
 				editor.insert('<br>\n'+whitespace);
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "heading",
+			bindKey: {
+				win: preferences.getKeyBinding('heading'),
+				mac: preferences.getKeyBinding('heading', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				var heading = args[0];
+				if (!heading) {
+					heading = 1;	
+				}
+				
+				if (editor.getSession().$modeId.match(/markdown$/) ){
+					var markup = '';
+					for (var i=0; i<heading; i++) {
+						markup += '#';
+					}
+					
+					editor.commands.exec('prependLineSelection', editor, [markup+' ', true]);
+				} else {
+					editor.commands.exec('wrapSelection', editor, ['<h'+heading+'>', '</h'+heading+'>']);
+				}
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "bold",
+			bindKey: {
+				win: preferences.getKeyBinding('bold'),
+				mac: preferences.getKeyBinding('bold', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				if (editor.getSession().$modeId.match(/markdown$/) ){
+					editor.commands.exec('wrapSelection', editor, ['**', '**']);
+				} else {
+					editor.commands.exec('wrapSelection', editor, ['<strong>', '</strong>']);
+				}
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "italic",
+			bindKey: {
+				win: preferences.getKeyBinding('italic'),
+				mac: preferences.getKeyBinding('italic', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				if (editor.getSession().$modeId.match(/markdown$/) ){
+					editor.commands.exec('wrapSelection', editor, ['*', '*']);
+				} else {
+					editor.commands.exec('wrapSelection', editor, ['<em>', '</em>']);
+				}
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "quote",
+			bindKey: {
+				win: preferences.getKeyBinding('quote'),
+				mac: preferences.getKeyBinding('quote', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				if (editor.getSession().$modeId.match(/markdown$/) ){
+					editor.commands.exec('prependLineSelection', editor, ['> ', true]);
+				} else {
+					editor.commands.exec('wrapSelection', editor, ['<blockquote>', '</blockquote>']);
+				}
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "ul",
+			bindKey: {
+				win: preferences.getKeyBinding('ul'),
+				mac: preferences.getKeyBinding('ul', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				if (editor.getSession().$modeId.match(/markdown$/) ){
+					editor.commands.exec('prependLineSelection', editor, ['* ', true]);
+				} else {
+					editor.commands.exec('wrapLineSelection', editor, ["<li>", "</li>"]);
+					editor.indent();
+					var sel = editor.getSelectionRange();
+					sel.start.column = 0;
+					editor.selection.setSelectionRange(sel);
+					editor.commands.exec('wrapSelection', editor, ["<ul>\n", "\n</ul>"]);
+				}
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "ol",
+			bindKey: {
+				win: preferences.getKeyBinding('ol'),
+				mac: preferences.getKeyBinding('ol', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				if (editor.getSession().$modeId.match(/markdown$/) ){
+					editor.commands.exec('prependLineSelection', editor, ['1. ', true]);
+				} else {
+					editor.commands.exec('wrapLineSelection', editor, ["<li>", "</li>"]);
+					editor.indent();
+					var sel = editor.getSelectionRange();
+					sel.start.column = 0;
+					editor.selection.setSelectionRange(sel);
+					editor.commands.exec('wrapSelection', editor, ["<ol>\n", "\n</ol>"]);
+				}
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "createLink",
+			bindKey: {
+				win: preferences.getKeyBinding('createLink'),
+				mac: preferences.getKeyBinding('createLink', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				prompt.prompt({
+					title: 'Insert Link',
+					fn :function (button, string) {
+						if (button == 'ok') {
+							var link_text = editor.getSelectedText();
+							if (!link_text.length) {
+								link_text = string;
+							}
+							if (editor.getSession().$modeId.match(/markdown$/) ){
+								editor.insert('['+link_text+']('+string+')');
+							} else {
+								editor.insert('<a href="'+string+'">'+link_text+'</a>');
+							}
+						}
+					}
+				});
+			},
+			multiSelectAction: "forEach"
+		}, {
+			name: "insertImage",
+			bindKey: {
+				win: preferences.getKeyBinding('insertImage'),
+				mac: preferences.getKeyBinding('insertImage', 'mac'),
+				sender: "editor"
+			},
+			exec: function (editor, args, request) {
+				prompt.prompt({
+					title: 'Insert Image',
+					fn :function (button, string) {
+						if (button == 'ok') {
+							if (editor.getSession().$modeId.match(/markdown$/) ){
+								var sel = editor.selection.getSelectionLead();
+								editor.insert('![]('+string+')');
+								editor.selection.moveCursorToPosition(sel);
+								editor.selection.moveCursorBy(0, 2);
+							} else {
+								editor.insert('<img src="'+string+'" alt="">');
+								editor.selection.moveCursorBy(0, -2);
+							}
+						}
+					}
+				});
 			},
 			multiSelectAction: "forEach"
 		}, {
