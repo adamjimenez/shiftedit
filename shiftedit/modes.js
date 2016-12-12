@@ -36,7 +36,7 @@ define(['app/prefs'], function (preferences) {
 		['liquid', 'Liquid', ['liquid'], 'text/liquid'],
 		['lsl', 'Linden Scripting Language', ['lsl'], 'text/lsl'],
 		['lua', 'Lua', ['lua'], 'text/lua'],
-		['markdown', 'MarkDown', ['markdown', 'mdown', 'md', 'mkd', 'mkdn'], 'text/x-markdown'],
+		['markdown', 'MarkDown', ['md', 'markdown', 'mdown', 'mkd', 'mkdn'], 'text/x-markdown'],
 		['ocaml', 'OCaml', ['ocaml', 'ml', 'mli'], 'text/ocaml'],
 		['perl', 'Perl', ['pl'], 'text/x-perl'],
 		['scala', 'Scala', ['scala'], 'text/scala'],
