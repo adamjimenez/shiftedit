@@ -545,7 +545,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 
 		//get tag name
 		var tagName = '';
-		console.log(lang);
+		//console.log(lang);
 		if( lang === 'html' || lang === 'php' ){
 			while (token) {
 				if( token.type.indexOf('tag-name') !== -1 ){
