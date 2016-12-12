@@ -304,6 +304,13 @@ function saveFiles(options) {
 		mdate = -1;
 	}
 
+	//save pref
+	if(tab.data('pref')){
+		preferences.save(tab.data('pref'), content);
+		setEdited(tab, false);
+		return;
+	}
+
 	//switch site if need be
 	if (!siteId) {
 		saveAs(tab, options);
@@ -338,13 +345,6 @@ function saveFiles(options) {
 	var confirmed = 1;
 	if (tab) {
 		title = tab.data('title');
-		
-		//save pref
-		if(tab.data('pref')){
-			preferences.save(tab.data('pref'), content);
-			setEdited(tab, false);
-			return;
-		}
 
 		//save as if new file
 		if(!tab.data("site") || !tab.data("file")) {
