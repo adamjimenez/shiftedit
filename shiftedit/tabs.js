@@ -1086,7 +1086,7 @@ function newTab (e, ui) {
 		updateToggleMore();
 		
 		sources = repositories.getSources();
-		if (sources && (!sources.github.active || !sources.bitbucket.active)) {
+		if (sources && ((sources.github && !sources.github.active) || (sources.bitbucket && !sources.bitbucket.active))) {
 			$('.addRepositories').show();
 		} else {
 			$('.addRepositories').hide();
@@ -1200,13 +1200,16 @@ function tabActivate(tab) {
 	hash.set(hashVal);
 
 	var editor = getEditor(tab);
-	if (editor) {
-		//editor.focus();
-		setTimeout(function(){editor.focus();}, 0);
-	} else {
-		var tabpanel = $(tab).closest(".ui-tabs");
-		var panel = tabpanel.tabs('getPanelForTab', tab);
-		panel.find('.columns a').first().focus();
+	
+	if (!$("#find").is(":focus")) {
+		if (editor) {
+			//editor.focus();
+			setTimeout(function(){editor.focus();}, 0);
+		} else {
+			var tabpanel = $(tab).closest(".ui-tabs");
+			var panel = tabpanel.tabs('getPanelForTab', tab);
+			panel.find('.columns a').first().focus();
+		}
 	}
 
 	$(tab).trigger('activate');
