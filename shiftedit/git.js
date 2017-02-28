@@ -1,4 +1,5 @@
-define(['exports', 'app/loading', 'app/config', 'app/layout', 'app/site', 'app/tree', 'app/tabs', 'app/prompt', 'app/lang', "ui.basicMenu", 'diff2html/diff2html', 'diff2html/diff2html-ui'], function (exports, loading, config, layout, site, tree, tabs, prompt) {
+define(['exports', 'app/loading', 'app/config', 'app/layout', 'app/site', 'app/tree', 'app/tabs', 'app/prompt', 'app/lang', "ui.basicMenu", 'diff2html/diff2html', 'diff2html/diff2html-ui', 'linkify-html'], function (exports, loading, config, layout, site, tree, tabs, prompt) {
+var linkifyHtml = require('linkify-html');
 var lang = require('app/lang').lang;
 var gitEditor;
 var gitConfig = {
