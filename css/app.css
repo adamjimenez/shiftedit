@@ -1091,7 +1091,7 @@ div.fullScreen{
 
 #gitViewContainer {
 	text-align: center;
-	font-size: 0;
+	font-size: 10px;
 	min-width: 116px;
 }
 
