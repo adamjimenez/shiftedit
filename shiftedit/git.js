@@ -478,6 +478,11 @@ function sync() {
 		success: function(data) {
 			if (data.success) {
 				tree.refresh();
+				var html = data.result;
+				html = html.replace(/remote:\s/g, '');
+				html = html.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
+				html = linkifyHtml(html);
+				prompt.alert({title:'Success', msg:html});
 			} else {
 				prompt.alert({title:'Error', msg:data.error});
 			}
