@@ -278,6 +278,7 @@ function saveFiles(options) {
 	var title;
 	var file;
 	var mdate;
+	
 	if (item.tab) {
 		tab = item.tab;
 		siteId = tab.data("site");
@@ -296,7 +297,7 @@ function saveFiles(options) {
 
 		file = tab.data("file");
 		content = editor.getValue();
-	} else if (item.content) {
+	} else if (typeof item.content != 'undefined') {
 		siteId = item.site;
 		title = item.title;
 		file = item.file;
@@ -305,7 +306,7 @@ function saveFiles(options) {
 	}
 
 	//save pref
-	if(tab.data('pref')){
+	if(tab && tab.data('pref')){
 		preferences.save(tab.data('pref'), content);
 		setEdited(tab, false);
 		return;
@@ -313,6 +314,7 @@ function saveFiles(options) {
 
 	//switch site if need be
 	if (!siteId) {
+		console.log('no site');
 		saveAs(tab, options);
 		return;
 	}
@@ -490,7 +492,7 @@ function saveFiles(options) {
 				}
 				
 				// reload if file doesn't exist
-				if (!tree.getNode(file)) {
+				if (!tree.getNode(data.file) && data.file_id) {
 					parent = util.dirname(data.file_id);
 					if (!parent) {
 						parent = '#root';
