@@ -425,6 +425,14 @@ return {
 
 		return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '');
 	},
+	escapeHTML: function(unsafe) {
+		return unsafe
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
+	},
 	hexToRgb: function(hex) {
 		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 		return result ? {

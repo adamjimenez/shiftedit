@@ -1,39 +1,100 @@
-define(['app/tabs', 'app/lang', 'app/layout', 'app/site', 'app/prompt', 'app/util', 'app/ssl', 'jquery'], function (tabs, lang, layout, site, prompt, util, ssl) {
+define(['app/tabs', 'app/lang', 'app/layout', 'app/site', 'app/prompt', 'app/util', 'app/ssl', 'jquery', 'markdown-it'], function (tabs, lang, layout, site, prompt, util, ssl) {
 	lang = lang.lang;
 
 	var combobox;
 	var childWindow;
+	var childWindowSource;
 	var url = '';
 	var tab;
+	var default_url = '/screens/default_live';
+
+function change() {
+	var source;
+	if (childWindow) {
+		source = childWindowSource;
+	} else {
+		var previewTab = $('li[data-type=preview]');
+		source = previewTab.data('source');
+	}
+	
+	if (source) {
+		// get mode
+		var editor = tabs.getEditor(source);
+		var mode = editor.getSession().$modeId.replace('ace/mode/', '');
+		
+		if (mode === 'markdown' && $(source).attr('id') === $(this).attr('id')) {
+			refresh();
+		}
+	}
+}
 
 function refresh() {
-	if(combobox) {
-		var val = combobox.input.val();
-		if (val.indexOf('://') == -1) {
-			val = 'http://' + val;
-			$( ".address" ).combobox('val', val);
-		}
-
-		url = val;
-
-		if(!$( ".address option[value='"+val+"']" ).length) {
-			$( ".address" ).append( '<option value="' + val + '">'+val+'</option>' );
-		}
+	var source;
+	if (childWindow) {
+		source = childWindowSource;
+	} else {
+		var previewTab = $('li[data-type=preview]');
+		source = previewTab.data('source');
 	}
-
-	var separator = (url.indexOf('?') === -1) ? '?' : '&';
-	var preview_url = url + separator + 'shiftedit=' + new Date().getTime();
-
-	if($('#preview')) {
-		if(util.startsWith(url, 'http://') && ssl.check_blocked()){
-			prompt.alert({title:'Preview Blocked', msg:'Enable SSL or Click Shield icon in address bar, then "Load unsafe script"'});
-		}
+	
+	if (!source) {
+		return;
+	}
+	
+	// get mode
+	var editor = tabs.getEditor(source);
+	var mode = editor.getSession().$modeId.replace('ace/mode/', '');
+	
+	if (mode === 'markdown') {
+		var MarkdownIt = require('markdown-it');
+		var md = new MarkdownIt();
+		var result = md.render(editor.getValue());
 		
-		$('#preview').attr('src', preview_url);
-	}
-
-	if( childWindow ){
-		childWindow.location.href = preview_url;
+		if($('.preview > iframe')) {
+			var loadPreview = function() {
+				$('.preview > iframe').contents().find('html').html(result);
+			}
+			
+			if (url!=default_url) {
+				url = default_url;
+				$('.preview > iframe').attr('src', default_url).on("load", loadPreview);
+			} else {
+				loadPreview();
+			}
+		}
+	
+		if( childWindow ){
+			childWindow.document.body.innerHTML = result;
+		}
+	} else {
+		if(combobox) {
+			var val = combobox.input.val();
+			if (val.indexOf('://') == -1) {
+				val = 'http://' + val;
+				$( ".address" ).combobox('val', val);
+			}
+	
+			url = val;
+	
+			if(!$( ".address option[value='"+val+"']" ).length) {
+				$( ".address" ).append( '<option value="' + val + '">'+val+'</option>' );
+			}
+		}
+	
+		var separator = (url.indexOf('?') === -1) ? '?' : '&';
+		var preview_url = url + separator + 'shiftedit=' + new Date().getTime();
+	
+		if($('.preview > iframe')) {
+			if(util.startsWith(url, 'http://') && ssl.check_blocked()){
+				prompt.alert({title:'Preview Blocked', msg:'Enable SSL or Click Shield icon in address bar, then "Load unsafe script"'});
+			}
+			
+			$('.preview > iframe').attr('src', preview_url);
+		}
+	
+		if( childWindow ){
+			childWindow.location.href = preview_url;
+		}
 	}
 }
 
@@ -41,15 +102,19 @@ function create(tabpanel) {
 	//create tab
 	tab = $(tabpanel).tabs('add', 'Preview', '\
 	<div class="vbox">\
-		<div class="preview_toolbar ui-widget-header ui-corner-all">\
+		<div class="preview_toolbar ui-widget-header ui-corner-all" style="min-height: 28px;">\
 			<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
 			<button type="button" class="refreshButton"><i class="fa fa-refresh"></i></button>\
-			<div id="addressbar" class="flex">\
-				<select class="address"></select>\
+			<div class="flex">\
+				<div class="addressbar flex">\
+					<select class="address"></select>\
+				</div>\
 			</div>\
 			<button type="button" class="popoutPreviewButton"><i class="fa fa-external-link"></i></button>\
 		</div>\
-		<iframe id="preview" style="width:100%;height:100%;display:block;background:#fff;" src="/screens/default_live" frameborder=0></iframe>\
+		<div class="preview" style="flex: 1;">\
+			<iframe class="iframe" style="width:100%;height:100%;display:block;background:#fff;" src="'+default_url+'" frameborder="0"></iframe>\
+		</div>\
 	</div>\
 	');
 
@@ -102,7 +167,15 @@ function create(tabpanel) {
 			}
 
 			childWindow = window.open(url + separator + 'shiftedit=' + new Date().getTime());
-			refresh();
+			childWindowSource = $(tab).data('source');
+			
+			if( url == default_url ){
+				// load when ready for markdown
+				$(childWindow).on('load', refresh);
+			} else {
+				// refresh fallback for external url
+				refresh();
+			}
 
 			//close tab
 			var tabpanel = $(tab).closest(".ui-tabs");
@@ -118,9 +191,22 @@ function load(tab) {
 	}
 
 	if(tab) {
+		var previewTab = $('li[data-type=preview]');
+		previewTab.data('source', tab);
+		
 		var siteId = tab.data('site');
-
-		if(siteId) {
+		
+		// get mode
+		var editor = tabs.getEditor(tab);
+		var mode = editor.getSession().$modeId.replace('ace/mode/', '');
+		
+		$('.preview_toolbar .addressbar').show();
+		
+		if (mode === 'markdown') {
+			// hide toolbar
+			$('.preview_toolbar .addressbar').hide();
+			refresh();
+		} else if(siteId) {
 			var file = tab.data('file');
 			var url = tab.data('link');
 
@@ -198,7 +284,8 @@ $('body').on('click','.newTab .preview', function(){
 });
 
 //refresh on save
-$('body').on('save','.ui-tabs', refresh);
+$('body').on('save', '.ui-tabs', refresh);
+$('body').on('change', '.ui-tab', change);
 
 return {
 	run: run

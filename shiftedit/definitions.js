@@ -16,8 +16,10 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 		var session = editor.getSession();
 		var iterator = new TokenIterator(session, 0, 0);
 		var token = iterator.getCurrentToken();
-		var func = false;
+		var prevToken = null
 		var pos;
+		var prevPos;
+		var func = false;
 		var name;
 		var className = '';
 		var inClass = '';
@@ -154,14 +156,14 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 			}
 			
 			//functions that aren't defined
-			if (!func && token.type == 'identifier' && !definitions[context].functions[token.value]) {
-				definitions[context].functions[token.value] = '()';
-				definitionRanges[context].functions[token.value] = {
-					start: {
-						column: iterator.getCurrentTokenColumn(),
-						row: iterator.getCurrentTokenRow()
-					}
+			if (!func && token.type == 'paren.lparen' && token.value == '(') {
+				definitions[context].functions[prevToken.value] = '()';
+				definitionRanges[context].functions[prevToken.value] = {
+					start: prevPos
 				};
+			}
+			
+			if (!func && token.type == 'identifier' && !definitions[context].functions[token.value]) {
 				
 				//check for wordpress
 				if (token.value.match(/wp_(.*)/)) {
@@ -355,7 +357,16 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 				}
 			}
 
+
+			prevToken = token;
+			prevPos = pos;
 			token = iterator.stepForward();
+			if (token) {
+				pos = {
+					column: iterator.getCurrentTokenColumn(),
+					row: iterator.getCurrentTokenRow()
+				}
+			}
 		}
 
 		window.shiftedit.defs[$(tab).attr('id')] = {
@@ -447,13 +458,13 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 						innerHTML += '<ul>';
 						$.each(val2, function (key3, val3) {
 							var pos = definitionRanges[key][key2][key3];
-							innerHTML += '<li><a href="#" data-column="' + pos.start.column + '" data-row="' + pos.start.row + '" data-length="' + key3.length + '" title="' + key3 + '">'+key3+'</a></li>';
+							innerHTML += '<li><a href="#" data-column="' + pos.start.column + '" data-row="' + pos.start.row + '" data-length="' + key3.length + '" title="' + util.escapeHTML(key3) + '">' + util.escapeHTML(key3) + '</a></li>';
 
 							if( key2=='classes' && val3.functions ){
 								innerHTML += '<ul>';
 								$.each(val3.functions, function (key4, val4) {
 									var pos = definitionRanges[key][key2][key3].functions[key4];
-									innerHTML += '<li><a href="#" data-column="' + pos.start.column + '" data-row="' + pos.start.row + '" data-length="' + key3.length + '" title="' + key4 + '">'+key4+'</a></li>';
+									innerHTML += '<li><a href="#" data-column="' + pos.start.column + '" data-row="' + pos.start.row + '" data-length="' + key3.length + '" title="' + util.escapeHTML(key4) + '">' + util.escapeHTML(key4) + '</a></li>';
 								});
 								innerHTML += '</ul>';
 							}

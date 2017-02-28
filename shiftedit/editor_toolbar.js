@@ -81,19 +81,122 @@ var menu = [{
 }, {
 	tooltip: 'Redo',
 	text: '<i class="fa fa-undo fa-flip-horizontal"></i>',
-	handler: function (button) {
+	handler: function (tab) {
 		var editor = tabs.getEditor(tab);
 		editor.focus();
 		editor.redo();
 	}
+
+}, '-', {
+	tooltip: 'Bold',
+	text: '<i class="fa fa-bold"></i>',
+	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.commands.exec('bold', editor);
+	}
 }, {
-	id: 'codeButton',
+	tooltip: 'Italic',
+	text: '<i class="fa fa-italic"></i>',
+	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.commands.exec('italic', editor);
+	}
+}, {
+	tooltip: 'Heading',
+	text: '<i class="fa fa-header"></i>',
+	items: [{
+		text: 'Heading 1',
+		handler: function (tab, checked) {
+			var editor = tabs.getEditor(tab);
+			editor.focus();
+			editor.commands.exec('heading', editor, [1]);
+		}
+	}, {
+		text: 'Heading 2',
+		handler: function (tab, checked) {
+			var editor = tabs.getEditor(tab);
+			editor.focus();
+			editor.commands.exec('heading', editor, [2]);
+		}
+	}, {
+		text: 'Heading 3',
+		handler: function (tab, checked) {
+			var editor = tabs.getEditor(tab);
+			editor.focus();
+			editor.commands.exec('heading', editor, [3]);
+		}
+	}, {
+		text: 'Heading 4',
+		handler: function (tab, checked) {
+			var editor = tabs.getEditor(tab);
+			editor.focus();
+			editor.commands.exec('heading', editor, [4]);
+		}
+	}, {
+		text: 'Heading 5',
+		handler: function (tab, checked) {
+			var editor = tabs.getEditor(tab);
+			editor.focus();
+			editor.commands.exec('heading', editor, [5]);
+		}
+	}, {
+		text: 'Heading 6',
+		handler: function (tab, checked) {
+			var editor = tabs.getEditor(tab);
+			editor.focus();
+			editor.commands.exec('heading', editor, [6]);
+		}
+	}]
+}, {
+	tooltip: 'Quote',
+	text: '<i class="fa fa-quote-left"></i>',
+	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.commands.exec('quote', editor);
+	}
+}, {
+	tooltip: 'List',
+	text: '<i class="fa fa-list-ul"></i>',
+	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.commands.exec('ul', editor);
+	}
+}, {
+	tooltip: 'Numbered List',
+	text: '<i class="fa fa-list-ol"></i>',
+	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.commands.exec('ol', editor);
+	}
+}, {
+	tooltip: 'Create Link',
+	text: '<i class="fa fa-link"></i>',
+	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.commands.exec('createLink', editor);
+	}
+}, {
+	tooltip: 'Insert Image',
 	text: '<i class="fa fa-picture-o"></i>',
+	handler: function (tab) {
+		var editor = tabs.getEditor(tab);
+		editor.focus();
+		editor.commands.exec('insertImage', editor);
+	}
+}, '-', {
+	id: 'codeButton',
+	text: '<i class="fa fa-eye"></i>',
 	tooltip: 'Design View',
 	enableToggle: true,
-	handler: function (button) {
+	handler: function (tab) {
 		var panel = $(this).closest('.ui-tabs-panel');
-		var tab = $('[aria-controls='+panel.attr('id')+']');
+		tab = $('[aria-controls='+panel.attr('id')+']');
 		var editor = tabs.getEditor(tab);
 
 		if (tab.data('view')==='code') {

@@ -278,6 +278,7 @@ function saveFiles(options) {
 	var title;
 	var file;
 	var mdate;
+	
 	if (item.tab) {
 		tab = item.tab;
 		siteId = tab.data("site");
@@ -296,7 +297,7 @@ function saveFiles(options) {
 
 		file = tab.data("file");
 		content = editor.getValue();
-	} else if (item.content) {
+	} else if (typeof item.content != 'undefined') {
 		siteId = item.site;
 		title = item.title;
 		file = item.file;
@@ -304,8 +305,16 @@ function saveFiles(options) {
 		mdate = -1;
 	}
 
+	//save pref
+	if(tab && tab.data('pref')){
+		preferences.save(tab.data('pref'), content);
+		setEdited(tab, false);
+		return;
+	}
+
 	//switch site if need be
 	if (!siteId) {
+		console.log('no site');
 		saveAs(tab, options);
 		return;
 	}
@@ -338,13 +347,6 @@ function saveFiles(options) {
 	var confirmed = 1;
 	if (tab) {
 		title = tab.data('title');
-		
-		//save pref
-		if(tab.data('pref')){
-			preferences.save(tab.data('pref'), content);
-			setEdited(tab, false);
-			return;
-		}
 
 		//save as if new file
 		if(!tab.data("site") || !tab.data("file")) {
@@ -490,7 +492,7 @@ function saveFiles(options) {
 				}
 				
 				// reload if file doesn't exist
-				if (!tree.getNode(file)) {
+				if (!tree.getNode(data.file) && data.file_id) {
 					parent = util.dirname(data.file_id);
 					if (!parent) {
 						parent = '#root';
@@ -1084,7 +1086,7 @@ function newTab (e, ui) {
 		updateToggleMore();
 		
 		sources = repositories.getSources();
-		if (sources && (!sources.github.active || !sources.bitbucket.active)) {
+		if (sources && ((sources.github && !sources.github.active) || (sources.bitbucket && !sources.bitbucket.active))) {
 			$('.addRepositories').show();
 		} else {
 			$('.addRepositories').hide();
@@ -1198,13 +1200,16 @@ function tabActivate(tab) {
 	hash.set(hashVal);
 
 	var editor = getEditor(tab);
-	if (editor) {
-		//editor.focus();
-		setTimeout(function(){editor.focus();}, 0);
-	} else {
-		var tabpanel = $(tab).closest(".ui-tabs");
-		var panel = tabpanel.tabs('getPanelForTab', tab);
-		panel.find('.columns a').first().focus();
+	
+	if (!$("#find").is(":focus")) {
+		if (editor) {
+			//editor.focus();
+			setTimeout(function(){editor.focus();}, 0);
+		} else {
+			var tabpanel = $(tab).closest(".ui-tabs");
+			var panel = tabpanel.tabs('getPanelForTab', tab);
+			panel.find('.columns a').first().focus();
+		}
 	}
 
 	$(tab).trigger('activate');

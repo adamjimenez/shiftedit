@@ -1,10 +1,11 @@
-define(['app/config', 'app/loading', 'app/util', 'app/prefs', 'app/prompt', 'app/ssh', 'app/lang', 'jquery'], function (config, loading, util, preferences, prompt, ssh) {
+define(['app/config', 'app/loading', 'app/util', 'app/prefs', 'app/prompt', 'app/ssh', 'app/storage', 'aes', 'app/lang', 'jquery'], function (config, loading, util, preferences, prompt, ssh, storage) {
 
 var selected;
 var servers = [];
 var settings = {};
 var currentServer;
 var lang = require('app/lang').lang;
+var Aes = require('aes');
 
 function load() {
 	loading.fetch(config.apiBaseUrl+'servers', {

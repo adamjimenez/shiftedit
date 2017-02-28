@@ -137,12 +137,12 @@ function fetch(url, options) {
 				prompt.alert({title:'Error', msg:data.error});
 			}
 		}
-	}).fail(function() {
+	}).fail(function(error) {
 		stop();
 		if (options.error) {
 			options.error('Error '+options.action);
 		} else {
-			prompt.alert({title:lang.failedText, msg:'Error '+options.action});
+			prompt.alert({title: 'Failed '+options.action, msg: error});
 		}
 	});
 }

@@ -752,6 +752,14 @@ function init () {
 						</tr>\
 						<tr>\
 							<td>\
+								<a href="https://github.com/markdown-it/markdown-it" target="_blank">Markdown it</a>\
+							</td>\
+							<td>\
+								<a href="https://github.com/markdown-it/markdown-it/blob/master/LICENSE" target="_blank">License</a>\
+							</td>\
+						</tr>\
+						<tr>\
+							<td>\
 								<a href="http://layout.jquery-dev.com/" target="_blank">UI Layout</a>\
 							</td>\
 							<td>\

@@ -1,10 +1,16 @@
-define(['exports', 'app/loading', 'app/config', 'app/layout', 'app/site', 'app/tree', 'app/tabs', 'app/prompt', 'app/lang', "ui.basicMenu", 'diff2html/diff2html', 'diff2html/diff2html-ui'], function (exports, loading, config, layout, site, tree, tabs, prompt) {
+define(['exports', 'app/loading', 'app/config', 'app/layout', 'app/site', 'app/tree', 'app/tabs', 'app/prompt', 'app/lang', "ui.basicMenu", 'diff2html/diff2html', 'diff2html/diff2html-ui', 'linkify-html'], function (exports, loading, config, layout, site, tree, tabs, prompt) {
+var linkifyHtml = require('linkify-html');
 var lang = require('app/lang').lang;
 var gitEditor;
+var gitConfig = {
+	name: '',
+	email: ''
+};
 
 function init() {
 	$('#tabs-git').append('<div class="vbox">\
 		<p id="notAvailable" class="flex" style="text-align:center; color:#ccc;">Git panel will appear here</p>\
+		<div id="gitLoading" style="display: none; text-align: center; margin: 10px;"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>\
 		<div id="gitContainer" class="vbox" style="display: none;">\
 			<div id="git-buttons" class="hbox">\
 				<div id="gitBranchBar">\
@@ -52,6 +58,10 @@ function init() {
 	
 	//button menu
 	var items = [{
+		id: 'gitrefresh',
+		text: 'Refresh',
+		handler: refresh
+	}, {
 		id: 'gitsync',
 		text: 'Sync',
 		handler: sync
@@ -63,6 +73,10 @@ function init() {
 		id: 'gitdeletebranch',
 		text: 'Delete branch',
 		handler: deleteBranch
+	}, {
+		id: 'gitConfig',
+		text: 'Config',
+		handler: editConfig
 	}];
 		
 	var el = $("#gitMenu");
@@ -108,7 +122,7 @@ function init() {
 	});
 	
 	// update on file rename / delete
-	$('#tree').on('rename delete', function(e, obj) {
+	$('#tree').on('loaded.jstree rename delete', function(e, obj) {
 		refresh();
 	});
 	
@@ -145,7 +159,7 @@ function init() {
 	});
 	
 	$("#gitChanges").basicMenu({
-		select: function (event, ui) {
+		click: function (event, ui) {
 			var title = $(ui.item).text();
 			if ($(ui.item).data('diff')) {
 				show(title, $(ui.item).data('diff'));
@@ -206,6 +220,15 @@ function init() {
 			data: params,
 			success: function(data) {
 				if (data.success) {
+					if (data.result.indexOf('***')!==-1) {
+						var msg = data.result.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
+						prompt.alert({title:'Notice', msg:msg});
+					}
+					
+					// clear values
+					$('#gitSubject').val('');
+					$('#gitDescription').val('');
+					
 					tree.refresh();
 				} else {
 					prompt.alert({title:'Error', msg:data.error});
@@ -286,17 +309,53 @@ function show(title, result) {
 function refresh() {
 	// must have a git folder and use SFTP or a proxy
 	var settings = site.getSettings(site.active());
-	if (
-		!$('#tree').jstree(true).get_node('.git') ||
-		(
-			['AJAX','SFTP','AWS','Linode'].indexOf(settings.server_type)===-1 &&
-			!settings.turbo 
-		)
-	) {
-		if ($("#gitContainer").css("display") !== "none") {
-			$('#gitContainer').hide();
-			$('#notAvailable').html('Git panel will appear here').show();
+	
+	var supported = (
+		['AJAX','SFTP','AWS','Linode'].indexOf(settings.server_type)!==-1 || settings.turbo 
+	);
+	
+	var hasRepo = $('#tree').jstree(true).get_node('.git')
+	
+	if (!supported) {
+		$('#gitContainer').hide();
+		$('#notAvailable').html('Git not supported for this server type').show();
+		return;
+	} else if (!hasRepo) {
+		$('#gitContainer').hide();
+		
+		var rootNode = $('#tree').jstree(true).get_node('#root');
+		
+		if (rootNode.children.length) {
+			$('#notAvailable').html('No Git repository and root not empty.').show();
+		} else {
+			$('#notAvailable').html('<a href="#" class="gitClone">Clone a repository</a>.').show();
 		}
+		
+		$('a.gitClone').click(function() {
+			prompt.prompt({
+				title: 'Clone a git repository',
+				msg: 'URL',
+				fn: function(btn, value) {
+					switch(btn) {
+						case 'ok':
+							var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+							
+							loading.fetch(ajaxOptions.url+'&cmd=clone&url='+encodeURIComponent(value), {
+								action: 'git clone '+value+' .',
+								success: function(data) {
+									if (data.success) {
+										tree.refresh();
+									} else {
+										prompt.alert({title:'Error', msg:data.error});
+									}
+								}
+							});
+						break;
+					}
+				}
+			});
+		});
+		
 		return;
 	}
 	
@@ -305,12 +364,19 @@ function refresh() {
 }
 
 function gitLog() {
+	$('#notAvailable').hide();
+	$('#gitContainer').hide();
+	$('#gitLoading').show();
+	
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
 	
 	loading.fetch(ajaxOptions.url+'&cmd=git_info', {
 		giveWay: true,
 		action: false,
 		success: function(data) {
+			// config
+			gitConfig = data.config;
+			
 			// branches
 			$( "#gitBranch" ).children('option').remove();
 
@@ -349,10 +415,12 @@ function gitLog() {
 			$( "#gitChanges" ).children('.delete').remove();
 			
 			$('#notAvailable').hide();
+			$('#gitLoading').hide();
 			$('#gitContainer').show();
 		},
 		error: function(error) {
 			$('#gitContainer').hide();
+			$('#gitLoading').hide();
 			$('#notAvailable').html(error).show();
 		}
 	});
@@ -378,19 +446,19 @@ function createBranch() {
 	  <form id="branchForm" class="tidy">\
 		<p class="hbox">\
 			<label>Name:</label>\
-			<input type="text" name="name" class="flex">\
+			<input type="text" name="name" class="flex text ui-widget-content ui-corner-all">\
 		</p>\
 		<p class="hbox">\
 			<label>From branch:</label>\
-			<select name="from" class="flex"></select>\
+			<select name="from" class="flex text ui-widget-content ui-corner-all"></select>\
 		</p>\
 	  </form>\
 	</div>');
 	
 	var dialog = $( "#dialog-branch" ).dialog({
 		modal: true,
-		width: 300,
-		height: 180,
+		width: 320,
+		height: 200,
 		close: function( event, ui ) {
 			$( this ).remove();
 		},
@@ -407,7 +475,7 @@ function createBranch() {
 						action: 'git checkout -b '+name+' '+from,
 						success: function(data) {
 							if (data.success) {
-								$( '#branchForm' ).dialog( "close" );
+								$( '#dialog-branch' ).dialog( "close" );
 								tree.refresh();
 							} else {
 								prompt.alert({title:'Error', msg:data.error});
@@ -425,7 +493,7 @@ function createBranch() {
 		var option = $( "#branchForm select[name=from]" ).append( '<option value="'+this.value+'">' + this.value + '</option>' );
 	});
 	
-	$( "#branchForm input[name=from]" ).val($('#gitBranch').val());
+	$('#branchForm select[name=from]').val($( "#gitBranch" ).combobox('val'));
 	
 	$('#branchForm input[name=name]').on('change input keyup', function() {
 		// replace non-alphanumeric characters
@@ -440,6 +508,11 @@ function createBranch() {
 		} else {
 			$('#createBranchBtn').button( "option", "disabled", true );
 		}
+	});
+	
+	$('#branchForm').submit(function(e) {
+		$('#createBranchBtn').not(":disabled").click();
+		e.preventDefault();
 	});
 }
 
@@ -460,6 +533,31 @@ function deleteBranch() {
 						} else {
 							prompt.alert({title:'Error', msg:data.error});
 						}
+					},
+					error: function(error) {
+						if (error.indexOf('is not fully merged')) {
+							prompt.confirm({
+								title: 'Force Delete branch '+branch,
+								msg: 'Branch is not fully merged, delete anyway?',
+								fn: function(value) {
+									if (value==='yes') {
+										var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+										loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch='+branch+'&force=1', {
+											action: 'git branch -D '+branch,
+											success: function(data) {
+												if (data.success) {
+													tree.refresh();
+												} else {
+													prompt.alert({title:'Error', msg:data.error});
+												}
+											}
+										});
+									}
+								}
+							});
+						} else {
+							prompt.alert({title:'Error', msg:data.error});
+						}
 					}
 				});
 			
@@ -471,6 +569,77 @@ function deleteBranch() {
 	});
 }
 
+function editConfig() {
+	$( "body" ).append('<div id="dialog-config" title="Config">\
+	  <form id="configForm" class="tidy">\
+		<p class="hbox">\
+			<label>Name:</label>\
+			<input type="text" name="name" class="flex text ui-widget-content ui-corner-all">\
+		</p>\
+		<p class="hbox">\
+			<label>Email:</label>\
+			<input type="email" name="email" class="flex text ui-widget-content ui-corner-all">\
+		</p>\
+	  </form>\
+	</div>');
+	
+	$('#configForm input[name=name]').val(gitConfig.name);
+	$('#configForm input[name=email]').val(gitConfig.email);
+	
+	var dialog = $( "#dialog-config" ).dialog({
+		modal: true,
+		width: 320,
+		height: 200,
+		close: function( event, ui ) {
+			$( this ).remove();
+		},
+		buttons: {
+			create: {
+				text: "Save",
+				click: function() {
+					var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+					var name = $('#configForm input[name=name]').val();
+					var email = $('#configForm input[name=email]').val();
+					
+					loading.fetch(ajaxOptions.url+'&cmd=config&name='+name+'&email='+email, {
+						action: 'git config user.name "'+name+'"; git config user.email "'+email+'"',
+						success: function(data) {
+							if (data.success) {
+								$( '#dialog-config' ).dialog( "close" );
+								refresh();
+							} else {
+								prompt.alert({title:'Error', msg:data.error});
+							}
+						}
+					});
+				}
+			},
+		}
+	});
+	
+	// branch options
+	$.each($('#gitBranch option'), function( index ) {
+		var option = $( "#branchForm select[name=from]" ).append( '<option value="'+this.value+'">' + this.value + '</option>' );
+	});
+	
+	$('#branchForm select[name=from]').val($( "#gitBranch" ).combobox('val'));
+	
+	$('#branchForm input[name=name]').on('change input keyup', function() {
+		// replace non-alphanumeric characters
+		var name = $(this).val();
+		var newName = name.replace(/\W/g, "-");
+		if (name!=newName) {
+			$(this).val(newName);
+		}
+		
+		if ($(this).val()) {
+			$('#createBranchBtn').button( "option", "disabled", false );
+		} else {
+			$('#createBranchBtn').button( "option", "disabled", true );
+		}
+	});
+}
+
 function sync() {
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
 	loading.fetch(ajaxOptions.url+'&cmd=sync', {
@@ -478,6 +647,11 @@ function sync() {
 		success: function(data) {
 			if (data.success) {
 				tree.refresh();
+				var html = data.result;
+				html = html.replace(/remote:\s/g, '');
+				html = html.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
+				html = linkifyHtml(html);
+				prompt.alert({title:'Success', msg:html});
 			} else {
 				prompt.alert({title:'Error', msg:data.error});
 			}

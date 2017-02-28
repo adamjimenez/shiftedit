@@ -237,7 +237,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 					found = false;
 					var count = 0;
 					for (tabId in results) {
-						for (i = 0; i < results[tabId].length; i++) {
+						for (var i = 0; i < results[tabId].length; i++) {
 							tab = $('#'+tabId);
 							if (count == target) {
 								//fixme get tab panel

@@ -304,7 +304,10 @@ function init() {
 			<input type="hidden" name="pma_password" value="'+password+'">\
 			</form>').appendTo('body')
 			.on('submit', function(){
-				$(this).remove();
+				var el = this;
+				setTimeout(function() {
+					el.remove();
+				}, 10);
 			})
 			.submit();
 		},
@@ -1547,6 +1550,7 @@ function edit(newSite, duplicate) {
 	}
 	
 	$('#logon_password').click(function() {
+		$('#pass_container').show();
 		$('#ssh_key_container').hide();
 	});
 
