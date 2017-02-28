@@ -159,7 +159,7 @@ function init() {
 	});
 	
 	$("#gitChanges").basicMenu({
-		select: function (event, ui) {
+		click: function (event, ui) {
 			var title = $(ui.item).text();
 			if ($(ui.item).data('diff')) {
 				show(title, $(ui.item).data('diff'));
