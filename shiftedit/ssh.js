@@ -1,8 +1,9 @@
-define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/prefs', 'app/layout', 'app/storage', 'xterm.js/src/xterm', 'jquery'], function (config, tabs, prompt, lang, loading, site, preferences, layout, storage, Terminal) {
+define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/prefs', 'app/layout', 'app/storage', 'xterm.js/src/xterm', 'aes', 'jquery'], function (config, tabs, prompt, lang, loading, site, preferences, layout, storage, Terminal) {
 
+var Aes = require('aes');
 lang = lang.lang;
 
-function Tab(shellArgs, index, cwd) {
+function Tab(shellArgs, index, password, cwd) {
 	var self = this;
 	var cols = Terminal.geometry[0];
 	var rows = Terminal.geometry[1];
@@ -28,6 +29,7 @@ function Tab(shellArgs, index, cwd) {
 		//self.pty = data.pty;
 		self.id = data.id;
 		tty.terms[self.id] = self;
+		tty.password[self.id] = password;
 		tty.cwd[self.id] = cwd;
 		return;
 	});
@@ -46,6 +48,7 @@ if( typeof Terminal !== 'undefined' ){
 
 		tty.terms = {};
 		tty.logged_in = {};
+		tty.password = {};
 		tty.cwd = {};
 
 		tty.socket.on('connect', function() {
@@ -55,12 +58,31 @@ if( typeof Terminal !== 'undefined' ){
 		});
 
 		tty.socket.on('data', function(id, data) {
-			if (tty.logged_in[id]!==true && data.trim().substr(-1)==='$') {
+			//console.log(data);
+			var el = tty.terms[id].element;
+			var tabId = $(el).closest('[role=tabpanel]').attr('id');
+
+			if (tty.logged_in[tabId]!==true && data.trim().substr(-('password:'.length))==='password:') {
+				console.log('enter password');
+				
+				if (tty.password[id]) {
+					var pass;
+					if (!storage.get('masterPassword')) {
+						pass = tty.password[id];
+					} else {
+						pass = Aes.Ctr.decrypt(tty.password[id], storage.get('masterPassword'), 256);
+					}
+					tty.socket.emit('data', id, pass+"\n");
+					console.log('sent password '+pass);
+				}
+			}
+			
+			if (tty.logged_in[tabId]!==true && data.trim().substr(-1)==='$') {
 				console.log('logged in');
 				if (tty.cwd[id]) {
 					tty.socket.emit('data', id, "cd "+tty.cwd[id]+"\n");
 				}
-				tty.logged_in[id] = true;
+				tty.logged_in[tabId] = true;
 			}
 			
 			if (!tty.terms[id]) return;
@@ -207,6 +229,9 @@ if( typeof Terminal !== 'undefined' ){
 		
 		// prevent divide by zero
 		if (!charWidth || !charHeight) {
+			console.log('ssh resize failed');
+			console.log(charWidth);
+			console.log(charHeight);
 			return false;
 		}
 		
@@ -281,9 +306,9 @@ function create(tabpanel){
 	return tab;
 }
 
-function new_session(tab, host, username, port, cwd){
+function new_session(tab, host, username, port, password, cwd){
 	var shellArgs = '-p '+port+' '+username+'@'+host;
-	var session = new Tab(shellArgs, index, cwd);
+	var session = new Tab(shellArgs, index, password, cwd);
 	session.focus();
 	tab.data('shellArgs', shellArgs);
 	tab.data('session', session);
@@ -462,7 +487,7 @@ function connect(options) {
 	console.log('domain: '+options.domain);
 	console.log('username: '+username);
 	console.log('port: '+options.port);
-	new_session(tab, options.domain, username, options.port, cwd);
+	new_session(tab, options.domain, username, options.port, options.password, cwd);
 	
 	var minWidth = 300;
 	var myLayout = layout.get();
