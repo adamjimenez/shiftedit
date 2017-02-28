@@ -1,6 +1,10 @@
 define(['exports', 'app/loading', 'app/config', 'app/layout', 'app/site', 'app/tree', 'app/tabs', 'app/prompt', 'app/lang', "ui.basicMenu", 'diff2html/diff2html', 'diff2html/diff2html-ui'], function (exports, loading, config, layout, site, tree, tabs, prompt) {
 var lang = require('app/lang').lang;
 var gitEditor;
+var gitConfig = {
+	name: '',
+	email: ''
+};
 
 function init() {
 	$('#tabs-git').append('<div class="vbox">\
@@ -67,6 +71,10 @@ function init() {
 		id: 'gitdeletebranch',
 		text: 'Delete branch',
 		handler: deleteBranch
+	}, {
+		id: 'gitConfig',
+		text: 'Config',
+		handler: editConfig
 	}];
 		
 	var el = $("#gitMenu");
@@ -507,6 +515,77 @@ function deleteBranch() {
 			}
 			
 			return false;
+		}
+	});
+}
+
+function editConfig() {
+	$( "body" ).append('<div id="dialog-config" title="Config">\
+	  <form id="configForm" class="tidy">\
+		<p class="hbox">\
+			<label>Name:</label>\
+			<input type="text" name="name" class="flex text ui-widget-content ui-corner-all">\
+		</p>\
+		<p class="hbox">\
+			<label>Email:</label>\
+			<input type="email" name="email" class="flex text ui-widget-content ui-corner-all">\
+		</p>\
+	  </form>\
+	</div>');
+	
+	$('#configForm input[name=name]').val(gitConfig.name);
+	$('#configForm input[name=email]').val(gitConfig.email);
+	
+	var dialog = $( "#dialog-config" ).dialog({
+		modal: true,
+		width: 320,
+		height: 200,
+		close: function( event, ui ) {
+			$( this ).remove();
+		},
+		buttons: {
+			create: {
+				text: "Save",
+				click: function() {
+					var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+					var name = $('#configForm input[name=name]').val();
+					var email = $('#configForm input[name=email]').val();
+					
+					loading.fetch(ajaxOptions.url+'&cmd=config&name='+name+'&email='+email, {
+						action: 'git config user.name "'+name+'"; git config user.email "'+email+'"',
+						success: function(data) {
+							if (data.success) {
+								$( '#dialog-config' ).dialog( "close" );
+								refresh();
+							} else {
+								prompt.alert({title:'Error', msg:data.error});
+							}
+						}
+					});
+				}
+			},
+		}
+	});
+	
+	// branch options
+	$.each($('#gitBranch option'), function( index ) {
+		var option = $( "#branchForm select[name=from]" ).append( '<option value="'+this.value+'">' + this.value + '</option>' );
+	});
+	
+	$('#branchForm select[name=from]').val($( "#gitBranch" ).combobox('val'));
+	
+	$('#branchForm input[name=name]').on('change input keyup', function() {
+		// replace non-alphanumeric characters
+		var name = $(this).val();
+		var newName = name.replace(/\W/g, "-");
+		if (name!=newName) {
+			$(this).val(newName);
+		}
+		
+		if ($(this).val()) {
+			$('#createBranchBtn').button( "option", "disabled", false );
+		} else {
+			$('#createBranchBtn').button( "option", "disabled", true );
 		}
 	});
 }
