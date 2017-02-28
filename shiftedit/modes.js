@@ -17,7 +17,7 @@ define(['app/prefs'], function (preferences) {
 		//the rest
 		['apache_conf', 'Apache Conf', ['htaccess', 'htpasswd'], 'text/htaccess', ''],
 		['aspx', 'ASPX', ['aspx', 'asp'], 'text/x-aspx'],
-		['autohotkey', 'AutoHotkey', ['ahk'], 'text/autohotkey'],
+		['autohotkey', 'AutoHotkey', ['ahk', 'au3'], 'text/autohotkey'],
 		['c_cpp', 'C++', ['cpp', 'h'], 'text/x-c++src'],
 		['clojure', 'Clojure', ['clojure'], 'text/x-clojure'],
 		['coldfusion', 'ColdFusion', ['cfm', 'cfml', 'cfc'], 'text/cfml'],
