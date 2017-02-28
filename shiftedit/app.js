@@ -14,24 +14,25 @@ requirejs.config({
 		"ui.combobox": "combobox/ui.combobox",
 		"ui.basicMenu": "ui.basicMenu/ui.basicMenu",
 		"jstree": "jstree/jstree",
-		"ace": "ace.20160218/src",
+		"ace": "ace.20161203/src",
 		//"ace/split": 'ace.20151029/src/ext-split',
-		"ace/ext/language_tools": "ace.20160218/src/ext-language_tools",
-		"ace/autocomplete": "ace.20160218/src/ext-tern",
-		"ace/mode/css/csslint": "ace.20160218/src/worker-css",
-		"ace/ext/searchbox": "ace.20160218/src/ext-searchbox",
-		//"ace/ext/emmet": 'ace.20151029/src/ext-emmet',
+		"ace/ext/language_tools": "ace.20161203/src/ext-language_tools",
+		"ace/autocomplete": "ace.20161203/src/ext-tern",
+		"ace/mode/css/csslint": "ace.20161203/src/worker-css",
+		"ace/ext/searchbox": "ace.20161203/src/ext-searchbox",
+		//"ace/ext/emmet": 'ace.20161203/src/ext-emmet',
 		//"firepad": 'firepad/firepad',
 		"firepad-userlist": 'firepad/firepad-userlist',
 		"jsdiff": 'jsdiff/diff',
 		"ui.tabs.overflowResize": 'ui.tabs.overflowResize/ui.tabs.overflowResize',
-		"ace/keyboard/vim": "ace.20160218/src/keybinding-vim",
-		"ace/keyboard/emacs": "ace.20160218/src/keybinding-emacs",
-		"ace/ext/whitespace": "ace.20160218/src/ext-whitespace",
-		"ace/ext/tern": "ace.20160218/src/ext-tern",
+		"ace/keyboard/vim": "ace.20161203/src/keybinding-vim",
+		"ace/keyboard/emacs": "ace.20161203/src/keybinding-emacs",
+		"ace/ext/whitespace": "ace.20161203/src/ext-whitespace",
+		"ace/ext/tern": "ace.20161203/src/ext-tern",
 		'beautify': 'js-beautify/beautify',
 		'beautify-css': 'js-beautify/beautify-css',
-		'beautify-html': 'js-beautify/beautify-html'
+		'beautify-html': 'js-beautify/beautify-html',
+		'linkify-html': 'linkify/linkify-html'
 	},
 	"shim": {
 		"ace/ext-emmet": {
@@ -105,6 +106,16 @@ requirejs.config({
 				//"https://apis.google.com/js/client.js"
 			]
 		},
+		"linkify-html": {
+			deps: [
+				'linkify/linkify'
+			]
+		},
+		/*
+		"uglify/transform": {
+			deps: ['uglify/ast']
+		},
+		*/
 		"uglify/compress": {
 			exports: "Compressor",
 			deps: ['uglify/utils', 'uglify/ast', 'uglify/parse', 'uglify/transform', 'uglify/scope', 'uglify/output']
