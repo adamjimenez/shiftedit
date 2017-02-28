@@ -52,6 +52,10 @@ function init() {
 	
 	//button menu
 	var items = [{
+		id: 'gitrefresh',
+		text: 'Refresh',
+		handler: refresh
+	}, {
 		id: 'gitsync',
 		text: 'Sync',
 		handler: sync
@@ -286,17 +290,53 @@ function show(title, result) {
 function refresh() {
 	// must have a git folder and use SFTP or a proxy
 	var settings = site.getSettings(site.active());
-	if (
-		!$('#tree').jstree(true).get_node('.git') ||
-		(
-			['AJAX','SFTP','AWS','Linode'].indexOf(settings.server_type)===-1 &&
-			!settings.turbo 
-		)
-	) {
-		if ($("#gitContainer").css("display") !== "none") {
-			$('#gitContainer').hide();
-			$('#notAvailable').html('Git panel will appear here').show();
+	
+	var supported = (
+		['AJAX','SFTP','AWS','Linode'].indexOf(settings.server_type)!==-1 || settings.turbo 
+	);
+	
+	var hasRepo = $('#tree').jstree(true).get_node('.git')
+	
+	if (!supported) {
+		$('#gitContainer').hide();
+		$('#notAvailable').html('Git not supported for this server type').show();
+		return;
+	} else if (!hasRepo) {
+		$('#gitContainer').hide();
+		
+		var rootNode = $('#tree').jstree(true).get_node('#root');
+		
+		if (rootNode.children.length) {
+			$('#notAvailable').html('No Git repository and root not empty.').show();
+		} else {
+			$('#notAvailable').html('<a href="#" class="gitClone">Clone a repository</a>.').show();
 		}
+		
+		$('a.gitClone').click(function() {
+			prompt.prompt({
+				title: 'Clone a git repository',
+				msg: 'URL',
+				fn: function(btn, value) {
+					switch(btn) {
+						case 'ok':
+							var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+							
+							loading.fetch(ajaxOptions.url+'&cmd=clone&url='+encodeURIComponent(value), {
+								action: 'git clone '+value+' .',
+								success: function(data) {
+									if (data.success) {
+										tree.refresh();
+									} else {
+										prompt.alert({title:'Error', msg:data.error});
+									}
+								}
+							});
+						break;
+					}
+				}
+			});
+		});
+		
 		return;
 	}
 	
