@@ -9,6 +9,7 @@ var gitConfig = {
 function init() {
 	$('#tabs-git').append('<div class="vbox">\
 		<p id="notAvailable" class="flex" style="text-align:center; color:#ccc;">Git panel will appear here</p>\
+		<div id="gitLoading" style="display: none; text-align: center; margin: 10px;"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>\
 		<div id="gitContainer" class="vbox" style="display: none;">\
 			<div id="git-buttons" class="hbox">\
 				<div id="gitBranchBar">\
@@ -353,6 +354,10 @@ function refresh() {
 }
 
 function gitLog() {
+	$('#notAvailable').hide();
+	$('#gitContainer').hide();
+	$('#gitLoading').show();
+	
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
 	
 	loading.fetch(ajaxOptions.url+'&cmd=git_info', {
@@ -397,10 +402,12 @@ function gitLog() {
 			$( "#gitChanges" ).children('.delete').remove();
 			
 			$('#notAvailable').hide();
+			$('#gitLoading').hide();
 			$('#gitContainer').show();
 		},
 		error: function(error) {
 			$('#gitContainer').hide();
+			$('#gitLoading').hide();
 			$('#notAvailable').html(error).show();
 		}
 	});
