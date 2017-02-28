@@ -426,19 +426,19 @@ function createBranch() {
 	  <form id="branchForm" class="tidy">\
 		<p class="hbox">\
 			<label>Name:</label>\
-			<input type="text" name="name" class="flex">\
+			<input type="text" name="name" class="flex text ui-widget-content ui-corner-all">\
 		</p>\
 		<p class="hbox">\
 			<label>From branch:</label>\
-			<select name="from" class="flex"></select>\
+			<select name="from" class="flex text ui-widget-content ui-corner-all"></select>\
 		</p>\
 	  </form>\
 	</div>');
 	
 	var dialog = $( "#dialog-branch" ).dialog({
 		modal: true,
-		width: 300,
-		height: 180,
+		width: 320,
+		height: 200,
 		close: function( event, ui ) {
 			$( this ).remove();
 		},
@@ -455,7 +455,7 @@ function createBranch() {
 						action: 'git checkout -b '+name+' '+from,
 						success: function(data) {
 							if (data.success) {
-								$( '#branchForm' ).dialog( "close" );
+								$( '#dialog-branch' ).dialog( "close" );
 								tree.refresh();
 							} else {
 								prompt.alert({title:'Error', msg:data.error});
@@ -473,7 +473,7 @@ function createBranch() {
 		var option = $( "#branchForm select[name=from]" ).append( '<option value="'+this.value+'">' + this.value + '</option>' );
 	});
 	
-	$( "#branchForm input[name=from]" ).val($('#gitBranch').val());
+	$('#branchForm select[name=from]').val($( "#gitBranch" ).combobox('val'));
 	
 	$('#branchForm input[name=name]').on('change input keyup', function() {
 		// replace non-alphanumeric characters
