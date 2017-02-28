@@ -508,6 +508,31 @@ function deleteBranch() {
 						} else {
 							prompt.alert({title:'Error', msg:data.error});
 						}
+					},
+					error: function(error) {
+						if (error.indexOf('is not fully merged')) {
+							prompt.confirm({
+								title: 'Force Delete branch '+branch,
+								msg: 'Branch is not fully merged, delete anyway?',
+								fn: function(value) {
+									if (value==='yes') {
+										var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+										loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch='+branch+'&force=1', {
+											action: 'git branch -D '+branch,
+											success: function(data) {
+												if (data.success) {
+													tree.refresh();
+												} else {
+													prompt.alert({title:'Error', msg:data.error});
+												}
+											}
+										});
+									}
+								}
+							});
+						} else {
+							prompt.alert({title:'Error', msg:data.error});
+						}
 					}
 				});
 			
