@@ -364,6 +364,9 @@ function gitLog() {
 		giveWay: true,
 		action: false,
 		success: function(data) {
+			// config
+			gitConfig = data.config;
+			
 			// branches
 			$( "#gitBranch" ).children('option').remove();
 
