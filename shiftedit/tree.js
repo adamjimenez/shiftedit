@@ -1373,7 +1373,7 @@ function init() {
 							
 							var settings = site.getSettings();
 
-							if(settings.logon_type=='key' && node.icon=="folder") {
+							if(settings.server_type=='SFTP' && node.icon=="folder") {
 								return false;
 							}else{
 								return true;
@@ -1387,6 +1387,9 @@ function init() {
 							}
 							
 							ssh.connect({
+								username: settings.ftp_user,
+								password: settings.ftp_pass,
+								port: settings.port,
 								path: path
 							});
 						}
@@ -1420,7 +1423,7 @@ function init() {
 					header: "Modified",
 					value: "modified",
 					format: function(v) {
-						if( v === '' ){
+						if(!v) {
 							return '';
 						}
 						
