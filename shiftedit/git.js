@@ -122,7 +122,7 @@ function init() {
 	});
 	
 	// update on file rename / delete
-	$('#tree').on('rename delete', function(e, obj) {
+	$('#tree').on('loaded.jstree rename delete', function(e, obj) {
 		refresh();
 	});
 	
