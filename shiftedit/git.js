@@ -489,6 +489,11 @@ function createBranch() {
 			$('#createBranchBtn').button( "option", "disabled", true );
 		}
 	});
+	
+	$('#branchForm').submit(function(e) {
+		$('#createBranchBtn').not(":disabled").click();
+		e.preventDefault();
+	});
 }
 
 function deleteBranch() {
