@@ -564,7 +564,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		//function arguments
 		if ( lang == 'php' || lang == 'js' || lang == 'javascript' ) {
 			if( lang == 'php' ){
-				functions = util.merge(phpDictionary, php_functions);
+				functions = util.merge(php_functions, phpDictionary);
 
 				if( ac_wordpress ){
 					functions = util.merge(functions, wordpressFunctions);
@@ -656,10 +656,8 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 
 				if( className && php_classes[className] && php_classes[className].functions[func] ){
 					def = php_classes[className].functions[func];
-				}else{
-					if( functions[func] ){
-						def = typeof functions[func] === 'object' ? functions[func][0] : func+' '+functions[func];
-					}
+				}else if( functions[func] ){
+					def = typeof functions[func] === 'object' ? functions[func][0] : func+' '+functions[func];
 				}
 			}
 
