@@ -220,6 +220,15 @@ function init() {
 			data: params,
 			success: function(data) {
 				if (data.success) {
+					if (data.result.indexOf('***')!==-1) {
+						var msg = data.result.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
+						prompt.alert({title:'Notice', msg:msg});
+					}
+					
+					// clear values
+					$('#gitSubject').val('');
+					$('#gitDescription').val('');
+					
 					tree.refresh();
 				} else {
 					prompt.alert({title:'Error', msg:data.error});
