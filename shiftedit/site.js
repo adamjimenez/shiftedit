@@ -566,6 +566,7 @@ function loadServers(val) {
 			var servers = data.servers;
 
 			$( "#server_select" ).children('option').remove();
+			$( "#server_select" ).append( '<option value=""></option>' );
 
 			$.each(servers, function( index, item ) {
 				$( "#server_select" ).append( '<option value="'+item.id+'">'+item.name+'</option>' );
@@ -579,6 +580,8 @@ function loadServers(val) {
 				$( "#server_select" ).combobox('val', $( "#server_select option:first" ).attr('value'));
 				$( "#server" ).val($( "#server_select option:first" ).attr('value'));
 			}
+			
+			$( "#server" ).combobox('val', '');
 			
 			return servers;
 		}).fail(function() {
@@ -1648,6 +1651,7 @@ function edit(newSite, duplicate) {
 		var repos = repositories.getAll();
 
 		$( "#git_url_select" ).children('option').remove();
+		$( "#git_url_select" ).append( '<option value=""></option>' );
 
 		$.each(repos, function( index, item ) {
 			$( "#git_url_select" ).append( '<option value="'+item.url+'">'+item.name+'</option>' );
