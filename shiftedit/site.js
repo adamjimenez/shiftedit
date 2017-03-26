@@ -68,8 +68,10 @@ function init() {
 				open(ui.item.value);
 				
 				//clear memory usage
+				/*
 				$( "#sites" ).combobox('destroy');
 				initCombo();
+				*/
 			},
 			change: function (event, ui) {
 				//connect to site
