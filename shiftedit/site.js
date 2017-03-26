@@ -1446,6 +1446,10 @@ function edit(newSite, duplicate) {
 							<label for="name">Save files with public access:</label>\
 							<input type="checkbox" name="s3_public" value="1" class="text ui-widget-content ui-corner-all" >\
 						</p>\
+						<p id="compression">\
+							<label for="name">Use compression:</label>\
+							<input type="checkbox" name="compression" value="1" class="text ui-widget-content ui-corner-all" >\
+						</p>\
 					</div>\
 					<div id="tabs-database">\
 						<p>\
