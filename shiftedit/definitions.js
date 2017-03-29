@@ -16,7 +16,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 		var session = editor.getSession();
 		var iterator = new TokenIterator(session, 0, 0);
 		var token = iterator.getCurrentToken();
-		var prevToken = null
+		var prevToken = null;
 		var pos;
 		var prevPos;
 		var func = false;
@@ -167,7 +167,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 				
 				//check for wordpress
 				if (token.value.match(/wp_(.*)/)) {
-					definitionLibs['wordpress'] = true;
+					definitionLibs.wordpress = true;
 				}
 			}
 
@@ -298,7 +298,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 						
 						//check for bootstrap
 						if (name.match(/col-[a-z]{2}-/)) {
-							definitionLibs['bootstrap'] = true;
+							definitionLibs.bootstrap = true;
 						}
 					}
 				}
@@ -365,7 +365,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 				pos = {
 					column: iterator.getCurrentTokenColumn(),
 					row: iterator.getCurrentTokenRow()
-				}
+				};
 			}
 		}
 
