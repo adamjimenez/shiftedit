@@ -30,7 +30,8 @@ function add(file, siteId) {
 	recentFiles.unshift({
 		file: file,
 		site: siteId,
-		domain: settings.domain
+		domain: settings.domain,
+		date: parseInt(Date.now()/1000)+''
 	});
 }
 

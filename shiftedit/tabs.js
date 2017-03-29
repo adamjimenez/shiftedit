@@ -1000,8 +1000,8 @@ function newTab (e, ui) {
 	    if(!aCurrent && bCurrent) return 1;
 	    
 	    // compare the 2 dates
-	    if (a.date < b.date) return -1;
-	    if (a.date > b.date) return 1;
+	    if (a.date < b.date) return 1;
+	    if (a.date > b.date) return -1;
 	    
 	    return 0;
 	});
