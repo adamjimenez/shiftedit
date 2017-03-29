@@ -9,6 +9,10 @@ var actions = {
 		label: 'Save As',
 		defaultKeyBinding: 'Ctrl-Alt-S'
 	},
+	'saveWithMinified': {
+		label: 'Save With Minified',
+		defaultKeyBinding: ''
+	},
 	'find': {
 		label: 'Find Panel',
 		defaultKeyBinding: 'Ctrl-F'
