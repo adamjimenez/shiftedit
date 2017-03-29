@@ -156,7 +156,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 			}
 			
 			//functions that aren't defined
-			if (!func && token.type == 'paren.lparen' && token.value == '(') {
+			if (!func && token.type == 'paren.lparen' && token.value == '(' && prevToken && prevToken.type === 'identifier') {
 				definitions[context].functions[prevToken.value] = '()';
 				definitionRanges[context].functions[prevToken.value] = {
 					start: prevPos
