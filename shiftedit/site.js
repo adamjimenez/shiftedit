@@ -68,8 +68,10 @@ function init() {
 				open(ui.item.value);
 				
 				//clear memory usage
+				/*
 				$( "#sites" ).combobox('destroy');
 				initCombo();
+				*/
 			},
 			change: function (event, ui) {
 				//connect to site
@@ -564,6 +566,7 @@ function loadServers(val) {
 			var servers = data.servers;
 
 			$( "#server_select" ).children('option').remove();
+			$( "#server_select" ).append( '<option value=""></option>' );
 
 			$.each(servers, function( index, item ) {
 				$( "#server_select" ).append( '<option value="'+item.id+'">'+item.name+'</option>' );
@@ -577,6 +580,8 @@ function loadServers(val) {
 				$( "#server_select" ).combobox('val', $( "#server_select option:first" ).attr('value'));
 				$( "#server" ).val($( "#server_select option:first" ).attr('value'));
 			}
+			
+			$( "#server" ).combobox('val', '');
 			
 			return servers;
 		}).fail(function() {
@@ -647,6 +652,8 @@ function updateCategory(newSite) {
 		'turbo_mode_container',
 		'git_url',
 		's3_public',
+		'compression',
+		'max_age',
 		's3info',
 		'gdrivelimited',
 		'connectBtn'
@@ -682,6 +689,8 @@ function updateCategory(newSite) {
 		'AmazonS3': [
 			'cloud_container',
 			's3_public',
+			'compression',
+			'max_age',
 			's3info',
 			'ftp_user_container',
 			'pass_container',
@@ -1446,6 +1455,14 @@ function edit(newSite, duplicate) {
 							<label for="name">Save files with public access:</label>\
 							<input type="checkbox" name="s3_public" value="1" class="text ui-widget-content ui-corner-all" >\
 						</p>\
+						<p id="compression">\
+							<label for="name">Use compression:</label>\
+							<input type="checkbox" name="compression" value="1" class="text ui-widget-content ui-corner-all" >\
+						</p>\
+						<p id="max_age">\
+							<label for="name">Cache expiration (s):</label>\
+							<input type="number" name="max_age" value="0" class="text ui-widget-content ui-corner-all" style="max-width:80px;" >\
+						</p>\
 					</div>\
 					<div id="tabs-database">\
 						<p>\
@@ -1642,6 +1659,7 @@ function edit(newSite, duplicate) {
 		var repos = repositories.getAll();
 
 		$( "#git_url_select" ).children('option').remove();
+		$( "#git_url_select" ).append( '<option value=""></option>' );
 
 		$.each(repos, function( index, item ) {
 			$( "#git_url_select" ).append( '<option value="'+item.url+'">'+item.name+'</option>' );

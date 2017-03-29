@@ -464,13 +464,15 @@ function saveFiles(options) {
 					uglify_options = {};
 					
 					content = uglify(content, uglify_options);
-
-					saving.push({
-						site: tab.data('site'),
-						title: newTitle,
-						file: newFile,
-						content: content
-					});
+					
+					if (content !== false) {
+						saving.push({
+							site: tab.data('site'),
+							title: newTitle,
+							file: newFile,
+							content: content
+						});
+					}
 				}
 				
 				if (minify && util.fileExtension(title)==='css' && !util.endsWith(title, '.min.css')) {
@@ -483,12 +485,14 @@ function saveFiles(options) {
 					
 					content = cssmin(content);
 
-					saving.push({
-						site: tab.data('site'),
-						title: newTitle,
-						file: newFile,
-						content: content
-					});
+					if (content !== false) {
+						saving.push({
+							site: tab.data('site'),
+							title: newTitle,
+							file: newFile,
+							content: content
+						});
+					}
 				}
 				
 				// reload if file doesn't exist
@@ -1517,8 +1521,15 @@ function uglify(code, options) {
 	output_options = defaults(output_options, default_options.output, true);
 
 	// 1. Parse
-	var toplevel_ast = parse(code, parse_options);
-	toplevel_ast.figure_out_scope();
+	var toplevel_ast;
+	try{
+		toplevel_ast = parse(code, parse_options);
+		toplevel_ast.figure_out_scope();
+	} catch(e) {
+		prompt.alert({title:lang.failedText, msg:'Error parsing file' + ': ' + e.message});
+		return false;
+	}
+	
 
 	// 2. Compress
 	var compressor = new Compressor(compress_options);

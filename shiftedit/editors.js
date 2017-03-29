@@ -794,6 +794,18 @@ function applyPrefs(tab) {
 				return tabs.saveAs(this);
 			}, tab)
 		}, {
+			name: "saveWithMinified",
+			bindKey: {
+				win: preferences.getKeyBinding('saveWithMinified'),
+				mac: preferences.getKeyBinding('saveWithMinified', 'mac'),
+				sender: "editor"
+			},
+			exec: jQuery.proxy(function (editor, args, request) {
+				tabs.save(this, {
+					minify: true
+				});
+			}, tab)
+		}, {
 			name: "findPanel",
 			bindKey: {
 				win: preferences.getKeyBinding('find'),

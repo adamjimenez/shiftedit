@@ -242,7 +242,7 @@ function init () {
 				target: 'file'
 			}, {
 				id: 'minify',
-				text: lang.minify,
+				text: makeMenuText(lang.minify + '...', preferences.getKeyBinding('saveWithMinified'), 'saveWithMinified'),
 				handler: function () {
 					tabs.save($('.ui-layout-center .ui-tabs-active'),{
 						minify: true
