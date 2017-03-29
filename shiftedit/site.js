@@ -652,6 +652,8 @@ function updateCategory(newSite) {
 		'turbo_mode_container',
 		'git_url',
 		's3_public',
+		'compression',
+		'max_age',
 		's3info',
 		'gdrivelimited',
 		'connectBtn'
@@ -687,6 +689,8 @@ function updateCategory(newSite) {
 		'AmazonS3': [
 			'cloud_container',
 			's3_public',
+			'compression',
+			'max_age',
 			's3info',
 			'ftp_user_container',
 			'pass_container',
@@ -1454,6 +1458,10 @@ function edit(newSite, duplicate) {
 						<p id="compression">\
 							<label for="name">Use compression:</label>\
 							<input type="checkbox" name="compression" value="1" class="text ui-widget-content ui-corner-all" >\
+						</p>\
+						<p id="max_age">\
+							<label for="name">Cache expiration (s):</label>\
+							<input type="number" name="max_age" value="0" class="text ui-widget-content ui-corner-all" style="max-width:80px;" >\
 						</p>\
 					</div>\
 					<div id="tabs-database">\
