@@ -681,10 +681,7 @@ function open(data) {
 		selected.forEach(function(file) {
 			var file_extension = util.fileExtension(util.basename(file));
 			if (image_extensions.indexOf(file_extension) != -1) {
-				var settings = site.getSettings();
-				var url = settings.web_url+file;
-				
-				window.open('http://apps.pixlr.com/editor/?referrer=ShiftEdit&image=' + encodeURIComponent(url + '?shiftedit=' + new Date().getTime()) + '&title=' + file + '&target=' + encodeURIComponent('https://shiftedit.net/api/files?cmd=save_image&site=' + site.active() + '&path=' + file) + '&redirect=false');
+				window.open('/api/files?cmd=open_image&site=' + site.active() + '+&file=' + file);
 			} else {
 				tabs.open(file, site.active());
 			}
