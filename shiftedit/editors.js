@@ -510,10 +510,11 @@ function addFirepad(tab) {
 
 			if( data && revision == data.revision ){
 				console.log('new revision: ' + data.revision);
-				tabs.setEdited(tab.id, false);
+				tabs.setEdited(tab, false);
 			}
 
 			if( data && data.last_modified ){
+				tab.data('mdate', data.last_modified);
 				tab.attr('data-mdate', data.last_modified);
 			}
 		});
@@ -1524,6 +1525,19 @@ function create(file, content, siteId, options) {
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
 
+	$(tab).on('save', function() {
+		var firepad = $(tab).data('firepad');
+		
+		if( firepad ){
+			var revision = firepad.firebaseAdapter_.revision_;
+			firepad.firebaseAdapter_.ref_.child('save').set({
+				revision: revision,
+				last_modified: $(tab).data('mdate'),
+				username: localStorage.username
+			});
+			console.log('revision set to: '+revision);
+		}
+	});
 	$(tab).on('beforeClose', destroy);
 
 	//autocomplete
