@@ -827,7 +827,7 @@ div.fullScreen{
 	background: #fff;
 }
 
-.preview_toolbar, .preview_toolbar .custom-combobox{
+.preview_toolbar{
 	display: flex;
 }
 
@@ -1040,11 +1040,11 @@ div.fullScreen{
 	padding: 2px;
 }
 
-#sitebar span{
+#sitebar span, .preview_toolbar span{
 	display: block;
 }
 
-#sitebar .custom-combobox-input, #git_url_bar .custom-combobox-input{
+#sitebar .custom-combobox-input, #git_url_bar .custom-combobox-input, .preview_toolbar .custom-combobox-input{
 	width: calc(100% - 50px);
 }
 
