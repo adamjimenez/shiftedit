@@ -405,11 +405,13 @@ function removeFirepad(tab) {
 
 	if( firepadUserList ){
 		firepadUserList.dispose();
+		$(tab).data('firepadUserList', false);
 	}
 
 	if( firepad ){
 		try{
 			firepad.dispose();
+			$(tab).data('firepad', false);
 		}catch(e){
 			console.log(e);
 		}
@@ -420,11 +422,20 @@ function addFirepad(tab) {
 	console.log('adding firepad');
 
 	//TODO loading mask
+	var content = '';
 	var editor = tabs.getEditor(tab);
+	
+	if (editor.getValue()) {
+		content = editor.getValue();
+	} else {
+		content = tab.data('original');
+	}
+	content = content.replace(/\r\n/g, "\n");
+	editor.setValue('');
+	
 	var options = {};
-	var content = tab.data('original');
 	if( typeof content === 'string' ){
-		options.content = content.replace(/\r\n/g, "\n");
+		options.content = content;
 	}
 
 	var siteId = tab.attr('data-site');
@@ -488,7 +499,6 @@ function addFirepad(tab) {
 			firepad.setText(content);
 			editor.getSession().getUndoManager().reset();
 		}else if( typeof content === 'string' && editor.getValue() !== options.content ){
-			//firepad.setText(content);
 			tabs.setEdited(tab, true);
 		}else if(editor.getValue() === options.content){
 			tabs.setEdited(tab, false);
@@ -1537,6 +1547,37 @@ function create(file, content, siteId, options) {
 			console.log('revision set to: '+revision);
 		}
 	});
+	
+	$(tab).on('share', function() {
+		console.log('shared');
+		
+		// add firepad
+		var firepad = $(tab).data('firepad');
+		if (!firepad) {
+			if( !firebase.isConnected() ){
+				tab.attr('data-firepad', 1);
+	
+				firebase.connect(function() {
+					$('li[role=tab][data-firepad]').each(function(index){
+						addFirepad($(this));
+					});
+				});
+			}else{
+				addFirepad(tab);
+			}
+		}
+	});
+	
+	$(tab).on('unshare', function() {
+		console.log('unshared');
+		
+		// remove firepad
+		var firepad = $(tab).data('firepad');
+		if (firepad) {
+			removeFirepad(tab);
+		}
+	});
+	
 	$(tab).on('beforeClose', destroy);
 
 	//autocomplete

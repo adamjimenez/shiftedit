@@ -551,8 +551,34 @@ function loadUsers() {
 			});
 
 			$('#users').html(html);
-
+			
 			$('#shareSiteForm input[name=email]').focus();
+			
+			// toggle shared site
+			sites.forEach(function(entry) {
+				if(entry.id == currentSite) {
+					var shared = data.shared.length ? true : false;
+					
+					if (entry.shared != shared) {
+						entry.shared = shared;
+						
+						// toggle shared icon
+						var icon = '';
+						if (entry.shared) {
+							icon = 'fa fa-share-alt';
+						}
+						
+						$( "#sites option[value='"+currentSite+"']" ).attr( 'data-icon', icon ).data( 'icon', icon );
+						
+						// toggle firepad from open files
+						var action = shared ? 'share' : 'unshare';
+						$("li[data-site='"+currentSite+"']").trigger(action);
+					}
+					
+					
+					return;
+				}
+			});
 		}
 	});
 }
