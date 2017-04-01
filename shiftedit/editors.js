@@ -495,7 +495,7 @@ function addFirepad(tab) {
 		}
 
 		//move cursor to start
-		editor.moveCursorToPosition({column:0, row:0});
+		editor.gotoLine(1, 0);
 
 		saveRef = firepadRef.child('save');
 		saveRef.on('value', function(snapshot) {
