@@ -514,8 +514,7 @@ function addFirepad(tab) {
 			}
 
 			if( data && data.last_modified ){
-				tab.data('mdate', data.last_modified);
-				tab.attr('data-mdate', data.last_modified);
+				tab.attr('data-mdate', data.last_modified).data('mdate', data.last_modified);
 			}
 		});
 
