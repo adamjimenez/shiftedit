@@ -1,4 +1,4 @@
-define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/repositories','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache', 'app/prompt', 'app/git', 'app/servers'], function (exports) {
+define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","app/drop",'app/restore','app/recent','app/repositories','app/editors','app/shortcuts','app/hash','app/definitions','app/find', 'app/exit', 'app/notes', 'app/snippets', 'app/resize','app/splash', 'app/appcache', 'app/prompt', 'app/git', 'app/servers', 'app/notifications'], function (exports) {
 	var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
 	var locale = require("app/lang");
 	var preferences = require("app/prefs");
@@ -82,6 +82,7 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 		var resize = require("app/resize");
 		resize.init();
 		var servers = require("app/servers");
+		var notifications = require("app/notifications");
 
 		splash.close();
 	});

@@ -1187,7 +1187,7 @@ div.fullScreen{
 	opacity: 0.2;
 }
 
-.newVersion{
+.notification{
 	position: absolute;
 	width: 260px;
 	right: 20px;
@@ -1195,14 +1195,14 @@ div.fullScreen{
 	z-index: 100;
 }
 
-.newVersion .inner{
+.notification .inner{
 	position: relative;
 	padding: 20px;
 	opacity: 0.8;
 	text-align: center;
 }
 
-.newVersion .dismiss{
+.notification .dismiss{
 	position: absolute;
 	top: 2px;
 	right: 2px;
