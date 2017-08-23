@@ -231,14 +231,20 @@ function init() {
 		id: 'shareSite',
 		text: 'Share site',
 		handler: function() {
-			//import site dialog
+			//share site dialog
 			$( "body" ).append('<div id="dialog-share-site" title="Share site">\
 				<form id="shareSiteForm">\
 					<div class="hbox">\
 						<input id="share_email" type="text" name="email" placeholder="Email address" class="flex text ui-widget-content ui-corner-all" required autofocus>\
 						<button type="submit">Add</button>\
 					</div>\
+					<h2>Shared with</h2>\
 					<div id="users">\
+						nobody\
+					</div>\
+					<h2>Contacts</h2>\
+					<div id="contacts">\
+						no contacts\
 					</div>\
 				</form>\
 			</div>');
@@ -252,6 +258,17 @@ function init() {
 				event.preventDefault();
 
 				loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + currentSite + '&email=' + $('#shareSiteForm input[name=email]').val(), {
+					action: 'saving user',
+					success: function(data) {
+						$('#shareSiteForm input[name=email]').val('');
+						loadUsers();
+					}
+				});
+			});
+
+			//handle add user
+			$('#shareSiteForm').on('click', 'a.add', function() {
+				loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + currentSite + '&email=' + $(this).data('email'), {
 					action: 'saving user',
 					success: function(data) {
 						$('#shareSiteForm input[name=email]').val('');
@@ -544,13 +561,29 @@ function loadUsers() {
 	loading.fetch(config.apiBaseUrl+'share?cmd=list&site='+currentSite, {
 		action: 'getting users',
 		success: function(data) {
+			// shared
 			var html = '';
-
 			data.shared.forEach(function(item){
 				html += '<p>' + item.name + ' <a href="#" data-id="'+item.id+'" class="delete">X</a></p>';
 			});
 
-			$('#users').html(html);
+			if (html) {
+				$('#users').html(html);
+			} else {
+				$('#users').html('nobody');
+			}
+			
+			// contacts
+			html = '';
+			data.contacts.forEach(function(item){
+				html += '<p>' + item.name + ' <a href="#" data-email="'+item.email+'" class="add">Add</a></p>';
+			});
+
+			if (html) {
+				$('#contacts').html(html);
+			} else {
+				$('#contacts').html('no contacts');
+			}
 			
 			$('#shareSiteForm input[name=email]').focus();
 			
@@ -574,7 +607,6 @@ function loadUsers() {
 						var action = shared ? 'share' : 'unshare';
 						$("li[data-site='"+currentSite+"']").trigger(action);
 					}
-					
 					
 					return;
 				}
