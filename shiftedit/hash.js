@@ -48,7 +48,7 @@ load = function (callback) {
 };
 
 set = function(hash) {
-	if(hash!=window.location.hash){
+	if('#'+hash!=window.location.hash){
 		value = hash;
 
 		console.log('set hash: #'+ value);
