@@ -1388,6 +1388,28 @@ function applyPrefs(tab) {
 			exec: jQuery.proxy(function (editor, args, request) {
 				return jQuery.proxy(tabs.fullScreen, this)();
 			}, tab)
+		}, {
+			name: "fold",
+			bindKey: {
+				win: preferences.getKeyBinding('collapseSelection'),
+				mac: preferences.getKeyBinding('collapseSelection', 'mac'),
+				sender: "editor"
+			},
+		    exec: function(editor) { editor.session.toggleFold(false); },
+		    multiSelectAction: "forEach",
+		    scrollIntoView: "center",
+		    readOnly: true
+		}, {
+			name: "unfold",
+			bindKey: {
+				win: preferences.getKeyBinding('expandSelection'),
+				mac: preferences.getKeyBinding('expandSelection', 'mac'),
+				sender: "editor"
+			},
+		    exec: function(editor) { editor.session.toggleFold(false); },
+		    multiSelectAction: "forEach",
+		    scrollIntoView: "center",
+		    readOnly: true
 		}]);
 	});
 }
