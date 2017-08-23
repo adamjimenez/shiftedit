@@ -1,4 +1,5 @@
-define([ 'app/prefs', 'jquery-ui'], function (preferences) {
+define([ 'app/prefs', 'app/lang', 'jquery-ui'], function (preferences) {
+var lang = require('app/lang').lang;
 	
 var actions = {
 	'save': {
@@ -72,6 +73,14 @@ var actions = {
 	'fullScreen': {
 		label: 'FullScreen',
 		defaultKeyBinding: 'Ctrl-Shift-F'
+	},
+	'collapseSelection': {
+		label: lang.collapseSelection,
+		defaultKeyBinding: 'Alt-L'
+	},
+	'expandSelection': {
+		label: lang.expandSelection,
+		defaultKeyBinding: 'Alt-Shift-L'
 	},
 	/*
 	'newTab': {
