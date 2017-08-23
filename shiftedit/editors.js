@@ -823,8 +823,12 @@ function applyPrefs(tab) {
 				sender: "editor"
 			},
 			exec: function (editor, args, request) {
-				find.open(editor.getSelectedText());
-				return true;
+				if (!$(editor.container).hasClass('fullScreen')) {
+					find.open(editor.getSelectedText());
+					return true;
+				} else {
+					return false;
+				}
 			}
 		}, {
 			name: "gotoLinePrompt",
