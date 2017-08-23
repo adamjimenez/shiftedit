@@ -290,7 +290,7 @@ var charsets = {
 	"Macintosh":"Western"
 };
 
-var jslint_options = [{
+/*var jslint_options = [{
 	name: 'bitwise',
 	description: 'Disallow bitwise operators',
 	value: true,
@@ -579,7 +579,9 @@ var jslint_options = [{
 	name: 'maxerr',
 	description: 'maxerr',
 	value: 1000
-}];
+}]; */
+
+var jslint_options = [];
 
 /*
 jslint_options.forEach(function (item) {
