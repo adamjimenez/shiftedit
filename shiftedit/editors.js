@@ -399,6 +399,7 @@ function removeFirepad(tab) {
 
 	//remove firepad if last user
 	if( firepadUserList && Object.keys(firepadUserList.users).length==1 ){
+		console.log('remove firepad session');
 		firepadRef.off('value');
 		firepadRef.remove();
 	}
@@ -496,11 +497,14 @@ function addFirepad(tab) {
 		var firepadRef = tab.data('firepadRef');
 
 		if( firepad.isHistoryEmpty() ){
+			console.log('new firepad session');
 			firepad.setText(content);
 			editor.getSession().getUndoManager().reset();
 		}else if( typeof content === 'string' && editor.getValue() !== options.content ){
+			console.log('firepad session has changes');
 			tabs.setEdited(tab, true);
 		}else if(editor.getValue() === options.content){
+			console.log('firepad session is the same');
 			tabs.setEdited(tab, false);
 		}
 
@@ -520,7 +524,7 @@ function addFirepad(tab) {
 
 			if( data && revision == data.revision ){
 				console.log('new revision: ' + data.revision);
-				tabs.setEdited(tab, false);
+				// tabs.setEdited(tab, false);
 			}
 
 			if( data && data.last_modified ){
