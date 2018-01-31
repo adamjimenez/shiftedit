@@ -233,6 +233,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		}
 	};
 
+	/*
 	var cssDictionary =
 	{
 	  "background": {"#$0": 2},
@@ -345,6 +346,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 	  "-moz-transform": {"rotate($00deg)": 2, "skew($00deg)": 2},
 	  "-webkit-transform": {"rotate($00deg)": 2, "skew($00deg)": 2 }
 	};
+	*/
 
 	var cssPseudoClasses = {
 	  "link": 1,
@@ -590,6 +592,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 
 			iterator = new TokenIterator(session, pos.row, pos.column);
 			token = iterator.getCurrentToken();
+			
 			while (token) {
 				//skip ->
 				if( func && token.type == 'keyword.operator' ){
@@ -720,7 +723,15 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 				subject = 'css_id';
 				items = dom_ids;
 			}
-		}else if( lang === 'css' || /style="([^"]*)$/.test(line) ){
+		}else if( (lang === 'css' && state === 'start') || /style="([^"]*)$/.test(line) ){
+			// css
+			var CssCompletions = require("ace/mode/css_completions").CssCompletions;
+			var completer = new CssCompletions();
+			var completions = completer.getCompletions('ruleset', session, pos, prefix);
+        	callback(null, completions);
+        	return;
+			
+			/*
 			//css attribute value
 			if( /:[^;]+$/.test( line ) ){
 				subject = 'css_attribute_value';
@@ -734,6 +745,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 				subject = 'css_attribute_name';
 				items = cssDictionary;
 			}
+			*/
 		//html entity
 		/*
 		}else if ( /&[A-z]*$/i.test(line) ) {
