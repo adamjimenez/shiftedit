@@ -206,8 +206,8 @@ li[role=tab] .ui-icon {
 
 /* START TREE */
 /*.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }*/
-.jstree .folder { background:url('../lib/jstree/file_sprite.png') right bottom no-repeat; }
-.jstree .file { background:url('../lib/jstree/file_sprite.png') 0 0 no-repeat; }
+.jstree .folder { background:url('images/icons/file_sprite.png') right bottom no-repeat; }
+.jstree .file { background:url('images/icons/file_sprite.png') 0 0 no-repeat; }
 .jstree .file-pdf { background-position: -32px 0 }
 .jstree .file-as { background-position: -36px 0 }
 .jstree .file-c { background-position: -72px 0 }
