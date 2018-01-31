@@ -639,17 +639,6 @@ div.fullScreen{
 	background: #000;
 }
 
-/*
-.terminal div{
-	white-space: nowrap;
-}
-*/
-
-.reverse-video {
-	color: #000;
-	background: #f0f0f0;
-}
-
 #findForm{
 	padding: 6px;
 }
