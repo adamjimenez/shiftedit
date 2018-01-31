@@ -16,7 +16,7 @@ var repositories = require('app/repositories');
 var Aes = require('aes');
 var directFn;
 var sites = [];
-var currentSite = storage.get('currentSite');
+var currentSite;
 var combobox;
 var site = {};
 var definitions = {};
@@ -54,6 +54,12 @@ function disableMenuItems() {
 }
 
 function init() {
+	var prefs = preferences.get_prefs();
+	
+	if (prefs.restoreTabs) {
+		currentSite = storage.get('currentSite');
+	}
+	
 	$('body').on('click','.newTab .site', function(){
 		create();
 	});
@@ -64,21 +70,10 @@ function init() {
 			selectOnFocus: true,
 			selectFirst: true,
 			select: function (event, ui) {
-				//connect to site
 				open(ui.item.value);
-				
-				//clear memory usage
-				/*
-				$( "#sites" ).combobox('destroy');
-				initCombo();
-				*/
 			},
 			change: function (event, ui) {
-				//connect to site
 				open(ui.item.value);
-			},
-			create: function( event, ui ) {
-				//load();
 			}
 		});
 	}
@@ -384,9 +379,8 @@ function open(siteId, options) {
 		options = {};
 	}
 
-	currentSite = null;
-
 	if(!siteId) {
+		currentSite = null;
 		storage.set('currentSite', currentSite);
 		return;
 	}
@@ -399,6 +393,11 @@ function open(siteId, options) {
 	storage.set('currentSite', currentSite);
 	enableMenuItems(site);
 	$( "#sites" ).combobox('val', currentSite+'');
+
+	// no site selected
+	if (siteId=="0") {
+		return;
+	}
 
 	var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
@@ -658,6 +657,9 @@ function load(options) {
 				create();
 				return;
 			}
+			
+			// empty option
+			$( "#sites" ).append( '<option value="0"></option>' );
 
 			$.each(sites, function( index, site ) {
 				var icon = '';
@@ -1696,8 +1698,6 @@ function edit(newSite, duplicate) {
 		},
 		change: function (event, ui) {
 			$('#server').val(ui.item.value);
-		},
-		create: function( event, ui ) {
 		}
 	});
 	loadServers(settings.server);
@@ -1713,8 +1713,6 @@ function edit(newSite, duplicate) {
 		},
 		change: function (event, ui) {
 			$('#git_url').val(ui.item.value);
-		},
-		create: function( event, ui ) {
 		}
 	});
 	
