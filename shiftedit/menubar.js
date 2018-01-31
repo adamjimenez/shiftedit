@@ -281,7 +281,7 @@ function init () {
 					if( editor && tab.data('original')!==editor.getValue() ){
 						editor.setValue(tab.data('original'));
 					} else {
-						console.log('file is unchanged');	
+						console.log('file is unchanged');
 					}
 					
 					tabs.setEdited(tab, false);
@@ -937,7 +937,7 @@ function init () {
 			handler: function () {
 				window.open('/premier');
 			},
-			hidden: storage.get('premier')
+			hidden: ['Basic', 'Business', 'Premier'].indexOf(storage.get('edition'))!==-1
 		}
 
 	};
@@ -952,6 +952,6 @@ function init () {
 }
 
 exports.init = init;
-exports.selectionMenuItems = function () { return selectionMenuItems; }
+exports.selectionMenuItems = function () { return selectionMenuItems; };
 
 });
