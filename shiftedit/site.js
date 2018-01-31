@@ -1115,8 +1115,8 @@ function test() {
 					params.preview_node = data.preview_node;
 				}
 
-				//check web url
-				if( params.web_url && params.server_type !== 'AJAX' ){
+				//check web url - disabled
+				if( false && params.web_url && params.server_type !== 'AJAX' ){
 					if (!loading.start('Testing site '+site.name, function(){
 						clearTimeout(errorTimeout);
 						$('#test_iframe').remove();
@@ -1130,7 +1130,7 @@ function test() {
 					}
 
 					//create iframe
-					$('body').append('<iframe id="test_iframe" src="' + params.web_url + '_shiftedit_test_preview.html?shiftedit=' + new Date().getTime() + '"></iframe>');
+					$('body').append('<iframe id="test_iframe" src="http'+(params.encryption ? 's' : '')+'://' + params.web_url + '_shiftedit_test_preview.html?shiftedit=' + new Date().getTime() + '"></iframe>');
 
 					//give up after 10 seconds
 					errorTimeout = setTimeout(function(){
@@ -1141,7 +1141,7 @@ function test() {
 						var hints = '';
 
 						if( params.web_url.substr(0, 7) == 'http://' ){
-							hints+= '<li>* Enable SSL or click Shield icon in address bar, then "Load unsafe script</li>';
+							hints+= '<li>* Enable SSL or click Shield icon in address bar, then "Load unsafe scripts</li>';
 						}
 
 						hints += '<li>* Ensure Dir points to web root e.g. /httpdocs/</li>';
