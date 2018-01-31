@@ -21,6 +21,7 @@ var beautify = require('beautify');
 var css_beautify = require('beautify-css');
 var html_beautify = require('beautify-html');
 var FirepadUserList = require('firepad-userlist');
+var Range = require("ace/range").Range;
 
 //ace.config.set("packaged", true);
 //ace.config.set("basePath", require.toUrl("ace"));
@@ -31,6 +32,18 @@ var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20171017';
 ace.config.set("modePath", acePath);
 //ace.config.set("workerPath", acePath); //disabled to fix firefox security issue
 ace.config.set("themePath", acePath);
+
+// fix firepad bug (undo/ redo doesn't scroll in ace #226)
+Firepad.ACEAdapter.prototype.setCursor = function(cursor) {
+	var end, start, _ref;
+	start = this.posFromIndex(cursor.position);
+	end = this.posFromIndex(cursor.selectionEnd);
+	if (cursor.position > cursor.selectionEnd) {
+		_ref = [end, start], start = _ref[0], end = _ref[1];
+	}
+	this.aceSession.selection.setSelectionRange(new this.aceRange(start.row, start.column, end.row, end.column));
+	this.ace.renderer.scrollCursorIntoView(null, 0.5);
+};
 
 // custom completions
 var shifteditCompleter = {
