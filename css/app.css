@@ -1,12 +1,12 @@
-@import url("../lib/layout-default-latest.css");
-@import url("../lib/jquery-ui.css");
+@import url("../node_modules/jstree/dist/themes/default/style.css");
+@import url("../node_modules/xterm/dist/xterm.css");
+@import url("../node_modules/jquery-ui-bundle/jquery-ui.css");
+@import url("../node_modules/jquery-contextmenu/dist/jquery.contextMenu.css");
+@import url("../lib/layout/layout-default-latest.css");
 @import url("../lib/menubar/jquery.menubar.css");
-@import url("../lib/contextMenu/jquery.contextMenu.css");
 @import url("../lib/combobox/ui.combobox.css");
-@import url("../lib/jstree/themes/default/style.css");
-@import url("../lib/ui.tabs.overflowResize/ui.tabs.overflowResize.css");
-@import url("../lib/ui.basicMenu/ui.basicMenu.css");
-@import url("../lib/xterm.js/src/xterm.css");
+@import url("../lib/overflowResize/ui.tabs.overflowResize.css");
+@import url("../lib/basicMenu/ui.basicMenu.css");
 @import url("../lib/diff2html/diff2html.css");
 
 body{
