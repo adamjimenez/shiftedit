@@ -863,27 +863,33 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			items = xmlDictionary;
 		*/
 		}else if( forced && lang == 'php' && type !== 'comment' ){
-			subject = 'php_function';
-			functions = util.merge(phpDictionary, php_functions);
-
-			if( ac_wordpress ){
-				functions = util.merge(functions, wordpressFunctions);
-			}
-
-			if( siteDefinitions.php && siteDefinitions.php.functions ){
-				functions = util.merge(functions, siteDefinitions.php.functions);
-			}
-
-			items = functions;
-
-			for (i in items) {
-				if( items[i] ){
-					items[i][1] = "<h4>" + items[i][0] + "</h4>" + items[i][1];
-					items[i][0] = i + '($0)';
+			token = session.getTokenAt(pos.row, pos.column);
+			var prevToken = session.getTokenAt(pos.row, token.start);
+			
+    		if (prevToken.type==='support.php_tag') {
+    			console.log('php tag');
+    		} else {
+				subject = 'php_function';
+				functions = util.merge(phpDictionary, php_functions);
+	
+				if( ac_wordpress ){
+					functions = util.merge(functions, wordpressFunctions);
 				}
-			}
-
-			autoSelect = false;
+	
+				if( siteDefinitions.php && siteDefinitions.php.functions ){
+					functions = util.merge(functions, siteDefinitions.php.functions);
+				}
+	
+				items = functions;
+	
+				for (i in items) {
+					if( items[i] ){
+						items[i][1] = "<h4>" + items[i][0] + "</h4>" + items[i][1];
+						items[i][0] = i + '($0)';
+					}
+				}
+				autoSelect = false;
+    		}
 		}else if( forced && (lang == 'js' || lang == 'javascript') ){
 			subject = 'js_function';
 			functions = util.merge(jsDictionary.Global, js_functions);
@@ -984,6 +990,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 					snippet: snippet,
 					value: value,
 					meta: meta,
+					score: 100,
 					doc: doc
 				});
 			}
