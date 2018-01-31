@@ -1,34 +1,81 @@
-define(['app/tabs','app/prefs', 'app/storage', 'firepad/firebase'],function (tabs, preferences, storage) {
+define(['app/tabs','app/prefs', 'app/storage', 'firebase'],function (tabs, preferences, storage) {
 
+var firebase = require('firebase');
 var connected = false;
+var firebaseDatabase = null;
+
+reconnect = function(callback) {
+	preferences.load()
+	.then(function() {
+		connect(callback);
+	});
+	connected = false;
+};
 
 connect = function (callback) {
+	if (connected) {
+		return;
+	}
+	
 	//firebase login - put this someplace else
-	var dataRef = new Firebase("https://shiftedit.firebaseio.com/");
-	// Log me in.
-	dataRef.authWithCustomToken(storage.get('authToken'), function(error) {
-		if(error) {
-			console.log("Firebase login failed", error);
+	var config = {
+		apiKey: "AIzaSyCZScKs0pAv97SAOM9SQvHx49niOJKA8K4",
+		authDomain: "shiftedit.firebaseapp.com",
+		databaseURL: "https://shiftedit.firebaseio.com",
+		projectId: "firebase-shiftedit",
+		storageBucket: "firebase-shiftedit.appspot.com",
+		messagingSenderId: "899582558962"
+	};
 
-			//token expired, load a new one
-			preferences.load(function(){
-				connect(callback);
-			});
-			connected = false;
-		} else {
-			console.log("Firebase login succeeded");
-			connected = true;
-
-			if( callback ){
-				callback();
-			}
+	try{
+		if (!firebase.apps.length) {
+			firebase.initializeApp(config);
 		}
-	}, function(error){
-		console.log('Firebase login expired', error);
+	}catch(error) {
+		var errorCode = error.code;
+		var errorMessage = error.message;
+
+		console.log("Firebase init failed", error.message);
 
 		//token expired, load a new one
-		preferences.load();
-		connected = false;
+		//reconnect(callback);
+		return false;
+	}
+	
+	firebaseDatabase = firebase.database();
+	var dataRef = firebaseDatabase.ref();
+	
+	// Log me in.
+	firebase.auth().signInWithCustomToken(storage.get('newAuthToken')).catch(function(error) {
+		var errorCode = error.code;
+		var errorMessage = error.message;
+
+		console.log("Firebase login failed", error.message);
+
+		//token expired, load a new one
+		reconnect(callback);
+		return false;
+	})
+	.then(function() {
+		console.log("Firebase login succeeded");
+		connected = true;
+		//console.log(authData);
+	
+		// get a new token every day
+		setTimeout(function() {
+			console.log('get new firebase token');
+			
+			// get a new token
+			preferences.load()
+			.then(function(data) {
+				console.log('reconnect to firebase');
+				connect();
+			});
+		}, 3600*1000);
+	
+		if( callback ){
+			callback();
+		}
 	});
 };
 
@@ -51,6 +98,9 @@ return {
 	connect: connect,
 	isConnected: function() {
 		return connected;
+	},
+	get: function() {
+		return firebaseDatabase;
 	}
 };
 
