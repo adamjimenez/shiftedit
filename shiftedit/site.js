@@ -926,6 +926,9 @@ function chooseFolder() {
 						method: 'POST',
 						dataType: 'json',
 						data: params,
+						xhrFields: {
+							withCredentials: true
+						},
 						success: function(data) {
 							if(data.error) {
 								prompt.alert({title:'Error', msg:data.error});
@@ -1083,7 +1086,10 @@ function test() {
 		url: ajaxOptions.url+'&cmd=test',
 		method: 'POST',
 		dataType: 'json',
-		data: params
+		data: params,
+		xhrFields: {
+			withCredentials: true
+		}
 	});
 	
 	ajax.then(function (data) {

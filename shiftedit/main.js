@@ -5,13 +5,6 @@ define(['exports',"jquery-ui","app/lang","app/prefs","app/tabs","app/layout","ap
 	var splash = require("app/splash");
 	var prompt = require("app/prompt");
 	
-	// send cookie by default - needed when running from localhost
-	$(document).ajaxSend(function (event, xhr, settings) {
-		settings.xhrFields = {
-			withCredentials: true
-		};
-	});
-
 	splash.update('loading strings..');
 	locale.load()
 	.then(function(data) {

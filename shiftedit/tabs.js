@@ -224,6 +224,9 @@ function openFiles(options) {
 			method: 'POST',
 			dataType: 'json',
 			data: params,
+			xhrFields: {
+				withCredentials: true
+			},
 			success: openCallback
 		}, 'json').fail(function() {
 			loading.stop();
@@ -549,6 +552,9 @@ function saveFiles(options) {
 			method: 'POST',
 			dataType: 'json',
 			data: params,
+			xhrFields: {
+				withCredentials: true
+			},
 			content: content,
 			success: saveCallback
 		}).fail(function() {
@@ -644,7 +650,10 @@ function saveAs(tab, options) {
 						url: ajaxOptions.url+'&cmd=file_exists&site='+siteId+'&file='+encodeURIComponent(file),
 						method: 'POST',
 						dataType: 'json',
-						data: params
+						data: params,
+						xhrFields: {
+							withCredentials: true
+						}
 					})
 					.then(function (data) {
 						fileExistsCallback(data);

@@ -118,7 +118,10 @@ function fetch(url, options) {
 		url: url,
 		method: method,
 		dataType: 'json',
-		data: options.data
+		data: options.data,
+		xhrFields: {
+			withCredentials: true
+		}
 	});
 	
 	if (options.giveWay) {
