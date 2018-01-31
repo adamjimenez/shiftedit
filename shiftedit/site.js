@@ -1767,6 +1767,10 @@ function edit(newSite, duplicate) {
 		}
 		
 		updateCategory(newSite);
+			
+		if( ['GDrive', 'GDriveLimited', 'Dropbox'].indexOf(this.value) !== -1 ){
+			test();
+		}
 	});
 
 	//trim values
