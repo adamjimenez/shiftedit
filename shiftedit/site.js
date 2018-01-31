@@ -1963,8 +1963,12 @@ function getAjaxOptions(ajaxUrl, settings) {
 			pass: util.sha1(pass)
 		};
 
-		if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){
-			prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe script"'});
+		// check if non-ssl blocked
+		if(location.protocol==='https:' && util.startsWith(ajaxUrl, 'http://') && ssl.is_blocked()) {
+			ssl.test()
+			.fail(function () {
+				prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe scripts"'});
+			});
 		}
 	}
 
