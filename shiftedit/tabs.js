@@ -1,4 +1,4 @@
-define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/repositories', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'app/resize', 'coffee-script', 'app/hash', 'uglify/compress', 'cssmin/cssmin'], function (config, editors, preferences, exports) {
+define(['app/config', 'app/editors', 'app/prefs', 'exports', "ui.tabs.overflowResize","app/tabs_contextmenu", "app/prompt", "app/lang", "app/site", "app/modes", "app/loading", 'app/util', 'app/recent', 'app/repositories', 'app/ssh', 'app/preview', 'app/diff', 'app/tree', 'app/resize', 'coffee-script', 'app/hash', 'uglify/compress', 'cssmin'], function (config, editors, preferences, exports) {
 var tabs_contextmenu = require('app/tabs_contextmenu');
 var prompt = require('app/prompt');
 var site = require('app/site');
@@ -805,12 +805,19 @@ function checkEdited (e, ui) {
 }
 
 function afterClose(e, ui) {
+	var queue = false;
+	if(closing.length>1) {
+		queue = true;
+	}
+	
 	if(closing.length) {
 		closing.splice(0, 1);
 		close(closing[0]);
-	}else{
-		recordOpenFiles();
+	}
+	
+	if (!queue) {
 		$(ui.tab).closest('.ui-tabs').trigger('close');
+		recordOpenFiles();
 	}
 }
 
@@ -1001,18 +1008,18 @@ function newTab (e, ui) {
 	
 	//put current site files at the top
 	recentFiles.sort(function(a, b){
-	    var aCurrent = (a.site == site.active());
-	    var bCurrent = (b.site == site.active());
-	    
-	    // compare if it has the current site
-	    if(aCurrent && !bCurrent) return -1;
-	    if(!aCurrent && bCurrent) return 1;
-	    
-	    // compare the 2 dates
-	    if (a.date < b.date) return 1;
-	    if (a.date > b.date) return -1;
-	    
-	    return 0;
+		var aCurrent = (a.site == site.active());
+		var bCurrent = (b.site == site.active());
+		
+		// compare if it has the current site
+		if(aCurrent && !bCurrent) return -1;
+		if(!aCurrent && bCurrent) return 1;
+		
+		// compare the 2 dates
+		if (a.date < b.date) return 1;
+		if (a.date > b.date) return -1;
+		
+		return 0;
 	});
 	
 	HTML = {0:'', 1:''};
@@ -1477,46 +1484,46 @@ var default_options = {
 		strict: false
 	},
 	compress: {
-		sequences     : true,
-		properties    : true,
-		dead_code     : true,
-		drop_debugger : true,
-		unsafe        : true,
-		unsafe_comps  : true,
-		conditionals  : true,
-		comparisons   : true,
-		evaluate      : true,
-		booleans      : true,
-		loops         : true,
-		unused        : true,
-		hoist_funs    : true,
-		hoist_vars    : false,
-		if_return     : true,
-		join_vars     : true,
-		cascade       : true,
-		side_effects  : true,
-		negate_iife   : true,
-		screw_ie8     : false,
+		sequences: true,
+		properties: true,
+		dead_code: true,
+		drop_debugger: true,
+		unsafe: true,
+		unsafe_comps: true,
+		conditionals: true,
+		comparisons: true,
+		evaluate: true,
+		booleans: true,
+		loops: true,
+		unused: true,
+		hoist_funs: true,
+		hoist_vars: false,
+		if_return: true,
+		join_vars: true,
+		cascade: true,
+		side_effects: true,
+		negate_iife: true,
+		screw_ie8: false,
 		
-		warnings      : true,
-		global_defs   : {}
+		warnings: true,
+		global_defs: {}
 	},
 	output: {
-		indent_start  : 0,
-		indent_level  : 4,
-		quote_keys    : false,
-		space_colon   : true,
-		ascii_only    : false,
-		inline_script : true,
-		width         : 80,
-		max_line_len  : 32000,
-		beautify      : false,
-		source_map    : null,
-		bracketize    : false,
-		semicolons    : true,
-		comments      : /@license|@preserve|^!/,
-		preserve_line : false,
-		screw_ie8     : false
+		indent_start: 0,
+		indent_level: 4,
+		quote_keys: false,
+		space_colon: true,
+		ascii_only: false,
+		inline_script: true,
+		width: 80,
+		max_line_len: 32000,
+		beautify: false,
+		source_map: null,
+		bracketize: false,
+		semicolons: true,
+		comments: /@license|@preserve|^!/,
+		preserve_line: false,
+		screw_ie8: false
 	}
 };
 function uglify(code, options) {
