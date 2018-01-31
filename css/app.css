@@ -641,6 +641,9 @@ div.fullScreen{
 
 #findForm{
 	padding: 6px;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 }
 
 #findForm .row{
@@ -688,6 +691,13 @@ div.fullScreen{
 #findForm .ui-menu {
 	position: absolute;
 	width: 70px;
+}
+
+#findResults {
+	display: none;
+	margin: 10px;
+	overflow: scroll;
+	flex: 1;
 }
 
 .ui-progressbar-value {

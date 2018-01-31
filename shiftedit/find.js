@@ -382,7 +382,8 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 	}
 
 	function keyUp(e){
-		if (e.key === 'Escape') {
+		console.log(arguments)
+		if (e && e.key === 'Escape') {
 			//focus editor
 			var tab = tabs.active();
 			$(".ui-layout-center").trigger("tabsactivate", [{newTab: tab}]);
@@ -392,6 +393,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		if (['remote'].indexOf(findIn) !== -1) {
 			var s = $('#find').val();
 			$('#findResults').html('');
+			$('#findResults').hide();
 
 			if (!s || lastSearch == s) {
 				return;
@@ -404,6 +406,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 			}
 
 			$('#findResults').html('');
+			$('#findResults').hide();
 
 			//remote search
 			if( searchSource ){
@@ -418,6 +421,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 
 			searchSource.addEventListener('message', function(event) {
 				var data = JSON.parse(event.data);
+				$('#findResults').show();
 				$('#findResults').append('<li><a href="#" data-file="'+data.msg+'" data-site="'+currentSite+'" class="openfile">' + data.msg + '</a></li>');
 			}, false);
 
