@@ -86,6 +86,7 @@ function edit(add) {
 				<label for="name">Password:</label>\
 				<input type="password" id="password" name="password" value="" placeholder="api key" class="text ui-widget-content ui-corner-all" required disabled>\
 				<button type="button" class="showPassword">Show</button>\
+				<button type="button" class="generatePassword">Generate</button>\
 			</p>\
 		</form>\
 	</div>');
@@ -102,17 +103,21 @@ function edit(add) {
 			$('#server_pass_container').show();
 			$('#username').attr('placeholder', 'Access Key ID');
 			$('#password').attr('placeholder', 'Secret Access Key');
+			$('.generatePassword').hide();
 		} else if (this.value==='DigitalOcean') {
 			$('#server_user_container').hide();
 			$('#server_pass_container').hide();
+			$('.generatePassword').hide();
 			//$('#password').attr('placeholder', 'Token');
 		} else if (this.value==='Linode') {
 			$('#server_user_container').hide();
 			$('#server_pass_container').show();
 			$('#password').attr('placeholder', 'Api Key');
+			$('.generatePassword').show();
 		} else {
 			$('#server_user_container').hide();
 			$('#server_pass_container').hide();
+			$('.generatePassword').hide();
 		}
 	});
 	
@@ -122,6 +127,14 @@ function edit(add) {
 			input.attr('type', 'password');
 		}else{
 			input.attr('type', 'text');
+		}
+	});
+	
+	$( ".generatePassword" ).button().click(function() {
+		switch($("#providerRadio input[type='radio']:checked").val()) {
+			case 'Linode':
+				window.open('https://manager.linode.com/profile/api');
+			break;
 		}
 	});
 	
