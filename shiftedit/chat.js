@@ -1,4 +1,4 @@
-define(['app/tabs','app/storage', 'app/site', 'app/util', 'jquery.contextMenu'], function (tabs, storage, site, util) {
+define(['app/tabs','app/storage', 'app/site', 'app/util', 'jquery.contextMenu', 'app/firebase'], function (tabs, storage, site, util) {
 
 var groups = {};
 var selectedGroup;
@@ -12,6 +12,7 @@ var avatar = storage.get('avatar');
 var alertSound;
 var alertSoundURL = 'https://shiftedit.s3.amazonaws.com/assets/alert.wav';
 var initialized = false;
+var firebase = require('app/firebase');
 
 function send(msg) {
 	var groupRef = groups[group];
@@ -70,8 +71,9 @@ function add() {
 	if( !groups[firebaseUrl] ){
 		console.log('adding chat');
 		var li = $('<li data-url="' + firebaseUrl + '"><a href="#">' + chatName + '</a></li>').appendTo('#chat');
-
-		var ref = new Firebase(firebaseUrl);
+		
+		var firebaseDatabase = firebase.get();
+		var ref = firebaseDatabase.refFromURL(firebaseUrl);
 
 		var recentRef = ref.limitToLast(20);
 		groups[firebaseUrl] = ref;
