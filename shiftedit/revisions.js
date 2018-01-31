@@ -1,4 +1,6 @@
-define(['app/config', 'app/loading','app/tabs', 'app/prefs', 'app/util', "app/modes", "jquery-ui",'ace/ace','jsdiff',"ui.basicMenu"], function (config, loading, tabs, preferences, util) {
+define(['app/config', 'app/loading','app/tabs', 'app/prefs', 'app/util', "app/modes", "jquery-ui",'ace/ace','diff',"ui.basicMenu"], function (config, loading, tabs, preferences, util) {
+var JsDiff = require("diff");
+
 var modes = require('app/modes');
 
 var revisionsEditor;
