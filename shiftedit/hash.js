@@ -48,7 +48,7 @@ load = function (callback) {
 };
 
 set = function(hash) {
-	if(hash!=window.location.hash){
+	if('#'+hash!=window.location.hash){
 		value = hash;
 
 		console.log('set hash: #'+ value);
@@ -58,9 +58,15 @@ set = function(hash) {
 
 $(window).on( 'hashchange', function(e) { load(); } );
 
+// clear hash when all center tabs are closed
+$('body').on('close', '.ui-layout-center', function(e) {
+	if (!$(this).children('ul').children('li:not(.button)').length) {
+		set('');
+	}
+});
+
 return {
 	load: load,
 	set: set
 };
 });
-

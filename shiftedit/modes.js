@@ -45,6 +45,7 @@ define(['app/prefs'], function (preferences) {
 		['sh', 'Shell', ['sh'], 'text/x-sh'],
 		['tcl', 'TCL', ['tcl'], 'text/tcl'],
 		['textile', 'Textile', ['textile'], 'text/textile'],
+		['twig', 'Twig', ['twig'], 'text/twig'],
 		['vbscript', 'VBScript', ['vbs'], 'text/vbscript'],
 		['yaml', 'YAML', ['yaml', 'yml'], 'text/yaml']
 	];

@@ -1,4 +1,4 @@
-define(['app/config', 'ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'app/resize', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern'], function (config, ace, tabs, exports, preferences) {
+define(['app/config', 'ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad', 'firepad-userlist', 'app/find', 'app/storage', 'app/resize', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase'], function (config, ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -13,23 +13,37 @@ var Autocomplete = require("ace/autocomplete").Autocomplete;
 var tern = require("ace/tern/tern");
 var site = require('app/site');
 var firebase = require('app/firebase');
-var Firepad = require('firepad/firepad');
+var Firepad = require('firepad');
 var find = require('app/find');
 var storage = require('app/storage');
 var resize = require('app/resize');
 var beautify = require('beautify');
 var css_beautify = require('beautify-css');
 var html_beautify = require('beautify-html');
+var FirepadUserList = require('firepad-userlist');
+var Range = require("ace/range").Range;
 
 //ace.config.set("packaged", true);
 //ace.config.set("basePath", require.toUrl("ace"));
 
-//var acePath = 'lib/ace.20160218/src';
-var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20160218';
+//var acePath = 'lib/ace.20171017/src';
+var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20171017';
 
 ace.config.set("modePath", acePath);
 //ace.config.set("workerPath", acePath); //disabled to fix firefox security issue
 ace.config.set("themePath", acePath);
+
+// fix firepad bug (undo/ redo doesn't scroll in ace #226)
+Firepad.ACEAdapter.prototype.setCursor = function(cursor) {
+	var end, start, _ref;
+	start = this.posFromIndex(cursor.position);
+	end = this.posFromIndex(cursor.selectionEnd);
+	if (cursor.position > cursor.selectionEnd) {
+		_ref = [end, start], start = _ref[0], end = _ref[1];
+	}
+	this.aceSession.selection.setSelectionRange(new this.aceRange(start.row, start.column, end.row, end.column));
+	this.ace.renderer.scrollCursorIntoView(null, 0.5);
+};
 
 // custom completions
 var shifteditCompleter = {
@@ -70,7 +84,7 @@ function onChange(e) {
 function onGutterClick(e, editor) {
 	if( e.domEvent.button == 2 ){
 		var s = editor.getSession();
-		var className =  e.domEvent.target.className;
+		var className = e.domEvent.target.className;
 		if (className.indexOf('ace_fold-widget') < 0) {
 			if (className.indexOf("ace_gutter-cell") != -1) {
 				var row = e.getDocumentPosition().row;
@@ -399,17 +413,20 @@ function removeFirepad(tab) {
 
 	//remove firepad if last user
 	if( firepadUserList && Object.keys(firepadUserList.users).length==1 ){
+		console.log('remove firepad session');
 		firepadRef.off('value');
 		firepadRef.remove();
 	}
 
 	if( firepadUserList ){
 		firepadUserList.dispose();
+		$(tab).data('firepadUserList', false);
 	}
 
 	if( firepad ){
 		try{
 			firepad.dispose();
+			$(tab).data('firepad', false);
 		}catch(e){
 			console.log(e);
 		}
@@ -420,11 +437,21 @@ function addFirepad(tab) {
 	console.log('adding firepad');
 
 	//TODO loading mask
+	var content = '';
 	var editor = tabs.getEditor(tab);
+	
+	if (editor.getValue()) {
+		content = editor.getValue();
+	} else {
+		content = tab.data('original');
+	}
+	content = content.replace(/\r\n/g, "\n");
+	var edited = tab.data("edited");
+	editor.setValue('');
+	
 	var options = {};
-	var content = tab.data('original');
 	if( typeof content === 'string' ){
-		options.content = content.replace(/\r\n/g, "\n");
+		options.content = content;
 	}
 
 	var siteId = tab.attr('data-site');
@@ -444,7 +471,10 @@ function addFirepad(tab) {
 
 	$(tab).trigger('firebaseon');
 
-	firepadRef = new Firebase(url+doc_name);
+	var firebaseUrl = url+doc_name;
+	var firebaseDatabase = firebase.get();
+	var firepadRef = firebaseDatabase.refFromURL(firebaseUrl);
+	
 	tab.data('firepadRef', firepadRef);
 
 	// Create Firepad.
@@ -485,17 +515,20 @@ function addFirepad(tab) {
 		var firepadRef = tab.data('firepadRef');
 
 		if( firepad.isHistoryEmpty() ){
+			console.log('new firepad session');
 			firepad.setText(content);
 			editor.getSession().getUndoManager().reset();
+			tabs.setEdited(tab, edited);
 		}else if( typeof content === 'string' && editor.getValue() !== options.content ){
-			//firepad.setText(content);
+			console.log('firepad session has changes');
 			tabs.setEdited(tab, true);
 		}else if(editor.getValue() === options.content){
+			console.log('firepad session is the same');
 			tabs.setEdited(tab, false);
 		}
 
 		//move cursor to start
-		editor.moveCursorToPosition({column:0, row:0});
+		editor.gotoLine(1, 0);
 
 		saveRef = firepadRef.child('save');
 		saveRef.on('value', function(snapshot) {
@@ -508,13 +541,17 @@ function addFirepad(tab) {
 
 			console.log('current revision: ' + revision);
 
-			if( data && revision == data.revision ){
+			if(data && revision == data.revision && data.username !== localStorage.username){
+				// propagate save
 				console.log('new revision: ' + data.revision);
-				tabs.setEdited(tab.id, false);
+				tabs.setEdited(tab, false);
+				
+				// refresh preview
+				tab.trigger('save');
 			}
 
 			if( data && data.last_modified ){
-				tab.attr('data-mdate', data.last_modified);
+				tab.attr('data-mdate', data.last_modified).data('mdate', data.last_modified);
 			}
 		});
 
@@ -813,8 +850,12 @@ function applyPrefs(tab) {
 				sender: "editor"
 			},
 			exec: function (editor, args, request) {
-				find.open(editor.getSelectedText());
-				return true;
+				if (!$(editor.container).hasClass('fullScreen')) {
+					find.open(editor.getSelectedText());
+					return true;
+				} else {
+					return false;
+				}
 			}
 		}, {
 			name: "gotoLinePrompt",
@@ -1296,6 +1337,7 @@ function applyPrefs(tab) {
 			exec: function (editor, args, request) {
 				prompt.prompt({
 					title: 'Insert Image',
+					placeholder: 'Enter image url e.g. http://..',
 					fn :function (button, string) {
 						if (button == 'ok') {
 							if (editor.getSession().$modeId.match(/markdown$/) ){
@@ -1378,6 +1420,28 @@ function applyPrefs(tab) {
 			exec: jQuery.proxy(function (editor, args, request) {
 				return jQuery.proxy(tabs.fullScreen, this)();
 			}, tab)
+		}, {
+			name: "fold",
+			bindKey: {
+				win: preferences.getKeyBinding('collapseSelection'),
+				mac: preferences.getKeyBinding('collapseSelection', 'mac'),
+				sender: "editor"
+			},
+		    exec: function(editor) { editor.session.toggleFold(false); },
+		    multiSelectAction: "forEach",
+		    scrollIntoView: "center",
+		    readOnly: true
+		}, {
+			name: "unfold",
+			bindKey: {
+				win: preferences.getKeyBinding('expandSelection'),
+				mac: preferences.getKeyBinding('expandSelection', 'mac'),
+				sender: "editor"
+			},
+		    exec: function(editor) { editor.session.toggleFold(false); },
+		    multiSelectAction: "forEach",
+		    scrollIntoView: "center",
+		    readOnly: true
 		}]);
 	});
 }
@@ -1465,6 +1529,53 @@ function create(file, content, siteId, options) {
 	window.splits[tab.attr('id')] = split;
 
 	var session = editor.getSession();
+	
+	// fix Double click php var selects $ #2882	
+	session.getWordRange = function(row, column) {
+        var line = this.getLine(row);
+        var tokenRe = this.tokenRe;
+        var nonTokenRe = this.nonTokenRe;
+        var state = this.getState(row, column);
+        var tokenizer = this.$mode.getTokenizer();
+        var tokens = tokenizer.getLineTokens(line.substr(0, column), state, row);
+        var tokenState = typeof tokens.state == 'object' ? tokens.state[0] : tokens.state;
+        var match = tokenState.match(/^([a-z]+\-)/i);
+        
+        if (match) {
+            tokenRe = this.$mode.$modes[match[1]].tokenRe;
+            nonTokenRe = this.$mode.$modes[match[1]].tokenRe;
+        }
+
+        var inToken = false;
+        if (column > 0)
+            inToken = !!line.charAt(column - 1).match(tokenRe);
+
+        if (!inToken)
+            inToken = !!line.charAt(column).match(tokenRe);
+
+        if (inToken)
+            var re = tokenRe;
+        else if (/^\s+$/.test(line.slice(column-1, column+1)))
+            var re = /\s/;
+        else
+            var re = nonTokenRe;
+
+        var start = column;
+        if (start > 0) {
+            do {
+                start--;
+            }
+            while (start >= 0 && line.charAt(start).match(re));
+            start++;
+        }
+
+        var end = column;
+        while (end < line.length && line.charAt(end).match(re)) {
+            end++;
+        }
+
+        return new Range(row, start, row, end);
+    };
 
 	//syntax bar handlers
 	panel.find('.previous').button()
@@ -1524,6 +1635,50 @@ function create(file, content, siteId, options) {
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
 
+	$(tab).on('save', function() {
+		var firepad = $(tab).data('firepad');
+		
+		if( firepad ){
+			var revision = firepad.firebaseAdapter_.revision_;
+			firepad.firebaseAdapter_.ref_.child('save').set({
+				revision: revision,
+				last_modified: $(tab).data('mdate'),
+				username: localStorage.username
+			});
+			console.log('revision set to: '+revision);
+		}
+	});
+	
+	$(tab).on('share', function() {
+		console.log('shared');
+		
+		// add firepad
+		var firepad = $(tab).data('firepad');
+		if (!firepad) {
+			if( !firebase.isConnected() ){
+				tab.attr('data-firepad', 1);
+	
+				firebase.connect(function() {
+					$('li[role=tab][data-firepad]').each(function(index){
+						addFirepad($(this));
+					});
+				});
+			}else{
+				addFirepad(tab);
+			}
+		}
+	});
+	
+	$(tab).on('unshare', function() {
+		console.log('unshared');
+		
+		// remove firepad
+		var firepad = $(tab).data('firepad');
+		if (firepad) {
+			removeFirepad(tab);
+		}
+	});
+	
 	$(tab).on('beforeClose', destroy);
 
 	//autocomplete

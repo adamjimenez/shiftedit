@@ -1,12 +1,12 @@
-@import url("../lib/layout-default-latest.css");
-@import url("../lib/jquery-ui.css");
+@import url("../node_modules/jstree/dist/themes/default/style.css");
+@import url("../node_modules/xterm/dist/xterm.css");
+@import url("../node_modules/jquery-ui-bundle/jquery-ui.css");
+@import url("../node_modules/jquery-contextmenu/dist/jquery.contextMenu.css");
+@import url("../lib/layout/layout-default-latest.css");
 @import url("../lib/menubar/jquery.menubar.css");
-@import url("../lib/contextMenu/jquery.contextMenu.css");
 @import url("../lib/combobox/ui.combobox.css");
-@import url("../lib/jstree/themes/default/style.css");
-@import url("../lib/ui.tabs.overflowResize/ui.tabs.overflowResize.css");
-@import url("../lib/ui.basicMenu/ui.basicMenu.css");
-@import url("../lib/xterm.js/src/xterm.css");
+@import url("../lib/overflowResize/ui.tabs.overflowResize.css");
+@import url("../lib/basicMenu/ui.basicMenu.css");
 @import url("../lib/diff2html/diff2html.css");
 
 body{
@@ -206,8 +206,8 @@ li[role=tab] .ui-icon {
 
 /* START TREE */
 /*.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }*/
-.jstree .folder { background:url('../lib/jstree/file_sprite.png') right bottom no-repeat; }
-.jstree .file { background:url('../lib/jstree/file_sprite.png') 0 0 no-repeat; }
+.jstree .folder { background:url('images/icons/file_sprite.png') right bottom no-repeat; }
+.jstree .file { background:url('images/icons/file_sprite.png') 0 0 no-repeat; }
 .jstree .file-pdf { background-position: -32px 0 }
 .jstree .file-as { background-position: -36px 0 }
 .jstree .file-c { background-position: -72px 0 }
@@ -639,19 +639,11 @@ div.fullScreen{
 	background: #000;
 }
 
-/*
-.terminal div{
-	white-space: nowrap;
-}
-*/
-
-.reverse-video {
-	color: #000;
-	background: #f0f0f0;
-}
-
 #findForm{
 	padding: 6px;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 }
 
 #findForm .row{
@@ -699,6 +691,13 @@ div.fullScreen{
 #findForm .ui-menu {
 	position: absolute;
 	width: 70px;
+}
+
+#findResults {
+	display: none;
+	margin: 10px;
+	overflow: scroll;
+	flex: 1;
 }
 
 .ui-progressbar-value {
@@ -827,7 +826,7 @@ div.fullScreen{
 	background: #fff;
 }
 
-.preview_toolbar, .preview_toolbar .custom-combobox{
+.preview_toolbar{
 	display: flex;
 }
 
@@ -1040,11 +1039,11 @@ div.fullScreen{
 	padding: 2px;
 }
 
-#sitebar span{
+#sitebar span, .preview_toolbar span{
 	display: block;
 }
 
-#sitebar .custom-combobox-input, #git_url_bar .custom-combobox-input{
+#sitebar .custom-combobox-input, #git_url_bar .custom-combobox-input, .preview_toolbar .custom-combobox-input{
 	width: calc(100% - 50px);
 }
 
@@ -1187,7 +1186,7 @@ div.fullScreen{
 	opacity: 0.2;
 }
 
-.newVersion{
+.notification{
 	position: absolute;
 	width: 260px;
 	right: 20px;
@@ -1195,14 +1194,14 @@ div.fullScreen{
 	z-index: 100;
 }
 
-.newVersion .inner{
+.notification .inner{
 	position: relative;
 	padding: 20px;
 	opacity: 0.8;
 	text-align: center;
 }
 
-.newVersion .dismiss{
+.notification .dismiss{
 	position: absolute;
 	top: 2px;
 	right: 2px;

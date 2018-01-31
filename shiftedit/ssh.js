@@ -1,325 +1,215 @@
-define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/prefs', 'app/layout', 'app/storage', 'xterm.js/src/xterm', 'aes', 'jquery'], function (config, tabs, prompt, lang, loading, site, preferences, layout, storage, Terminal) {
+define(['app/config', 'app/tabs', 'app/prompt', 'app/lang', 'app/loading', 'app/site', 'app/prefs', 'app/layout', 'app/storage', 'xterm', 'addons/fit/fit', 'aes', 'jquery'], function (config, tabs, prompt, lang, loading, site, preferences, layout, storage, Terminal) {
+
+var fit = require('addons/fit/fit');
+Terminal.applyAddon(fit);
 
 var Aes = require('aes');
 lang = lang.lang;
 
-function Tab(shellArgs, index, password, cwd) {
-	var self = this;
-	var cols = Terminal.geometry[0];
-	var rows = Terminal.geometry[1];
+var socket;
+var terms = {};
+var initialised = false;
 
-	Terminal.call(this, {
-		cursorBlink: true,
-		screenKeys: true
+init = function() {
+	socket = io.connect('https://ssh.shiftedit.net', {
+		resource: 'socket.io',
+		query: "token="+storage.get('authToken')
 	});
 
-	this.index = index;
-	this.id = '';
-	this.socket = tty.socket;
-	this.element = document.getElementById('sshContainer'+this.index);
-	this.process = '';
-	this.open(this.element);
-
-	this.socket.emit('create', cols, rows, shellArgs, function(err, data) {
-		//refresh panel
-		//ssh.session.resize();
-
-		if (err) return self._destroy();
-
-		//self.pty = data.pty;
-		self.id = data.id;
-		tty.terms[self.id] = self;
-		tty.password[self.id] = password;
-		tty.cwd[self.id] = cwd;
-		return;
+	socket.on('connect', function() {
+		console.log('connect');
 	});
-}
 
-if( typeof Terminal !== 'undefined' ){
-	var EventEmitter = Terminal.EventEmitter;
-	var inherits = Terminal.inherits;
-	var tty = new EventEmitter();
-	
-	tty.open = function() {
-		tty.socket = io.connect('https://ssh.shiftedit.net', {
-			resource: 'socket.io',
-			query: "token="+storage.get('authToken')
-		});
+	socket.on('data', function(id, data) {
+		//console.log(data);
+		var tab = $('li[data-ssh="'+id+'"]');
+		var session = tab.data('session');
 
-		tty.terms = {};
-		tty.logged_in = {};
-		tty.password = {};
-		tty.cwd = {};
-
-		tty.socket.on('connect', function() {
-			console.log('connect');
-			tty.reset();
-			tty.emit('connect');
-		});
-
-		tty.socket.on('data', function(id, data) {
-			//console.log(data);
-			var el = tty.terms[id].element;
-			var tabId = $(el).closest('[role=tabpanel]').attr('id');
-
-			if (tty.logged_in[tabId]!==true && data.trim().substr(-('password:'.length))==='password:') {
-				console.log('enter password');
-				
-				if (tty.password[id]) {
-					var pass;
-					if (!storage.get('masterPassword')) {
-						pass = tty.password[id];
-					} else {
-						pass = Aes.Ctr.decrypt(tty.password[id], storage.get('masterPassword'), 256);
-					}
-					tty.socket.emit('data', id, pass+"\n");
-					console.log('sent password '+pass);
+		if (session.logged_in!==true && data.trim().substr(-('password:'.length))==='password:') {
+			console.log('enter password');
+			
+			if (session.password) {
+				var pass = session.password;
+				if (storage.get('masterPassword')) {
+					pass = Aes.Ctr.decrypt(pass, storage.get('masterPassword'), 256);
 				}
+				socket.emit('data', id, pass+"\n");
+				console.log('sent password');
 			}
-			
-			if (tty.logged_in[tabId]!==true && data.trim().substr(-1)==='$') {
-				console.log('logged in');
-				if (tty.cwd[id]) {
-					tty.socket.emit('data', id, "cd "+tty.cwd[id]+"\n");
-				}
-				tty.logged_in[tabId] = true;
-			}
-			
-			if (!tty.terms[id]) return;
-			tty.terms[id].write(data);
-		});
-
-		tty.socket.on('kill', function(id) {
-			console.log('ssh disconnected');
-
-			if (!tty.terms[id]) return;
-			var el = tty.terms[id].element;
-			var tabId = $(el).closest('[role=tabpanel]').attr('id');
-			var tab = $('[aria-controls='+tabId+']');
-			tab.attr('title', tab.attr('title')+' - disconnected');
-			
-			$( "body" ).append('<div id="dialog-ssh-disconnected" class="ui-front" title="SSH disconnected">\
-				Session has disconnected\
-			</div>');
-		
-			//open dialog
-			var dialog = $( "#dialog-ssh-disconnected" ).dialog({
-				modal: true,
-				width: 420,
-				height: 300,
-				close: function( event, ui ) {
-					$( this ).remove();
-				},
-				buttons: {
-					Reconnect: function() {
-						$( this ).dialog( "close" );
-						var id = tab.data('ssh');
-						var session = tab.data('session');
-						var shellArgs = tab.data('shellArgs');
-						session.destroy();
-						session = new Tab(shellArgs, id);
-						tab.data('session', session);
-						session.focus();
-					},
-					"Choose connection": function() {
-						$( this ).dialog( "close" );
-						var tabpanel = $(tab).closest('.ui-tabs');
-						open(tabpanel);
-					}
-				}
-			});
-		});
-
-		// XXX Clean this up.
-		tty.socket.on('sync', function(terms) {
-			console.log('sync...');
-			//console.log(terms);
-
-			tty.reset();
-
-			var emit = tty.socket.emit;
-			tty.socket.emit = function() {};
-
-			Object.keys(terms).forEach(function(key) {
-				var data = terms[key];
-				var win = new Window();
-				var tab = win.tabs[0];
-
-				delete tty.terms[tab.id];
-				tab.pty = data.pty;
-				tab.id = data.id;
-				tty.terms[data.id] = tab;
-				win.resize(data.cols, data.rows);
-				tab.setProcessName(data.process);
-				tty.emit('open tab', tab);
-				tab.emit('open');
-			});
-
-			tty.socket.emit = emit;
-		});
-
-		tty.emit('load');
-		tty.emit('open');
-	};
-
-	tty.reset = function() {
-		tty.terms = {};
-		tty.emit('reset');
-	};
-
-	inherits(Tab, Terminal);
-
-	// We could just hook in `tab.on('data', ...)`
-	// in the constructor, but this is faster.
-	Tab.prototype.handler = function(data) {
-		this.socket.emit('data', this.id, data);
-	};
-
-	// We could just hook in `tab.on('title', ...)`
-	// in the constructor, but this is faster.
-	Tab.prototype.handleTitle = function(title) {
-		if (!title) return;
-		//console.log('ssh title '+title);
-
-		var tab = $('[data-ssh='+this.index+']');
-		tab.attr('title', title);
-		tab.children('.ui-tabs-anchor').contents().last().replaceWith(title);
-
-		title = sanitize(title);
-		this.title = title;
-
-		if (Terminal.focus === this) {
-			document.title = title;
 		}
-	};
+		
+		if (session.logged_in!==true && data.trim().substr(-1)==='$') {
+			console.log('logged in');
+			if (session.cwd) {
+				socket.emit('data', id, "cd "+session.cwd+"\n");
+			}
+			session.logged_in = true;
+		}
+		
+		if (!terms[id]) return;
+		terms[id].write(data);
+	});
 
-	Tab.prototype._write = Tab.prototype.write;
+	socket.on('kill', function(id) {
+		console.log('ssh disconnected');
 
-	Tab.prototype.write = function(data) {
-		return this._write(data);
-	};
-
-	Tab.prototype._focus = Tab.prototype.focus;
-
-	Tab.prototype.focus = function() {
-		if (Terminal.focus === this) return;
-		this._focus();
-	};
-
-	Tab.prototype._resize = Tab.prototype.resize;
-
-	Tab.prototype.resize = function(cols, rows) {
-		var term = tty.terms[this.id];
-
-		if(!$('[data-ssh='+this.index+']').length){
+		if (!terms[id]) return;
+		var el = terms[id].element;
+		var tabId = $(el).closest('[role=tabpanel]').attr('id');
+		var tab = $('[aria-controls='+tabId+']');
+		var session = tab.data('session');
+		
+		if (!session) {
 			return;
 		}
-
-		this.socket.emit('resize', this.id, cols, rows);
-		this._resize(cols, rows);
-		this.emit('resize', cols, rows);
-	};
-
-	Tab.prototype.doResize = function(){
-		var term = tty.terms[this.id];
-		var charEl = $('<span>M</span>').appendTo($(this.element));
-		var charWidth = Math.ceil(charEl.width());
-		var charHeight = Math.ceil(charEl.height());
-		charEl.remove();
 		
-		// prevent divide by zero
-		if (!charWidth || !charHeight) {
-			console.log('ssh resize failed');
-			console.log(charWidth);
-			console.log(charHeight);
-			return false;
-		}
+		tab.attr('title', tab.attr('title')+' - disconnected');
 		
-		// console.log('resize '+charWidth+'x'+charHeight);
-		
-		cols = Math.floor($(this.element).parent().outerWidth() / charWidth)-1;
-		rows = Math.floor($(this.element).parent().outerHeight() / charHeight)-1;
+		$( "body" ).append('<div id="dialog-ssh-disconnected" class="ui-front" title="SSH disconnected">\
+			Session has disconnected\
+		</div>');
+	
+		//open dialog
+		var dialog = $( "#dialog-ssh-disconnected" ).dialog({
+			modal: true,
+			width: 420,
+			height: 300,
+			close: function( event, ui ) {
+				$( this ).remove();
+			},
+			buttons: {
+				Reconnect: function() {
+					$( this ).dialog( "close" );
+					destroy(session);
+					new_session(tab, session.host, session.username, session.port, session.password, session.cwd);
+				},
+				"Choose connection": function() {
+					$( this ).dialog( "close" );
+					var tabpanel = $(tab).closest('.ui-tabs');
+					open(tabpanel);
+				}
+			}
+		});
+	});
+};
 
-		console.log('resize '+cols+'x'+rows);
+var doResize = function(session) {
+	if (!session) {
+		return;
+	}
+	
+	var term = terms[session.id];
+	
+	if (!term) {
+		return;
+	}
+	
+	cols = Math.floor($(term.element).parent().innerWidth() / term.charMeasure.width)-2;
+	rows = Math.floor($(term.element).parent().innerHeight() / term.charMeasure.height)-2;
 
-		this.resize(cols, rows);
-	};
+	console.log('resize '+cols+'x'+rows);
 
-	Tab.prototype.__destroy = Tab.prototype.destroy;
+	socket.emit('resize', session.id, cols, rows);
+	terms[session.id].fit();
+};
 
-	Tab.prototype._destroy = function() {
-		if (this.destroyed) return;
-		this.destroyed = true;
+var destroy = function(session) {
+	socket.emit('kill', session.id);
+	terms[session.id].destroy();
+};
 
-		if (this.element.parentNode) {
-			this.element.parentNode.removeChild(this.element);
-		}
-
-		if (tty.terms[this.id]) delete tty.terms[this.id];
-
-		this.__destroy();
-	};
-
-	Tab.prototype.destroy = function() {
-		if (this.destroyed) return;
-		this.socket.emit('kill', this.id);
-		this._destroy();
-		this.emit('close');
-	};
-}
-
-function sanitize(text) {
-	if (!text) return '';
-	return (text + '').replace(/[&<>]/g, '');
-}
-
-var index = 0;
-
-if( typeof Terminal !== 'undefined' ){
-	cols = Terminal.geometry[0];
-	rows = Terminal.geometry[1];
-}
-
-initialised = false;
-session = null;
-
-function create(tabpanel){
-	if( !initialised && typeof Terminal !== 'undefined' ){
-		tty.open();
+function create(tabpanel) {
+	if( !initialised && typeof Terminal !== 'undefined' ) {
+		init();
 		initialised = true;
 	}
 
-	if( typeof Terminal === 'undefined' ){
+	if( typeof Terminal === 'undefined' ) {
 		prompt.alert({title:lang.errorText, msg:'Can\'t connect to terminal server, try a refresh'});
 		return;
 	}
 
-	index++;
-
 	//create tab
-	tab = $(tabpanel).tabs('add', 'SSH', '<div id="sshContainer'+index+'" class="sshContainer" style="width:100%;height:100%;"></div>');
+	tab = $(tabpanel).tabs('add', 'SSH', '<div class="sshContainer" style="width:100%;height:100%;"></div>');
 	tab.addClass('closable');
-
-	tab.attr('data-ssh', index);
 	tab.attr('title', 'Secure Shell');
 
 	return tab;
 }
 
-function new_session(tab, host, username, port, password, cwd){
-	var shellArgs = '-p '+port+' '+username+'@'+host;
-	var session = new Tab(shellArgs, index, password, cwd);
-	session.focus();
-	tab.data('shellArgs', shellArgs);
+function new_session(tab, host, username, port, password, cwd) {
+	if (!host) {
+		console.log('no ssh host');
+		return false;
+	}
+	
+	if (!parseInt(port)) {
+		port = 22;
+	}
+	
+	var session = {
+		id: null,
+		host: host,
+		username: username,
+		port: port,
+		password: password,
+		cwd: cwd
+	};
 	tab.data('session', session);
+
+	var tabpanel = $(tab).closest(".ui-tabs");
+	var panel = tabpanel.tabs('getPanelForTab', tab);
+	var element = panel.find('.sshContainer').get(0);
+	
+	var term = new Terminal({
+		cursorBlink: true,
+		screenKeys: true
+	});
+	
+	term.on('data', function(data) {
+		socket.emit('data', session.id, data);
+	});
+	
+	term.on('title', function(title) {
+		if (!title) return;
+
+		var tab = $('[data-ssh="'+session.id+'"]');
+		tab.attr('title', title);
+		tab.children('.ui-tabs-anchor').contents().last().replaceWith(title);
+
+		title = (title + '').replace(/[&<>]/g, '');
+		session.title = title;
+	});
+	
+	term.open(element, true);
+	
+	var shellArgs = '-p '+port+' '+username+'@'+host;
+	socket.emit('create', 80, 40, shellArgs, function(err, data) {
+		//refresh panel
+		doResize(term);
+
+		if (err) {
+			console.log(err);
+			return false;
+		}
+
+		tab.attr('data-ssh', data.id);
+		session.id = data.id;
+		terms[data.id] = term;
+		term.focus();
+		return;
+	});
+	
 	tab.on('beforeClose', function() {
 		console.log('close session');
-		session.destroy();
+		
+		// prevent reconnect dialog
+		session.closing = true;
+		destroy(session);
 	});
 	
 	setTimeout(function() {
-		$('#sshContainer'+index+' .terminal').focus();
-		session.doResize();
+		doResize(session);
 	}, 1000);
 }
 
@@ -334,7 +224,7 @@ function loadProfiles(val) {
 				$( "#sshName" ).append( '<option value="' + item.name + '" data-host="' + item.host + '" data-username="' + item.username + '" data-port="' + item.port + '">'+item.name+'</option>' );
 			});
 
-			if(val){
+			if(val) {
 				$( "#sshName" ).append( '<option value="'+val+'">'+val+'</option>' );
 				$( "#sshName" ).val(val).change();
 			}
@@ -346,12 +236,12 @@ function loadProfiles(val) {
 function select(item) {
 	$('#ssh [name=username]').val($(item).data('username'));
 	$('#ssh [name=host]').val($(item).data('host'));
-	if ($(item).data('port')){
+	if ($(item).data('port')) {
 		$('#ssh [name=port]').val($(item).data('port'));
 	}
 }
 
-function open(tabpanel){
+function open(tabpanel) {
 	var tab = create(tabpanel);
 
 	//import site dialog
@@ -423,22 +313,22 @@ function open(tabpanel){
 				var host = $('#ssh [name=host]').val();
 				var port = $('#ssh [name=port]').val();
 
-				if( !name ){
+				if( !name ) {
 					$('#sshName').focus();
 					return;
 				}
 
-				if( !username ){
+				if( !username ) {
 					$('#ssh [name=username]').focus();
 					return;
 				}
 
-				if( !host ){
+				if( !host ) {
 					$('#ssh [name=host]').focus();
 					return;
 				}
 
-				if( !port ){
+				if( !port ) {
 					$('#ssh [name=port]').focus();
 					return;
 				}
@@ -451,7 +341,6 @@ function open(tabpanel){
 				//prefs.sshProfile = name;
 				//preferences.save();
 
-				//tty.open(username+'@'+host);
 				new_session(tab, host, username, port);
 
 				$( this ).dialog( "close" );
@@ -484,20 +373,17 @@ function connect(options) {
 		break;
 	}
 	
-	console.log('domain: '+options.domain);
-	console.log('username: '+username);
-	console.log('port: '+options.port);
-	new_session(tab, options.domain, username, options.port, options.password, cwd);
-	
 	var minWidth = 300;
 	var myLayout = layout.get();
 	myLayout.open(paneName);
 	if(myLayout.panes[paneName].outerWidth() < minWidth) {
 		myLayout.sizePane(paneName, minWidth);
 	}
+	
+	new_session(tab, options.domain, username, options.port, options.password, cwd);
 }
 
-$('body').on('click','.newTab .ssh', function(){
+$('body').on('click','.newTab .ssh', function() {
 	var tabpanel = $(this).closest('.ui-tabs');
 	open(tabpanel);
 
@@ -514,30 +400,37 @@ $('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('t
 		return;
 	}
 
-	if (!tty.terms[id]) return;
+	if (!terms[id]) return;
 
-	var el = tty.terms[id].element;
+	var el = terms[id].element;
 	var tabId = $(ui.tab).attr('id');
 	var tab = $('[aria-controls='+tabId+']');
 	var session = tab.data('session');
 	
 	if(session)
-		session.destroy();
-		
-	//session = null;
+		destroy(session);
 
-	console.log('tty destroyed');
+	console.log('session destroyed');
 
-	if (tty.terms[id]) {
-		tty.terms[id].destroy();
+	if (terms[id]) {
+		terms[id].destroy();
 	}
 });
 
-/*
-$('body').on('click', '#sshSite a', function(e){
-	connect();
-});
-*/
+// handle resize
+var timer;
+function handle_resize() {
+	clearTimeout(timer);
+	timer = setTimeout(function() {
+		console.log('ssh resize');
+		$('.ui-tabs-active[data-ssh]').each(function() {
+			var session = tab.data('session');
+			doResize(session);
+		});
+	}, 250);
+}
+
+$(window).on('resize activate', handle_resize);
 
 return {
 	connect: connect

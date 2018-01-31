@@ -365,11 +365,25 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 			
 			$('#find').val(history[historyIndex]);
 			e.preventDefault();
+		} else if(e.altKey) {
+			switch(e.key) {
+				case 'c':
+					$("#caseSensitive").click();
+				break;
+				case 'r':
+					$("#regex").click();
+				break;
+				case 'w':
+					$("#wholeWord").click();
+				break;
+			}
+			e.stopPropagation();
 		}
 	}
 
 	function keyUp(e){
-		if (e.key === 'Escape') {
+		console.log(arguments)
+		if (e && e.key === 'Escape') {
 			//focus editor
 			var tab = tabs.active();
 			$(".ui-layout-center").trigger("tabsactivate", [{newTab: tab}]);
@@ -379,6 +393,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		if (['remote'].indexOf(findIn) !== -1) {
 			var s = $('#find').val();
 			$('#findResults').html('');
+			$('#findResults').hide();
 
 			if (!s || lastSearch == s) {
 				return;
@@ -391,6 +406,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 			}
 
 			$('#findResults').html('');
+			$('#findResults').hide();
 
 			//remote search
 			if( searchSource ){
@@ -405,6 +421,7 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 
 			searchSource.addEventListener('message', function(event) {
 				var data = JSON.parse(event.data);
+				$('#findResults').show();
 				$('#findResults').append('<li><a href="#" data-file="'+data.msg+'" data-site="'+currentSite+'" class="openfile">' + data.msg + '</a></li>');
 			}, false);
 
@@ -498,9 +515,9 @@ define(['app/tabs','app/layout', 'app/site', 'autosize', 'jquery-ui', 'ace/ace']
 		<div id="findResults">\
 		</div>\
 		<div id="findButtons" class="row">\
-			<input type="checkbox" id="regex"><label for="regex" title="Regular expression"><i class="icon-regex"></i></label>\
-			<input type="checkbox" id="caseSensitive"><label for="caseSensitive" title="Case sensitive"><i class="icon-case-sensitive"></i></label>\
-			<input type="checkbox" id="wholeWord"><label for="wholeWord" title="Whole words"><i class="icon-whole-word"></i></label>\
+			<input type="checkbox" id="regex"><label for="regex" title="Regular expression (Alt-R)"><i class="icon-regex"></i></label>\
+			<input type="checkbox" id="caseSensitive"><label for="caseSensitive" title="Case sensitive (Alt-C)"><i class="icon-case-sensitive"></i></label>\
+			<input type="checkbox" id="wholeWord"><label for="wholeWord" title="Whole words (Alt-W)"><i class="icon-whole-word"></i></label>\
 			<span class="flex"></span>\
 			<span id="findStatus">no results</span>\
 			<button type="button" id="findPrevBtn" title="Previous"><i class="fa fa-chevron-up"></i></button>\

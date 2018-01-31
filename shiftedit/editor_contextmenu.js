@@ -2,25 +2,27 @@ define(["jquery.contextMenu","app/util",'app/lang','app/tabs','app/menubar','app
 var lang = require('app/lang').lang;
 var makeMenuText = require('app/util').makeMenuText;
 var tabs = require('app/tabs');
-var selectionMenuItems = require('app/menubar').selectionMenuItems;
 var preferences = require('app/prefs');
 
-var items = {};
-var i = 0;
-selectionMenuItems.forEach(function(item) {
-	if(item==='-'){
-		items["sep"+i] = "---------";
-		i++;
-	}else{
-		items[item.id] = {
-			"name": item.text,
-			"callback": item.handler,
-			isHtmlName: true
-		};
-	}
-});
 
 function init() {
+	// selection menu
+	var selectionMenuItems = require('app/menubar').selectionMenuItems();
+	var items = {};
+	var i = 0;
+	selectionMenuItems.forEach(function(item) {
+		if(item==='-'){
+			items["sep"+i] = "---------";
+			i++;
+		}else{
+			items[item.id] = {
+				"name": item.text,
+				"callback": item.handler,
+				isHtmlName: true
+			};
+		}
+	});
+
 	//prevent gutter context menu
 	$(document).on('contextmenu', '.editor', function(e) {
 		if (e.target.classList.contains('ace_gutter-cell')) {

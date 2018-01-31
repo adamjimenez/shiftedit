@@ -7,7 +7,8 @@
  */
 .ui-menubar {
 	list-style: none;
-	margin: 0; padding-left: 0;
+	margin: 0;
+	padding-left: 0;
 }
 
 .ui-menubar-item {
@@ -16,12 +17,12 @@
 
 .ui-menubar .ui-button {
 	float: left;
-	font-weight: normal;
 	border-top-width: 0 !important;
 	border-bottom-width: 0 !important;
 	margin: 0;
 	outline: none;
 }
+
 .ui-menubar .ui-menubar-link {
 	border-right: 1px solid transparent;
 	border-left: 1px solid transparent;

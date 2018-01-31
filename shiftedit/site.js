@@ -16,7 +16,7 @@ var repositories = require('app/repositories');
 var Aes = require('aes');
 var directFn;
 var sites = [];
-var currentSite = storage.get('currentSite');
+var currentSite;
 var combobox;
 var site = {};
 var definitions = {};
@@ -54,6 +54,12 @@ function disableMenuItems() {
 }
 
 function init() {
+	var prefs = preferences.get_prefs();
+	
+	if (prefs.restoreTabs) {
+		currentSite = storage.get('currentSite');
+	}
+	
 	$('body').on('click','.newTab .site', function(){
 		create();
 	});
@@ -64,21 +70,10 @@ function init() {
 			selectOnFocus: true,
 			selectFirst: true,
 			select: function (event, ui) {
-				//connect to site
 				open(ui.item.value);
-				
-				//clear memory usage
-				/*
-				$( "#sites" ).combobox('destroy');
-				initCombo();
-				*/
 			},
 			change: function (event, ui) {
-				//connect to site
 				open(ui.item.value);
-			},
-			create: function( event, ui ) {
-				//load();
 			}
 		});
 	}
@@ -231,14 +226,20 @@ function init() {
 		id: 'shareSite',
 		text: 'Share site',
 		handler: function() {
-			//import site dialog
+			//share site dialog
 			$( "body" ).append('<div id="dialog-share-site" title="Share site">\
 				<form id="shareSiteForm">\
 					<div class="hbox">\
 						<input id="share_email" type="text" name="email" placeholder="Email address" class="flex text ui-widget-content ui-corner-all" required autofocus>\
 						<button type="submit">Add</button>\
 					</div>\
+					<h2>Shared with</h2>\
 					<div id="users">\
+						nobody\
+					</div>\
+					<h2>Contacts</h2>\
+					<div id="contacts">\
+						no contacts\
 					</div>\
 				</form>\
 			</div>');
@@ -252,6 +253,17 @@ function init() {
 				event.preventDefault();
 
 				loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + currentSite + '&email=' + $('#shareSiteForm input[name=email]').val(), {
+					action: 'saving user',
+					success: function(data) {
+						$('#shareSiteForm input[name=email]').val('');
+						loadUsers();
+					}
+				});
+			});
+
+			//handle add user
+			$('#shareSiteForm').on('click', 'a.add', function() {
+				loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + currentSite + '&email=' + $(this).data('email'), {
 					action: 'saving user',
 					success: function(data) {
 						$('#shareSiteForm input[name=email]').val('');
@@ -367,9 +379,8 @@ function open(siteId, options) {
 		options = {};
 	}
 
-	currentSite = null;
-
 	if(!siteId) {
+		currentSite = null;
 		storage.set('currentSite', currentSite);
 		return;
 	}
@@ -382,6 +393,11 @@ function open(siteId, options) {
 	storage.set('currentSite', currentSite);
 	enableMenuItems(site);
 	$( "#sites" ).combobox('val', currentSite+'');
+
+	// no site selected
+	if (siteId=="0") {
+		return;
+	}
 
 	var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
@@ -544,15 +560,56 @@ function loadUsers() {
 	loading.fetch(config.apiBaseUrl+'share?cmd=list&site='+currentSite, {
 		action: 'getting users',
 		success: function(data) {
+			// shared
 			var html = '';
-
 			data.shared.forEach(function(item){
 				html += '<p>' + item.name + ' <a href="#" data-id="'+item.id+'" class="delete">X</a></p>';
 			});
 
-			$('#users').html(html);
+			if (html) {
+				$('#users').html(html);
+			} else {
+				$('#users').html('nobody');
+			}
+			
+			// contacts
+			html = '';
+			data.contacts.forEach(function(item){
+				html += '<p>' + item.name + ' <a href="#" data-email="'+item.email+'" class="add">Add</a></p>';
+			});
 
+			if (html) {
+				$('#contacts').html(html);
+			} else {
+				$('#contacts').html('no contacts');
+			}
+			
 			$('#shareSiteForm input[name=email]').focus();
+			
+			// toggle shared site
+			sites.forEach(function(entry) {
+				if(entry.id == currentSite) {
+					var shared = data.shared.length ? true : false;
+					
+					if (entry.shared != shared) {
+						entry.shared = shared;
+						
+						// toggle shared icon
+						var icon = '';
+						if (entry.shared) {
+							icon = 'fa fa-share-alt';
+						}
+						
+						$( "#sites option[value='"+currentSite+"']" ).attr( 'data-icon', icon ).data( 'icon', icon );
+						
+						// toggle firepad from open files
+						var action = shared ? 'share' : 'unshare';
+						$("li[data-site='"+currentSite+"']").trigger(action);
+					}
+					
+					return;
+				}
+			});
 		}
 	});
 }
@@ -600,6 +657,9 @@ function load(options) {
 				create();
 				return;
 			}
+			
+			// empty option
+			$( "#sites" ).append( '<option value="0"></option>' );
 
 			$.each(sites, function( index, site ) {
 				var icon = '';
@@ -868,6 +928,9 @@ function chooseFolder() {
 						method: 'POST',
 						dataType: 'json',
 						data: params,
+						xhrFields: {
+							withCredentials: true
+						},
 						success: function(data) {
 							if(data.error) {
 								prompt.alert({title:'Error', msg:data.error});
@@ -1025,7 +1088,10 @@ function test() {
 		url: ajaxOptions.url+'&cmd=test',
 		method: 'POST',
 		dataType: 'json',
-		data: params
+		data: params,
+		xhrFields: {
+			withCredentials: true
+		}
 	});
 	
 	ajax.then(function (data) {
@@ -1049,8 +1115,8 @@ function test() {
 					params.preview_node = data.preview_node;
 				}
 
-				//check web url
-				if( params.web_url && params.server_type !== 'AJAX' ){
+				//check web url - disabled
+				if( false && params.web_url && params.server_type !== 'AJAX' ){
 					if (!loading.start('Testing site '+site.name, function(){
 						clearTimeout(errorTimeout);
 						$('#test_iframe').remove();
@@ -1064,7 +1130,7 @@ function test() {
 					}
 
 					//create iframe
-					$('body').append('<iframe id="test_iframe" src="' + params.web_url + '_shiftedit_test_preview.html?shiftedit=' + new Date().getTime() + '"></iframe>');
+					$('body').append('<iframe id="test_iframe" src="http'+(params.encryption ? 's' : '')+'://' + params.web_url + '_shiftedit_test_preview.html?shiftedit=' + new Date().getTime() + '"></iframe>');
 
 					//give up after 10 seconds
 					errorTimeout = setTimeout(function(){
@@ -1075,7 +1141,7 @@ function test() {
 						var hints = '';
 
 						if( params.web_url.substr(0, 7) == 'http://' ){
-							hints+= '<li>* Enable SSL or click Shield icon in address bar, then "Load unsafe script</li>';
+							hints+= '<li>* Enable SSL or click Shield icon in address bar, then "Load unsafe scripts</li>';
 						}
 
 						hints += '<li>* Ensure Dir points to web root e.g. /httpdocs/</li>';
@@ -1632,8 +1698,6 @@ function edit(newSite, duplicate) {
 		},
 		change: function (event, ui) {
 			$('#server').val(ui.item.value);
-		},
-		create: function( event, ui ) {
 		}
 	});
 	loadServers(settings.server);
@@ -1649,8 +1713,6 @@ function edit(newSite, duplicate) {
 		},
 		change: function (event, ui) {
 			$('#git_url').val(ui.item.value);
-		},
-		create: function( event, ui ) {
 		}
 	});
 	
@@ -1705,6 +1767,10 @@ function edit(newSite, duplicate) {
 		}
 		
 		updateCategory(newSite);
+			
+		if( ['GDrive', 'GDriveLimited', 'Dropbox'].indexOf(this.value) !== -1 ){
+			test();
+		}
 	});
 
 	//trim values
@@ -1905,8 +1971,12 @@ function getAjaxOptions(ajaxUrl, settings) {
 			pass: util.sha1(pass)
 		};
 
-		if(util.startsWith(ajaxUrl, 'http://') && ssl.check_blocked()){
-			prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe script"'});
+		// check if non-ssl blocked
+		if(location.protocol==='https:' && util.startsWith(ajaxUrl, 'http://') && ssl.is_blocked()) {
+			ssl.test()
+			.fail(function () {
+				prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe scripts"'});
+			});
 		}
 	}
 

@@ -14,127 +14,7 @@ var editors = require('app/editors');
 var site = require('app/site');
 var tree = require('app/tree');
 
-var selectionMenuItems = [{
-	id: 'collapseSelection',
-	text: makeMenuText(lang.collapseSelection, 'Ctrl-Shift-C'),
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('fold', editor);
-	},
-	disabled: true,
-	target: 'file'
-}, {
-	id: 'expandSelection',
-	text: makeMenuText(lang.expandSelection, 'Ctrl-Shift-E'),
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('unfold', editor);
-	},
-	disabled: true,
-	target: 'file'
-}, '-', {
-	id: 'applyHTMLComment',
-	text: lang.applyHTMLComment,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('wrapSelection', editor, ['<!--', '-->']);
-	},
-	disabled: true,
-	target: 'file'
-}, {
-	id: 'applySlashStarComment',
-	text: lang.applySlashStarComment,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('wrapSelection', editor, ['/*', '*/']);
-	},
-	disabled: true,
-	target: 'file'
-}, {
-	id: 'applySlashComment',
-	text: lang.applySlashComment,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('prependLineSelection', editor, ['//']);
-	},
-	disabled: true,
-	target: 'file'
-}, '-', {
-	id: 'convertSingleQuotes',
-	text: lang.convertSingleQuotes,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('replaceInSelection', editor, ['\'', '"']);
-	},
-	disabled: true,
-	target: 'file'
-}, {
-	id: 'convertDoubleQuotes',
-	text: lang.convertDoubleQuotes,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('replaceInSelection', editor, ['"', "\'"]);
-	},
-	disabled: true,
-	target: 'file'
-}, {
-	id: 'convertTabs',
-	text: 'Convert Tabs To Spaces',
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('replaceInSelection', editor, ["\t", "    "]);
-	},
-	disabled: true,
-	target: 'file'
-}, {
-	id: 'convertSpaces',
-	text: lang.convertSpaces,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('replaceInSelection', editor, ["    ", "\t"]);
-	},
-	disabled: true,
-	target: 'file'
-}, {
-	id: 'addLineBreaks',
-	text: lang.addLineBreaks,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('appendLineSelection', editor, ['<br>']);
-	},
-	disabled: true,
-	target: 'file'
-}, '-', {
-	id: 'convertToUppercase',
-	text: lang.convertToUppercase,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('selectionToUppercase', editor);
-	},
-	disabled: true,
-	target: 'file'
-}, {
-	id: 'convertToLowercase',
-	text: lang.convertToLowercase,
-	handler: function () {
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var editor = tabs.getEditor(tab);
-		editor.commands.exec('selectionToLowercase', editor);
-	},
-	disabled: true,
-	target: 'file'
-}];
+var selectionMenuItems = [];
 
 function toggleOptions(target) {
 	$("#menubar [data-target]").addClass('ui-state-disabled');
@@ -166,6 +46,128 @@ function toggleOptions(target) {
 }
 
 function init () {
+	selectionMenuItems = [{
+		id: 'collapseSelection',
+		text: makeMenuText(lang.collapseSelection, preferences.getKeyBinding('collapseSelection')),
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('fold', editor);
+		},
+		disabled: true,
+		target: 'file'
+	}, {
+		id: 'expandSelection',
+		text: makeMenuText(lang.expandSelection, preferences.getKeyBinding('expandSelection')),
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('unfold', editor);
+		},
+		disabled: true,
+		target: 'file'
+	}, '-', {
+		id: 'applyHTMLComment',
+		text: lang.applyHTMLComment,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('wrapSelection', editor, ['<!--', '-->']);
+		},
+		disabled: true,
+		target: 'file'
+	}, {
+		id: 'applySlashStarComment',
+		text: lang.applySlashStarComment,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('wrapSelection', editor, ['/*', '*/']);
+		},
+		disabled: true,
+		target: 'file'
+	}, {
+		id: 'applySlashComment',
+		text: lang.applySlashComment,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('prependLineSelection', editor, ['//']);
+		},
+		disabled: true,
+		target: 'file'
+	}, '-', {
+		id: 'convertSingleQuotes',
+		text: lang.convertSingleQuotes,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('replaceInSelection', editor, ['\'', '"']);
+		},
+		disabled: true,
+		target: 'file'
+	}, {
+		id: 'convertDoubleQuotes',
+		text: lang.convertDoubleQuotes,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('replaceInSelection', editor, ['"', "\'"]);
+		},
+		disabled: true,
+		target: 'file'
+	}, {
+		id: 'convertTabs',
+		text: 'Convert Tabs To Spaces',
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('replaceInSelection', editor, ["\t", "    "]);
+		},
+		disabled: true,
+		target: 'file'
+	}, {
+		id: 'convertSpaces',
+		text: lang.convertSpaces,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('replaceInSelection', editor, ["    ", "\t"]);
+		},
+		disabled: true,
+		target: 'file'
+	}, {
+		id: 'addLineBreaks',
+		text: lang.addLineBreaks,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('appendLineSelection', editor, ['<br>']);
+		},
+		disabled: true,
+		target: 'file'
+	}, '-', {
+		id: 'convertToUppercase',
+		text: lang.convertToUppercase,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('selectionToUppercase', editor);
+		},
+		disabled: true,
+		target: 'file'
+	}, {
+		id: 'convertToLowercase',
+		text: lang.convertToLowercase,
+		handler: function () {
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var editor = tabs.getEditor(tab);
+			editor.commands.exec('selectionToLowercase', editor);
+		},
+		disabled: true,
+		target: 'file'
+	}];
+	
 	prefs = preferences.get_prefs();
 
 	$('body').append('<input type="file" id="upload" style="visibility: hidden;">');
@@ -276,9 +278,13 @@ function init () {
 					var tab = $('.ui-layout-center .ui-tabs-active');
 					var editor = tabs.getEditor(tab);
 
-					if( editor ){
+					if( editor && tab.data('original')!==editor.getValue() ){
 						editor.setValue(tab.data('original'));
+					} else {
+						console.log('file is unchanged');
 					}
+					
+					tabs.setEdited(tab, false);
 				},
 				disabled: true,
 				target: 'file'
@@ -931,7 +937,7 @@ function init () {
 			handler: function () {
 				window.open('/premier');
 			},
-			hidden: storage.get('premier')
+			hidden: ['Basic', 'Business', 'Premier'].indexOf(storage.get('edition'))!==-1
 		}
 
 	};
@@ -946,6 +952,6 @@ function init () {
 }
 
 exports.init = init;
-exports.selectionMenuItems = selectionMenuItems;
+exports.selectionMenuItems = function () { return selectionMenuItems; };
 
 });

@@ -4,14 +4,14 @@ define(['jquery'], function () {
 		window.applicationCache.addEventListener('updateready', function () {
 			window.applicationCache.swapCache();
 
-			$('<div class="newVersion ui-widget-header"><div class="inner"><strong>A <a href="/changelog" target="_blank">new update</a> is available, <a href="#" class="refresh">apply now</a>.</strong> <a href="#" class="dismiss"><i class="fa fa-times"></i></a></div></div>').appendTo($('body'));
+			$('<div class="notification ui-widget-header"><div class="inner"><strong>A <a href="/changelog" target="_blank">new update</a> is available, <a href="#" class="refresh">apply now</a>.</strong> <a href="#" class="dismiss"><i class="fa fa-times"></i></a></div></div>').appendTo($('body'));
 
-			$('.newVersion .refresh').click(function() {
+			$('.notification .refresh').click(function() {
 				window.location.reload();
 			});
 
-			$('.newVersion .dismiss').click(function() {
-				$('.newVersion').fadeOut(300, function() { $(this).remove(); });
+			$('.notification .dismiss').click(function() {
+				$('.notification').fadeOut(300, function() { $(this).remove(); });
 			});
 		}, false);
 		if (window.applicationCache.status == 1) {

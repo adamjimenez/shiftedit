@@ -233,6 +233,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 		}
 	};
 
+	/*
 	var cssDictionary =
 	{
 	  "background": {"#$0": 2},
@@ -345,6 +346,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 	  "-moz-transform": {"rotate($00deg)": 2, "skew($00deg)": 2},
 	  "-webkit-transform": {"rotate($00deg)": 2, "skew($00deg)": 2 }
 	};
+	*/
 
 	var cssPseudoClasses = {
 	  "link": 1,
@@ -590,6 +592,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 
 			iterator = new TokenIterator(session, pos.row, pos.column);
 			token = iterator.getCurrentToken();
+			
 			while (token) {
 				//skip ->
 				if( func && token.type == 'keyword.operator' ){
@@ -720,7 +723,15 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 				subject = 'css_id';
 				items = dom_ids;
 			}
-		}else if( lang === 'css' || /style="([^"]*)$/.test(line) ){
+		}else if( (lang === 'css' && state === 'start') || /style="([^"]*)$/.test(line) ){
+			// css
+			var CssCompletions = require("ace/mode/css_completions").CssCompletions;
+			var completer = new CssCompletions();
+			var completions = completer.getCompletions('ruleset', session, pos, prefix);
+        	callback(null, completions);
+        	return;
+			
+			/*
 			//css attribute value
 			if( /:[^;]+$/.test( line ) ){
 				subject = 'css_attribute_value';
@@ -734,6 +745,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 				subject = 'css_attribute_name';
 				items = cssDictionary;
 			}
+			*/
 		//html entity
 		/*
 		}else if ( /&[A-z]*$/i.test(line) ) {
@@ -851,27 +863,33 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 			items = xmlDictionary;
 		*/
 		}else if( forced && lang == 'php' && type !== 'comment' ){
-			subject = 'php_function';
-			functions = util.merge(phpDictionary, php_functions);
-
-			if( ac_wordpress ){
-				functions = util.merge(functions, wordpressFunctions);
-			}
-
-			if( siteDefinitions.php && siteDefinitions.php.functions ){
-				functions = util.merge(functions, siteDefinitions.php.functions);
-			}
-
-			items = functions;
-
-			for (i in items) {
-				if( items[i] ){
-					items[i][1] = "<h4>" + items[i][0] + "</h4>" + items[i][1];
-					items[i][0] = i + '($0)';
+			token = session.getTokenAt(pos.row, pos.column);
+			var prevToken = session.getTokenAt(pos.row, token.start);
+			
+    		if (prevToken.type==='support.php_tag') {
+    			console.log('php tag');
+    		} else {
+				subject = 'php_function';
+				functions = util.merge(phpDictionary, php_functions);
+	
+				if( ac_wordpress ){
+					functions = util.merge(functions, wordpressFunctions);
 				}
-			}
-
-			autoSelect = false;
+	
+				if( siteDefinitions.php && siteDefinitions.php.functions ){
+					functions = util.merge(functions, siteDefinitions.php.functions);
+				}
+	
+				items = functions;
+	
+				for (i in items) {
+					if( items[i] ){
+						items[i][1] = "<h4>" + items[i][0] + "</h4>" + items[i][1];
+						items[i][0] = i + '($0)';
+					}
+				}
+				autoSelect = false;
+    		}
 		}else if( forced && (lang == 'js' || lang == 'javascript') ){
 			subject = 'js_function';
 			functions = util.merge(jsDictionary.Global, js_functions);
@@ -972,6 +990,7 @@ define(['app/site', 'app/util','app/dictionary/php','app/dictionary/wordpress','
 					snippet: snippet,
 					value: value,
 					meta: meta,
+					score: 100,
 					doc: doc
 				});
 			}

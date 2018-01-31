@@ -701,6 +701,7 @@ function load() {
 			storage.set('edition', data.edition);
 			storage.set('channel', data.channel);
 			storage.set('authToken', data.authToken);
+			storage.set('newAuthToken', data.newAuthToken);
 			storage.set('avatar', data.avatar);
 			storage.set('public_key', data.public_key);
 			
@@ -713,9 +714,11 @@ function load() {
 			
 			//prompt
 			if(data.expired) {
-				prompt.alert({title:'Your Subscription has Expired', msg:'Your account has reverted to Standard edition. Unlock all sites and features by upgrading to <a href="premier" target="_blank">Premier</a>.'});
+				prompt.alert({title:'Your Subscription has Expired', msg:'Your account has reverted to Standard edition. Unlock all sites and features by upgrading to <a href="p/remier" target="_blank">Premier</a>.'});
+				throw new Error('subscription expired');
 			} else if(data.edition == 'Standard') {
 				prompt.alert({title:'Free Trial Expired', msg:'Support ShiftEdit by <a href="/premier" target="_blank">picking a plan</a>.'});
+				throw new Error('free trial expired');
 			}
 			
 			keybindings.updateKeyBindings();

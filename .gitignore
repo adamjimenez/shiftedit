@@ -1,2 +1,6 @@
 # Ignored files
 shiftedit-proxy.php
+
+node_modules/
+yarn-error.log
+yarn.lock

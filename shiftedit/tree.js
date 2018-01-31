@@ -332,12 +332,13 @@ function extract(data) {
 
 }
 
+var source;
 function downloadZip(data) {
 	var inst = $.jstree.reference(data.reference);
 
 	//send compress request
 	var abortFunction = function(){
-		if( source ){
+		if(source) {
 			source.close();
 		}
 	};
@@ -368,7 +369,7 @@ function downloadZip(data) {
 			withCredentials: true
 		},
 		success: function(data) {
-			var source = new EventSource(url, {withCredentials: true});
+			source = new EventSource(url, {withCredentials: true});
 
 			source.addEventListener('message', function(event) {
 				var data = JSON.parse(event.data);
@@ -681,10 +682,7 @@ function open(data) {
 		selected.forEach(function(file) {
 			var file_extension = util.fileExtension(util.basename(file));
 			if (image_extensions.indexOf(file_extension) != -1) {
-				var settings = site.getSettings();
-				var url = settings.web_url+file;
-				
-				window.open('http://apps.pixlr.com/editor/?referrer=ShiftEdit&image=' + encodeURIComponent(url + '?shiftedit=' + new Date().getTime()) + '&title=' + file + '&target=' + encodeURIComponent('https://shiftedit.net/api/files?cmd=save_image&site=' + site.active() + '&path=' + file) + '&redirect=false');
+				window.open('/api/files?cmd=open_image&site=' + site.active() + '+&file=' + file);
 			} else {
 				tabs.open(file, site.active());
 			}
@@ -1463,7 +1461,7 @@ function init() {
 				data.instance.set_id(data.node, response.file);
 				data.instance.edit(data.node);
 			}});
-		}else{
+		} else {
 			var params = util.clone(ajaxOptions.params);
 
 			//backcompat turbo mode
@@ -1494,6 +1492,10 @@ function init() {
 			})
 			.done(function (d) {
 				var id = d.id;
+				
+				if (cmd==='newfile') {
+					data.node.newFile = true;
+				}
 
 				//backcompat turbo mode
 				if(!id) {
@@ -1544,6 +1546,13 @@ function init() {
 				} else {
 					data.instance.set_id(data.node, params.newname);
 					$('#tree').trigger('rename', params);
+				}
+				
+				if (data.node.newFile) {
+					delete data.node.newFile;
+					open({
+						reference: $('#tree')
+					});
 				}
 			})
 			.fail(function () {
@@ -1838,11 +1847,9 @@ function init() {
 			return false;
 		}
 
-		var ref = this;
-
 		if(singleClickOpen){
 			open({
-				reference: ref
+				reference: this
 			});
 		}
 	})

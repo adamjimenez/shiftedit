@@ -1,4 +1,4 @@
-define(['exports', 'app/loading', 'app/config', 'app/layout', 'app/site', 'app/tree', 'app/tabs', 'app/prompt', 'app/lang', "ui.basicMenu", 'diff2html/diff2html', 'diff2html/diff2html-ui', 'linkify-html'], function (exports, loading, config, layout, site, tree, tabs, prompt) {
+define(['exports', 'app/loading', 'app/config', 'app/layout', 'app/site', 'app/tree', 'app/tabs', 'app/prompt', 'app/lang', "ui.basicMenu", 'diff2html-ui', 'linkify-html'], function (exports, loading, config, layout, site, tree, tabs, prompt) {
 var linkifyHtml = require('linkify-html');
 var lang = require('app/lang').lang;
 var gitEditor;
@@ -314,7 +314,7 @@ function refresh() {
 		['AJAX','SFTP','AWS','Linode'].indexOf(settings.server_type)!==-1 || settings.turbo 
 	);
 	
-	var hasRepo = $('#tree').jstree(true).get_node('.git')
+	var hasRepo = $('#tree').jstree(true).get_node('.git');
 	
 	if (!supported) {
 		$('#gitContainer').hide();
