@@ -1337,6 +1337,7 @@ function applyPrefs(tab) {
 			exec: function (editor, args, request) {
 				prompt.prompt({
 					title: 'Insert Image',
+					placeholder: 'Enter image url e.g. http://..',
 					fn :function (button, string) {
 						if (button == 'ok') {
 							if (editor.getSession().$modeId.match(/markdown$/) ){
