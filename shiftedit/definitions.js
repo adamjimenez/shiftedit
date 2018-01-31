@@ -8,14 +8,14 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 		if(!editor)
 			return;
 
+		var token;
+		var session;
+		var iterator;
 		var mode = editor.getSession().$modeId.substr(9);
 		var i;
 		var definitions = {};
 		var definitionRanges = {};
 		var definitionLibs = {};
-		var session = editor.getSession();
-		var iterator = new TokenIterator(session, 0, 0);
-		var token = iterator.getCurrentToken();
 		var prevToken = null;
 		var pos;
 		var prevPos;
@@ -36,6 +36,14 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 		var context = mode === 'php' ? 'html' : mode;
 		if( context == 'javascript' ){
 			context = 'js';
+		}
+		
+		try {
+			session = editor.getSession();
+			iterator = new TokenIterator(session, 0, 0);
+			token = iterator.getCurrentToken();
+		} catch(err) {
+			return false;
 		}
 
 		while (token!==null) {
@@ -163,8 +171,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 				};
 			}
 			
-			if (!func && token.type == 'identifier' && !definitions[context].functions[token.value]) {
-				
+			if (!func && token.type == 'identifier' && definitions[context] && !definitions[context].functions[token.value]) {
 				//check for wordpress
 				if (token.value.match(/wp_(.*)/)) {
 					definitionLibs.wordpress = true;
