@@ -1529,6 +1529,53 @@ function create(file, content, siteId, options) {
 	window.splits[tab.attr('id')] = split;
 
 	var session = editor.getSession();
+	
+	// fix Double click php var selects $ #2882	
+	session.getWordRange = function(row, column) {
+        var line = this.getLine(row);
+        var tokenRe = this.tokenRe;
+        var nonTokenRe = this.nonTokenRe;
+        var state = this.getState(row, column);
+        var tokenizer = this.$mode.getTokenizer();
+        var tokens = tokenizer.getLineTokens(line.substr(0, column), state, row);
+        var tokenState = typeof tokens.state == 'object' ? tokens.state[0] : tokens.state;
+        var match = tokenState.match(/^([a-z]+\-)/i);
+        
+        if (match) {
+            tokenRe = this.$mode.$modes[match[1]].tokenRe;
+            nonTokenRe = this.$mode.$modes[match[1]].tokenRe;
+        }
+
+        var inToken = false;
+        if (column > 0)
+            inToken = !!line.charAt(column - 1).match(tokenRe);
+
+        if (!inToken)
+            inToken = !!line.charAt(column).match(tokenRe);
+
+        if (inToken)
+            var re = tokenRe;
+        else if (/^\s+$/.test(line.slice(column-1, column+1)))
+            var re = /\s/;
+        else
+            var re = nonTokenRe;
+
+        var start = column;
+        if (start > 0) {
+            do {
+                start--;
+            }
+            while (start >= 0 && line.charAt(start).match(re));
+            start++;
+        }
+
+        var end = column;
+        while (end < line.length && line.charAt(end).match(re)) {
+            end++;
+        }
+
+        return new Range(row, start, row, end);
+    };
 
 	//syntax bar handlers
 	panel.find('.previous').button()
