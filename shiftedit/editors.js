@@ -1,4 +1,4 @@
-define(['app/config', 'ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad/firepad', 'firepad/firepad-userlist', 'app/find', 'app/storage', 'app/resize', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern'], function (config, ace, tabs, exports, preferences) {
+define(['app/config', 'ace/ace','app/tabs', 'exports', 'app/prefs', 'jquery',"app/tabs", "app/util", "app/modes", 'jquery','app/lang','app/syntax_errors', "app/editor_toolbar", 'app/prompt','app/editor_contextmenu','app/autocomplete', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'app/site', 'app/firebase', 'firepad', 'firepad-userlist', 'app/find', 'app/storage', 'app/resize', "ace/keyboard/vim", "ace/keyboard/emacs", 'beautify', 'beautify-css', 'beautify-html', 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase'], function (config, ace, tabs, exports, preferences) {
 var util = require('app/util');
 var syntax_errors = require('app/syntax_errors');
 var lang = require('app/lang').lang;
@@ -13,19 +13,20 @@ var Autocomplete = require("ace/autocomplete").Autocomplete;
 var tern = require("ace/tern/tern");
 var site = require('app/site');
 var firebase = require('app/firebase');
-var Firepad = require('firepad/firepad');
+var Firepad = require('firepad');
 var find = require('app/find');
 var storage = require('app/storage');
 var resize = require('app/resize');
 var beautify = require('beautify');
 var css_beautify = require('beautify-css');
 var html_beautify = require('beautify-html');
+var FirepadUserList = require('firepad-userlist');
 
 //ace.config.set("packaged", true);
 //ace.config.set("basePath", require.toUrl("ace"));
 
-//var acePath = 'lib/ace.20160218/src';
-var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20160218';
+//var acePath = 'lib/ace.20171017/src';
+var acePath = '//shiftedit.s3.amazonaws.com/lib/ace.20171017';
 
 ace.config.set("modePath", acePath);
 //ace.config.set("workerPath", acePath); //disabled to fix firefox security issue
@@ -70,7 +71,7 @@ function onChange(e) {
 function onGutterClick(e, editor) {
 	if( e.domEvent.button == 2 ){
 		var s = editor.getSession();
-		var className =  e.domEvent.target.className;
+		var className = e.domEvent.target.className;
 		if (className.indexOf('ace_fold-widget') < 0) {
 			if (className.indexOf("ace_gutter-cell") != -1) {
 				var row = e.getDocumentPosition().row;
@@ -432,6 +433,7 @@ function addFirepad(tab) {
 		content = tab.data('original');
 	}
 	content = content.replace(/\r\n/g, "\n");
+	var edited = tab.data("edited");
 	editor.setValue('');
 	
 	var options = {};
@@ -456,7 +458,10 @@ function addFirepad(tab) {
 
 	$(tab).trigger('firebaseon');
 
-	firepadRef = new Firebase(url+doc_name);
+	var firebaseUrl = url+doc_name;
+	var firebaseDatabase = firebase.get();
+	var firepadRef = firebaseDatabase.refFromURL(firebaseUrl);
+	
 	tab.data('firepadRef', firepadRef);
 
 	// Create Firepad.
@@ -500,6 +505,7 @@ function addFirepad(tab) {
 			console.log('new firepad session');
 			firepad.setText(content);
 			editor.getSession().getUndoManager().reset();
+			tabs.setEdited(tab, edited);
 		}else if( typeof content === 'string' && editor.getValue() !== options.content ){
 			console.log('firepad session has changes');
 			tabs.setEdited(tab, true);
@@ -522,9 +528,13 @@ function addFirepad(tab) {
 
 			console.log('current revision: ' + revision);
 
-			if( data && revision == data.revision ){
+			if(data && revision == data.revision && data.username !== localStorage.username){
+				// propagate save
 				console.log('new revision: ' + data.revision);
-				// tabs.setEdited(tab, false);
+				tabs.setEdited(tab, false);
+				
+				// refresh preview
+				tab.trigger('save');
 			}
 
 			if( data && data.last_modified ){
