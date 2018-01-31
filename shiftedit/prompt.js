@@ -59,7 +59,8 @@ define(['app/util'], function (util) {
 		var defaults = {
 			title: '',
 			msg: '',
-			value: ''
+			value: '',
+			placeholder: ''
 		};
 
 		options = $.extend({}, defaults, options);
@@ -71,7 +72,7 @@ define(['app/util'], function (util) {
   <form>\
   	<div class="vbox">\
 	  <label for="name">'+options.msg+'</label>\
-	  <input type="'+inputType+'" name="input" id="input" value="'+options.value+'" class="flex text ui-widget-content ui-corner-all" required>\
+	  <input type="'+inputType+'" name="input" id="input" value="'+options.value+'" placeholder="'+options.placeholder+'" class="flex text ui-widget-content ui-corner-all" required>\
 	  </div>\
  \
 	  <!-- Allow form submission with keyboard without duplicating the dialog button -->\
