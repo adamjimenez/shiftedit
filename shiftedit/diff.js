@@ -1,4 +1,4 @@
-define(['app/tabs', 'app/layout', 'app/modes', 'app/util', 'jquery','ace/ace','jsdiff'], function (tabs, layout, modes, util) {
+define(['app/tabs', 'app/layout', 'app/modes', 'app/util', 'jquery','ace/ace','diff'], function (tabs, layout, modes, util) {
 
 var updateTimer;
 
@@ -92,6 +92,7 @@ function select() {
 	// don't diff big files or the browser will crash
 	if( content1.length < 100000 ){
 		var range = require("ace/range").Range;
+		var JsDiff = require("diff");
 		var diff = JsDiff.diffLines(content1, content2);
 
 		diffContent = '';
