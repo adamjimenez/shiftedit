@@ -15,14 +15,15 @@
     "cssmin": "^0.4.3",
     "diff": "^3.4.0",
     "diff2html": "^2.3.2",
-    "emmet-core": "https://raw.githubusercontent.com/nightwing/emmet-core/master/package.json",
+    "exports-loader": "^0.6.4",
     "firepad": "^1.4.0",
+    "font-awesome": "^4.7.0",
+    "imports-loader": "^0.7.1",
     "jquery": "^3.2.1",
     "jquery-contextmenu": "^2.6.3",
     "jquery-ui-bundle": "^1.12.1",
     "js-beautify": "^1.7.4",
     "jstree": "^3.3.4",
-    "layout": "https://github.com/allpro/layout.git",
     "linkifyjs": "^2.1.5",
     "lzma": "^2.3.2",
     "markdown-it": "^8.4.0",
@@ -34,5 +35,12 @@
     "uglify-js": "^3.2.2",
     "urijs": "^1.19.0",
     "xterm": "^3.0.2"
+  },
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "json-loader": "^0.5.7",
+    "webpack": "^3.10.0"
   }
 }

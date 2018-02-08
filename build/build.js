@@ -1,7 +1,7 @@
 ({
-    mainConfigFile: '../shiftedit/app.js',
+    mainConfigFile: '../app/app.js',
 	baseUrl: "../",
-	name: 'shiftedit/app',
+	name: 'app/app',
     out: "../../build/shiftedit.js",
     optimize: 'uglify2',
     //optimize: 'none',
