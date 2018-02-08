@@ -1,3 +1,4 @@
+@import url("../node_modules/font-awesome/css/font-awesome.css");
 @import url("../node_modules/jstree/dist/themes/default/style.css");
 @import url("../node_modules/xterm/dist/xterm.css");
 @import url("../node_modules/jquery-ui-bundle/jquery-ui.css");
@@ -236,6 +237,10 @@ li[role=tab] .ui-icon {
 	height: 100%;
 }
 
+.jstree-table-cell-regular{
+	opacity: 0.8;
+}
+
 .jstree-table-cell{
 	background-image: none !important;
 }
@@ -264,22 +269,31 @@ li[role=tab] .ui-icon {
 	display: block;
 }
 /* END TREE */
+.revisionsContainer{
+	flex-wrap: wrap;
+	height: 100%;
+}
+
 #revisionHolder {
 	overflow: auto;
 }
 
 .revisions{
-	float: left;
-	width: 260px;
+	min-width: 250px;
 	margin-right: 10px;
+	margin-bottom: 10px;
+	flex: 1;
+	height: auto !important;
+}
+
+#revisionDiff {
+	flex: 4;
+	min-width: 250px;
+	min-height: 100%;
 }
 
 #revisionFileHolder {
     padding-bottom: 10px;
-}
-
-#revisionDiff {
-	height: 100%;
 }
 
 .revisionFile-menu {
@@ -401,6 +415,11 @@ div.fullScreen{
 
 .fullScreenBtn:hover{
 	opacity:1;
+}
+
+/* autocomplete issue on mobile view */
+.ace_doc-tooltip{
+	overflow: hidden;
 }
 
 .ace_gutter-cell.ace_breakpoint{

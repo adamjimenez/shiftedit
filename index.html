@@ -1,30 +1,27 @@
 <!doctype html>
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="language" content="en" />
-
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
+	<meta name="language" content="en">
 	<title>ShiftEdit Nxt</title>
-
-	<link href="https://netdna.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" rel="stylesheet">
-    <link href='https://shiftedit.s3.amazonaws.com/css/Glyphter.css' rel='stylesheet' type='text/css'>
-	<link href="css/app.css" rel="stylesheet" type="text/css" />
+    <link href="//shiftedit.s3.amazonaws.com/css/Glyphter.css" rel="stylesheet" type="text/css">
+	<link href="css/app.css" rel="stylesheet" type="text/css">
 	<script src="https://ssh.shiftedit.net/socket.io/socket.io.js"></script>
 	<script src="https://apis.google.com/js/client.js"></script>
 	<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
-    <script data-main="shiftedit/app" src="node_modules/requirejs/require.js"></script>
+    <script data-main="app/app" src="node_modules/requirejs/require.js"></script>
 </head>
 <body>
-
-<div class="splash">
-	<div class="progress">
-		<h1>ShiftEdit</h1>
-		<progress id="progressBar" class="progressbar"></progress>
-		<p><span class="status">loading..</span></p>
+	<div class="splash">
+		<div class="progress">
+			<h1>ShiftEdit</h1>
+			<progress class="progressbar"></progress>
+			<p><span class="status">loading..</span></p>
+		</div>
+		<div class="slow">
+			<a href="/support">Taking a long time?</a>
+		</div>
 	</div>
-
-	<div class="slow"><a href="/support">Taking a long time?</a></div>
-</div>
-
 </body>
 </html>
