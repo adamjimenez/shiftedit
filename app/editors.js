@@ -36,6 +36,13 @@ Firepad.ACEAdapter.prototype.setCursor = function(cursor) {
 var shifteditCompleter = {
 	getCompletions: function(editor, session, pos, prefix, callback) {
 		var completions = autocomplete.run(editor, session, pos, prefix, callback);
+		
+		var prefs = preferences.get_prefs();
+		if (prefs.snippets) {
+			language_tools.snippetCompleter.getCompletions(editor, session, pos, prefix, function(empty, snippetCompletions) {
+				callback(null, completions.concat(snippetCompletions));
+			});
+		}
 
 		if (completions) {
 			callback(null, completions);
@@ -49,6 +56,10 @@ var shifteditCompleter = {
 		}
 	}
 };
+
+// set completer
+tern.addCompleter(shifteditCompleter);
+
 /*
 var ternCompleter = {
 	getCompletions: function(editor, session, pos, prefix, callback) {
@@ -58,7 +69,6 @@ var ternCompleter = {
 */
 //language_tools.addCompleter(shifteditCompleter);
 //tern.addCompleter(ternCompleter);
-tern.addCompleter(shifteditCompleter);
 
 //remove text completer
 //language_tools.textCompleter.getCompletions = function(){};
@@ -404,7 +414,6 @@ function restoreState(state) {
 //runs when editor or firepad is ready
 function ready(tab) {
 	var editor = tabs.getEditor($(tab));
-	
 	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
 			
 	if (prefs.autoTabs) {
@@ -1640,15 +1649,6 @@ snippet ifeil\n\
 
 	panel.find('.next').button()
 	.click(jQuery.proxy(syntax_errors.next, tab));
-
-	//set mode
-	var ext = util.fileExtension(file);
-
-	//check default file associations
-	var mode = modes.find(ext);
-
-	//editor.getSession().setMode("ace/mode/"+mode);
-	setMode(editor, mode);
 
 	//FIREPAD
 	var firepad = false;
