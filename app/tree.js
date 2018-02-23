@@ -1006,8 +1006,12 @@ function init() {
 
 							callback.call(tree, data.files);
 						}
-					}).fail(function() {
-						prompt.alert({title: 'Failed getting file listing', msg: 'Try checking your site settings'});
+					}).fail(function(jqXHR, textStatus) {
+						var msg = 'Try checking your site settings.';
+						if(jqXHR.responseJSON.error) {
+							msg += "<br>\n<br>\n<code>"+jqXHR.responseJSON.error+'</code>';
+						}
+						prompt.alert({title: 'Failed getting file listing', msg: msg});
 					});
 				}
 			},
