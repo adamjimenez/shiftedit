@@ -1859,8 +1859,8 @@ function edit(newSite, duplicate) {
 
 	//open dialog
 	var dialog = $( "#dialog-site" ).dialogResize({
-		width: w,
-		height: h,
+		width: 600,
+		height: 500,
 		modal: true,
 		close: function( event, ui ) {
 			$( this ).remove();
@@ -1961,7 +1961,7 @@ function getAjaxOptions(ajaxUrl, settings) {
 		};
 
 		// check if non-ssl blocked
-		if(location.protocol==='https:' && util.startsWith(ajaxUrl, 'http://') && ssl.is_blocked()) {
+		if(location.protocol==='https:' && util.startsWith(ajaxUrl, 'http://') && !util.startsWith(ajaxUrl, 'http://localhost/') && ssl.is_blocked()) {
 			ssl.test()
 			.fail(function () {
 				prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe scripts"'});
