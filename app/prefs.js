@@ -55,6 +55,7 @@ defaultPrefs.hScroll = true;
 defaultPrefs.printMarginColumn = 80;
 defaultPrefs.codeTheme = 'twilight'; //default
 defaultPrefs.autocomplete = true;
+defaultPrefs.snippets = true;
 defaultPrefs.colorPicker = true;
 defaultPrefs.numberPicker = true;
 defaultPrefs.zen = true;
@@ -1060,6 +1061,10 @@ function open(tabpanel) {
 	<label>\
 		<input type="checkbox" name="autocomplete" value="1">\
 		Autocomplete\
+	</label>\
+	<label>\
+		<input type="checkbox" name="snippets" value="1">\
+		Snippets\
 	</label>\
 	<label>\
 		<input type="checkbox" name="indentOnPaste" value="1">\

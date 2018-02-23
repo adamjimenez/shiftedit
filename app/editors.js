@@ -3,6 +3,7 @@ define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes
 lang = lang.lang;
 var editor;
 var tern = require("ace/tern/tern");
+var snippetManager = require("ace/snippets").snippetManager;
 var Firepad = require('firepad');
 var FirepadUserList = require('firepad-userlist');
 var Range = require("ace/range").Range;
@@ -750,9 +751,10 @@ function applyPrefs(tab) {
 
 		editor.setOptions({
 			enableBasicAutocompletion: Boolean(prefs.autocomplete),
-			enableLiveAutocompletion: Boolean(prefs.autocomplete)
+			enableLiveAutocompletion: Boolean(prefs.autocomplete),
+			enableSnippets: Boolean(prefs.snippets)
 		});
-
+		
 		//remove tab command
 		if (editor.completer) {
 			editor.completer.keyboardHandler.removeCommand('Tab');
@@ -1365,10 +1367,34 @@ function applyPrefs(tab) {
 				mac: preferences.getKeyBinding('expandSelection', 'mac'),
 				sender: "editor"
 			},
-		    exec: function(editor) { editor.session.toggleFold(false); },
-		    multiSelectAction: "forEach",
-		    scrollIntoView: "center",
-		    readOnly: true
+			exec: function(editor) { editor.session.toggleFold(false); },
+			multiSelectAction: "forEach",
+			scrollIntoView: "center",
+			readOnly: true
+		}, {
+			name: "tag-start",
+			bindKey: {
+				win: '<',
+				mac: '<',
+				sender: "editor"
+			},
+			exec: function(editor) { 
+				editor.insert('<');
+				editor.commands.exec('startAutocomplete', editor);
+			},
+			multiSelectAction: "forEach",
+		}, {
+			name: "php-tag-start",
+			bindKey: {
+				win: '?',
+				mac: '?',
+				sender: "editor"
+			},
+			exec: function(editor) { 
+				editor.insert('?');
+				editor.commands.exec('startAutocomplete', editor);
+			},
+			multiSelectAction: "forEach",
 		}]);
 	});
 }
@@ -1455,6 +1481,65 @@ function create(file, content, siteId, options) {
 	editor = split.getEditor(0);
 	editor.setTheme("ace/theme/monokai");
 	editor.split = split;
+
+	//check mode for default file associations
+	var ext = util.fileExtension(file);
+	var mode = modes.find(ext);
+
+	// hack to get html snippets in php
+	if(mode=='php') {
+		var setPHPMode = function(e, editor) {
+			setMode(editor, 'php');
+			
+			// load more php snippets
+			var snippets = snippetManager.parseSnippetFile("snippet <?\n\
+	<?php\n\
+\n\
+	${1}\n\
+snippet ec\n\
+	echo ${1};\n\
+snippet <?e\n\
+	<?php echo ${1} ?>\n\
+# this one is for php5.4\n\
+snippet <?=\n\
+	<?=${1}?>\n\
+snippet foreachkil\n\
+	<?php foreach ($${1:variable} as $${2:key} => $${3:value}): ?>\n\
+		${4:<!-- html... -->}\n\
+	<?php endforeach; ?>\n\
+snippet ifil\n\
+	<?php if (${1:true}): ?>\n\
+		${2:<!-- code... -->}\n\
+	<?php endif; ?>\n\
+snippet ifeil\n\
+	<?php if (${1:true}): ?>\n\
+		${2:<!-- html... -->}\n\
+	<?php else: ?>\n\
+		${3:<!-- html... -->}\n\
+	<?php endif; ?>\n\
+	${4}\n\
+snippet foreachil\n\
+	<?php foreach ($${1:variable} as $${2:value}): ?>\n\
+		${3:<!-- html... -->}\n\
+	<?php endforeach; ?>\n\
+			");
+			snippetManager.register(snippets || [], 'html');
+			
+			snippets = snippetManager.parseSnippetFile("snippet ifil\n\
+	<?php if (${1:true}): ?>${2:code}<?php endif; ?>\n\
+snippet ifeil\n\
+	<?php if (${1:true}): ?>${2:code}<?php else: ?>${3:code}<?php endif; ?>${4}\n\
+			");
+			snippetManager.register(snippets || [], 'html-tag');
+			
+			editor.off("changeMode", setPHPMode);
+		};
+		
+		editor.on("changeMode", setPHPMode);
+		setMode(editor, 'html');
+	} else {
+		setMode(editor, mode);
+	}
 
 	//disable warning
 	editor.$blockScrolling = Infinity;
