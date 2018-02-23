@@ -415,7 +415,8 @@ function restoreState(state) {
 function ready(tab) {
 	var editor = tabs.getEditor($(tab));
 	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
-			
+	
+	var prefs = preferences.get_prefs();
 	if (prefs.autoTabs) {
 		var whitespace = require("ace/ext/whitespace");
 		whitespace.detectIndentation(editor.getSession());
@@ -741,6 +742,8 @@ function applyPrefs(tab) {
 
 		editor.setKeyboardHandler(keybinding);
 		editor.getSession().setFoldStyle(prefs.codeFolding);
+		
+		editor.commands.addCommands(beautify.commands);
 
 		// set linebreak mode. don't change if using firepad
 		if(
