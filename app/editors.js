@@ -61,8 +61,42 @@ tern.addCompleter(shifteditCompleter);
 //remove text completer
 //language_tools.textCompleter.getCompletions = function(){};
 
-function onChange(e) {
+function onChange(e, document) {
+	var tab = $(this);
+	var editor = tabs.getEditor(tab);
 	tabs.setEdited(this, true);
+	
+	//maintain breakpoint position
+	var breakpointsArray = editor.session.getBreakpoints();
+	if(Object.keys(editor.session.getBreakpoints()).length>0){
+		if(e.lines.length>1){
+			Object.keys(editor.session.getBreakpoints()).forEach(function(item) {
+				var breakpoint = parseInt(item);
+				var lines = e.lines.length -1;
+				var start = e.start.row;
+				var end = e.end.row;
+				if(e.action==='insert'){
+					//console.log('new lines',breakpoint, start , end );
+					if(breakpoint>start ){
+						//console.log('breakpoint forward');
+						editor.session.clearBreakpoint(breakpoint);
+						editor.session.setBreakpoint(breakpoint + lines);
+					}
+				} else if(e.action==='remove'){
+					//console.log('removed lines',breakpoint, start , end);
+					if(breakpoint>start && breakpoint<end ){
+						//console.log('breakpoint remove');
+						editor.session.clearBreakpoint(breakpoint);
+					}
+					if(breakpoint>=end ){
+						//console.log('breakpoint behind');
+						editor.session.clearBreakpoint(breakpoint);
+						editor.session.setBreakpoint(breakpoint - lines);
+					}
+				}
+			});
+		}
+	}
 }
 
 function onGutterClick(e, editor) {
