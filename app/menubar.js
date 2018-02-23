@@ -5,26 +5,36 @@ var prefs = {};
 
 var selectionMenuItems = [];
 
-function toggleOptions(target) {
-	$("#menubar [data-target]").addClass('ui-state-disabled');
-
+function toggleOptions(target, show) {
 	if(target) {
-		//get active tab
-		var tab = $('.ui-layout-center .ui-tabs-active');
-		var file = tab.attr('data-file');
-
-		if(!file)
+		$("#menubar [data-target='"+target+"']").addClass('ui-state-disabled');
+		
+		if(!show) {
 			return;
-
-		var extension = util.fileExtension(file);
+		}
+		
+		var extension;
+		if (target=='file') {
+			//get active tab
+			var tab = $('.ui-layout-center .ui-tabs-active');
+			var file = tab.attr('data-file');
+	
+			if(!file)
+				return;
+	
+			extension = util.fileExtension(file);
+		}
 
 		$("#menubar [data-target='"+target+"']").each(function() {
-			var show = true;
-			var match = $(this).attr('data-match');
-			if(match) {
-				var r = new RegExp(match, "i");
-				if (!r.test(extension)){
-					show = false;
+			show = true;
+			
+			if (target=='file') {
+				var match = $(this).attr('data-match');
+				if(match) {
+					var r = new RegExp(match, "i");
+					if (!r.test(extension)){
+						show = false;
+					}
 				}
 			}
 
@@ -171,11 +181,11 @@ function init () {
 		var reader = {};
 		for (var i = 0, f; file = files[i]; i++) {
 			reader[i] = new FileReader();
-			reader[i].onloadend = function (file, i) {
+			reader[i].onloadend = (function (file, i) {
 				return function () {
 					editors.create(file.name, reader[i].result);
 				};
-			}(file, i);
+			}(file, i));
 
 			reader[i].readAsText(file);
 		}
@@ -264,7 +274,7 @@ function init () {
 				id: 'revisionHistory',
 				text: makeMenuText(lang.revisionHistoryText + '...', 'Ctrl-Alt-Shift-H'),
 				disabled: true,
-				target: 'file'
+				target: 'site'
 			},/*
 			{
 				id: 'validate',
@@ -916,10 +926,22 @@ function init () {
 
 	menus.create($("#menubar"), menu);
 
-	$( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ toggleOptions('file'); } );
+	$( ".ui-layout-center" ).on( "tabsactivate", function(e, ui){ 
+		toggleOptions('file', true); 
+	});
 	$( ".ui-layout-center" ).on( "tabsremove", function(e, ui){
 		if (!$('.ui-layout-center .ui-tabs-active').length)
-			toggleOptions(false);
+			toggleOptions('file', false);
+	});
+	
+	$(window ).on( "siteEnable", function(e, ui){
+		console.log('show site')
+		toggleOptions('site', true); 
+	});
+	
+	$( window ).on( "siteDisable", function(e, ui){ 
+		console.log('hide site')
+		toggleOptions('site', false); 
 	});
 }
 

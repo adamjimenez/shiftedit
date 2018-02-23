@@ -29,14 +29,18 @@ function enableMenuItems(site) {
 	items.forEach(function(item){
 		$('#'+item).removeClass('ui-state-disabled');
 	});
+	
+	$(window).trigger('siteEnable');
 }
 
 function disableMenuItems() {
 	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'phpmyadmin'];
 
 	items.forEach(function(item){
-		$('#'+item).removeClass('ui-state-disabled');
+		$('#'+item).addClass('ui-state-disabled');
 	});
+	
+	$(window).trigger('siteDisable');
 }
 
 function init() {
@@ -370,25 +374,21 @@ function open(siteId, options) {
 		options = {};
 	}
 
-	if(!siteId) {
-		currentSite = null;
-		storage.set('currentSite', currentSite);
-		return;
-	}
-
 	//hide tree
 	$('#tree-container').hide();
+
+	if(!siteId || siteId == '0') {
+		currentSite = null;
+		storage.set('currentSite', currentSite);
+		disableMenuItems();
+		return;
+	}
 
 	site = getSettings(siteId);
 	currentSite = siteId;
 	storage.set('currentSite', currentSite);
 	enableMenuItems(site);
 	$( "#sites" ).combobox('val', currentSite+'');
-
-	// no site selected
-	if (siteId=="0") {
-		return;
-	}
 
 	var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
