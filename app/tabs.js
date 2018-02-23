@@ -615,7 +615,6 @@ function saveAs(tab, options) {
 					return;
 				}
 
-				var site = require('./site');
 				var siteId = site.active();
 
 				var directFn = site.getdirectFn();
@@ -667,7 +666,6 @@ function doSaveAs(tab, file, options) {
 	tab.data('file', file);
 	tab.attr('data-file', file);
 
-	var site = require('./site');
 	var siteId = site.active();
 
 	if(!siteId) {
