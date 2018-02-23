@@ -1,12 +1,9 @@
-define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', "./editor_toolbar", './prompt','./editor_contextmenu','./autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'js-beautify/js/lib/beautify', 'js-beautify/js/lib/beautify-css', 'js-beautify/js/lib/beautify-html', 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, editor_toolbar, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize) {
+define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', "./editor_toolbar", './prompt','./editor_contextmenu','./autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, editor_toolbar, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools) {
 
 lang = lang.lang;
 var editor;
 var tern = require("ace/tern/tern");
 var Firepad = require('firepad');
-var beautify = require('js-beautify/js/lib/beautify');
-var css_beautify = require('js-beautify/js/lib/beautify-css');
-var html_beautify = require('js-beautify/js/lib/beautify-html');
 var FirepadUserList = require('firepad-userlist');
 var Range = require("ace/range").Range;
 var Autocomplete = require("ace/autocomplete").Autocomplete;
@@ -681,10 +678,6 @@ function applyPrefs(tab) {
 		});
 		
 
-		//var beautify = require("ace/ext/beautify");
-		//editor.commands.addCommands(beautify.commands);
-		
-
 		var keybinding = null;
 		switch (prefs.keyBinding) {
 		case 'vim':
@@ -1100,59 +1093,7 @@ function applyPrefs(tab) {
 				sender: "editor"
 			},
 			exec: function (editor, args, request) {
-				var prefs = preferences.get_prefs();
-				var toSelection = !editor.getSelection().isEmpty();
-				var mode = editor.getSession().$modeId.substr(9);
-	
-				var tab = '';
-				for (i = 0; i < prefs.tabSize; i++) {
-					tab += ' ';
-				}
-	
-				var code = toSelection ? editor.getSelectedText() : code = editor.getValue();
-	
-				switch (mode) {
-				case 'javascript':
-				case 'json':
-					code = beautify.js_beautify(code, {
-						'indent_size': prefs.softTabs ? prefs.tabSize : 1,
-						'indent_char': prefs.softTabs ? ' ' : '\t',
-						'brace_style': prefs.beautifier_brace_style,
-						'preserve_newlines': prefs.beautifier_preserve_newlines,
-						'keep_array_indentation': prefs.beautifier_keep_array_indentation,
-						'break_chained_methods': prefs.beautifier_break_chained_methods,
-						'space_before_conditional': prefs.beautifier_space_before_conditional,
-						'indent_scripts': prefs.beautifier_indent_scripts
-					});
-					break;
-				case 'css':
-					code = css_beautify.css_beautify(code, {
-						indent: tab,
-						openbrace: prefs.beautifier_open_brace
-					});
-					break;
-				case 'html':
-				case 'php':
-				case 'xml':
-					code = html_beautify.html_beautify(code, {
-						'indent_size': prefs.softTabs ? prefs.tabSize : 1,
-						'indent_char': prefs.softTabs ? ' ' : '\t',
-						'indent_scripts': prefs.beautifier_indent_scripts,
-						'max_char': 78,
-						'brace_style': prefs.beautifier_brace_style,
-						'unformatted': ['?', '?=', '?php', 'a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-						'extra_liners': []
-					});
-					break;
-				default:
-					return;
-				}
-	
-				if (toSelection) {
-					editor.insert(code);
-				} else {
-					editor.setValue(code);
-				}
+				editor.commands.exec('beautify', editor);
 			}
 		}, {
 			name: "br",

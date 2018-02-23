@@ -89,14 +89,6 @@ defaultPrefs.jslint_disable = false;
 defaultPrefs.csslint_disable = false;
 defaultPrefs.coffeescriptlint_disable = false;
 defaultPrefs.jslint_environment = 'browser';
-defaultPrefs.beautifier_old = false;
-defaultPrefs.beautifier_indent_scripts = 'keep';
-defaultPrefs.beautifier_open_brace = 'end-of-line';
-defaultPrefs.beautifier_brace_style = 'collapse';
-defaultPrefs.beautifier_preserve_newlines = true;
-defaultPrefs.beautifier_keep_array_indentation = true;
-defaultPrefs.beautifier_break_chained_methods = false;
-defaultPrefs.beautifier_space_before_conditional = false;
 defaultPrefs.fileColumns = true;
 defaultPrefs.notes = '';
 defaultPrefs.find = '{}';
@@ -1126,61 +1118,6 @@ function open(tabpanel) {
 		Disable lint checking\
 	</label>\
 	'+ coffeescriptlintHTML +'<br>\
-	<h2>Beautifier</h2>\
-	<h3>HTML</h3>\
-	<label>HTML &lt;style&gt;, &lt;script&gt; formatting</label>\
-	<label>\
-		<input type="radio" name="beautifier_indent_scripts" value="keep">\
-		Keep indent level of the tag\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_indent_scripts" value="normal">\
-		Add one indent level\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_indent_scripts" value="separate">\
-		Separate indentation\
-	</label><br>\
-	<h3>CSS</h3>\
-	<label>Open curly brace</label>\
-	<label>\
-		<input type="radio" name="beautifier_open_brace" value="end-of-line">\
-		End of line\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_open_brace" value="separate-line">\
-		Separate line\
-	</label><br>\
-	<h3>Javascript</h3>\
-	<label>Brace style</label>\
-	<label>\
-		<input type="radio" name="beautifier_brace_style" value="collapse">\
-		Braces with control statement\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_brace_style" value="expand">\
-		Braces on own line\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_brace_style" value="end-expand">\
-		End braces on own line\
-	</label><br>\
-	<label>\
-		<input type="checkbox" name="beautifier_preserve_newlines" value="1">\
-		Preserve empty lines\
-	</label>\
-	<label>\
-		<input type="checkbox" name="beautifier_keep_array_indentation" value="1">\
-		Keep array indentation\
-	</label>\
-	<label>\
-		<input type="checkbox" name="beautifier_break_chained_methods" value="1">\
-		Break lines on chained methods\
-	</label>\
-	<label>\
-		<input type="checkbox" name="beautifier_space_before_conditional" value="1">\
-		Spaces before conditional: "if(x)" / "if (x)"\
-	</label>\
 	</form>\
 	</div>');
 
