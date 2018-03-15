@@ -186,6 +186,7 @@ li[role=tab] .ui-icon {
 /* dialogs */
 .ui-dialog{
 	padding: 0 !important;
+	z-index: 100 !important;
 }
 
 .ui-dialog-titlebar{
