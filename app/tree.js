@@ -1034,8 +1034,23 @@ function init() {
 						}
 					}).fail(function(jqXHR, textStatus) {
 						var msg = 'Try checking your site settings.';
-						if(jqXHR.responseJSON.error) {
-							msg += "<br>\n<br>\n<code>"+jqXHR.responseJSON.error+'</code>';
+						
+						if(jqXHR.responseJSON && jqXHR.responseJSON.error) {
+							msg = '<code>'+jqXHR.responseJSON.error+'</code>';
+							prompt.alert({title: 'Failed getting file listing', msg: msg});
+						} else {
+							// check if non-ssl blocked
+							if(location.protocol==='https:' && util.startsWith(ajaxOptions.url, 'http://') && !util.startsWith(ajaxOptions.url, 'http://localhost/') && ssl.is_blocked()) {
+								ssl.test()
+								.fail(function () {
+									prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe scripts"'});
+								})
+								.done(function () {
+									prompt.alert({title: 'Failed getting file listing', msg: msg});
+								});
+							} else {
+								prompt.alert({title: 'Failed getting file listing', msg: msg});
+							}
 						}
 						prompt.alert({title: 'Failed getting file listing', msg: msg});
 					});
