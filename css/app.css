@@ -493,7 +493,7 @@ div.fullScreen{
 	padding: 0;
 }
 
-#siteSettings #portContainer label, #siteSettings #timeoutContainer label{
+#siteSettings #portContainer label{
 	min-width: auto;
 	width: auto;
 }
@@ -526,12 +526,7 @@ div.fullScreen{
 }
 
 #hosted_container .ui-checkboxradio-label, #stack_container .ui-checkboxradio-label, #providerRadio .ui-checkboxradio-label{
-	background: #ccc;
-	min-width: 106px;
-}
-
-#hosted_container .ui-checkboxradio-checked, #stack_container .ui-checkboxradio-checked, #providerRadio .ui-checkboxradio-checked{
-	background: #fff;
+	font-size: 36px;
 }
 
 /*ui-state-active*/
@@ -839,6 +834,10 @@ div.fullScreen{
 	flex-grow: 1;
 }
 
+.ui-menu{
+	z-index: 1;
+}
+
 .ui-menu .ui-menu-divider{
 	float: left;
 	clear: left;
@@ -1090,11 +1089,11 @@ div.fullScreen{
 	display: block;
 }
 
-#sitebar .custom-combobox-input, #git_url_bar .custom-combobox-input, .preview_toolbar .custom-combobox-input{
+#sitebar .custom-combobox-input, #dialog-site .custom-combobox-input, .preview_toolbar .custom-combobox-input{
 	width: calc(100% - 50px);
 }
 
-#git_url_bar .custom-combobox{
+#dialog-site .custom-combobox{
 	width: 100%;
 }
 
@@ -1369,3 +1368,12 @@ div.fullScreen{
 }
 
 /*.key:hover{box-shadow:0px 0px 10px #14B524; z-index:1000;}*/
+
+.link{
+	cursor: pointer;
+	color: #15c;
+}
+
+.link:hover{
+	text-decoration: underline;
+}

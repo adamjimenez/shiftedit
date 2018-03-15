@@ -14,13 +14,75 @@ function load() {
 			
 			servers = data.servers;
 			$.each(servers, function( index, item ) {
-				var li = $( '<li><a href="#">' + item.name + '</a></li>' ).appendTo( "#serverList" )
+				var li = $( '<li><a href="#"><strong>' + item.name + '</strong><br>' + item.domain + ' - ' + item.provider +'</a></li>' ).appendTo( "#serverList" )
 				.attr('data-index', index);
 				
 				if (item.id===currentServer) {
 					li.addClass('ui-state-active');
 				}
 			});
+		}
+	});
+}
+
+function getOptions() {
+	var ajax;
+	var provider = $("#providerRadio input[type='radio']:checked").val();
+	
+	$(window).off('authorized', getOptions);
+
+	ajax = $.ajax({
+		url: config.apiBaseUrl+'servers?cmd=options',
+		method: 'POST',
+		dataType: 'json',
+		data: {
+			'provider': provider
+		}
+	});
+	
+
+	if (!loading.start('Getting options', function(){
+		console.log('abort getting options');
+		ajax.abort();
+	})) {
+		return;
+	}
+	
+	$( "#region" ).children('option').remove();
+	$( "#region" ).append( '<option value="">Loading</option>' );
+	$( "#image" ).children('option').remove();
+	$( "#image" ).append( '<option value="">Loading</option>' );
+	
+	ajax.then(function (data) {
+		loading.stop();
+		
+		var items;
+
+		if(data.success) {
+			if (data.require_auth) {
+				$(window).on('authorized', getOptions);
+				window.open('/account/services/'+provider.toLowerCase());
+			} else {
+				$( "#region" ).children('option').remove();
+				$( "#region" ).append( '<option value=""></option>' );
+				
+				items = data.options.regions;
+				items.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} ); 
+				$.each(items, function( index, item ) {
+					var selected = item.selected ? 'selected' : '';
+					$( "#region" ).append( '<option value="'+item.value+'" '+selected+'>'+item.name+'</option>' );
+				});
+	
+				$( "#image" ).children('option').remove();
+				$( "#image" ).append( '<option value=""></option>' );
+				
+				items = data.options.images;
+				items.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} ); 
+				$.each(items, function( index, item ) {
+					var selected = item.selected ? 'selected' : '';
+					$( "#image" ).append( '<option value="'+item.value+'" '+selected+'>'+item.name+'</option>' );
+				});
+			}
 		}
 	});
 }
@@ -37,13 +99,12 @@ function edit(add) {
 	}
 	
 	//add servers dialog
-	$( "body" ).append('<div id="dialog-server" title="Server">\
+	$( "body" ).append('<div id="dialog-server" title="Add server">\
 		<form id="serverSettings" autocomplete="off">\
 			<input type="hidden" name="id" value="">\
-			<p>Create a development server, refer to the &nbsp; <a href="https://shiftedit.net/docs/servers" target="_blank">instructions</a>.</p>\
 			<p>\
-				<label for="name">Name:</label>\
-				<input type="text" name="name" value="" class="text ui-widget-content ui-corner-all" required>\
+				<label>Name:</label>\
+				<input type="text" name="name" value="" placeholder="dev server" class="text ui-widget-content ui-corner-all" required>\
 			</p>\
 			<p>\
 				<label for="platform">Platform:</label>\
@@ -64,28 +125,59 @@ function edit(add) {
 				<label for="provider">Provider:</label>\
 				<span id="providerRadio">\
 					<input type="radio" name="provider" value="AWS" id="providerRadio1">\
-					<label for="providerRadio1">\
-						<img alt="Amazon Web Services" src="https://shiftedit.s3.amazonaws.com/images/logos/aws.svg" height="32">\
+					<label for="providerRadio1" title="Amazon Web Services">\
+						<i class="fab fa-aws"></i>\
 					</label>\
 					<input type="radio" name="provider" value="DigitalOcean" id="providerRadio2">\
-					<label for="providerRadio2">\
-						<img alt="Digital Ocean" src="https://shiftedit.s3.amazonaws.com/images/logos/digitalocean.svg" height="32">\
+					<label for="providerRadio2" title="DigitalOcean">\
+						<i class="fab fa-digital-ocean"></i>\
 					</label>\
 					<input type="radio" name="provider" value="Linode" id="providerRadio3">\
-					<label for="providerRadio3">\
-						<img alt="Linode" src="https://shiftedit.s3.amazonaws.com/images/logos/linode.svg" height="32">\
+					<label for="providerRadio3" title="Linode">\
+						<i class="fab fa-linode"></i>\
+					</label>\
+					<input type="radio" name="provider" value="Custom" id="providerRadio4">\
+					<label for="providerRadio4" title="Custom Server">\
+						<i class="fas fa-server"></i>\
 					</label>\
 				</span>\
 			</p>\
-			<p id="server_user_container" style="display: none;">\
-				<label for="name">Username:</label>\
-				<input type="text" id="username" name="username" value="" class="text ui-widget-content ui-corner-all">\
-			</p>\
-			<p id="server_pass_container" style="display: none;">\
-				<label for="name">Password:</label>\
-				<input type="password" id="password" name="password" value="" placeholder="api key" class="text ui-widget-content ui-corner-all" required disabled>\
+			<div id="aws_help" style="display: none;">\
+				<p style="display: block;">To connect to AWS you will need an <a href="https://shiftedit.net/docs/servers#amazon_web_services">Access key and password</a></p>\
+			</div>\
+			<p id="pass_container" style="display: none;">\
+				<label>Password:</label>\
+				<input type="password" id="password" name="password" value="" placeholder="Secret Access Key" class="text ui-widget-content ui-corner-all" required disabled>\
 				<button type="button" class="showPassword">Show</button>\
 				<button type="button" class="generatePassword">Generate</button>\
+			</p>\
+			<p id="region_container" style="display: none;">\
+				<label>Region:</label>\
+				<span class="flex">\
+					<select id="region" name="region" class="text ui-widget-content ui-corner-all" required></select>\
+				</span>\
+			</p>\
+			<p id="image_container" style="display: none;">\
+				<label>Image:</label>\
+				<span class="flex">\
+					<select id="image" name="image" class="text ui-widget-content ui-corner-all" required></select>\
+				</span>\
+			</p>\
+			<p id="custom_container" style="display: none;">\
+				<p>Manually add a server, it should not contain any previous sites.<br>User will require sudo privileges.</p>\
+			</p>\
+			<p id="ip_container" style="display: none;">\
+				<label>IP address:</label>\
+				<input type="text" name="domain" value="" placeholder="Server IPv4 address" class="text ui-widget-content ui-corner-all">\
+			</p>\
+			<p id="user_container" style="display: none;">\
+				<label>Username:</label>\
+				<input type="text" id="username" name="username" value="" placeholder="Server username" class="text ui-widget-content ui-corner-all">\
+			</p>\
+			<p class="ssh_key_container" style="display: none;">\
+				<label>Your SSH key:</label>\
+				<textarea rows="4" readonly>'+storage.get('public_key')+'</textarea>\
+				<label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
 			</p>\
 		</form>\
 	</div>');
@@ -97,26 +189,42 @@ function edit(add) {
 	
 	//toggle fields
 	$("#providerRadio input[type='radio']").change(function() {
-		if (this.value==='AWS') {
-			$('#server_user_container').show();
-			$('#server_pass_container').show();
+		var provider = this.value;
+		
+		$('#aws_help').hide();
+		$('#user_container').hide();
+		$('#pass_container').hide();
+		$('.generatePassword').hide();
+		$('#region_container').hide();
+		$('#image_container').hide();
+		$('#custom_container').hide();
+		$('#ip_container').hide();
+		$('#server_username_container').hide();
+		$('#serverSettings .ssh_key_container').hide();
+			
+		if (provider==='AWS') {
+			$('#aws_help').show();
+			$('#user_container').show();
+			$('#pass_container').show();
 			$('#username').attr('placeholder', 'Access Key ID');
-			$('#password').attr('placeholder', 'Secret Access Key');
-			$('.generatePassword').hide();
-		} else if (this.value==='DigitalOcean') {
-			$('#server_user_container').hide();
-			$('#server_pass_container').hide();
-			$('.generatePassword').hide();
+			//$('#password').attr('placeholder', 'Secret Access Key');
+		} else if (provider==='DigitalOcean') {
+			$('#region_container').show();
+			$('#image_container').show();
 			//$('#password').attr('placeholder', 'Token');
-		} else if (this.value==='Linode') {
-			$('#server_user_container').hide();
-			$('#server_pass_container').show();
-			$('#password').attr('placeholder', 'Api Key');
-			$('.generatePassword').show();
-		} else {
-			$('#server_user_container').hide();
-			$('#server_pass_container').hide();
-			$('.generatePassword').hide();
+		} else if (provider==='Linode') {
+			$('#region_container').show();
+			$('#image_container').show();
+		} else if (provider==='Custom') {
+			$('#custom_container').show();
+			$('#ip_container').show();
+			$('#user_container').show();
+			$('#serverSettings .ssh_key_container').show();
+			$('#username').attr('placeholder', 'Server username');
+		}
+		
+		if(provider==='DigitalOcean' || provider==='Linode') {
+			getOptions();
 		}
 	});
 	
@@ -175,8 +283,8 @@ function edit(add) {
 
 	//open dialog
 	var dialog = $( "#dialog-server" ).dialogResize({
-		width: 560,
-		height: 300,
+		width: 620,
+		height: 500,
 		modal: true,
 		close: function( event, ui ) {
 			$( this ).remove();
@@ -192,6 +300,35 @@ function edit(add) {
 	});
 }
 
+function doRemove() {
+	$(window).off('authorized', remove);
+	
+	if (!selected) {
+		return;
+	}
+	
+	var server = servers[selected.data('index')];
+	
+	loading.fetch(config.apiBaseUrl+'servers?cmd=delete&server='+currentServer, {
+		action: 'Deleting server '+server.name,
+		complete: function(data) {
+			if (data.require_auth) {
+				$(window).on('authorized', remove);
+				window.open('/account/services/'+server.provider.toLowerCase());
+			} else {
+				load();
+				
+				//$('#editBtn').button('disable');
+				$('#removeBtn').button('disable');
+				$('#sshBtn').button('disable');
+				$('#manageBtn').button('disable');
+				$('#rebootBtn').button('disable');
+				selected = null;
+			}
+		}
+	});
+}
+
 function remove(undef, e, confirmed) {
 	if (!selected) {
 		return;
@@ -201,13 +338,18 @@ function remove(undef, e, confirmed) {
 	
 	if(!confirmed) {
 		var me = this;
+		var msg = 'Any sites on this server will cease to work and this can not be undone';
+		if (server.provider=='Custom') {
+			msg = 'Are you sure?';
+		}
+		
 		prompt.confirm({
-			title: 'Delete server',
-			msg: 'Are you sure?',
+			title: 'Delete server: '+server.name,
+			msg: msg,
 			fn: function(value) {
 				switch(value) {
 					case 'yes':
-						remove(undef, e, true);
+						doRemove();
 						return;
 					default:
 						return false;
@@ -216,20 +358,6 @@ function remove(undef, e, confirmed) {
 		});
 		return;
 	}
-
-	loading.fetch(config.apiBaseUrl+'servers?cmd=delete&server='+currentServer, {
-		action: 'Deleting server '+server.name,
-		success: function(data) {
-			load();
-			
-			$('#editBtn').button('disable');
-			$('#removeBtn').button('disable');
-			$('#sshBtn').button('disable');
-			$('#manageBtn').button('disable');
-			$('#rebootBtn').button('disable');
-			selected = null;
-		}
-	});
 }
 
 function manage() {
@@ -247,12 +375,17 @@ function reboot() {
 		return;
 	}
 	
+	$(window).off('authorized', reboot);
+	
 	var server = servers[selected.data('index')];
 	
 	loading.fetch(config.apiBaseUrl+'servers?cmd=reboot&server='+currentServer, {
 		action: 'Rebooting server '+server.name,
 		success: function(data) {
-			//load();
+			if (data.require_auth) {
+				$(window).on('authorized', reboot);
+				window.open('/account/services/'+server.provider.toLowerCase());
+			}
 		}
 	});
 }
@@ -261,7 +394,7 @@ function select(li) {
 	selected = li;
 	settings = servers[selected.data('index')];
 	currentServer = settings.id;
-	$('#editBtn').button('enable');
+	//$('#editBtn').button('enable');
 	$('#removeBtn').button('enable');
 	$('#sshBtn').button('enable');
 	$('#manageBtn').button('enable');
@@ -290,6 +423,7 @@ function open() {
 			"Add Server": function() {
 				edit(true);
 			},
+			/*
 			Edit: {
 				text: "Edit",
 				id: "editBtn",
@@ -298,6 +432,7 @@ function open() {
 				},
 				disabled: true
 			},
+			*/
 			Remove: {
 				text: "Remove",
 				id: "removeBtn",
@@ -376,129 +511,131 @@ function save() {
 		}
 	}
 
-	ajax = $.ajax({
-		url: config.apiBaseUrl+'servers?cmd=save&server='+serverId,
-		method: 'POST',
-		dataType: 'json',
-		data: params
-	});
-	
-	ajax.then(function (data) {
-		loading.stop();
-
-		if(data.success) {
-			if (data.require_auth) {
-				switch(params.provider) {
-					case 'DigitalOcean':
-						window.open('/account/services/digitalocean');
-					break;
-					default:
-						console.error('invalid provider' + params.provider);
-					break;
-				}
-			} else {
-				var finish = function() {
-					currentServer = serverId;
-					load();
+	function doSave() {
+		$(window).off('authorized', doSave);
 		
-					$( "#dialog-server" ).dialogResize( "close" );
-					$( "#dialog-server" ).remove();
-				};
-				
-				serverId = data.server;
-				if (!serverId) {
-					console.log('no server id');
-					return false;
-				}
-				
-				$('#serverSettings [name=id]').val(serverId);
-				
-				var status = '';
-				var ajax;
-				var check_status = function() {
-					ajax = $.ajax({
-						url: config.apiBaseUrl+'servers?cmd=get_status&server='+serverId,
-						method: 'GET',
-						dataType: 'json',
-						data: {
-							status: status
-						}
-					}).then(function (data) {
-						loading.stop();
+		ajax = $.ajax({
+			url: config.apiBaseUrl+'servers?cmd=save&server='+serverId,
+			method: 'POST',
+			dataType: 'json',
+			data: params
+		});
+		
+		ajax.then(function (data) {
+			loading.stop();
+	
+			if(data.success) {
+				if (data.require_auth) {
+					$(window).on('authorized', doSave);
+					window.open('/account/services/'+provider.toLowerCase());
+				} else {
+					var finish = function() {
+						currentServer = serverId;
+						load();
+			
+						$( "#dialog-server" ).dialogResize( "close" );
+						$( "#dialog-server" ).remove();
+					};
+					
+					serverId = data.server;
+					if (!serverId) {
+						console.log('no server id');
+						return false;
+					}
+					
+					$('#serverSettings [name=id]').val(serverId);
+					
+					var status = '';
+					var ajax;
+					var check_status = function() {
+						ajax = $.ajax({
+							url: config.apiBaseUrl+'servers?cmd=get_status&server='+serverId,
+							method: 'GET',
+							dataType: 'json',
+							data: {
+								status: status
+							}
+						});
 						
-						if(data.success) {
-							status = data.status;
+						ajax.then(function (data) {
+							loading.stop();
 							
-							if (status==='ready') {
+							if(data.success) {
+								status = data.status;
+								
+								if (status==='ready') {
+									finish();
+								} else {
+									check_status();
+								}
+							} else {
+								prompt.alert({title:'Error', msg:data.error});
+								return;
+							}
+						});
+						
+						loading.start(status, function() {
+							console.log('abort server status');
+							console.log(ajax);
+							ajax.abort();
+						}, true);
+					};
+					
+					if (wait) {
+						var source = new EventSource(config.apiBaseUrl+'servers?cmd=create&server='+serverId, {withCredentials: true});
+						var abortFunction = function(){
+							if( source ){
+								source.close();
+							}
+						};
+					
+						var stopLoading = true;
+						source.addEventListener('message', function(event) {
+							//console.log(event.data);
+							var result = JSON.parse(event.data);
+							var msg = result.msg;
+		
+							loading.stop(false);
+							
+							if (msg.substr(0, 6)==='Error:') {
+								prompt.alert({title:'Error', msg: msg});
+							} else if (msg==='waiting for server') {
+								stopLoading = false;
+								check_status();
+							} else if (msg==='ready') {
+								stopLoading = false;
 								finish();
 							} else {
-								check_status();
+								loading.start(msg, abortFunction, true);
 							}
-						} else {
-							prompt.alert({title:'Error', msg:data.error});
-							return;
-						}
-					});
+						}, false);
 					
-					loading.start(status, function(){
-						console.log('abort server status');
-						console.log(ajax);
-						ajax.abort();
-					}, true);
-				};
-				
-				if (wait) {
-					var source = new EventSource(config.apiBaseUrl+'servers?cmd=create&server='+serverId, {withCredentials: true});
-					var abortFunction = function(){
-						if( source ){
-							source.close();
-						}
-					};
-				
-					var stopLoading = true;
-					source.addEventListener('message', function(event) {
-						//console.log(event.data);
-						var result = JSON.parse(event.data);
-						var msg = result.msg;
-	
-						loading.stop(false);
-						
-						if (msg.substr(0, 6)==='Error:') {
-							prompt.alert({title:'Error', msg: msg});
-						} else if (msg==='waiting for server') {
-							stopLoading = false;
-							check_status();
-						} else if (msg==='ready') {
-							stopLoading = false;
-							finish();
-						} else {
-							loading.start(msg, abortFunction, true);
-						}
-					}, false);
-				
-					source.addEventListener('error', function(event) {
-						if (stopLoading) {
-							loading.stop(false);
-						}
-						if (event.eventPhase == 2) { //EventSource.CLOSED
-							abortFunction();
-						}
-					}, false);
-				} else {
-					finish();
+						source.addEventListener('error', function(event) {
+							if (stopLoading) {
+								loading.stop(false);
+							}
+							if (event.eventPhase == 2) { //EventSource.CLOSED
+								abortFunction();
+							}
+						}, false);
+					} else {
+						finish();
+					}
 				}
+			}else{
+				var error = 'unknown';
+				if (data.error) {
+					error = data.error.replace(/\n/g, "<br>");
+				}
+				prompt.alert({title:'Error', msg: error});
 			}
-		}else{
-			var error = 'unknown';
-			if (data.error) {
-				error = data.error.replace(/\n/g, "<br>");
-			}
-			prompt.alert({title:'Error', msg: error});
-		}
-	}).fail(function() {
-		loading.stop();
-		prompt.alert({title:lang.failedText, msg:'Error saving server'});
-	});
+		}).fail(function() {
+			loading.stop();
+			prompt.alert({title:lang.failedText, msg:'Error saving server'});
+		});
+	}
+	
+	doSave();
 }
 
 $('body').on('click', '#servers a, .newTab .server', function(e){
@@ -506,7 +643,8 @@ $('body').on('click', '#servers a, .newTab .server', function(e){
 });
 
 return {
-	open: open
+	open: open,
+	edit: edit
 };
 
 });
