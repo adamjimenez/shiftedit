@@ -1,4 +1,4 @@
-define(['exports', './config', './prefs', 'resumablejs', "jstreetable", './util', './editors', './prompt', './lang', './tabs' ,'./loading', './site', './layout', './ssh', "./modes", 'dialogResize'], function (exports, config, preferences, Resumable, jstreetable, util, editor, prompt, lang, tabs, loading, site, layout, ssh, modes) {
+define(['exports', './config', './prefs', 'resumablejs', "jstreetable", './util', "./ssl", './editors', './prompt', './lang', './tabs' ,'./loading', './site', './layout', './ssh', "./modes", 'dialogResize'], function (exports, config, preferences, Resumable, jstreetable, util, ssl, editor, prompt, lang, tabs, loading, site, layout, ssh, modes) {
 lang = lang.lang;
 modes = modes.modes;
 var ajaxOptions = {};
@@ -363,16 +363,39 @@ function downloadZip(data) {
 			withCredentials: true
 		},
 		success: function(data) {
+			loading.stop(false);
+			
+			
+			//construct dialog
+			$( "body" ).append('<div id="dialog-message" title="Creating Zip">\
+			<div id="results"></div>\
+		</div>');
+			
+			//open dialog
+			var dialog = $( "#dialog-message" ).dialogResize({
+				width: 400,
+				height: 320,
+				modal: true,
+				dialogClass: "no-close",
+				close: function( event, ui ) {
+					abortFunction();
+					$( this ).remove();
+				},
+				buttons: {
+					Cancel: function() {
+						$( this ).dialogResize( "close" );
+					}
+				}
+			});
+			
 			source = new EventSource(url, {withCredentials: true});
 
 			source.addEventListener('message', function(event) {
 				var data = JSON.parse(event.data);
 
 				if( data.msg === 'done' ){
-					done = true;
-					loading.stop(false);
-
 					source.close();
+					$( "#dialog-message" ).dialogResize( "close" );
 
 					var evt = new MouseEvent('click');
 					var a = document.createElement('a');
@@ -380,8 +403,11 @@ function downloadZip(data) {
 					a.href = url+'&d=1';
 					a.dispatchEvent(evt);
 				}else{
-					loading.stop(false);
-					loading.start(data.msg, abortFunction);
+					//loading.stop(false);
+					//loading.start(data.msg, abortFunction);
+					
+					$('#results').append(data.msg+'<br>');
+					$('#dialog-message').scrollTop($('#dialog-message').prop("scrollHeight"));
 				}
 			}, false);
 
