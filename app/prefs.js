@@ -99,26 +99,22 @@ defaultPrefs.newFiles = ['html', 'js', 'css', 'php', 'json', 'xml', 'txt'];
 defaultPrefs.newFilesOther = [];
 
 var skins = [{
-	title: "Dark Orange",
-	name: "dark-orange",
-	icon: "theme_90_smoothness.png"
-},{ //tree issues
 	title: "Smoothness",
 	name: "smoothness",
 	icon: "theme_90_smoothness.png"
-},/* {
+}, /*{ // menu issue
 	title: "Base",
 	name: "base",
 	icon: "theme_90_base.png"
-}, {
+},*/ {
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
-}/*, { //tree issues
+}, /*{ // tree highlight issue
 	title: "Blitzer",
 	name: "blitzer",
 	icon: "theme_90_blitzer.png"
-}*//*, {
+},*/ /*{ // menu issue
 	title: "Cupertino",
 	name: "cupertino",
 	icon: "theme_90_cupertino.png"
@@ -134,22 +130,20 @@ var skins = [{
 	title: "Eggplant",
 	name: "eggplant",
 	icon: "theme_90_eggplant.png"
-},/* {
+}, /*{ //menu issue
 	title: "Excite Bike",
 	name: "excite-bike",
 	icon: "theme_90_excite_bike.png"
-}/*, { //tree issues
+},*/ /*{ //tree header issues
 	title: "Flick",
 	name: "flick",
 	icon: "theme_90_flick.png"
-}*/ {
-	title: "Gray",
-	name: "gray"
-},/* {
+},*/
+/*{ //menu issue
 	title: "Hot Sneaks",
 	name: "hot-sneaks",
 	icon: "theme_90_hot_sneaks.png"
-}*/ {
+},*/ {
 	title: "Humanity",
 	name: "humanity",
 	icon: "theme_90_humanity.png"
@@ -161,11 +155,11 @@ var skins = [{
 	title: "Mint Choc",
 	name: "mint-choc",
 	icon: "theme_90_mint_choco.png"
-},/* {
+}, /*{ // menu issues
 	title: "Overcast",
 	name: "overcast",
 	icon: "theme_90_overcast.png"
-}*/ {
+},*/ {
 	title: "Pepper Grinder",
 	name: "pepper-grinder",
 	icon: "theme_90_pepper_grinder.png"
@@ -177,11 +171,11 @@ var skins = [{
 	title: "South Street",
 	name: "south-street",
 	icon: "theme_90_south_street.png"
-},/* {
+}, /*{ // menu issues
 	title: "Start",
 	name: "start",
 	icon: "theme_90_start_menu.png"
-}*/ {
+},*/ {
 	title: "Sunny",
 	name: "sunny",
 	icon: "theme_90_sunny.png"
@@ -784,7 +778,7 @@ function updateSkin(name){
 		}
 	
 		if (!url) {
-			var urlPrefix = themepath + "/themes.1.12/";
+			var urlPrefix = themepath + "/themes.1.12.1/";
 			url = urlPrefix + name + "/jquery-ui.css";
 			currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
 		}
