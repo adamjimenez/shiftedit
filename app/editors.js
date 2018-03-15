@@ -111,6 +111,17 @@ function onChange(e, document) {
 			});
 		}
 	}
+
+	editor_toolbar.update(tab);
+	
+	// clear tinymce undo stack
+	if (tab.data('view')==='code') {
+		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+		var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+		if (inst) {
+			inst.undoManager.clear();
+		}
+	}
 }
 
 function onGutterClick(e, editor) {
