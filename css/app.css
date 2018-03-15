@@ -1046,7 +1046,24 @@ div.fullScreen{
 }
 
 .design{
-	overflow: hidden;
+	position: relative;
+}
+
+.design .tinymce{
+	overflow: scroll;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 0 10px;
+	color: #000;
+	background: #fff;
+	font-family: Times New Roman;
+}
+
+.mce-notification {
+	display: none;
 }
 
 #filetree-buttons {
