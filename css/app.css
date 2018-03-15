@@ -193,6 +193,10 @@ li[role=tab] .ui-icon {
 	border-radius: 0 !important;
 }
 
+.no-close .ui-dialog-titlebar-close {
+	display: none;
+}
+
 #refresh_site, #siteNenuBtn {
 	border-style: hidden !important;
 }
