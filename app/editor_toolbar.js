@@ -346,6 +346,14 @@ function create(tab) {
 	
 	// toolbar scroll
 	$(panel).find(".editor_toolbar").scrollLeft(0);
+	
+	// set mode dropdown on change
+	editor.on("changeMode", function(e, editor) {
+		var mode = editor.session.$modeId.substr(9);
+		saveMode = false;
+		$(panel).find('[data-name='+mode+']').children('a').trigger('click');
+		saveMode = true;
+	});
 }
 
 function update(tab) {
