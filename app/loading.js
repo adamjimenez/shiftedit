@@ -101,6 +101,7 @@ function fetch(url, options) {
 	var defaults = {
 		action: 'loading',
 		success: function(){},
+		complete: function(){},
 		data: []
 	};
 
@@ -140,6 +141,7 @@ function fetch(url, options) {
 				prompt.alert({title:'Error', msg:data.error});
 			}
 		}
+		options.complete(data);
 	}).fail(function(error) {
 		stop();
 		if (options.error) {
