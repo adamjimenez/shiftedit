@@ -55,11 +55,13 @@ defaultPrefs.hScroll = true;
 defaultPrefs.printMarginColumn = 80;
 defaultPrefs.codeTheme = 'twilight'; //default
 defaultPrefs.autocomplete = true;
+defaultPrefs.snippets = true;
 defaultPrefs.colorPicker = true;
 defaultPrefs.numberPicker = true;
 defaultPrefs.zen = true;
 defaultPrefs.behaviours = true;
 defaultPrefs.scrollPastEnd = true;
+defaultPrefs.selectDollar = false;
 defaultPrefs.sshPane = 'east';
 defaultPrefs.syntaxErrors = true;
 defaultPrefs.filePanelWidth = 250;
@@ -89,14 +91,6 @@ defaultPrefs.jslint_disable = false;
 defaultPrefs.csslint_disable = false;
 defaultPrefs.coffeescriptlint_disable = false;
 defaultPrefs.jslint_environment = 'browser';
-defaultPrefs.beautifier_old = false;
-defaultPrefs.beautifier_indent_scripts = 'keep';
-defaultPrefs.beautifier_open_brace = 'end-of-line';
-defaultPrefs.beautifier_brace_style = 'collapse';
-defaultPrefs.beautifier_preserve_newlines = true;
-defaultPrefs.beautifier_keep_array_indentation = true;
-defaultPrefs.beautifier_break_chained_methods = false;
-defaultPrefs.beautifier_space_before_conditional = false;
 defaultPrefs.fileColumns = true;
 defaultPrefs.notes = '';
 defaultPrefs.find = '{}';
@@ -105,26 +99,22 @@ defaultPrefs.newFiles = ['html', 'js', 'css', 'php', 'json', 'xml', 'txt'];
 defaultPrefs.newFilesOther = [];
 
 var skins = [{
-	title: "Dark Orange",
-	name: "dark-orange",
-	icon: "theme_90_smoothness.png"
-},{ //tree issues
 	title: "Smoothness",
 	name: "smoothness",
 	icon: "theme_90_smoothness.png"
-},/* {
+}, /*{ // menu issue
 	title: "Base",
 	name: "base",
 	icon: "theme_90_base.png"
-}, {
+},*/ {
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
-}/*, { //tree issues
+}, /*{ // tree highlight issue
 	title: "Blitzer",
 	name: "blitzer",
 	icon: "theme_90_blitzer.png"
-}*//*, {
+},*/ /*{ // menu issue
 	title: "Cupertino",
 	name: "cupertino",
 	icon: "theme_90_cupertino.png"
@@ -140,22 +130,20 @@ var skins = [{
 	title: "Eggplant",
 	name: "eggplant",
 	icon: "theme_90_eggplant.png"
-},/* {
+}, /*{ //menu issue
 	title: "Excite Bike",
 	name: "excite-bike",
 	icon: "theme_90_excite_bike.png"
-}/*, { //tree issues
+},*/ /*{ //tree header issues
 	title: "Flick",
 	name: "flick",
 	icon: "theme_90_flick.png"
-}*/ {
-	title: "Gray",
-	name: "gray"
-},/* {
+},*/
+/*{ //menu issue
 	title: "Hot Sneaks",
 	name: "hot-sneaks",
 	icon: "theme_90_hot_sneaks.png"
-}*/ {
+},*/ {
 	title: "Humanity",
 	name: "humanity",
 	icon: "theme_90_humanity.png"
@@ -167,11 +155,11 @@ var skins = [{
 	title: "Mint Choc",
 	name: "mint-choc",
 	icon: "theme_90_mint_choco.png"
-},/* {
+}, /*{ // menu issues
 	title: "Overcast",
 	name: "overcast",
 	icon: "theme_90_overcast.png"
-}*/ {
+},*/ {
 	title: "Pepper Grinder",
 	name: "pepper-grinder",
 	icon: "theme_90_pepper_grinder.png"
@@ -183,11 +171,11 @@ var skins = [{
 	title: "South Street",
 	name: "south-street",
 	icon: "theme_90_south_street.png"
-},/* {
+}, /*{ // menu issues
 	title: "Start",
 	name: "start",
 	icon: "theme_90_start_menu.png"
-}*/ {
+},*/ {
 	title: "Sunny",
 	name: "sunny",
 	icon: "theme_90_sunny.png"
@@ -790,7 +778,7 @@ function updateSkin(name){
 		}
 	
 		if (!url) {
-			var urlPrefix = themepath + "/themes.1.12/";
+			var urlPrefix = themepath + "/themes.1.12.1/";
 			url = urlPrefix + name + "/jquery-ui.css";
 			currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
 		}
@@ -1070,6 +1058,10 @@ function open(tabpanel) {
 		Autocomplete\
 	</label>\
 	<label>\
+		<input type="checkbox" name="snippets" value="1">\
+		Snippets\
+	</label>\
+	<label>\
 		<input type="checkbox" name="indentOnPaste" value="1">\
 		Indent on paste\
 	</label>\
@@ -1080,6 +1072,10 @@ function open(tabpanel) {
 	<label>\
 		<input type="checkbox" name="behaviours" value="1">\
 		Auto-close tags, brackets, quotes etc\
+	</label>\
+	<label>\
+		<input type="checkbox" name="selectDollar" value="1">\
+		Select $ with PHP variable\
 	</label>\
 	<label>\
 		<input type="checkbox" name="scrollPastEnd" value="1">\
@@ -1126,61 +1122,6 @@ function open(tabpanel) {
 		Disable lint checking\
 	</label>\
 	'+ coffeescriptlintHTML +'<br>\
-	<h2>Beautifier</h2>\
-	<h3>HTML</h3>\
-	<label>HTML &lt;style&gt;, &lt;script&gt; formatting</label>\
-	<label>\
-		<input type="radio" name="beautifier_indent_scripts" value="keep">\
-		Keep indent level of the tag\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_indent_scripts" value="normal">\
-		Add one indent level\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_indent_scripts" value="separate">\
-		Separate indentation\
-	</label><br>\
-	<h3>CSS</h3>\
-	<label>Open curly brace</label>\
-	<label>\
-		<input type="radio" name="beautifier_open_brace" value="end-of-line">\
-		End of line\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_open_brace" value="separate-line">\
-		Separate line\
-	</label><br>\
-	<h3>Javascript</h3>\
-	<label>Brace style</label>\
-	<label>\
-		<input type="radio" name="beautifier_brace_style" value="collapse">\
-		Braces with control statement\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_brace_style" value="expand">\
-		Braces on own line\
-	</label>\
-	<label>\
-		<input type="radio" name="beautifier_brace_style" value="end-expand">\
-		End braces on own line\
-	</label><br>\
-	<label>\
-		<input type="checkbox" name="beautifier_preserve_newlines" value="1">\
-		Preserve empty lines\
-	</label>\
-	<label>\
-		<input type="checkbox" name="beautifier_keep_array_indentation" value="1">\
-		Keep array indentation\
-	</label>\
-	<label>\
-		<input type="checkbox" name="beautifier_break_chained_methods" value="1">\
-		Break lines on chained methods\
-	</label>\
-	<label>\
-		<input type="checkbox" name="beautifier_space_before_conditional" value="1">\
-		Spaces before conditional: "if(x)" / "if (x)"\
-	</label>\
 	</form>\
 	</div>');
 

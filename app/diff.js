@@ -25,8 +25,8 @@ function create(tabpanel) {
 	tab = $(tabpanel).tabs('add', 'File Compare', '\
 		<div class="vbox">\
 			<div class="diff_toolbar ui-widget-header ui-corner-all">\
-				<select class="diffFiles flex"></select>\
-				<select class="diffFiles flex"></select>\
+				<select class="diffFiles flex ui-widget ui-state-default ui-corner-all"></select>\
+				<select class="diffFiles flex ui-widget ui-state-default ui-corner-all"></select>\
 				<label><input type="checkbox" id="autofold" value="1">Fold similar chunks</label>\
 			</div>\
 			<div class="editor"></div>\

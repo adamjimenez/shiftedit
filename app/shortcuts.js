@@ -8,6 +8,7 @@ define(['./config', './tabs','./find', './prefs', './site', './tree', './revisio
 		stopEvent: true,
 		fn: function (key, e) {
 			$('#shortcutsSheet').remove();
+			$('#link').remove();
 		}
 	}, { //new tab alt-n
 		key: 78,

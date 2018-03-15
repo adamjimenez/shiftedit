@@ -1,39 +1,58 @@
-define(['./config', './tabs', 'dialogResize'], function (config, tabs) {
+define(['./config', './tabs', './site', "./editor_toolbar", 'exports', 'dialogResize'], function (config, tabs, site, editor_toolbar, exports) {
 function create(tab) {
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 	var editor = tabs.getEditor(tab);
 
 	tab.data('design-ready', true);
 
-	var ta = $('<textarea></textarea>').appendTo(panel.find('.design'));
+	var ta = $('<div class="tinymce"></div>').appendTo(panel.find('.design'));
 	ta[0].value = editor.getValue();
 	var designId = ta.uniqueId().attr('id');
+	
+	var base_url = '';
+	if (tab.data("site")) {
+	var settings = site.getSettings(tab.data("site"));
+		base_url = settings.web_url;
+	
+		if (settings.encryption == "1") {
+			base_url = 'https://'+base_url;
+		} else {
+			base_url = 'http://'+base_url;
+		}
+	}
 
 	tinymce.init({
-		mode : "exact",
+		//mode : "exact",
+		theme: 'inlite',
+		mobile: { 
+			theme: 'mobile',
+			plugins: [ 'autosave', 'lists', 'autolink' ],
+			toolbar: [ 'undo', 'bold', 'italic', 'styleselect' ]
+		},
 		selector : '#'+designId,
-		relative_urls : true,
+		relative_urls : false,
+		convert_urls: true,
+		document_base_url : base_url,
 		remove_script_host : false,
-		//convert_urls : false,
+		//body_class: 'mceForceColors',
 		plugins: [
 			"advlist autolink lists link image charmap print preview anchor",
 			"searchreplace visualblocks code fullscreen",
 			"insertdatetime media table contextmenu paste fullpage textcolor colorpicker"
 		],
-		toolbar: "undo redo styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image forecolor backcolor",
+		//toolbar: "styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image forecolor backcolor",
+
 		protect: [
 			/<\?[\s\S]*\?>/g // Protect php code
 		],
-		// General options
-		// Theme options
-		theme_advanced_toolbar_location : "top",
-		theme_advanced_toolbar_align : "left",
-		theme_advanced_statusbar_location : "bottom",
-		theme_advanced_resizing : false,
+		//insert_toolbar: 'quickimage quicktable media codesample',
+		insert_toolbar: '',
+		selection_toolbar: 'bold italic | quicklink h1 h2 h3 blockquote bullist',
+		inline: true,
 		paste_data_images: true,
 
 		init_instance_callback: function (inst) {
-			inst.on('change', function(e){
+			inst.on('change undo redo keypress', function(e){
 				var code = inst.getContent();
 				var regexp = /<body[^>]*>([\s\S]*)<\/body>/gi;
 				var match = regexp.exec(code);
@@ -63,16 +82,19 @@ function create(tab) {
 				editor.insert(code);
 
 				tabs.setEdited(tab, true);
+				
+				editor_toolbar.update(tab);
 			});
 
 			//add save shortcut
 			inst.addShortcut('ctrl+s','Save', function(){
 				tabs.save(tab);
 			}, this);
+			
+			inst.focus();
 		},
 
 		file_browser_callback :  function(field_name, url, type, win) {
-			var site = require('./site');
 			var siteId = site.active();
 			var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 			var settings = site.getSettings();
@@ -198,7 +220,5 @@ function create(tab) {
 	});
 }
 
-	return {
-		create: create
-	};
+	exports.create = create;
 });

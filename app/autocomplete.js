@@ -562,6 +562,7 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 				console.log('Tag: '+tagName);
 			}
 		}
+		
 
 		//function arguments
 		if ( lang == 'php' || lang == 'js' || lang == 'javascript' ) {
@@ -708,6 +709,8 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 			args.parentNode.removeChild(args);
 		}
 
+		//console.log(type)
+		
 		//css
 		if( lang === 'css' && (tokenState === 'css-start' || tokenState === 'start') ){
 			// .class
@@ -723,7 +726,7 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 				subject = 'css_id';
 				items = dom_ids;
 			}
-		}else if( (lang === 'css' && state === 'start') || /style="([^"]*)$/.test(line) ){
+		} else if( (lang === 'css' && state === 'start') || /style="([^"]*)$/.test(line) ){
 			// css
 			var CssCompletions = require("ace/mode/css_completions").CssCompletions;
 			var completer = new CssCompletions();
@@ -761,7 +764,7 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 			subject = 'jquery';
 			items = jqueryDictionary;
 		//jquery selectors
-		}else if(lang === 'js' && type == 'string'){
+		} else if(lang === 'js' && type == 'string'){
 			// .class
 			if (/(\..*)$/i.test(line)) {
 				subject = 'js_class';
@@ -783,7 +786,42 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 				items = util.merge(items, jsDictionary.Number);
 			}
 		//php array key
-		}else if( lang === 'php' && /(\$[\w]*)\[["']([^'"]*)$/i.test(line) ){
+		} else if (mode.$id=='ace/mode/php' && (type === 'text.tag-open.xml' || type === 'support.php_tag' || (type === 'string.attribute-value.xml' && line.substr(-1)=='<'))) {
+			// php tag completions
+			subject = 'php snippet';
+			
+			/*
+			var PhpCompletions = require("ace/mode/php_completions").PhpCompletions;
+			var completer = new PhpCompletions();
+			var completions = completer.getTagCompletions(state, session, pos, prefix);
+        	callback(null, completions);
+        	return;
+        	*/
+        	
+        	items = {
+				'?php': {
+					caption: '<?php',
+					type: 'php_tag',
+					snippet: '?php\n${1}\n?>',
+					score: Infinity
+				},
+				'?=': {
+					caption: '<?=',
+					type: 'php_tag',
+					snippet: '?=$${1:variable}; ?>',
+					score: Infinity
+				}
+        	};
+        	
+        	// don't repeat question mark in tag
+        	if (type === 'support.php_tag') {
+        		for(i in items) {
+					if( items.hasOwnProperty(i) ){
+        				items[i].snippet = items[i].snippet.substr(1);
+					}
+        		}
+        	}
+		} else if( lang === 'php' && /(\$[\w]*)\[["']([^'"]*)$/i.test(line) ){
 			subject = 'php_array_key';
 			attribute = RegExp.$1;
 
@@ -793,15 +831,15 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 				items = util.clone(vars[attribute].value);
 			}
 		//php var
-		}else if( lang === 'php' && /(\$[\w]*)$/i.test(line) ){
+		} else if( lang === 'php' && /(\$[\w]*)$/i.test(line) ){
 			subject = 'php_var';
 			items = util.merge(phpVarDictionary, php_vars);
 		//php class
-		}else if( lang === 'php' && /new\s+(\w*)$/i.test(line) ){
+		} else if( lang === 'php' && /new\s+(\w*)$/i.test(line) ){
 			subject = 'php_class';
 			items = php_classes;
 		//php class property
-		}else if( lang === 'php' && /(\$[\w]*)->([\w]*)$/i.test(line) ){
+		} else if( lang === 'php' && /(\$[\w]*)->([\w]*)$/i.test(line) ){
 			subject = 'php_class_property';
 			var property = RegExp.$1;
 
@@ -828,7 +866,7 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 				items = php_classes[className].functions;
 			}
 		//attribute value
-		}else if( util.startsWith(type, 'string.attribute-value') && /([\w]+)="([^"]+\s)?([^"]*)$/i.test(line) ){
+		} else if( util.startsWith(type, 'string.attribute-value') && /([\w]+)="([^"]+\s)?([^"]*)$/i.test(line) ){
 			subject = 'html_attribute_value';
 			attribute = RegExp.$1;
 
@@ -862,7 +900,7 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 			subject = 'html_tag';
 			items = xmlDictionary;
 		*/
-		}else if( forced && lang == 'php' && type !== 'comment' ){
+		} else if( forced && lang == 'php' && type !== 'comment' ){
 			token = session.getTokenAt(pos.row, pos.column);
 			var prevToken = session.getTokenAt(pos.row, token.start);
 			
@@ -890,7 +928,7 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 				}
 				autoSelect = false;
     		}
-		}else if( forced && (lang == 'js' || lang == 'javascript') ){
+		} else if( forced && (lang == 'js' || lang == 'javascript') ){
 			subject = 'js_function';
 			functions = util.merge(jsDictionary.Global, js_functions);
 
@@ -945,15 +983,27 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 		var snippet;
 		var doc = '';
 		var meta = '';
+		var score = 0;
 
 		for (i in items) {
 			if( items[i] ){
 				caption = i;
 				value = i;
 				snippet = null;
-
-				if(typeof items[i] === 'object' && items[i][0]){
+				score = Infinity;
+				
+				if (items[i].caption) {
+					caption = items[i].caption;
+				}
+				
+				if (items[i].snippet) {
+					snippet = items[i].snippet;
+				} else if(typeof items[i] === 'object' && items[i][0]){
 					snippet = items[i][0];
+				}
+				
+				if (items[i].score) {
+					score = items[i].score;
 				}
 
 				if( value.indexOf('$0')!==-1 ){
@@ -967,9 +1017,13 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 				}
 
 				switch(subject){
+					/*
 					case 'html_attribute_name':
-						snippet = value + '="$0"';
+						if (['checked', 'selected'].indexOf()==-1) {
+							snippet = value + '="$0"';
+						}
 					break;
+					*/
 					case 'css_attribute_name':
 						snippet = value + ': ';
 					break;
@@ -990,7 +1044,7 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 					snippet: snippet,
 					value: value,
 					meta: meta,
-					score: 100,
+					score: score,
 					doc: doc
 				});
 			}

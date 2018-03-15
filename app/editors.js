@@ -1,12 +1,10 @@
-define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', "./editor_toolbar", './prompt','./editor_contextmenu','./autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'js-beautify/js/lib/beautify', 'js-beautify/js/lib/beautify-css', 'js-beautify/js/lib/beautify-html', 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, editor_toolbar, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize) {
+define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', "./editor_toolbar", './prompt','./editor_contextmenu','./autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, editor_toolbar, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools) {
 
 lang = lang.lang;
 var editor;
 var tern = require("ace/tern/tern");
+var snippetManager = require("ace/snippets").snippetManager;
 var Firepad = require('firepad');
-var beautify = require('js-beautify/js/lib/beautify');
-var css_beautify = require('js-beautify/js/lib/beautify-css');
-var html_beautify = require('js-beautify/js/lib/beautify-html');
 var FirepadUserList = require('firepad-userlist');
 var Range = require("ace/range").Range;
 var Autocomplete = require("ace/autocomplete").Autocomplete;
@@ -26,7 +24,9 @@ Firepad.ACEAdapter.prototype.setCursor = function(cursor) {
 	start = this.posFromIndex(cursor.position);
 	end = this.posFromIndex(cursor.selectionEnd);
 	if (cursor.position > cursor.selectionEnd) {
-		_ref = [end, start], start = _ref[0], end = _ref[1];
+		_ref = [end, start];
+		start = _ref[0];
+		end = _ref[1];
 	}
 	this.aceSession.selection.setSelectionRange(new this.aceRange(start.row, start.column, end.row, end.column));
 	this.ace.renderer.scrollCursorIntoView(null, 0.5);
@@ -36,8 +36,17 @@ Firepad.ACEAdapter.prototype.setCursor = function(cursor) {
 var shifteditCompleter = {
 	getCompletions: function(editor, session, pos, prefix, callback) {
 		var completions = autocomplete.run(editor, session, pos, prefix, callback);
-
-		if (completions) {
+		
+		var prefs = preferences.get_prefs();
+		if (prefs.snippets) {
+			language_tools.snippetCompleter.getCompletions(editor, session, pos, prefix, function(empty, snippetCompletions) {
+				if (!completions) {
+					completions = [];
+				}
+				
+				callback(null, completions.concat(snippetCompletions));
+			});
+		} else if (completions) {
 			callback(null, completions);
 		}
 	},
@@ -49,6 +58,10 @@ var shifteditCompleter = {
 		}
 	}
 };
+
+// set completer
+tern.addCompleter(shifteditCompleter);
+
 /*
 var ternCompleter = {
 	getCompletions: function(editor, session, pos, prefix, callback) {
@@ -58,13 +71,57 @@ var ternCompleter = {
 */
 //language_tools.addCompleter(shifteditCompleter);
 //tern.addCompleter(ternCompleter);
-tern.addCompleter(shifteditCompleter);
 
 //remove text completer
 //language_tools.textCompleter.getCompletions = function(){};
 
-function onChange(e) {
+function onChange(e, document) {
+	var tab = $(this);
+	var editor = tabs.getEditor(tab);
 	tabs.setEdited(this, true);
+	
+	//maintain breakpoint position
+	var breakpointsArray = editor.session.getBreakpoints();
+	if(Object.keys(editor.session.getBreakpoints()).length>0){
+		if(e.lines.length>1){
+			Object.keys(editor.session.getBreakpoints()).forEach(function(item) {
+				var breakpoint = parseInt(item);
+				var lines = e.lines.length -1;
+				var start = e.start.row;
+				var end = e.end.row;
+				if(e.action==='insert'){
+					//console.log('new lines',breakpoint, start , end );
+					if(breakpoint>start ){
+						//console.log('breakpoint forward');
+						editor.session.clearBreakpoint(breakpoint);
+						editor.session.setBreakpoint(breakpoint + lines);
+					}
+				} else if(e.action==='remove'){
+					//console.log('removed lines',breakpoint, start , end);
+					if(breakpoint>start && breakpoint<end ){
+						//console.log('breakpoint remove');
+						editor.session.clearBreakpoint(breakpoint);
+					}
+					if(breakpoint>=end ){
+						//console.log('breakpoint behind');
+						editor.session.clearBreakpoint(breakpoint);
+						editor.session.setBreakpoint(breakpoint - lines);
+					}
+				}
+			});
+		}
+	}
+
+	editor_toolbar.update(tab);
+	
+	// clear tinymce undo stack
+	if (tab.data('view')==='code') {
+		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+		var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+		if (inst) {
+			inst.undoManager.clear();
+		}
+	}
 }
 
 function onGutterClick(e, editor) {
@@ -107,18 +164,8 @@ function onChangeCursor(e, selection) {
 	$('#args').remove();
 	$('#link').remove();
 
-	//link to open url
-	if (/([\w.,@?^=%&amp;:\/~+#-]*)?$/g.test(prefix)) {
-		before = pos.column - RegExp.$1.length;
-
-		if (/^((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-]))/g.test(line.substr(before))) {
-			url = RegExp.$1;
-			target = '_blank';
-		}
-	}
-	
-	//link to open file
-	if (/href="([^"]+)$/i.test(prefix)) {
+	//image
+	if (/[href|src]="([^"]+)$/i.test(prefix)) {
 		before = pos.column - RegExp.$1.length;
 
 		if (/([^"]+)/i.test(line.slice(before))) {
@@ -127,75 +174,79 @@ function onChangeCursor(e, selection) {
 	}
 	
 	//css image url
-	if (tab.data("site")) {
-		if (/url\("([^"]+)$/i.test(prefix)) {
-			before = pos.column - RegExp.$1.length;
-	
-			if (/([^"]+)/i.test(line.slice(before))) {
-				url = RegExp.$1;
-				image = true;
-				
-				var settings = site.getSettings(tab.data("site"));
-				url = settings.web_url + url;
-				target = '_blank';
-			}
+	if (/url\("([^"]+)$/i.test(prefix)) {
+		before = pos.column - RegExp.$1.length;
+
+		if (/([^"]+)/i.test(line.slice(before))) {
+			url = RegExp.$1;
 		}
 	}
 	
 	if(url) {
+		console.log(url);
 		if (document.getElementById('link')) {
 			el = document.getElementById('link');
 		} else {
 			el = document.createElement('a');
 		}
+		
+		if (url.substr(0, 4)!='http' && url.substr(0, 2)!='//') {
+			if (tab.data("site")) {
+				var settings = site.getSettings(tab.data("site"));
+				url = settings.web_url + url;
 
-		//calulate the container offset
-		range = {
-			start: {
-				row: pos.row,
-				column: before
-			},
-			end: {
-				row: pos.row,
-				column: before + url.length
+				if (settings.encryption == "1") {
+					url = 'https://'+url;
+				} else {
+					url = 'http://'+url;
+				}
+			} else {
+				url = false;
 			}
-		};
+		}
 
-		pos = editor.renderer.textToScreenCoordinates(range.start.row, range.start.column);
-		offset = $(editor.container).offset();
-		pos.pageX -= offset.left;
-		pos.pageY -= offset.top;
-
-		el.id = 'link';
-		el.target = target;
-		if (target) {
-			el.href = url;
-		} else {
-			el.href = '#';
-			el.onclick = function(){
-				if (tab.data("site")) {
-					tabs.open(url, tab.data("site"));
+		if(url) {
+			//calulate the container offset
+			range = {
+				start: {
+					row: pos.row,
+					column: before
+				},
+				end: {
+					row: pos.row,
+					column: before + url.length
 				}
 			};
+	
+			pos = editor.renderer.textToScreenCoordinates(range.start.row, range.start.column);
+			offset = $(editor.container).offset();
+			pos.pageX -= offset.left;
+			pos.pageY -= offset.top;
+	
+			el.id = 'link';
+			el.target = '_blank';
+			el.href = url;
+			
+			var image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'pxd'];
+			var file_extension = util.fileExtension(url);
+			if (image_extensions.indexOf(file_extension) != -1) {
+				el.innerHTML = '<img src="' + url + '" style="max-width: 50px; max-height: 50px;">';
+			} else {
+				el.innerHTML = 'Open';
+			}
+			
+			el.style.top = pos.pageY + 20 + "px";
+			el.style.left = pos.pageX + "px";
+			el.style.display = 'block';
+			el.style.position = 'absolute';
+			el.style.background = '#fff';
+			el.style.color = '#000';
+			el.style.zIndex = 1;
+			el.style.textDecoration = 'none';
+	
+			container.parentNode.appendChild(el);
+			return;
 		}
-		
-		if (image) {
-			el.innerHTML = '<img src="' + url + '" style="max-width: 50px; max-height: 50px;">';
-		} else {
-			el.innerHTML = 'Open..';
-		}
-		
-		el.style.top = pos.pageY + 20 + "px";
-		el.style.left = pos.pageX + "px";
-		el.style.display = 'block';
-		el.style.position = 'absolute';
-		el.style.background = '#fff';
-		el.style.color = '#000';
-		el.style.zIndex = 1;
-		el.style.textDecoration = 'none';
-
-		container.parentNode.appendChild(el);
-		return;
 	}
 	
 	//color picker
@@ -370,9 +421,9 @@ function restoreState(state) {
 //runs when editor or firepad is ready
 function ready(tab) {
 	var editor = tabs.getEditor($(tab));
-	
 	editor.getSession().doc.on('change', jQuery.proxy(onChange, tab));
-			
+	
+	var prefs = preferences.get_prefs();
 	if (prefs.autoTabs) {
 		var whitespace = require("ace/ext/whitespace");
 		whitespace.detectIndentation(editor.getSession());
@@ -681,10 +732,6 @@ function applyPrefs(tab) {
 		});
 		
 
-		//var beautify = require("ace/ext/beautify");
-		//editor.commands.addCommands(beautify.commands);
-		
-
 		var keybinding = null;
 		switch (prefs.keyBinding) {
 		case 'vim':
@@ -702,6 +749,8 @@ function applyPrefs(tab) {
 
 		editor.setKeyboardHandler(keybinding);
 		editor.getSession().setFoldStyle(prefs.codeFolding);
+		
+		editor.commands.addCommands(beautify.commands);
 
 		// set linebreak mode. don't change if using firepad
 		if(
@@ -757,9 +806,10 @@ function applyPrefs(tab) {
 
 		editor.setOptions({
 			enableBasicAutocompletion: Boolean(prefs.autocomplete),
-			enableLiveAutocompletion: Boolean(prefs.autocomplete)
+			enableLiveAutocompletion: Boolean(prefs.autocomplete),
+			enableSnippets: Boolean(prefs.snippets)
 		});
-
+		
 		//remove tab command
 		if (editor.completer) {
 			editor.completer.keyboardHandler.removeCommand('Tab');
@@ -1100,59 +1150,7 @@ function applyPrefs(tab) {
 				sender: "editor"
 			},
 			exec: function (editor, args, request) {
-				var prefs = preferences.get_prefs();
-				var toSelection = !editor.getSelection().isEmpty();
-				var mode = editor.getSession().$modeId.substr(9);
-	
-				var tab = '';
-				for (i = 0; i < prefs.tabSize; i++) {
-					tab += ' ';
-				}
-	
-				var code = toSelection ? editor.getSelectedText() : code = editor.getValue();
-	
-				switch (mode) {
-				case 'javascript':
-				case 'json':
-					code = beautify.js_beautify(code, {
-						'indent_size': prefs.softTabs ? prefs.tabSize : 1,
-						'indent_char': prefs.softTabs ? ' ' : '\t',
-						'brace_style': prefs.beautifier_brace_style,
-						'preserve_newlines': prefs.beautifier_preserve_newlines,
-						'keep_array_indentation': prefs.beautifier_keep_array_indentation,
-						'break_chained_methods': prefs.beautifier_break_chained_methods,
-						'space_before_conditional': prefs.beautifier_space_before_conditional,
-						'indent_scripts': prefs.beautifier_indent_scripts
-					});
-					break;
-				case 'css':
-					code = css_beautify.css_beautify(code, {
-						indent: tab,
-						openbrace: prefs.beautifier_open_brace
-					});
-					break;
-				case 'html':
-				case 'php':
-				case 'xml':
-					code = html_beautify.html_beautify(code, {
-						'indent_size': prefs.softTabs ? prefs.tabSize : 1,
-						'indent_char': prefs.softTabs ? ' ' : '\t',
-						'indent_scripts': prefs.beautifier_indent_scripts,
-						'max_char': 78,
-						'brace_style': prefs.beautifier_brace_style,
-						'unformatted': ['?', '?=', '?php', 'a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-						'extra_liners': []
-					});
-					break;
-				default:
-					return;
-				}
-	
-				if (toSelection) {
-					editor.insert(code);
-				} else {
-					editor.setValue(code);
-				}
+				editor.commands.exec('beautify', editor);
 			}
 		}, {
 			name: "br",
@@ -1413,10 +1411,10 @@ function applyPrefs(tab) {
 				mac: preferences.getKeyBinding('collapseSelection', 'mac'),
 				sender: "editor"
 			},
-		    exec: function(editor) { editor.session.toggleFold(false); },
-		    multiSelectAction: "forEach",
-		    scrollIntoView: "center",
-		    readOnly: true
+			exec: function(editor) { editor.session.toggleFold(false); },
+			multiSelectAction: "forEach",
+			scrollIntoView: "center",
+			readOnly: true
 		}, {
 			name: "unfold",
 			bindKey: {
@@ -1424,10 +1422,34 @@ function applyPrefs(tab) {
 				mac: preferences.getKeyBinding('expandSelection', 'mac'),
 				sender: "editor"
 			},
-		    exec: function(editor) { editor.session.toggleFold(false); },
-		    multiSelectAction: "forEach",
-		    scrollIntoView: "center",
-		    readOnly: true
+			exec: function(editor) { editor.session.toggleFold(false); },
+			multiSelectAction: "forEach",
+			scrollIntoView: "center",
+			readOnly: true
+		}, {
+			name: "tag-start",
+			bindKey: {
+				win: '<',
+				mac: '<',
+				sender: "editor"
+			},
+			exec: function(editor) { 
+				editor.insert('<');
+				editor.commands.exec('startAutocomplete', editor);
+			},
+			multiSelectAction: "forEach",
+		}, {
+			name: "php-tag-start",
+			bindKey: {
+				win: '?',
+				mac: '?',
+				sender: "editor"
+			},
+			exec: function(editor) { 
+				editor.insert('?');
+				editor.commands.exec('startAutocomplete', editor);
+			},
+			multiSelectAction: "forEach",
 		}]);
 	});
 }
@@ -1515,6 +1537,65 @@ function create(file, content, siteId, options) {
 	editor.setTheme("ace/theme/monokai");
 	editor.split = split;
 
+	//check mode for default file associations
+	var ext = util.fileExtension(file);
+	var mode = modes.find(ext);
+
+	// hack to get html snippets in php
+	if(mode=='php') {
+		var setPHPMode = function(e, editor) {
+			setMode(editor, 'php');
+			
+			// load more php snippets
+			var snippets = snippetManager.parseSnippetFile("snippet <?\n\
+	<?php\n\
+\n\
+	${1}\n\
+snippet ec\n\
+	echo ${1};\n\
+snippet <?e\n\
+	<?php echo ${1} ?>\n\
+# this one is for php5.4\n\
+snippet <?=\n\
+	<?=${1}?>\n\
+snippet foreachkil\n\
+	<?php foreach ($${1:variable} as $${2:key} => $${3:value}): ?>\n\
+		${4:<!-- html... -->}\n\
+	<?php endforeach; ?>\n\
+snippet ifil\n\
+	<?php if (${1:true}): ?>\n\
+		${2:<!-- code... -->}\n\
+	<?php endif; ?>\n\
+snippet ifeil\n\
+	<?php if (${1:true}): ?>\n\
+		${2:<!-- html... -->}\n\
+	<?php else: ?>\n\
+		${3:<!-- html... -->}\n\
+	<?php endif; ?>\n\
+	${4}\n\
+snippet foreachil\n\
+	<?php foreach ($${1:variable} as $${2:value}): ?>\n\
+		${3:<!-- html... -->}\n\
+	<?php endforeach; ?>\n\
+			");
+			snippetManager.register(snippets || [], 'html');
+			
+			snippets = snippetManager.parseSnippetFile("snippet ifil\n\
+	<?php if (${1:true}): ?>${2:code}<?php endif; ?>\n\
+snippet ifeil\n\
+	<?php if (${1:true}): ?>${2:code}<?php else: ?>${3:code}<?php endif; ?>${4}\n\
+			");
+			snippetManager.register(snippets || [], 'html-tag');
+			
+			editor.off("changeMode", setPHPMode);
+		};
+		
+		editor.on("changeMode", setPHPMode);
+		setMode(editor, 'html');
+	} else {
+		setMode(editor, mode);
+	}
+
 	//disable warning
 	editor.$blockScrolling = Infinity;
 
@@ -1526,50 +1607,57 @@ function create(file, content, siteId, options) {
 	
 	// fix Double click php var selects $ #2882	
 	session.getWordRange = function(row, column) {
-        var line = this.getLine(row);
-        var tokenRe = this.tokenRe;
-        var nonTokenRe = this.nonTokenRe;
-        var state = this.getState(row, column);
-        var tokenizer = this.$mode.getTokenizer();
-        var tokens = tokenizer.getLineTokens(line.substr(0, column), state, row);
-        var tokenState = typeof tokens.state == 'object' ? tokens.state[0] : tokens.state;
-        var match = tokenState.match(/^([a-z]+\-)/i);
-        
-        if (match) {
-            tokenRe = this.$mode.$modes[match[1]].tokenRe;
-            nonTokenRe = this.$mode.$modes[match[1]].tokenRe;
-        }
+		var line = this.getLine(row);
+		var tokenRe = this.tokenRe;
+		var nonTokenRe = this.nonTokenRe;
+		var state = this.getState(row, column);
+		var tokenizer = this.$mode.getTokenizer();
+		var tokens = tokenizer.getLineTokens(line.substr(0, column), state, row);
+		var tokenState = typeof tokens.state == 'object' ? tokens.state[0] : tokens.state;
+		var match = tokenState.match(/^([a-z]+\-)/i);
+		
+		if (match) {
+			tokenRe = this.$mode.$modes[match[1]].tokenRe;
+			nonTokenRe = this.$mode.$modes[match[1]].tokenRe;
+		}
+		
+		var prefs = preferences.get_prefs();
+		if (prefs.selectDollar) {
+			tokenRe = this.tokenRe;
+			nonTokenRe = this.nonTokenRe;
+		}
 
-        var inToken = false;
-        if (column > 0)
-            inToken = !!line.charAt(column - 1).match(tokenRe);
+		var inToken = false;
+		if (column > 0)
+			inToken = !!line.charAt(column - 1).match(tokenRe);
 
-        if (!inToken)
-            inToken = !!line.charAt(column).match(tokenRe);
+		if (!inToken)
+			inToken = !!line.charAt(column).match(tokenRe);
 
-        if (inToken)
-            var re = tokenRe;
-        else if (/^\s+$/.test(line.slice(column-1, column+1)))
-            var re = /\s/;
-        else
-            var re = nonTokenRe;
+		var re;
+		if (inToken)
+			re = tokenRe;
+		else if (/^\s+$/.test(line.slice(column-1, column+1)))
+			re = /\s/;
+		else
+			re = nonTokenRe;
 
-        var start = column;
-        if (start > 0) {
-            do {
-                start--;
-            }
-            while (start >= 0 && line.charAt(start).match(re));
-            start++;
-        }
+		var start = column;
+		if (start > 0) {
+			do {
+				start--;
+			}
+			while (start >= 0 && line.charAt(start).match(re));
+			start++;
+		}
 
-        var end = column;
-        while (end < line.length && line.charAt(end).match(re)) {
-            end++;
-        }
+		var end = column;
+		while (end < line.length && line.charAt(end).match(re)) {
+			end++;
+		}
 
-        return new Range(row, start, row, end);
-    };
+		return new Range(row, start, row, end);
+	};
 
 	//syntax bar handlers
 	panel.find('.previous').button()
@@ -1577,15 +1665,6 @@ function create(file, content, siteId, options) {
 
 	panel.find('.next').button()
 	.click(jQuery.proxy(syntax_errors.next, tab));
-
-	//set mode
-	var ext = util.fileExtension(file);
-
-	//check default file associations
-	var mode = modes.find(ext);
-
-	//editor.getSession().setMode("ace/mode/"+mode);
-	setMode(editor, mode);
 
 	//FIREPAD
 	var firepad = false;

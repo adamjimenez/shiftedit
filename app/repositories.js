@@ -18,7 +18,7 @@ function getSources() {
 function getAll() {
 	var items = [];
 	for (var source in sources) {
-    	if (sources.hasOwnProperty(source)) {
+		if (sources.hasOwnProperty(source)) {
 			sources[source].repositories.forEach(function(item) {
 				items.push({
 					name: item.name,
@@ -26,7 +26,7 @@ function getAll() {
 					source: source
 				});
 			});
-    	}
+		}
 	}
 	
 	// sort them

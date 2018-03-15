@@ -53,7 +53,7 @@ function refresh() {
 		if($('.preview > iframe')) {
 			var loadPreview = function() {
 				$('.preview > iframe').contents().find('html').html(result);
-			}
+			};
 			
 			if (url!=default_url) {
 				url = default_url;
@@ -107,13 +107,13 @@ function create(tabpanel) {
 	<div class="vbox">\
 		<div class="preview_toolbar ui-widget-header ui-corner-all" style="min-height: 28px;">\
 			<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
-			<button type="button" class="refreshButton"><i class="fa fa-refresh"></i></button>\
+			<button type="button" class="refreshButton"><i class="fas fa-sync"></i></button>\
 			<div class="flex">\
 				<div class="addressbar flex">\
 					<select class="address"></select>\
 				</div>\
 			</div>\
-			<button type="button" class="popoutPreviewButton"><i class="fa fa-external-link"></i></button>\
+			<button type="button" class="popoutPreviewButton"><i class="fas fa-external-link-alt"></i></button>\
 		</div>\
 		<div class="preview" style="flex: 1;">\
 			<iframe class="iframe" style="width:100%;height:100%;display:block;background:#fff;" src="'+default_url+'" frameborder="0"></iframe>\

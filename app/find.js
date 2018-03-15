@@ -503,9 +503,9 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 	function init() {
 		$('<form id="findForm">\
 		<div id="findInRadio" class="row">\
-			<input type="radio" id="findInSelection" name="findIn" value="selection"><label for="findInSelection" title="Find in selection"><i class="fa fa-file-text-o"></i></label>\
-			<input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label for="findInCurrent" title="Find in current document"><i class="fa fa-file-o"></i></label>\
-			<input type="radio" id="findInOpen" name="findIn" value="open"><label for="findInOpen" title="Find in open documents"><i class="fa fa-files-o"></i></label>\
+			<input type="radio" id="findInSelection" name="findIn" value="selection"><label for="findInSelection" title="Find in selection"><i class="far fa-file-alt"></i></label>\
+			<input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label for="findInCurrent" title="Find in current document"><i class="far fa-file"></i></label>\
+			<input type="radio" id="findInOpen" name="findIn" value="open"><label for="findInOpen" title="Find in open documents"><i class="far fa-copy"></i></label>\
 			<input type="radio" id="findInRemote" name="findIn" value="remote"><label for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
 		</div>\
 		<div class="row">\

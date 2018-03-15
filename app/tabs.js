@@ -615,7 +615,6 @@ function saveAs(tab, options) {
 					return;
 				}
 
-				var site = require('./site');
 				var siteId = site.active();
 
 				var directFn = site.getdirectFn();
@@ -667,7 +666,6 @@ function doSaveAs(tab, file, options) {
 	tab.data('file', file);
 	tab.attr('data-file', file);
 
-	var site = require('./site');
 	var siteId = site.active();
 
 	if(!siteId) {
@@ -886,9 +884,10 @@ function newTab (e, ui) {
 				<div class="box tools">\
 					<h3 class="ui-widget-header">Tools</h3>\
 					<ul class="other">\
+						<li class="ui-state-default"><a href="#" class="addSite"><i class="fas fa-plus-square"></i> Add Site</a></li>\
 						<li class="ui-state-default"><a href="#" class="ssh"><i class="fa fa-terminal"></i> Terminal</a></li>\
 						<li class="ui-state-default"><a href="#" class="preview"><i class="fa fa-desktop"></i> Preview</a></li>\
-						<li class="ui-state-default"><a href="#" class="diff"><i class="fa fa-files-o"></i> File Compare</a></li>\
+						<li class="ui-state-default"><a href="#" class="diff"><i class="fa fa-copy"></i> File Compare</a></li>\
 						<li class="ui-state-default"><a href="#" class="preferences"><i class="fa fa-wrench"></i> Preferences</a></li>\
 						<li class="ui-state-default"><a href="#" class="server"><i class="fa fa-server"></i> Servers</a></li>\
 					</ul>\
@@ -1080,10 +1079,10 @@ function newTab (e, ui) {
 			
 			switch(item.source) {
 				case 'github':
-					icon = '<i class="fa fa-github"></i>';
+					icon = '<i class="fab fa-github"></i>';
 				break;
 				case 'bitbucket':
-					icon = '<i class="fa fa-bitbucket"></i>';
+					icon = '<i class="fab fa-bitbucket"></i>';
 				break;
 			}
 		

@@ -9,10 +9,6 @@ requirejs.config({
 		"xterm/dist/addons/attach/attach": "node_modules/xterm/dist/addons/attach/attach",
 		"xterm/dist/addons/fit/fit": "node_modules/xterm/dist/addons/fit/fit",
 		"jquery-contextmenu": "node_modules/jquery-contextmenu/dist/jquery.contextMenu",
-		//"js-beautify": "node_modules/js-beautify/js/lib/beautify",
-		"js-beautify/js/lib/beautify": "node_modules/js-beautify/js/lib/beautify",
-		"js-beautify/js/lib/beautify-css": "node_modules/js-beautify/js/lib/beautify-css",
-		"js-beautify/js/lib/beautify-html": "node_modules/js-beautify/js/lib/beautify-html",
 		"markdown-it": "node_modules/markdown-it/dist/markdown-it",
 		"resumablejs": "node_modules/resumablejs/resumable",
 		"lzma": "node_modules/lzma",
@@ -29,6 +25,7 @@ requirejs.config({
 		"ace/mode/css/csslint": "node_modules/ace-builds/src/worker-css",
 		"ace/ext/searchbox": "node_modules/ace-builds/src/ext-searchbox",
 		"ace/ext/whitespace": "node_modules/ace-builds/src/ext-whitespace",
+		"ace/ext/beautify": "node_modules/ace-builds/src/ext-beautify",
 		"text": "node_modules/text/text",
 		"json": "node_modules/requirejs-plugins/src/json",
 		

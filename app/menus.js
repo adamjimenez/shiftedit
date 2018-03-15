@@ -8,7 +8,7 @@ define(["jquery.menubar"], function () {
 			}else if(menu[i]==='->') {
 				el.css('display', 'flex');
 				el.css('flex-wrap', 'nowrap');
-				el.css('overflow-x', 'auto');
+				//el.css('overflow-x', 'auto');
 				el.css('-webkit-overflow-scrolling', 'touch');
 				el.append('<li class="ui-state-default" style="flex-grow:2"></li>');
 			}else{
