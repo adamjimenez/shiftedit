@@ -798,16 +798,18 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
         	return;
         	*/
         	
-        	items ={
+        	items = {
 				'?php': {
 					caption: '<?php',
 					type: 'php_tag',
-					snippet: '?php\n${1}\n?>'
+					snippet: '?php\n${1}\n?>',
+					score: Infinity
 				},
 				'?=': {
 					caption: '<?=',
 					type: 'php_tag',
-					snippet: '?=$${1:variable}; ?>'
+					snippet: '?=$${1:variable}; ?>',
+					score: Infinity
 				}
         	};
         	
@@ -981,12 +983,14 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 		var snippet;
 		var doc = '';
 		var meta = '';
+		var score = 0;
 
 		for (i in items) {
 			if( items[i] ){
 				caption = i;
 				value = i;
 				snippet = null;
+				score = Infinity;
 				
 				if (items[i].caption) {
 					caption = items[i].caption;
@@ -996,6 +1000,10 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 					snippet = items[i].snippet;
 				} else if(typeof items[i] === 'object' && items[i][0]){
 					snippet = items[i][0];
+				}
+				
+				if (items[i].score) {
+					score = items[i].score;
 				}
 
 				if( value.indexOf('$0')!==-1 ){
@@ -1036,7 +1044,7 @@ define(['./site', './util','./dictionary/php','./dictionary/wordpress','./dictio
 					snippet: snippet,
 					value: value,
 					meta: meta,
-					score: Infinity,
+					score: score,
 					doc: doc
 				});
 			}
