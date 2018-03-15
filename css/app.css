@@ -213,6 +213,10 @@ li[role=tab] .ui-icon {
 	background-color: rgb(50, 50, 50) !important; /* This will make it darker */
 }
 
+.ui-checkboxradio-icon{
+	background-color: transparent !important;
+}
+
 /* START TREE */
 /*.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }*/
 .jstree .folder { background:url('images/icons/file_sprite.png') right bottom no-repeat; }
