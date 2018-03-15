@@ -40,11 +40,13 @@ var shifteditCompleter = {
 		var prefs = preferences.get_prefs();
 		if (prefs.snippets) {
 			language_tools.snippetCompleter.getCompletions(editor, session, pos, prefix, function(empty, snippetCompletions) {
+				if (!completions) {
+					completions = [];
+				}
+				
 				callback(null, completions.concat(snippetCompletions));
 			});
-		}
-
-		if (completions) {
+		} else if (completions) {
 			callback(null, completions);
 		}
 	},
