@@ -1,4 +1,4 @@
-define(["./util", "./menus", "./tabs", "./editors", "./prefs", "./resize", "./site", "./designs", "./revisions", "./preview", "./modes"], function (util, menus, tabs, editors, preferences, resize, site, designs, revisions, preview, modes ) {
+define(["./util", "./menus", "./tabs", "./editors", "./prefs", "./resize", "./site", "./designs", "./revisions", "./preview", "./modes", 'exports'], function (util, menus, tabs, editors, preferences, resize, site, designs, revisions, preview, modes, exports) {
 modes = modes.modes;
 
 var saveMode = true;
@@ -16,13 +16,12 @@ var changeMode = function(tab) {
 	//set button value
 	$(this).parent().prev().children('.ui-button-text').text(label);
 
-	var ext = util.fileExtension(tab.data('file'));
-
 	//save pref
 	if (!saveMode) {
 		return;
 	}
 	
+	var ext = util.fileExtension(tab.data('file'));
 	var defaultMode = 'text';
 
 	//check default file associations
@@ -64,7 +63,7 @@ modes.forEach(function (item) {
 
 var menu = [{
 	tooltip: 'Save',
-	text: '<i class="fa fa-save"></i>',
+	text: '<i class="far fa-save"></i>',
 	handler: function (tab) {
 		var editor = tabs.getEditor(tab);
 		editor.focus();
@@ -89,115 +88,21 @@ var menu = [{
 	disabled: true
 }, {
 	tooltip: 'Redo',
+	className: 'redoBtn',
 	text: '<i class="fa fa-undo fa-flip-horizontal"></i>',
 	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.redo();
-	}
-
-}, '-', {
-	tooltip: 'Bold',
-	text: '<i class="fa fa-bold"></i>',
-	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.commands.exec('bold', editor);
-	}
-}, {
-	tooltip: 'Italic',
-	text: '<i class="fa fa-italic"></i>',
-	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.commands.exec('italic', editor);
-	}
-}, {
-	tooltip: 'Heading',
-	text: '<i class="fa fa-header"></i>',
-	items: [{
-		text: 'Heading 1',
-		handler: function (tab, checked) {
+		if (tab.data('view')==='design') {
+			var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
+			var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+			inst.undoManager.redo();
+			inst.focus();
+		} else {
 			var editor = tabs.getEditor(tab);
 			editor.focus();
-			editor.commands.exec('heading', editor, [1]);
+			editor.redo();
 		}
-	}, {
-		text: 'Heading 2',
-		handler: function (tab, checked) {
-			var editor = tabs.getEditor(tab);
-			editor.focus();
-			editor.commands.exec('heading', editor, [2]);
-		}
-	}, {
-		text: 'Heading 3',
-		handler: function (tab, checked) {
-			var editor = tabs.getEditor(tab);
-			editor.focus();
-			editor.commands.exec('heading', editor, [3]);
-		}
-	}, {
-		text: 'Heading 4',
-		handler: function (tab, checked) {
-			var editor = tabs.getEditor(tab);
-			editor.focus();
-			editor.commands.exec('heading', editor, [4]);
-		}
-	}, {
-		text: 'Heading 5',
-		handler: function (tab, checked) {
-			var editor = tabs.getEditor(tab);
-			editor.focus();
-			editor.commands.exec('heading', editor, [5]);
-		}
-	}, {
-		text: 'Heading 6',
-		handler: function (tab, checked) {
-			var editor = tabs.getEditor(tab);
-			editor.focus();
-			editor.commands.exec('heading', editor, [6]);
-		}
-	}]
-}, {
-	tooltip: 'Quote',
-	text: '<i class="fa fa-quote-left"></i>',
-	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.commands.exec('quote', editor);
-	}
-}, {
-	tooltip: 'List',
-	text: '<i class="fa fa-list-ul"></i>',
-	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.commands.exec('ul', editor);
-	}
-}, {
-	tooltip: 'Numbered List',
-	text: '<i class="fa fa-list-ol"></i>',
-	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.commands.exec('ol', editor);
-	}
-}, {
-	tooltip: 'Create Link',
-	text: '<i class="fa fa-link"></i>',
-	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.commands.exec('createLink', editor);
-	}
-}, {
-	tooltip: 'Insert Image',
-	text: '<i class="fa fa-picture-o"></i>',
-	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.commands.exec('insertImage', editor);
-	}
+	},
+	disabled: true
 }, '-', {
 	id: 'codeButton',
 	text: '<i class="fas fa-font"></i>',
@@ -236,6 +141,7 @@ var menu = [{
 		}
 
 		$(tab).trigger('activate');
+		update(tab);
 	}
 }, {
 	id: 'codeSplit',
@@ -245,13 +151,10 @@ var menu = [{
 	items: [{
 		text: 'None',
 		checked: true,
-		handler: function (item, checked) {
-			var editor = tabs.getEditor(tab);
+		handler: function (tab) {
 			var sp = window.splits[tab.attr('id')];
-			if (sp.getSplits() == 2) {
-				secondSession = sp.getEditor(1).session;
-			}
 			sp.setSplits(1);
+			var editor = tabs.getEditor(tab);
 			editor.focus();
 		},
 		group: 'codeSplit'
