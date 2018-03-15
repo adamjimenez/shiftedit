@@ -380,15 +380,6 @@ function init () {
 				disabled: true,
 				target: 'file'
 			}, '-', {
-				id: 'selection',
-				text: lang.selection,
-				disabled: true,
-				target: 'file',
-				items: selectionMenuItems,
-				handler: function () {
-					return false;
-				}
-			}, '-', {
 				id: 'copyLinesUp',
 				text: makeMenuText(lang.copyLinesUp, preferences.getKeyBinding('copyLinesUp'), 'copyLinesUp'),
 				handler: function () {
@@ -935,12 +926,12 @@ function init () {
 	});
 	
 	$(window ).on( "siteEnable", function(e, ui){
-		console.log('show site')
+		console.log('show site');
 		toggleOptions('site', true); 
 	});
 	
 	$( window ).on( "siteDisable", function(e, ui){ 
-		console.log('hide site')
+		console.log('hide site');
 		toggleOptions('site', false); 
 	});
 }
