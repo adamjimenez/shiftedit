@@ -6,7 +6,7 @@ define(['./prefs'], function (preferences) {
 		['css', 'CSS', ['css'], 'text/css'],
 		['php', 'PHP', ['php', 'php3', 'phtml', 'ctp', 'phpt'], 'application/x-httpd-php'],
 		['svg', 'SVG', ['svg'], 'text/svg'],
-		['xml', 'XML', ['xml'], 'text/xml'],
+		['xml', 'XML', ['xml', 'xsd'], 'text/xml'],
 		['text', 'Plain Text', ['txt'], 'text/plain'],
 		['json', 'JSON', ['json'], 'application/json'],
 		['ruby', 'Ruby', ['rb'], 'text/x-ruby'],
