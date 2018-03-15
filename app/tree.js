@@ -738,44 +738,60 @@ function chmod(data) {
 	  <form id="chmodForm">\
 		<fieldset>\
 			<legend>Owner</legend>\
-			<p>\
-				<input type="checkbox" name="owner-read" id="owner-read">\
-				<label for="owner-read">Read</label>\
-				<input type="checkbox" name="owner-write" id="owner-write">\
-				<label for="owner-write">Write</label>\
-				<input type="checkbox" name="owner-execute" id="owner-execute">\
-				<label for="owner-execute">Execute</label>\
-			</p>\
+			<div class="controlgroup">\
+				<label for="owner-read">\
+					Read\
+					<input type="checkbox" name="owner-read" id="owner-read">\
+				</label>\
+				<label for="owner-write">\
+					Write\
+					<input type="checkbox" name="owner-write" id="owner-write">\
+				</label>\
+				<label for="owner-execute">\
+					Execute\
+					<input type="checkbox" name="owner-execute" id="owner-execute">\
+				</label>\
+			</div>\
 		</fieldset>\
 		<fieldset>\
 			<legend>Group</legend>\
-			<p>\
-				<input type="checkbox" name="group-read" id="group-read">\
-				<label for="group-read">Read</label>\
-				<input type="checkbox" name="group-write" id="group-write">\
-				<label for="group-write">Write</label>\
-				<input type="checkbox" name="group-execute" id="group-execute">\
-				<label for="group-execute">Execute</label>\
-			</p>\
+			<div class="controlgroup">\
+				<label for="group-read">\
+					Read\
+					<input type="checkbox" name="group-read" id="group-read">\
+				</label>\
+				<label for="group-write">\
+					Write\
+					<input type="checkbox" name="group-write" id="group-write">\
+				</label>\
+				<label for="group-execute">\
+					Execute\
+					<input type="checkbox" name="group-execute" id="group-execute">\
+				</label>\
+			</div>\
 		</fieldset>\
 		<fieldset>\
 			<legend>Public</legend>\
-			<p>\
-				<input type="checkbox" name="public-read" id="public-read">\
-				<label for="public-read">Read</label>\
-				<input type="checkbox" name="public-write" id="public-write">\
-				<label for="public-write">Write</label>\
-				<input type="checkbox" name="public-execute" id="public-execute">\
-				<label for="public-execute">Execute</label>\
-			</p>\
+			<div class="controlgroup">\
+				<label for="public-read">\
+					Read\
+					<input type="checkbox" name="public-read" id="public-read">\
+				</label>\
+				<label for="public-write">\
+					Write\
+					<input type="checkbox" name="public-write" id="public-write">\
+				</label>\
+				<label for="public-execute">\
+					Execute\
+					<input type="checkbox" name="public-execute" id="public-execute">\
+				</label>\
+			</div>\
 		</fieldset>\
 		<p>\
-			<label>Numeric value</label> <input type="number" id="chmod-value" name="chmod-value" max="777" min="0">\
+			<label>Numeric value</label> <input type="number" id="chmod-value" name="chmod-value" max="777" min="0" class="ui-widget ui-state-default ui-corner-all">\
 		</p>\
 	  </form>\
 	</div>');
-
-	//$( "#chmodForm input[type=checkbox]" ).button();
 
 	$('#chmod-value').on('keyup change', function() {
 		var perms = $('#chmod-value').val();
@@ -792,6 +808,8 @@ function chmod(data) {
 		$('#public-read').prop('checked', (pub >= 4 && pub <= 7));
 		$('#public-write').prop('checked', (pub == 2 || pub == 3 || pub == 6 || pub == 7));
 		$('#public-execute').prop('checked', (pub == 1 || pub == 3 || pub == 5 || pub == 7));
+		
+		$( "#chmodForm .controlgroup" ).controlgroup( "refresh" );
 	});
 
 	$( "#chmodForm input[type=checkbox]" ).on('click change', function(){
@@ -821,13 +839,19 @@ function chmod(data) {
 		$('#chmod-value').val(owner + '' + group + '' + pub);
 	});
 
+	$( "#chmodForm .controlgroup" ).controlgroup();
+	//$( "#chmodForm input[type=checkbox]" ).checkboxradio();
+	//$( "#chmodForm span" ).removeClass('ui-state-hover'); // work-around for possible icon bug in jui
 	$('#chmod-value').val(node.data.perms).change();
 
 	//open dialog
 	var dialog = $( "#dialog-chmod" ).dialogResize({
-		width: 400,
-		height: 380,
+		width: 330,
+		height: 340,
 		modal: true,
+		close: function( event, ui ) {
+			$( this ).remove();
+		},
 		buttons: {
 			OK: function() {
 				var node = getSelected()[0];
@@ -1052,7 +1076,6 @@ function init() {
 								prompt.alert({title: 'Failed getting file listing', msg: msg});
 							}
 						}
-						prompt.alert({title: 'Failed getting file listing', msg: msg});
 					});
 				}
 			},
