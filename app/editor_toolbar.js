@@ -293,7 +293,7 @@ var menu = [{
 	items: modeItems
 },{
 	id: 'revisionButton',
-	text: '<i class="fa fa-clock-o"></i>',
+	text: '<i class="far fa-clock"></i>',
 	tooltip: 'Revision History',
 	handler: function (tab) {
 		var editor = tabs.getEditor(tab);
@@ -311,7 +311,7 @@ var menu = [{
 }, '->', {
 	className: 'syntaxErrorsButton',
 	tooltip: 'Syntax Errors',
-	text: '<i class="fa fa-warning"></i>',
+	text: '<i class="fas fa-exclamation-triangle"></i>',
 	enableToggle: true,
 	handler: function (tab) {
 		var editor = tabs.getEditor(tab);
