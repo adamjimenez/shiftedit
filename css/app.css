@@ -70,7 +70,10 @@ textarea{
 /* TAB-THEME ADJUSTMENTS */
 .ui-widget-header, .ui-tabs .ui-tabs-panel {
 	font-size: 1em;
-	padding: 0;
+}
+
+.ui-tabs .ui-tabs-panel {
+	padding: 0 !important;
 }
 
 .ui-layout-west li[role=tab]{
