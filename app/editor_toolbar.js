@@ -72,12 +72,21 @@ var menu = [{
 	}
 }, {
 	tooltip: 'Undo',
+	className: 'undoBtn',
 	text: '<i class="fa fa-undo"></i>',
 	handler: function (tab) {
-		var editor = tabs.getEditor(tab);
-		editor.focus();
-		editor.undo();
-	}
+		if (tab.data('view')==='design') {
+			var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
+			var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+			inst.undoManager.undo();
+			inst.focus();
+		} else {
+			var editor = tabs.getEditor(tab);
+			editor.focus();
+			editor.undo();
+		}
+	},
+	disabled: true
 }, {
 	tooltip: 'Redo',
 	text: '<i class="fa fa-undo fa-flip-horizontal"></i>',
@@ -191,12 +200,13 @@ var menu = [{
 	}
 }, '-', {
 	id: 'codeButton',
-	text: '<i class="fa fa-eye"></i>',
+	text: '<i class="fas fa-font"></i>',
 	tooltip: 'Design View',
 	enableToggle: true,
 	handler: function (tab) {
-		var panel = $(this).closest('.ui-tabs-panel');
+		var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
 		var editor = tabs.getEditor(tab);
+		var inst;
 
 		if (tab.data('view')==='code') {
 			panel.find('.editor_status').hide();
@@ -209,13 +219,12 @@ var menu = [{
 			//initiated?
 			if(!tab.data('design-ready')) {
 				designs.create(tab);
-				inst = tinymce.get(panel.find('.design textarea').attr('id'));
+				inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
 			} else {
-				var inst = tinymce.get(panel.find('.design textarea').attr('id'));
+				inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
 				inst.setContent(editor.getValue());
+				inst.focus();
 			}
-			
-			inst.focus();
 		} else {
 			panel.find('.editor_status').show();
 			panel.find('.design').hide();
@@ -339,8 +348,38 @@ function create(tab) {
 	$(panel).find(".editor_toolbar").scrollLeft(0);
 }
 
-return {
-	create: create
-};
+function update(tab) {
+	setTimeout(function() {
+		var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
+		var canRedo = false;
+		var canUndo = false;
+		if (tab.data('view')==='code') {
+			var editor = tabs.getEditor(tab);
+			canRedo = editor.session.getUndoManager().canRedo();
+			canUndo = editor.session.getUndoManager().canUndo();
+		} else if(tab.data('view')==='design') {
+			var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+			if (inst && inst.undoManager) {
+				canRedo = inst.undoManager.hasRedo();
+				canUndo = inst.undoManager.hasUndo();
+			}
+		}
+		
+		if (canRedo) {
+			$(panel).find('.editor_toolbar .redoBtn').removeClass('ui-state-disabled');
+		} else {
+			$(panel).find('.editor_toolbar .redoBtn').addClass('ui-state-disabled');
+		}
+		
+		if (canUndo) {
+			$(panel).find('.editor_toolbar .undoBtn').removeClass('ui-state-disabled');
+		} else {
+			$(panel).find('.editor_toolbar .undoBtn').addClass('ui-state-disabled');
+		}
+	}, 50);
+}
+
+exports.create = create;
+exports.update = update;
 
 });
