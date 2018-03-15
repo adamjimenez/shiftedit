@@ -1118,12 +1118,13 @@ div.fullScreen{
 	background: none;
 }
 .jstree-default-small > .jstree-container-ul .jstree-loading > .jstree-ocl:before {
-	content: "\f110";
-	font-family: FontAwesome;
-	left:-5px;
-	position:absolute;
-	top:0;
-	animation: fa-spin 2s infinite linear;
+	content: "\f021";
+	font-family: "Font Awesome\ 5 Free";
+	left: 2px;
+	position: absolute;
+	top: 0;
+	font-weight: 900;
+	animation: a 2s infinite linear;
  }
  
  /* stretch site dropdown */
