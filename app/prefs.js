@@ -61,6 +61,7 @@ defaultPrefs.numberPicker = true;
 defaultPrefs.zen = true;
 defaultPrefs.behaviours = true;
 defaultPrefs.scrollPastEnd = true;
+defaultPrefs.selectDollar = false;
 defaultPrefs.sshPane = 'east';
 defaultPrefs.syntaxErrors = true;
 defaultPrefs.filePanelWidth = 250;
@@ -1077,6 +1078,10 @@ function open(tabpanel) {
 	<label>\
 		<input type="checkbox" name="behaviours" value="1">\
 		Auto-close tags, brackets, quotes etc\
+	</label>\
+	<label>\
+		<input type="checkbox" name="selectDollar" value="1">\
+		Select $ with PHP variable\
 	</label>\
 	<label>\
 		<input type="checkbox" name="scrollPastEnd" value="1">\

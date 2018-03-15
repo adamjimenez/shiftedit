@@ -1613,6 +1613,12 @@ snippet ifeil\n\
 			tokenRe = this.$mode.$modes[match[1]].tokenRe;
 			nonTokenRe = this.$mode.$modes[match[1]].tokenRe;
 		}
+		
+		var prefs = preferences.get_prefs();
+		if (prefs.selectDollar) {
+			tokenRe = this.tokenRe;
+			nonTokenRe = this.nonTokenRe;
+		}
 
 		var inToken = false;
 		if (column > 0)
