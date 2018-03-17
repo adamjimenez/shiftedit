@@ -86,22 +86,26 @@ function init() {
 		items: {
 			"new": {name: makeMenuText(lang.newText + '...', 'Alt-N'), isHtmlName: true},
 			"sep1": "---------",
-			"reload": {name: makeMenuText('Reload', preferences.getKeyBinding('reload'), 'reload'), isHtmlName: true},
-			"revert": {name: makeMenuText('Revert to Saved', preferences.getKeyBinding('revertToOriginal'), 'revertToOriginal'), isHtmlName: true},
+			"reload": {name: makeMenuText('Reload', preferences.getKeyBinding('reload'), 'reload'), isHtmlName: true, disabled: notFile},
+			"revert": {name: makeMenuText('Revert to Saved', preferences.getKeyBinding('revertToOriginal'), 'revertToOriginal'), isHtmlName: true, disabled: notFile},
 			"sep2": "---------",
 			"close": {name: makeMenuText('Close Tab', 'Alt-W'), isHtmlName: true},
 			"closeOtherTabs": {name: "Close other tabs", isHtmlName: true},
 			"closeAllTabs": {name: makeMenuText('Close all tabs', 'Ctrl-Shift-W'), isHtmlName: true},
 			"closeTabsRight": {name: "Close tabs to the right", isHtmlName: true},
 			"sep3": "---------",
-			"save": {name: makeMenuText('Save', preferences.getKeyBinding('save'), 'save'), isHtmlName: true},
-			"saveAs": {name: makeMenuText('Save as...', preferences.getKeyBinding('saveAs'), 'saveAs'), isHtmlName: true},
-			"saveAll": {name: makeMenuText('Save all', 'Ctrl-Shift-S'), isHtmlName: true},
+			"save": {name: makeMenuText('Save', preferences.getKeyBinding('save'), 'save'), isHtmlName: true, disabled: notFile},
+			"saveAs": {name: makeMenuText('Save as...', preferences.getKeyBinding('saveAs'), 'saveAs'), isHtmlName: true, disabled: notFile},
+			"saveAll": {name: makeMenuText('Save all', 'Ctrl-Shift-S'), isHtmlName: true, disabled: notFile},
 			"sep4": "---------",
-			"revealInTree": {name: "Reveal in file tree", isHtmlName: true},
+			"revealInTree": {name: "Reveal in file tree", isHtmlName: true, disabled: notFile},
 			"bookmarkAll": {name: "Bookmark all files", isHtmlName: true}
 		}
 	});
+}
+
+function notFile() {
+	return typeof $(this).data('file') === 'undefined';
 }
 
 return {
