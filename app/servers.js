@@ -1,4 +1,4 @@
-define(['./config', './loading', './util', './prefs', './prompt', './ssh', './storage', 'aes', './lang', 'dialogResize'], function (config, loading, util, preferences, prompt, ssh, storage, Aes, lang) {
+define(['./config', './loading', './util', './prefs', './prompt', './ssh', './storage', 'aes', './lang', 'dialogResize', 'showPassword'], function (config, loading, util, preferences, prompt, ssh, storage, Aes, lang) {
 
 var selected;
 var servers = [];

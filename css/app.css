@@ -8,6 +8,7 @@
 @import url("../lib/overflowResize/ui.tabs.overflowResize.css");
 @import url("../lib/basicMenu/ui.basicMenu.css");
 @import url("../lib/diff2html/diff2html.css");
+@import url("../lib/showPassword/showPassword.css");
 
 body{
 	font-size: 12px;
@@ -504,7 +505,7 @@ div.fullScreen{
 }
 */
 
-#siteSettings input, #siteSettings textarea, #snippetForm input{
+#siteSettings input, #siteSettings textarea, #siteSettings .custom-show-password-container, #snippetForm input{
 	flex-grow: 1;
 }
 

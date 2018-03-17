@@ -1,4 +1,5 @@
 define(['exports', './config', "./prompt", "./tree", "./storage", "./util", "./ssl", "./loading", './prefs', './layout', 'aes', './gdrive', './editors', './servers', './repositories', './lang',  "ui.combobox", 'dialogResize'], function (exports, config, prompt, tree, storage, util, ssl, loading, preferences, layout, Aes, gdrive, editors, servers, repositories, lang) {
+define(['exports', './config', "./prompt", "./tree", "./storage", "./util", "./ssl", "./loading", './prefs', './layout', 'aes', './gdrive', './editors', './servers', './repositories', './lang',  "ui.combobox", 'dialogResize', 'showPassword'], function (exports, config, prompt, tree, storage, util, ssl, loading, preferences, layout, Aes, gdrive, editors, servers, repositories, lang) {
 lang = lang.lang;
 var directFn;
 var sites = [];
@@ -1397,8 +1398,7 @@ function edit(newSite, duplicate) {
 					</p>\
 					<p id="pass_container">\
 						<label>Password:</label>\
-						<input type="password" id="ftp_pass" name="ftp_pass" value="" class="text ui-widget-content ui-corner-all" required disabled>\
-						<button type="button" class="showPassword">Show</button>\
+						<input type="password" id="ftp_pass" name="ftp_pass" value="" class="showPassword text ui-widget-content ui-corner-all" required disabled>\
 					</p>\
 					<p id="ssh_key_container">\
 						<label>Your SSH key:</label>\
@@ -1441,8 +1441,7 @@ function edit(newSite, duplicate) {
 								</p>\
 								<p>\
 									<label>DB Password:</label>\
-									<input type="password" id="db_password" name="db_password" value="" class="text ui-widget-content ui-corner-all" disabled>\
-									<button type="button" class="showPassword">Show</button>\
+									<input type="password" id="db_password" name="db_password" value="" class="showPassword text ui-widget-content ui-corner-all" disabled>\
 								</p>\
 							</div>\
 							<h4>Misc</h4>\

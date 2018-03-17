@@ -51,6 +51,7 @@ requirejs.config({
 		"ace/ext-emmet": "lib/emmet/ext-emmet",
 		"ace/ext/tern": "lib/tern/ext-tern",
 		"dialogResize": "lib/dialogResize/ui.dialog.dialogResize",
+		"showPassword": "lib/showPassword/showPassword",
 	},
 	"shim": {
 		"app/main": {
@@ -108,6 +109,10 @@ requirejs.config({
 			deps: ["jquery-ui-bundle", "ui.tabs.addTab", "ui.tabs.closable"]
 		},
 		"dialogResize": {
+			exports: "$",
+			deps: ["jquery-ui-bundle"]
+		},
+		"showPassword": {
 			exports: "$",
 			deps: ["jquery-ui-bundle"]
 		},
