@@ -732,6 +732,10 @@ function findPath() {
 		url: config.apiBaseUrl+'files?site='
 	};
 	var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
+	
+	if (!params.domain) {
+		return;
+	}
 
 	if (prefs.useMasterPassword) {
 		if (params.ftp_pass) {
@@ -784,6 +788,10 @@ function chooseFolder() {
 		url: config.apiBaseUrl+'files?site='
 	};
 	var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
+	
+	if (!params.domain) {
+		return;
+	}
 
 	if (prefs.useMasterPassword) {
 		if (params.ftp_pass) {
