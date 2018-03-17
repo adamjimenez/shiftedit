@@ -205,7 +205,7 @@ function edit(add) {
 		if (provider==='AWS') {
 			$('#aws_help').show();
 			$('#user_container').show();
-			$('#pass_container').show();
+			$('#serverSettings .pass_container').show();
 			$('#username').attr('placeholder', 'Access Key ID');
 			//$('#password').attr('placeholder', 'Secret Access Key');
 		} else if (provider==='DigitalOcean') {
