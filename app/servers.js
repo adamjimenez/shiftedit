@@ -143,13 +143,22 @@ function edit(add) {
 				</span>\
 			</p>\
 			<div id="aws_help" style="display: none;">\
-				<p style="display: block;">To connect to AWS you will need an <a href="https://shiftedit.net/docs/servers#amazon_web_services">Access key and password</a></p>\
+				<p style="display: block;">To connect to AWS you will need an <a href="https://shiftedit.net/docs/servers#amazon_web_services" target="_blank">Access key and password</a></p>\
 			</div>\
-			<p id="pass_container" style="display: none;">\
+			<p id="custom_container" style="display: none;">\
+				Manually add a server, it should not contain any previous sites.<br>User will require sudo privileges.\
+			</p>\
+			<p id="ip_container" style="display: none;">\
+				<label>IP address:</label>\
+				<input type="text" name="domain" value="" placeholder="Server IPv4 address" class="text ui-widget-content ui-corner-all">\
+			</p>\
+			<p id="user_container" style="display: none;">\
+				<label>Username:</label>\
+				<input type="text" id="username" name="username" value="" placeholder="Server username" class="text ui-widget-content ui-corner-all">\
+			</p>\
+			<p class="pass_container" style="display: none;">\
 				<label>Password:</label>\
-				<input type="password" id="password" name="password" value="" placeholder="Secret Access Key" class="text ui-widget-content ui-corner-all" required disabled>\
-				<button type="button" class="showPassword">Show</button>\
-				<button type="button" class="generatePassword">Generate</button>\
+				<input type="password" id="password" name="password" value="" placeholder="Secret Access Key" class="showPassword text ui-widget-content ui-corner-all" required disabled>\
 			</p>\
 			<p id="region_container" style="display: none;">\
 				<label>Region:</label>\
@@ -163,22 +172,12 @@ function edit(add) {
 					<select id="image" name="image" class="text ui-widget-content ui-corner-all" required></select>\
 				</span>\
 			</p>\
-			<p id="custom_container" style="display: none;">\
-				<p>Manually add a server, it should not contain any previous sites.<br>User will require sudo privileges.</p>\
-			</p>\
-			<p id="ip_container" style="display: none;">\
-				<label>IP address:</label>\
-				<input type="text" name="domain" value="" placeholder="Server IPv4 address" class="text ui-widget-content ui-corner-all">\
-			</p>\
-			<p id="user_container" style="display: none;">\
-				<label>Username:</label>\
-				<input type="text" id="username" name="username" value="" placeholder="Server username" class="text ui-widget-content ui-corner-all">\
-			</p>\
 			<p class="ssh_key_container" style="display: none;">\
 				<label>Your SSH key:</label>\
-				<textarea rows="4" readonly>'+storage.get('public_key')+'</textarea>\
-				<label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
+				<textarea rows="4" class="text ui-widget-content ui-corner-all" readonly>'+storage.get('public_key')+'</textarea>\
+				<label>Save the SSH key in: ~/.ssh/authorized_keys</label>\
 			</p>\
+			<p>Server charges may apply, consult your provider for details.</p>\
 		</form>\
 	</div>');
 	
@@ -193,8 +192,7 @@ function edit(add) {
 		
 		$('#aws_help').hide();
 		$('#user_container').hide();
-		$('#pass_container').hide();
-		$('.generatePassword').hide();
+		$('#serverSettings .pass_container').hide();
 		$('#region_container').hide();
 		$('#image_container').hide();
 		$('#custom_container').hide();
@@ -270,7 +268,7 @@ function edit(add) {
 	//open dialog
 	var dialog = $( "#dialog-server" ).dialogResize({
 		width: 620,
-		height: 500,
+		height: 520,
 		modal: true,
 		close: function( event, ui ) {
 			$( this ).remove();
@@ -562,7 +560,6 @@ function save() {
 						
 						loading.start(status, function() {
 							console.log('abort server status');
-							console.log(ajax);
 							ajax.abort();
 						}, true);
 					};
