@@ -538,40 +538,6 @@ function loadUsers() {
 	});
 }
 
-function loadServers(val) {
-	var refresh_icon = $( "#refresh_servers" ).children('i').addClass('fa-spin');
-	
-	return $.getJSON(config.apiBaseUrl+'servers')
-		.done(function (data) {
-			refresh_icon.removeClass('fa-spin');
-			var servers = data.servers;
-
-			$( "#server_select" ).children('option').remove();
-			$( "#server_select" ).append( '<option value=""></option>' );
-
-			$.each(servers, function( index, item ) {
-				var selected = '';
-				
-				if (item.id==val) {
-					selected = 'selected';
-				}
-				$( "#server_select" ).append( '<option value="'+item.id+'" '+selected+' data-domain="'+item.domain+'">'+item.name+'</option>' );
-			});
-
-			if(!val) {
-				// default to first server
-				$( "#server_select" ).combobox('val', $( "#server_select option:first" ).attr('value'));
-				$( "#server" ).val($( "#server_select option:first" ).attr('value'));
-			}
-			
-			//$( "#server" ).combobox('val', '');
-			
-			return servers;
-		}).fail(function() {
-			refresh_icon.removeClass('fa-spin');
-		});
-}
-
 function load(options) {
 	return $.getJSON(config.apiBaseUrl+'sites')
 		.then(function (data) {
@@ -1329,12 +1295,8 @@ function edit(newSite, duplicate) {
 			<div id="newContainer" style="display:none;">\
 				<p>\
 					<label for="server">Server:</label>\
-					<input type="hidden" id="server" name="server">\
-					<span id="server_bar" class="flex">\
-						<select id="server_select" name="server_select" class="text ui-widget-content ui-corner-all" required></select>\
-					</span>\
-					<button type="button" id="refresh_servers"><i class="fas fa-sync"></i></button>\
-					<button type="button" id="add_server">Add server</button>\
+					<input type="text" id="server" name="server">\
+					<button type="button" id="add_server"><i class="fas fa-plus"></i></button>\
 				</p>\
 				<div>\
 					<p>\
@@ -1358,11 +1320,7 @@ function edit(newSite, duplicate) {
 				<p id="gitURLContainer" style="display:none;">\
 					<label>Git URL:</label>\
 					<input type="hidden" id="git_url" name="git_url">\
-					<span id="git_url_bar" class="flex">\
-						<select id="git_url_select" name="git_url_select" class="text ui-widget-content ui-corner-all" required></select>\
-					</span>\
-					<button type="button" id="refresh_repos"><i class="fas fa-sync"></i></button>\
-					<a href="https://shiftedit.net/account/services" id="repo_sources" target="_blank">Sources</a>\
+					<button type="button" id="repo_sources"><i class="fas fa-plus"></i></button>\
 				</p>\
 				<p style="display: none;">\
 					<label>Create Database:</label>\
@@ -1710,6 +1668,10 @@ function edit(newSite, duplicate) {
 	$('#add_server').button().click(function() {
 		servers.edit(true);
 	});
+	
+	$('#repo_sources').button().click(function() {
+		window.open('https://shiftedit.net/account/services');
+	});
 
 	//"Other" split button
 	$('#otherMenu').menu().hide();
@@ -1750,11 +1712,9 @@ function edit(newSite, duplicate) {
 
 	//server combo
 	if(settings.server>0) {
-		$('#refresh_servers, #add_server, #refresh_repos, #repo_sources, #git_url_bar').hide();
-		$('#server_select, #git_url').attr('type', 'text').attr('disabled', 'disabled');
+		$('#add_server, #repo_sources').hide();
+		$('#git_url').attr('type', 'text').attr('disabled', 'disabled');
 		$('input[name=database]').prop('checked', (settings.db_username!=='')).attr('disabled', 'disabled');
-		
-		loadServers(settings.server);
 		
 		if (!newSite) {
 			$('input[name=name]').attr('readonly', 'readonly');
@@ -1909,7 +1869,30 @@ function edit(newSite, duplicate) {
 			$('#addDomain').button().click(addDomain);
 		}
 	} else {
-		serverCombo = $( "#server_select" ).combobox({
+		serverCombo = $( "#server" ).combobox({
+			editable: false,
+			source: function( request, response ) {
+				var ajax;
+				
+				if (!loading.start('Loading', function() {
+					ajax.abort();
+				})) {
+					console.log('busy');
+					return;
+				}
+				
+				ajax = $.ajax({
+					url: config.apiBaseUrl+'servers',
+					dataType: "json",
+					data: {
+						term: request.term
+					},
+					success: function( data ) {
+						loading.stop();
+						response(data.servers);
+					}
+				});
+			},
 			select: function (event, ui) {
 				$('#server').val(ui.item.value).change();
 			},
@@ -1917,63 +1900,43 @@ function edit(newSite, duplicate) {
 				$('#server').val(ui.item.value).change();
 			}
 		});
-		loadServers(settings.server);
 		
-		$( "#refresh_servers" ).button().click(function() {
-			loadServers($( "#server" ).val());
-		});
-	
 		//git combo
-		gitCombo = $( "#git_url_select" ).combobox({
+		gitCombo = $( "#git_url" ).combobox({
+			source: function( request, response ) {
+				var ajax;
+				
+				if (!loading.start('Loading', function() {
+					ajax.abort();
+				})) {
+					console.log('busy');
+					return;
+				}
+				
+				ajax = $.ajax({
+					url: config.apiBaseUrl+'repositories',
+					dataType: "json",
+					data: {
+						term: request.term
+					},
+					success: function( data ) {
+						loading.stop();
+						response(data.repos);
+					}
+				});
+			},
 			select: function (event, ui) {
 				$('#git_url').val(ui.item.value);
 			},
 			change: function (event, ui) {
 				$('#git_url').val(ui.item.value);
 			}
-		});
-	
-		var updateRepos = function() {
-			var val = $( "#git_url_select" ).val();
-			var repos = repositories.getAll();
-	
-			$( "#git_url_select" ).children('option').remove();
-			$( "#git_url_select" ).append( '<option value=""></option>' );
-	
-			$.each(repos, function( index, item ) {
-				$( "#git_url_select" ).append( '<option value="'+item.url+'">'+item.name+'</option>' );
-			});
-	
-			if(val) {
-				$( "#git_url_select" ).appendTo( '<option value="'+val+'">'+val+'</option>' )
-				.val(val).change();
-			}
-			
-			return repos;
-		};
-		
-		updateRepos();
-		
-		$( "#refresh_repos" ).button().click(function() {
-			var refresh_icon = $( "#refresh_repos" ).children('i').addClass('fa-spin');
-			repositories.load()
-			.then(function (data) {
-				updateRepos();
-			}).done(function() {
-				refresh_icon.removeClass('fa-spin');
-			});
 		});
 	}
-
-	$( ".showPassword" ).button().click(function() {
-		var input = ($( this ).prev());
-		if(input.attr('type')==='text') {
-			input.attr('type', 'password');
-		}else{
-			input.attr('type', 'text');
-		}
-	});
-
+	
+	// password toggle
+	$('.showPassword').showPassword();
+	
 	//toggle fields
 	$('#serverTypeRadio input:radio, #cloud_container input:radio, #providerRadio input:radio').change(function() {
 		if (this.value==='Cloud' && $("#cloud_container input:checked").val()) {

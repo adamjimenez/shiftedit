@@ -1086,7 +1086,7 @@ function newTab (e, ui) {
 				break;
 			}
 		
-			HTML[key] += '<li class="ui-state-default"><a href="#" title="'+item.name+'" data-url="'+item.url+'" class="openRepo">' + icon + ' ' + item.name + '</a></li>';
+			HTML[key] += '<li class="ui-state-default"><a href="#" title="'+item.value+'" data-url="'+item.id+'" class="openRepo">' + icon + ' ' + item.value + '</a></li>';
 		});
 		
 		panel.find('ul.repos').append(HTML[0]);
