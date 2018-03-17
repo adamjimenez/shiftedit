@@ -228,22 +228,8 @@ function edit(add) {
 		}
 	});
 	
-	$( ".showPassword" ).button().click(function() {
-		var input = ($( this ).prev());
-		if(input.attr('type')==='text') {
-			input.attr('type', 'password');
-		}else{
-			input.attr('type', 'text');
-		}
-	});
-	
-	$( ".generatePassword" ).button().click(function() {
-		switch($("#providerRadio input[type='radio']:checked").val()) {
-			case 'Linode':
-				window.open('https://manager.linode.com/profile/api');
-			break;
-		}
-	});
+	// password toggle
+	$('.showPassword').showPassword();
 	
 	//set values
 	var defaults = {};
