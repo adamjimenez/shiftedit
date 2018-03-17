@@ -1,4 +1,3 @@
-define(['exports', './config', "./prompt", "./tree", "./storage", "./util", "./ssl", "./loading", './prefs', './layout', 'aes', './gdrive', './editors', './servers', './repositories', './lang',  "ui.combobox", 'dialogResize'], function (exports, config, prompt, tree, storage, util, ssl, loading, preferences, layout, Aes, gdrive, editors, servers, repositories, lang) {
 define(['exports', './config', "./prompt", "./tree", "./storage", "./util", "./ssl", "./loading", './prefs', './layout', 'aes', './gdrive', './editors', './servers', './repositories', './lang',  "ui.combobox", 'dialogResize', 'showPassword'], function (exports, config, prompt, tree, storage, util, ssl, loading, preferences, layout, Aes, gdrive, editors, servers, repositories, lang) {
 lang = lang.lang;
 var directFn;
@@ -1703,19 +1702,7 @@ function edit(newSite, duplicate) {
 	});
 
 	//tabs and buttons
-	$( "#serverTypeRadio input[type='radio']" ).checkboxradio({
-		icon: false
-	});
-	$( "#providerRadio input[type='radio']" ).checkboxradio({
-		icon: false
-	});
-	$( "#stackRadio input[type='radio']" ).checkboxradio({
-		icon: false
-	});
-	$( "#cloudRadio input[type='radio']" ).checkboxradio({
-		icon: false
-	});
-	$( "#authenticationRadio input[type='radio']" ).checkboxradio({
+	$( "#serverTypeRadio input[type='radio'], #stackRadio input[type='radio'], #cloudRadio input[type='radio'], #authenticationRadio input[type='radio']" ).checkboxradio({
 		icon: false
 	});
 
