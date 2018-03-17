@@ -1103,27 +1103,38 @@ function open(tabpanel) {
 		Use a master password\
 	</label>\
 	<p><button type="button" id="changeMasterPassword">Change master password</button></p>\
-	<h2>Lint Checking</h2>\
-	<h3>Javascript</h3>\
-	<label>\
-		<input type="checkbox" name="jslint_disable" value="1">\
-		Disable lint checking\
-	</label>\
-	'+ jslintHTML +'<br>\
-	<h3>CSS</h3>\
-	<label>\
-		<input type="checkbox" name="csslint_disable" value="1">\
-		Disable lint checking\
-	</label>\
-	'+ csslintHTML +'<br>\
-	<h3>Coffeescript</h3>\
-	<label>\
-		<input type="checkbox" name="coffeescriptlint_disable" value="1">\
-		Disable lint checking\
-	</label>\
-	'+ coffeescriptlintHTML +'<br>\
-	</form>\
+	<div class="accordion">\
+		<h3>Advanced</h3>\
+		<div>\
+			<h2>Lint Checking</h2>\
+			<h3>Javascript</h3>\
+			<label>\
+				<input type="checkbox" name="jslint_disable" value="1">\
+				Disable lint checking\
+			</label>\
+			'+ jslintHTML +'<br>\
+			<h3>CSS</h3>\
+			<label>\
+				<input type="checkbox" name="csslint_disable" value="1">\
+				Disable lint checking\
+			</label>\
+			'+ csslintHTML +'<br>\
+			<h3>Coffeescript</h3>\
+			<label>\
+				<input type="checkbox" name="coffeescriptlint_disable" value="1">\
+				Disable lint checking\
+			</label>\
+			'+ coffeescriptlintHTML +'<br>\
+			</form>\
+		</div>\
 	</div>');
+	
+	// accordion
+	$( ".accordion" ).accordion({
+		collapsible: true,
+		active: false,
+		heightStyle: "content"
+	});
 
 	tab.addClass('closable');
 	tab.attr('data-type', 'prefs');
