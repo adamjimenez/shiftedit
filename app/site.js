@@ -1402,8 +1402,8 @@ function edit(newSite, duplicate) {
 					</p>\
 					<p id="ssh_key_container">\
 						<label>Your SSH key:</label>\
-						<textarea id="sshKey" rows="4" readonly>'+storage.get('public_key')+'</textarea>\
-						<label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
+						<textarea id="sshKey" rows="4" class="text ui-widget-content ui-corner-all" readonly>'+storage.get('public_key')+'</textarea>\
+						<label>Save the SSH key in: ~/.ssh/authorized_keys</label>\
 					</p>\
 					<div id="dir_container" class="hbox">\
 						<label>Path:</label>\
