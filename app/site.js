@@ -1405,12 +1405,14 @@ function edit(newSite, duplicate) {
 						<textarea id="sshKey" rows="4" readonly>'+storage.get('public_key')+'</textarea>\
 						<label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
 					</p>\
-					<p id="dir_container">\
+					<div id="dir_container" class="hbox">\
 						<label>Path:</label>\
 						<input type="hidden" name="dir_id" value="">\
-						<input type="text" name="dir" value="" class="text ui-widget-content ui-corner-all">\
-						<button type="button" id="chooseFolder">Choose</button>\
-					</p>\
+						<div class="custom-show-password-container text ui-widget-content ui-corner-all">\
+							<input type="text" name="dir" value="" class="text ui-widget-content ui-corner-all">\
+							<button type="button" id="chooseFolder" class="ui-widget-content"><i class="fas fa-folder-open"></i></button>\
+						</div>\
+					</div>\
 					<p id="web_url">\
 						<label>Website URL:</label>\
 						<select name="encryption" class="ui-widget ui-state-default ui-corner-all">\
@@ -1662,7 +1664,7 @@ function edit(newSite, duplicate) {
 		$(this).select();
 	});
 	
-	$('#chooseFolder').button().click(chooseFolder);
+	$('#chooseFolder').click(chooseFolder);
 	
 	$('#add_server').button().click(function() {
 		servers.edit(true);
