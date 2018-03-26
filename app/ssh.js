@@ -393,7 +393,7 @@ $('body').on('click','.newTab .ssh', function() {
 });
 
 // clean up closed tabs
-$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', function(e, ui) {
+$('.ui-layout-west, .ui-layout-east, .ui-layout-center').on('tabsbeforeremove', function(e, ui) {
 	var id = $(this).data('ssh');
 	
 	if (!id) {
