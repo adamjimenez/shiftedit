@@ -38,7 +38,7 @@ var actions = {
 		label: 'Next Tab',
 		defaultKeyBinding: 'Alt-Right'
 	},
-	'tabRight': {
+	'tabPrev': {
 		label: 'Previous Tab',
 		defaultKeyBinding: 'Alt-Left'
 	},
