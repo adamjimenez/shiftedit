@@ -703,8 +703,6 @@ function setEdited(tab, edited) {
 	tab.attr('data-edited', value);
 
 	if(edited) {
-		//change title
-		tab.children('.ui-tabs-anchor').contents().last().replaceWith('*'+util.basename(tab.data('title')));
 		tab.trigger('change');
 
 		//autosave
@@ -718,10 +716,10 @@ function setEdited(tab, edited) {
 				}, 5000);
 			}
 		}
-	} else {
-		//change title
-		tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(tab.data('title')));
 	}
+	
+	//update tab
+	tab.trigger('mouseout');
 }
 
 function setTitle(tab, title) {
