@@ -1,4 +1,4 @@
-define(['./config', './editors', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './repositories', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", 'coffee-script', "ui.tabs.overflowResize", 'uglify-js/lib/compress', 'cssmin', 'dialogResize'], function (config, editors, preferences, exports, prompt, lang, site, modes, loading, util, recent, repositories, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
+define(['./config', './editors', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", 'coffee-script', "ui.tabs.overflowResize", 'uglify-js/lib/compress', 'cssmin', 'dialogResize'], function (config, editors, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
 lang = lang.lang;
 modes = modes.modes;
 var closing = [];
@@ -695,6 +695,46 @@ function saveAll(tab) {
 	saveFiles();
 }
 
+function download(tab) {
+	var editor = getEditor(tab);
+	var content = editor.getValue();
+	var filename = util.basename(tab.attr('data-file'));
+	var blob = new Blob([content]);
+	var evt = new MouseEvent('click');
+
+	var a = document.createElement('a');
+	a.download = filename;
+	a.href = URL.createObjectURL(blob);
+	a.dispatchEvent(evt);
+}
+
+function revert(tab) {
+	var editor = getEditor(tab);
+
+	if( editor && tab.data('original')!==editor.getValue() ){
+		editor.setValue(tab.data('original'));
+	} else {
+		console.log('file is unchanged');
+	}
+	
+	setEdited(tab, false);
+}
+
+function revealInTree(tab) {
+	siteId = tab.data('site');
+
+	function revealFile() {
+		return tree.select(tab.data('file'));
+	}
+
+	if(site.active()==siteId) {
+		return revealFile();
+	}else{
+		$('#tree').one('refresh.jstree', revealFile);
+		return site.open(siteId, null);
+	}
+}
+
 function setEdited(tab, edited) {
 	var value = edited ? 1 : 0;
 
@@ -727,14 +767,17 @@ function setTitle(tab, title) {
 	tab.attr('data-title', title);
 	tab.children('.ui-tabs-anchor').attr('title', title);
 	tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(title));
-
+	
+	
+	/*
+	// disabled because it wipes the title attribute
 	$( tab ).tooltip({
 		position: { my: "left bottom", at: "left top", collision: "flipfit" },
 		classes: {
 			"ui-tooltip": "highlight"
 		}
 	});
-	$( tab ).tooltip( "option", "content", title );
+	$( tab ).tooltip( "option", "content", title );*/
 }
 
 function recordOpenFiles() {
@@ -864,21 +907,6 @@ function newTab (e, ui) {
 					<ul class="moreFileTypes" style="display:none; margin-top: 10px;"></ul>\
 					<a href="#" class="toggleMore ui-state-default">' + showMoreText + '</i></a>\
 				</div>\
-				<div class="box recent">\
-					<h3 class="ui-widget-header">Recent</h3>\
-					<ul class="recentFiles"></ul>\
-					<ul class="moreRecentFiles" style="display:none;"></ul>\
-					<a href="#" class="toggleMore ui-state-default">' + showMoreText + '</i></a>\
-				</div>\
-				<div class="box repositories">\
-					<h3 class="ui-widget-header">\
-						Repositories\
-						<button type="button" class="addRepositories">Add repositories</button>\
-					</h3>\
-					<ul class="repos"></ul>\
-					<ul class="moreRepos" style="display:none;"></ul>\
-					<a href="#" class="toggleMore ui-state-default">' + showMoreText + '</i></a>\
-				</div>\
 				<div class="box tools">\
 					<h3 class="ui-widget-header">Tools</h3>\
 					<ul class="other">\
@@ -888,6 +916,7 @@ function newTab (e, ui) {
 						<li class="ui-state-default"><a href="#" class="diff"><i class="fa fa-copy"></i> File Compare</a></li>\
 						<li class="ui-state-default"><a href="#" class="preferences"><i class="fa fa-wrench"></i> Preferences</a></li>\
 						<li class="ui-state-default"><a href="#" class="server"><i class="fa fa-server"></i> Servers</a></li>\
+						<li class="ui-state-default"><a href="#" class="database"><i class="fas fa-database"></i> Database</a></li>\
 					</ul>\
 				</div>\
 			</div>\
@@ -899,7 +928,7 @@ function newTab (e, ui) {
 	var pane = tab.closest('.ui-layout-pane');
 	var paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 	if (paneName!='center') {
-		panel.find('.news, .create, .recent, .repositories').hide();
+		panel.find('.news, .create').hide();
 	}
 	
 	// news
@@ -989,203 +1018,6 @@ function newTab (e, ui) {
 			$(el).text(more.is(':visible') ? showLessText : showMoreText);
 		}); 
 	});
-
-	//recent files
-	var recentFiles = recent.getRecent();
-	
-	//put current site files at the top
-	recentFiles.sort(function(a, b){
-		var aCurrent = (a.site == site.active());
-		var bCurrent = (b.site == site.active());
-		
-		// compare if it has the current site
-		if(aCurrent && !bCurrent) return -1;
-		if(!aCurrent && bCurrent) return 1;
-		
-		// compare the 2 dates
-		if (a.date < b.date) return 1;
-		if (a.date > b.date) return -1;
-		
-		return 0;
-	});
-	
-	HTML = {0:'', 1:''};
-	var key = 0;
-	for (var i in recentFiles) {
-		if (recentFiles.hasOwnProperty(i)) {
-			if (i==10){
-				key = 1;
-			}
-		
-			var title = recentFiles[i].file;
-			settings = site.getSettings(recentFiles[i].site);
-			
-			if (settings) {
-				title = settings.name+'/'+title;
-			}
-		
-			HTML[key] += '<li class="ui-state-default">\
-					<a href="#" title="'+title+'" data-file="'+recentFiles[i].file+'" data-site="'+recentFiles[i].site+'" class="openfile">' + 
-						title + 
-						'<i title="Remove" class="fa fa-times remove"></i>\
-					</a>\
-				</li>';
-		}
-	}
-
-	panel.find('ul.recentFiles').append(HTML[0]);
-	panel.find('ul.moreRecentFiles').append(HTML[1]);
-	
-	panel.find('a.openfile').click(function() {
-		var tabpanel = $(ui.tab.closest('.ui-tabs'));
-		close(ui.tab);
-		open($(this).data('file'), $(this).data('site'), {tabpanel: tabpanel});
-	});
-	
-	panel.find('.remove').click(function(e) {
-		e.stopPropagation();
-
-		var el = $(this).parent();
-		recent.remove(el.data('file'), el.data('site'));
-		el.parent().fadeOut(300, function(){ $(this).remove();});
-	});
-	
-	function updateToggleMore() {
-		panel.find('.toggleMore').each(function( index ) {
-			var el = this;
-			var more = $(el).prev();
-			if (!more.children().length) {
-				$(el).hide();
-			}
-		});
-	}
-
-	//repos
-	var sources = {};
-	function updateRepos() {
-		panel.find('ul.moreRepos, ul.repos').html('');
-		
-		var items = repositories.getAll();
-		var HTML = {0:'', 1:''};
-		var key = 0;
-		$.each(items, function( index, item ) {
-			if (index==10){
-				key = 1;
-			}
-			
-			var icon = '';
-			
-			switch(item.source) {
-				case 'github':
-					icon = '<i class="fab fa-github"></i>';
-				break;
-				case 'bitbucket':
-					icon = '<i class="fab fa-bitbucket"></i>';
-				break;
-			}
-		
-			HTML[key] += '<li class="ui-state-default"><a href="#" title="'+item.value+'" data-url="'+item.id+'" class="openRepo">' + icon + ' ' + item.value + '</a></li>';
-		});
-		
-		panel.find('ul.repos').append(HTML[0]);
-		panel.find('ul.moreRepos').append(HTML[1]);
-		
-		updateToggleMore();
-		
-		sources = repositories.getSources();
-		if (sources && ((sources.github && !sources.github.active) || (sources.bitbucket && !sources.bitbucket.active))) {
-			$('.addRepositories').show();
-		} else {
-			$('.addRepositories').hide();
-		}
-	}
-	updateRepos();
-
-	panel.find('a.openRepo').click(function() {
-		//close(ui.tab);
-		var url = $(this).data('url');
-		var name = $(this).attr('title');
-		
-		// load site if it exists or prompt to create one
-		items = site.get();
-		
-		var found = false;
-		$.each(items, function( index, item ) {
-			//console.log(item);
-			if (item.git_url == url) {
-				console.log('load site');
-				found = true;
-				site.open(item.id);
-				return false;
-			}
-		});
-		
-		if (!found) {
-			site.edit(true);
-			
-			// set name
-			$('#siteSettings input[name="name"]').val(name).focus();
-			
-			// select tab
-			$('[name=serverTypeItem][value="Server"]:first').prop("checked", true).change();
-			$( "#serverTypeRadio input[type='radio']" ).checkboxradio('refresh');
-			
-			// select repo
-			$( "#git_url_select" ).combobox('val', url);
-			$( "#git_url" ).val(url);
-		}
-	});
-	
-	panel.find('.addRepositories').button().click(function() {
-		//import site dialog
-		$( "body" ).append('<div id="dialog-addRepositories" title="Add Repositories">\
-			<form>\
-				<button type="button" class="connect-github" data-url="/account/services/github">\
-					<i class="fa fa-github"></i>\
-					Connect to Github\
-				</button>\
-				<button type="button" class="connect-bitbucket" data-url="/account/services/bitbucket">\
-					<i class="fa fa-bitbucket"></i>\
-					Connect to Bitbucket\
-				</button>\
-			</form>\
-		</div>');
-		
-		$('.connect-github, .connect-bitbucket').button()
-		.click(function() {
-			window.open($(this).data('url'));
-		});
-		
-		if (sources.github.active) {
-			$('.connect-github').button( "option", "disabled", true );
-		}
-		
-		if (sources.bitbucket.active) {
-			$('.connect-bitbucket').button( "option", "disabled", true );
-		}
-
-		//open dialog
-		var dialog = $( "#dialog-addRepositories" ).dialogResize({
-			width: 400,
-			height: 220,
-			modal: true,
-			resizable: false,
-			close: function( event, ui ) {
-				$( this ).remove();
-				
-				// refresh repos
-				panel.find('ul.moreRepos, ul.repos').html('<div style="text-align: center; margin: 10px;"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
-				
-				repositories.load()
-				.then(function (data) {
-					updateRepos();
-				});
-			}
-		});
-		
-	});
-
-	$(this).trigger("tabsactivate", [{newTab:ui.tab}]);
 }
 
 //event listener
@@ -1219,7 +1051,7 @@ function tabActivate(tab) {
 		}
 	}
 
-	$(tab).trigger('activate');
+	$(tab).trigger('activate', [tab]);
 }
 
 function updateTabs(e, params) {
@@ -1401,7 +1233,6 @@ function init() {
 	});
 
 	$( "#tree" ).on( "rename", updateTabs );
-	//$(document).on("rename", "#tree", updateTabs);
 
 	//connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
 	tabs.find( ".ui-tabs-nav" ).sortable({
@@ -1437,6 +1268,9 @@ function init() {
 
 			//activate tab
 			receiver.tabs("option", "active", tab.index());
+			
+			// overflow resize
+			tabs.tabs('doResize');
 		},
 
 		//don't drag "add tab" button
@@ -1453,15 +1287,27 @@ function init() {
 		},
 		start: function(e, ui) {
 			//remove tooltip
-			ui.item.tooltip();
-			ui.item.tooltip( "disable" );
+			//ui.item.tooltip();
+			//ui.item.tooltip( "disable" );
 		},
 		stop: function(e, ui) {
 			//reinstate tooltip
-			ui.item.tooltip( "enable" );
-			$( ui.item ).children('.ui-tabs-anchor').attr( "title", ui.item.data('title') );
+			//ui.item.tooltip( "enable" );
+			//$( ui.item ).children('.ui-tabs-anchor').attr( "title", ui.item.data('title') );
 
 			tabs.tabs('refresh');
+		},
+		change: function(e, ui) {
+			var receiver = $(this).parent();
+			console.log('change');
+			console.log(arguments);
+			console.log(receiver);
+			//remove tooltip
+			//ui.item.tooltip();
+			//ui.item.tooltip( "disable" );
+			
+			// overflow resize
+			receiver.tabs('doResize');
 		}
 	});
 }
@@ -1569,12 +1415,44 @@ $('body').on('click', 'a.openfile', function() {
 	open($(this).data('file'), $(this).data('site'));
 });
 
+$('body').on('click', 'a.database', function() {
+	var settings = site.getSettings(site.active());
+	
+	if(!settings.db_phpmyadmin) {
+		site.edit();
+		return;
+	}
+	
+	var password = settings.db_password;
+	
+	var prefs = preferences.get_prefs();
+	if (prefs.useMasterPassword && password) {
+		password = Aes.Ctr.decrypt(password, storage.get('masterPassword'), 256);
+	}
+	
+	// create hidden form
+	var form = $('<form id="pma_form" method="post" target="_blank" action="'+settings.db_phpmyadmin+'">\
+	<input type="hidden" name="pma_username" value="'+settings.db_username+'">\
+	<input type="hidden" name="pma_password" value="'+password+'">\
+	</form>').appendTo('body')
+	.on('submit', function(){
+		var el = this;
+		setTimeout(function() {
+			el.remove();
+		}, 10);
+	})
+	.submit();
+});
+
 	exports.active = active;
 	exports.getEditor = getEditor;
 	exports.setEdited = setEdited;
 	exports.save = save;
 	exports.saveAs = saveAs;
 	exports.saveAll = saveAll;
+	exports.download = download;
+	exports.revert = revert;
+	exports.revealInTree = revealInTree;
 	exports.init = init;
 	exports.close = close;
 	exports.closeAll = closeAll;
