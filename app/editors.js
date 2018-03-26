@@ -77,7 +77,10 @@ var ternCompleter = {
 
 function onChange(e, document) {
 	var tab = $(this);
+	tab.trigger('editorChange', [tab]);
 	var editor = tabs.getEditor(tab);
+	
+	
 	tabs.setEdited(this, true);
 	
 	//maintain breakpoint position
@@ -157,6 +160,8 @@ function onChangeCursor(e, selection) {
 	var offset;
 	var container = editor.container;
 	var target = '';
+	
+	tab.trigger('changeSelection', [tab]);
 
 	$('#picker').remove();
 	$('#args').remove();
@@ -191,6 +196,11 @@ function onChangeCursor(e, selection) {
 		if (url.substr(0, 4)!='http' && url.substr(0, 2)!='//') {
 			if (tab.data("site")) {
 				var settings = site.getSettings(tab.data("site"));
+				
+				var dirname = util.dirname($(tab).data('file'));
+				if (dirname && url.substr(0, 1)!=='/') {
+					url = dirname + '/' + url;
+				}
 				url = settings.web_url + url;
 
 				if (settings.encryption == "1") {
@@ -1492,8 +1502,8 @@ function create(file, content, siteId, options) {
 	var tabpanel = options.tabpanel ? options.tabpanel : $(".ui-layout-center");
 
 	//create tab
-	var tab = tabpanel.tabs('add', title, '<div class="vbox"><div class="editor_toolbar"></div>\
-	<div class="editor_status" data-currentError="0">\
+	var tab = tabpanel.tabs('add', title, '<div class="vbox">\
+	<div class="editor_status" style="display: none;" data-currentError="0">\
 	<button class="previous" type="button" disabled>\
 	<i class="fa fa-arrow-left"></i></button> \
 	<button class="next" type="button" disabled>\
@@ -1540,8 +1550,6 @@ function create(file, content, siteId, options) {
 	}
 
 	tab.data('original', content);
-
-	tabpanel.trigger("tabsactivate", [{newTab:tab}]);
 
 	//load ace
 
@@ -1728,6 +1736,17 @@ snippet ifeil\n\
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
+	editor.on('focus', jQuery.proxy(function() {
+		tab.trigger('focusEditor', [tab]);
+	}, tab));
+	editor.on('blur', jQuery.proxy(function() {
+		tab.trigger('blurEditor', [tab]);
+	}, tab));
+	editor.on('changeMode', jQuery.proxy(function() {
+		tab.trigger('changeMode', [tab]);
+	}, tab));
+	
+	$(tab).on('save', jQuery.proxy(pushSave, tab));
 	
 	$(tab).on('share', function() {
 		console.log('shared');
@@ -1777,14 +1796,13 @@ snippet ifeil\n\
 	editor.focus();
 
 	applyPrefs(tab);
-
-	//reactivate
-	$(tab).trigger('activate');
-
-	$(tab).closest('.ui-tabs').trigger('open');
 	
 	$('<div class="fullScreenBtn" title="Full Screen (Ctrl-Shift-F)"><i class="fa fa-expand"></i></div>').appendTo($(editor.container))
 	.click(jQuery.proxy(tabs.fullScreen, tab));
+
+	//reactivate
+	//$(tab).trigger('activate', [tab]);
+	$(tab).closest('.ui-tabs').trigger('open');
 
 	return $(tab);
 }
@@ -1843,8 +1861,8 @@ function setMode(editor, mode) {
 
 	// toggle lint checking
 	editor.session.setUseWorker(useLint);
-	$(panel).find('.editor_status').toggle(useLint);
-	$(panel).find('.syntaxErrorsButton').toggleClass('ui-state-disabled', !useLint);
+	//$(panel).find('.editor_status').toggle(useLint);
+	//$(panel).find('.syntaxErrorsButton').toggleClass('ui-state-disabled', !useLint);
 	resize.resize();
 }
 
