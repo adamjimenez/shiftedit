@@ -72,6 +72,12 @@ textarea{
 	font-size: 1em;
 }
 
+.ui-widget-shadow {
+	-webkit-box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	box-shadow: none !important;
+}
+
 .ui-tabs .ui-tabs-panel {
 	padding: 0 !important;
 }
