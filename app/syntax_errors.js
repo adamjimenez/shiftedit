@@ -1,4 +1,4 @@
-define(['./lang','./tabs'], function (lang, tabs) {
+define(['./lang','./tabs','./resize'], function (lang, tabs, resize) {
 lang = lang.lang;
 
 /*
@@ -71,9 +71,21 @@ function update() {
 	var errors = session.getAnnotations();
 	if (!errors.length) {
 		$(panel).find('.status').html(lang.noSyntaxErrorsText);
-		$('.editor_status').removeClass('ui-state-highlight');
-		$('.editor_status').find('button').button('disable');
+		editor_status.removeClass('ui-state-highlight');
+		editor_status.find('button').button('disable');
+		
+		/*
+		if ($('.editor_status').is(":visible")) {
+			$('.editor_status').hide();
+			resize.resize();
+		}
+		*/
 		return;
+	}
+		
+	if (editor_status.not(":visible")) {
+		editor_status.show();
+		resize.resize();
 	}
 
 	jQuery.proxy(show, this)();
@@ -169,7 +181,26 @@ function fixError () {
 	}
 }
 
+function init() {
+	$(document).on('blurEditor', function(e, tab) {
+		var editor = tabs.getEditor(tab);
+		var session = editor.getSession();
+		var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
+		var editor_status = $(panel).find('.editor_status');
+		
+		var errors = session.getAnnotations();
+		if (!errors.length) {
+			if (editor_status.is(":visible")) {
+				editor_status.hide();
+				resize.resize();
+			}
+			return;
+		}
+	});
+}
+
 return {
+	init: init,
 	update: update,
 	next: next,
 	previous: previous
