@@ -1,4 +1,4 @@
-define(['exports', './loading', './config', './layout', './site', './tree', './tabs', './prompt', './lang', "ui.basicMenu", 'diff2html-ui', 'linkify-html', 'dialogResize'], function (exports, loading, config, layout, site, tree, tabs, prompt, lang) {
+define(['exports', './loading', './config', './layout', './site', './tree', './tabs', './prompt', './git_menu', './lang', "ui.basicMenu", 'diff2html-ui', 'linkify-html', 'dialogResize'], function (exports, loading, config, layout, site, tree, tabs, prompt, git_menu, lang) {
 var linkifyHtml = require('linkify-html');
 lang = lang.lang;
 var gitEditor;
@@ -7,24 +7,26 @@ var gitConfig = {
 	email: ''
 };
 
+var branches;
+var currentBranch;
+
 function init() {
 	$('#tabs-git').append('<div class="vbox">\
 		<p id="notAvailable" class="flex" style="text-align:center; color:#ccc;">Git panel will appear here</p>\
 		<div id="gitLoading" style="display: none; text-align: center; margin: 10px;"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>\
 		<div id="gitContainer" class="vbox" style="display: none;">\
-			<div id="git-buttons" class="hbox">\
-				<div id="gitBranchBar">\
+			<div class="hbox ui-widget-header panel-buttons">\
+				<div id="gitBranchBar" class="flex ui-widget-content ui-state-default">\
 					<select id="gitBranch">\
 					</select>\
 				</div>\
 				<div class="flex" id="gitViewContainer">\
 					<span id="gitViewRadio">\
-						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio"><label for="changesRadio">Changes</label>\
+						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio" disabled><label for="changesRadio">Changes</label>\
 						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label for="historyRadio">History</label>\
 					</span>\
 				</div>\
-				<button id="gitMenuBtn"><i class="fa fa-bars"></i></button>\
-				<ul id="gitMenu"></ul>\
+				<button type="button" id="gitSync"><span class="count"></span><i class="fas fa-sync"></i></button>\
 			</div>\
 			<div id="gitContentContainer" class="vbox">\
 				<ul id="gitHistory"></ul>\
@@ -43,83 +45,8 @@ function init() {
 	$( "#gitViewRadio input[type='radio']" ).checkboxradio({
 		icon: false
 	});
-	var gitCombo = $( "#gitBranch" ).combobox({
-		select: function (event, ui) {
-			// load branch
-			checkout(ui.item.value);
-		},
-		change: function (event, ui) {
-			// load branch
-			checkout(ui.item.value);
-		},
-		create: function( event, ui ) {
-		}
-	});
 	
-	//button menu
-	var items = [{
-		id: 'gitrefresh',
-		text: 'Refresh',
-		handler: refresh
-	}, {
-		id: 'gitsync',
-		text: 'Sync',
-		handler: sync
-	}, {
-		id: 'gitcreatebranch',
-		text: 'Create branch',
-		handler: createBranch
-	}, {
-		id: 'gitdeletebranch',
-		text: 'Delete branch',
-		handler: deleteBranch
-	}, {
-		id: 'gitConfig',
-		text: 'Config',
-		handler: editConfig
-	}];
-		
-	var el = $("#gitMenu");
-	var context;
-	items.forEach(function(item) {
-		if(item==='-') {
-			el.append('<li>-</li>');
-		} else {
-			var itemEl = $('<li id="'+item.id+'">\
-				<a href="#">'+item.text+'</a>\
-			</li>').appendTo(el);
-
-			if(item.disabled) {
-				itemEl.addClass('ui-state-disabled');
-			}
-
-			if(item.handler) {
-				itemEl.click(jQuery.proxy(item.handler, undefined, context));
-			}
-		}
-	});
-
-	var menu = el.menu().hide();
-
-	$("#gitMenuBtn").button()
-	.click(function() {
-		// Make use of the general purpose show and position operations
-		// open and place the menu where we want.
-		menu.show().position({
-			  my: "left top",
-			  at: "left bottom",
-			  of: this
-		});
-
-		// Register a click outside the menu to close it
-		$( document ).on( "click", function() {
-			  menu.hide();
-		});
-
-		// Make sure to return false here or the click registration
-		// above gets invoked.
-		return false;
-	});
+	$('#gitSync').button().click(sync);
 	
 	// update on file rename / delete
 	$('#tree').on('loaded.jstree rename delete', function(e, obj) {
@@ -264,6 +191,8 @@ function init() {
 			"discard": {name: "Discard changes"}
 		}
 	});
+	
+	git_menu.init();
 }
 
 function show(title, result) {
@@ -379,20 +308,18 @@ function gitLog() {
 			
 			// branches
 			$( "#gitBranch" ).children('option').remove();
-
+			
+			branches = data.branches;
+			
 			$.each(data.branches, function( index, branch ) {
-				$( "#gitBranch" ).append( '<option value="'+branch.name+'">' + branch.name + '</option>' );
 				if (branch.selected) {
-					$( "#gitBranch" ).combobox('val', branch.name);
-					$( '#commitBtn' ).text('Commit to '+branch.name);
-					
-					if (branch.name==='master') {
-						$('#gitdeletebranch').addClass('ui-state-disabled');
-					} else {
-						$('#gitdeletebranch').removeClass('ui-state-disabled');
-					}
+					currentBranch = branch.name;
 				}
 			});
+			
+			$( "#gitBranchBar .label" ).html(currentBranch);
+			$( "#gitBranchBar" ).data('value', currentBranch);
+			$( '#commitBtn' ).html('Commit to ' + currentBranch);
 			
 			// history
 			$( "#gitHistory" ).children().remove();
@@ -413,10 +340,41 @@ function gitLog() {
 				}
 			});
 			$( "#gitChanges" ).children('.delete').remove();
+			$('#changesRadio').prop('disabled', (!data.changes || data.changes.length===0));
+			$( "#gitViewRadio input[type='radio']" ).checkboxradio('refresh');
 			
 			$('#notAvailable').hide();
 			$('#gitLoading').hide();
 			$('#gitContainer').show();
+			
+			// status: "## master...origin/master [ahead 1]"
+			if (data.status) {
+				var matches = data.status.match(/\[(ahead|behind)\s(.*)\]/);
+				
+				var count = matches ? matches[2] : '';
+				var status = matches ? matches[1] : '';
+				
+				$('#gitSync .count').text(count);
+
+				$('#gitSync i').removeClass('fa-sync');
+				$('#gitSync i').removeClass('fa-arrow-down');
+				$('#gitSync i').removeClass('fa-arrow-up');
+				$('#gitSync').removeClass('ui-state-highlight');
+				
+				switch(status) {
+					case 'ahead':
+						$('#gitSync i').addClass('fa-arrow-up');
+						$('#gitSync').addClass('ui-state-highlight');
+					break;
+					case 'behind':
+						$('#gitSync i').addClass('fa-arrow-down');
+						$('#gitSync').addClass('ui-state-highlight');
+					break;
+					default:
+						$('#gitSync i').addClass('fa-sync');
+					break;
+				}
+			}
 		},
 		error: function(error) {
 			$('#gitContainer').hide();
@@ -489,11 +447,11 @@ function createBranch() {
 	});
 	
 	// branch options
-	$.each($('#gitBranch option'), function( index ) {
-		var option = $( "#branchForm select[name=from]" ).append( '<option value="'+this.value+'">' + this.value + '</option>' );
+	$.each(branches, function( index ) {
+		var option = $( "#branchForm select[name=from]" ).append( '<option value="'+this.name+'">' + this.name + '</option>' );
 	});
 	
-	$('#branchForm select[name=from]').val($( "#gitBranch" ).combobox('val'));
+	$('#branchForm select[name=from]').val(currentBranch);
 	
 	$('#branchForm input[name=name]').on('change input keyup', function() {
 		// replace non-alphanumeric characters
@@ -516,51 +474,52 @@ function createBranch() {
 	});
 }
 
-function deleteBranch() {
-	var branch = $( "#gitBranch" ).combobox('val');
-	
+function doRemoveBranch(branch) {
+	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+	loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch='+branch, {
+		action: 'git branch -d '+branch,
+		success: function(data) {
+			if (data.success) {
+				tree.refresh();
+			} else {
+				prompt.alert({title:'Error', msg:data.error});
+			}
+		},
+		error: function(error) {
+			if (error.indexOf('is not fully merged')) {
+				prompt.confirm({
+					title: 'Force Delete branch '+branch,
+					msg: 'Branch is not fully merged, delete anyway?',
+					fn: function(value) {
+						if (value==='yes') {
+							var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+							loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch='+branch+'&force=1', {
+								action: 'git branch -D '+branch,
+								success: function(data) {
+									if (data.success) {
+										tree.refresh();
+									} else {
+										prompt.alert({title:'Error', msg:data.error});
+									}
+								}
+							});
+						}
+					}
+				});
+			} else {
+				prompt.alert({title:'Error', msg:data.error});
+			}
+		}
+	});
+}
+
+function removeBranch(branch) {
 	prompt.confirm({
 		title: 'Delete branch '+branch,
 		msg: 'Are you sure?',
 		fn: function(value) {
 			if (value==='yes') {
-				var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-				loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch='+branch, {
-					action: 'git branch -d '+branch,
-					success: function(data) {
-						if (data.success) {
-							tree.refresh();
-						} else {
-							prompt.alert({title:'Error', msg:data.error});
-						}
-					},
-					error: function(error) {
-						if (error.indexOf('is not fully merged')) {
-							prompt.confirm({
-								title: 'Force Delete branch '+branch,
-								msg: 'Branch is not fully merged, delete anyway?',
-								fn: function(value) {
-									if (value==='yes') {
-										var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-										loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch='+branch+'&force=1', {
-											action: 'git branch -D '+branch,
-											success: function(data) {
-												if (data.success) {
-													tree.refresh();
-												} else {
-													prompt.alert({title:'Error', msg:data.error});
-												}
-											}
-										});
-									}
-								}
-							});
-						} else {
-							prompt.alert({title:'Error', msg:data.error});
-						}
-					}
-				});
-			
+				doRemoveBranch(branch);
 				return;
 			}
 			
@@ -569,7 +528,7 @@ function deleteBranch() {
 	});
 }
 
-function editConfig() {
+function configure() {
 	$( "body" ).append('<div id="dialog-config" title="Config">\
 	  <form id="configForm" class="tidy">\
 		<p class="hbox">\
@@ -616,35 +575,21 @@ function editConfig() {
 			},
 		}
 	});
-	
-	// branch options
-	$.each($('#gitBranch option'), function( index ) {
-		var option = $( "#branchForm select[name=from]" ).append( '<option value="'+this.value+'">' + this.value + '</option>' );
-	});
-	
-	$('#branchForm select[name=from]').val($( "#gitBranch" ).combobox('val'));
-	
-	$('#branchForm input[name=name]').on('change input keyup', function() {
-		// replace non-alphanumeric characters
-		var name = $(this).val();
-		var newName = name.replace(/\W/g, "-");
-		if (name!=newName) {
-			$(this).val(newName);
-		}
-		
-		if ($(this).val()) {
-			$('#createBranchBtn').button( "option", "disabled", false );
-		} else {
-			$('#createBranchBtn').button( "option", "disabled", true );
-		}
-	});
 }
 
 function sync() {
+	$('#gitSync i').removeClass('fa-arrow-down');
+	$('#gitSync i').removeClass('fa-arrow-up');
+	$('#gitSync').removeClass('ui-state-highlight');
+	$('#gitSync i').addClass('fa-sync');
+	$( "#gitSync" ).children('i').addClass('fa-spin');
+	
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
 	loading.fetch(ajaxOptions.url+'&cmd=sync', {
 		action: 'syncing',
 		success: function(data) {
+			$( "#gitSync" ).children('i').removeClass('fa-spin');
+			
 			if (data.success) {
 				tree.refresh();
 				var html = data.result;
@@ -659,7 +604,22 @@ function sync() {
 	});
 }
 
-return {
-	init: init
-};
+function getBranches() {
+	return branches;
+}
+
+function activeBranch() {
+	return currentBranch;
+}
+
+exports.init = init;
+exports.configure = configure;
+exports.getBranches = getBranches;
+exports.activeBranch = activeBranch;
+exports.createBranch = createBranch;
+exports.removeBranch = removeBranch;
+exports.checkout = checkout;
+exports.refresh = refresh;
+exports.sync = sync;
+
 });
