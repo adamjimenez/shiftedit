@@ -116,6 +116,9 @@ return {
 	},
 	get: function() {
 		return firebaseDatabase;
+	},
+	timestamp: function() {
+		return firebase.database.ServerValue.TIMESTAMP;
 	}
 };
 
