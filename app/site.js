@@ -1,9 +1,8 @@
-define(['exports', './config', "./prompt", "./tree", "./storage", "./util", "./ssl", "./loading", './prefs', './layout', 'aes', './gdrive', './editors', './servers', './repositories', './lang',  "ui.combobox", 'dialogResize', 'showPassword'], function (exports, config, prompt, tree, storage, util, ssl, loading, preferences, layout, Aes, gdrive, editors, servers, repositories, lang) {
+define(['exports', './config', "./prompt", "./tree", "./storage", "./util", "./ssl", "./loading", './prefs', './layout', 'aes', './gdrive', './editors', './servers', './repositories', './git', './site_menu', './lang',  "ui.combobox", 'dialogResize', 'showPassword'], function (exports, config, prompt, tree, storage, util, ssl, loading, preferences, layout, Aes, gdrive, editors, servers, repositories, git, site_menu, lang) {
 lang = lang.lang;
 var directFn;
 var sites = [];
 var currentSite;
-var combobox;
 var site = {};
 var definitions = {};
 var manuallyAborted = false;
@@ -23,9 +22,6 @@ window.shiftedit.setSiteValues = setSiteValues;
 function enableMenuItems(site) {
 	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite'];
 
-	if(site.db_phpmyadmin)
-		items.push('phpmyadmin');
-
 	items.forEach(function(item){
 		$('#'+item).removeClass('ui-state-disabled');
 	});
@@ -34,7 +30,7 @@ function enableMenuItems(site) {
 }
 
 function disableMenuItems() {
-	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite', 'phpmyadmin'];
+	var items = ['editsite', 'duplicate', 'deletesite', 'export', 'shareSite'];
 
 	items.forEach(function(item){
 		$('#'+item).addClass('ui-state-disabled');
@@ -54,252 +50,28 @@ function init() {
 		create();
 	});
 	
-	function initCombo() {
-		combobox = $( "#sites" ).combobox({
-			forceSelection: true,
-			selectOnFocus: true,
-			selectFirst: true,
-			select: function (event, ui) {
-				open(ui.item.value);
-			},
-			change: function (event, ui) {
-				open(ui.item.value);
-			}
-		});
-	}
-	initCombo();
+	/*
+	$( "#sites" ).combobox({
+		forceSelection: true,
+		selectOnFocus: true,
+		selectFirst: true,
+		select: function (event, ui) {
+			open(ui.item.value);
+		},
+		change: function (event, ui) {
+			open(ui.item.value);
+		}
+	});
+	*/
+	
+	site_menu.init();
+	
 
 	$( "#refresh_site" ).button()
 	.click(function() {
 		if (currentSite) {
 			open(currentSite);
 		}
-	});
-
-	//button menu
-	var items = [{
-		id: 'newsite',
-		text: 'Add site...',
-		handler: create,
-		disabled: false
-	}, {
-		id: 'editsite',
-		text: 'Edit site...',
-		handler: edit,
-		disabled: true
-	}, {
-		id: 'duplicate',
-		text: 'Duplicate...',
-		handler: duplicate,
-		disabled: true
-	}, {
-		id: 'deletesite',
-		text: 'Delete site',
-		handler: function(undef, e, confirmed) {
-			if(!confirmed) {
-				var me = this;
-				prompt.confirm({
-					title: 'Delete site',
-					msg: 'Are you sure?',
-					fn: function(value) {
-						switch(value) {
-							case 'yes':
-								$(me).trigger('click', [true]);
-								return;
-							default:
-								return false;
-						}
-					}
-				});
-				return;
-			}
-
-			loading.fetch(config.apiBaseUrl+'sites?cmd=delete&site='+currentSite, {
-				action: 'Deleting site '+site.name,
-				success: function(data) {
-					//remove this site from any active tabs
-					$("li[data-site='"+currentSite+"']").attr('data-site', '');
-
-					//disable file tree
-					$('#tree-container').hide();
-
-					//disable site options
-					disableMenuItems();
-
-					currentSite = 0;
-					storage.set('currentSite', currentSite);
-
-					//refresh combo
-					$( "#sites" ).combobox('val', '');
-					load();
-				}
-			});
-		},
-		disabled: true
-	}, '-', /*{
-		id: 'export',
-		text: 'Export',
-		handler: function() {
-			loading.fetch(config.apiBaseUrl+'sites?cmd=export&site='+currentSite, {
-				action: 'Exporting site',
-				success: function(data) {
-					var link = $('<a href="data:text/xml;base64,'+btoa(data.content)+'" download="'+data.file+'"></a>').appendTo('body');
-					link.get(0).click();
-					link.remove();
-				}
-			});
-		},
-		disabled: true
-	}, */{
-		id: 'shareSite',
-		text: 'Share site...',
-		handler: function() {
-			//share site dialog
-			$( "body" ).append('<div id="dialog-share-site" title="Share site">\
-				<form id="shareSiteForm">\
-					<div class="hbox">\
-						<input id="share_email" type="text" name="email" placeholder="Email address" class="flex text ui-widget-content ui-corner-all" required autofocus>\
-						<button type="submit">Add</button>\
-					</div>\
-					<h2>Shared with</h2>\
-					<div id="users">\
-						nobody\
-					</div>\
-					<h2>Contacts</h2>\
-					<div id="contacts">\
-						no contacts\
-					</div>\
-				</form>\
-			</div>');
-
-			$('#shareSiteForm button').button();
-
-			loadUsers();
-
-			//handle add user
-			$('#shareSiteForm').submit(function(event){
-				event.preventDefault();
-
-				loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + currentSite + '&email=' + $('#shareSiteForm input[name=email]').val(), {
-					action: 'saving user',
-					success: function(data) {
-						$('#shareSiteForm input[name=email]').val('');
-						loadUsers();
-					}
-				});
-			});
-
-			//handle add user
-			$('#shareSiteForm').on('click', 'a.add', function() {
-				loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + currentSite + '&email=' + $(this).data('email'), {
-					action: 'saving user',
-					success: function(data) {
-						$('#shareSiteForm input[name=email]').val('');
-						loadUsers();
-					}
-				});
-			});
-
-			//handle remove user
-			$('#shareSiteForm').on('click', 'a.delete', function() {
-				loading.fetch(config.apiBaseUrl+'share?cmd=delete&site='+currentSite+'&contact='+$(this).data('id'), {
-					action: 'deleting user',
-					success: function(data) {
-						loadUsers();
-					}
-				});
-			});
-
-			//open dialog
-			var dialog = $( "#dialog-share-site" ).dialogResize({
-				width: 400,
-				height: 300,
-				modal: true,
-				close: function( event, ui ) {
-					$( this ).remove();
-				}
-			});
-		},
-		disabled: true
-	}, /*{
-		id: 'downloadRevisions',
-		text: 'Download revisions',
-		handler: function() {
-			window.open('_ajax/download_revisions.php?site='+currentSite);
-		},
-		disabled: true
-	},*/
-	'-', {
-		id: 'phpmyadmin',
-		text: 'PhpMyAdmin',
-		handler: function() {
-			var prefs = preferences.get_prefs();
-			var settings = getSettings(currentSite);
-			var password = settings.db_password;
-
-			if (prefs.useMasterPassword && password) {
-				password = Aes.Ctr.decrypt(password, storage.get('masterPassword'), 256);
-			}
-
-			// create hidden form
-			var form = $('<form id="pma_form" method="post" target="_blank" action="'+settings.db_phpmyadmin+'">\
-			<input type="hidden" name="pma_username" value="'+settings.db_username+'">\
-			<input type="hidden" name="pma_password" value="'+password+'">\
-			</form>').appendTo('body')
-			.on('submit', function(){
-				var el = this;
-				setTimeout(function() {
-					el.remove();
-				}, 10);
-			})
-			.submit();
-		},
-		disabled: true
-	}, '-', {
-		id: 'servers',
-		text: 'Servers...'
-	}];
-
-	var el = $("#siteMenu");
-	var context;
-	items.forEach(function(item) {
-		if(item==='-') {
-			el.append('<li>-</li>');
-		} else {
-			var itemEl = $('<li id="'+item.id+'">\
-				<a href="#">'+item.text+'</a>\
-			</li>').appendTo(el);
-
-			if(item.disabled) {
-				itemEl.addClass('ui-state-disabled');
-			}
-
-			if(item.handler) {
-				itemEl.click(jQuery.proxy(item.handler, undefined, context));
-			}
-		}
-	});
-
-	var menu = $("#siteMenu").menu().hide();
-
-	$("#siteNenuBtn").button()
-	.click(function() {
-		// Make use of the general purpose show and position operations
-		// open and place the menu where we want.
-		menu.show().position({
-			my: "left top",
-			at: "left bottom",
-			of: this
-		});
-
-		// Register a click outside the menu to close it
-		$( document ).on( "click", function() {
-			menu.hide();
-		});
-
-		// Make sure to return false here or the click registration
-		// above gets invoked.
-		return false;
 	});
 }
 
@@ -322,7 +94,10 @@ function open(siteId, options) {
 	currentSite = siteId;
 	storage.set('currentSite', currentSite);
 	enableMenuItems(site);
-	$( "#sites" ).combobox('val', currentSite+'');
+	//$( "#sites" ).combobox('val', currentSite+'');
+	
+	$( "#sitebar .label" ).html(site.name);
+	$( "#sitebar" ).data('value', site.id);
 
 	var ajax;
 	if (!loading.start('Connecting to site '+site.name, function(){
@@ -574,11 +349,155 @@ function load(options) {
 }
 
 function create() {
-	edit(true);
+	edit();
 }
 
-function duplicate() {
-	edit(false, true);
+function duplicate(siteId) {
+	edit(siteId, true);
+}
+
+function doRemove(siteId) {
+	loading.fetch(config.apiBaseUrl+'sites?cmd=delete&site='+siteId, {
+		action: 'Deleting site',
+		success: function(data) {
+			//remove this site from any active tabs
+			$("li[data-site='"+siteId+"']").attr('data-site', '');
+
+			if (currentSite == siteId) {
+				//disable file tree
+				$('#tree-container').hide();
+
+				//disable site options
+				disableMenuItems();
+
+				currentSite = 0;
+				storage.set('currentSite', currentSite);
+
+				//refresh combo
+				$( "#sitebar .label" ).html('');
+				$( "#sitebar" ).data('value', currentSite);
+			}
+			
+			load();
+		}
+	});
+}
+
+function remove(siteId) {
+	var settings = getSettings(siteId);
+	prompt.confirm({
+		title: 'Delete site '+settings.name,
+		msg: 'Are you sure?',
+		fn: function(value) {
+			switch(value) {
+				case 'yes':
+					doRemove(siteId);
+					return;
+				default:
+					return false;
+			}
+		}
+	});
+	return;
+}
+
+function share(siteId) {
+	var settings = getSettings(siteId);
+	
+	//share site dialog
+	$( "body" ).append('<div id="dialog-share-site" title="Share site '+settings.name+'">\
+		<form id="shareSiteForm">\
+			<div class="hbox">\
+				<input id="share_email" type="text" name="email" placeholder="Email address" class="flex text ui-widget-content ui-corner-all" required autofocus>\
+				<button type="submit">Add</button>\
+			</div>\
+			<h2>Shared with</h2>\
+			<div id="users">\
+				nobody\
+			</div>\
+			<h2>Contacts</h2>\
+			<div id="contacts">\
+				no contacts\
+			</div>\
+		</form>\
+	</div>');
+
+	$('#shareSiteForm button').button();
+
+	loadUsers();
+
+	//handle add user
+	$('#shareSiteForm').submit(function(event){
+		event.preventDefault();
+
+		loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + siteId + '&email=' + $('#shareSiteForm input[name=email]').val(), {
+			action: 'saving user',
+			success: function(data) {
+				$('#shareSiteForm input[name=email]').val('');
+				loadUsers();
+			}
+		});
+	});
+
+	//handle add user
+	$('#shareSiteForm').on('click', 'a.add', function() {
+		loading.fetch(config.apiBaseUrl+'share?cmd=save&site=' + siteId + '&email=' + $(this).data('email'), {
+			action: 'saving user',
+			success: function(data) {
+				$('#shareSiteForm input[name=email]').val('');
+				loadUsers();
+			}
+		});
+	});
+
+	//handle remove user
+	$('#shareSiteForm').on('click', 'a.delete', function() {
+		loading.fetch(config.apiBaseUrl+'share?cmd=delete&site='+siteId+'&contact='+$(this).data('id'), {
+			action: 'deleting user',
+			success: function(data) {
+				loadUsers();
+			}
+		});
+	});
+
+	//open dialog
+	var dialog = $( "#dialog-share-site" ).dialogResize({
+		width: 400,
+		height: 300,
+		modal: true,
+		close: function( event, ui ) {
+			$( this ).remove();
+		}
+	});
+}
+
+function database(siteId) {
+	var settings = getSettings(siteId);
+	
+	if(!settings.db_phpmyadmin) {
+		edit(siteId);
+		return;
+	}
+	
+	var password = settings.db_password;
+	
+	var prefs = preferences.get_prefs();
+	if (prefs.useMasterPassword && password) {
+		password = Aes.Ctr.decrypt(password, storage.get('masterPassword'), 256);
+	}
+	
+	// create hidden form
+	var form = $('<form id="pma_form" method="post" target="_blank" action="'+settings.db_phpmyadmin+'">\
+	<input type="hidden" name="pma_username" value="'+settings.db_username+'">\
+	<input type="hidden" name="pma_password" value="'+password+'">\
+	</form>').appendTo('body')
+	.on('submit', function(){
+		var el = this;
+		setTimeout(function() {
+			el.remove();
+		}, 10);
+	})
+	.submit();
 }
 
 function updateCategory() {
@@ -591,7 +510,6 @@ function updateCategory() {
 		'git_container',
 		'cloud_container',
 		'host_container',
-		'proxyfield',
 		'domainContainer',
 		'portContainer',
 		'timeoutContainer',
@@ -705,7 +623,7 @@ function updateCategory() {
 	$('#domain').attr('title', domain_title);
 
 	//username placeholder
-	var username_placeholder = 'your username';
+	var username_placeholder = 'server username';
 	if( category === 'AmazonS3' ){
 		username_placeholder = 'access key id';
 	}
@@ -713,7 +631,7 @@ function updateCategory() {
 	$('#ftp_user').attr('placeholder', username_placeholder);
 
 	//password placeholder
-	var password_placeholder = '';
+	var password_placeholder = 'server password';
 	if( category==='AmazonS3' ){
 		password_placeholder = 'secret access key';
 	}
@@ -1260,7 +1178,7 @@ function save() {
 	});
 }
 
-function edit(newSite, duplicate) {
+function edit(siteId, duplicate) {
 	/*
 	if (newSite && storage.get('premier') == 'false' && storage.get('edition') == 'Standard' && sites.length >= (1+1)) {
 		return prompt.alert({title: 'Quota exceeded', msg:'Free edition is limited to 1 site. <a href="/premier" target="_blank">Go Premier</a>'});
@@ -1269,8 +1187,9 @@ function edit(newSite, duplicate) {
 	}
 	*/
 
+	var newSite = (!siteId);
 	var prefs = preferences.get_prefs();
-	var title = newSite ? 'Add site' : 'Edit site';
+	var title = newSite ? 'New site' : 'Edit site';
 
 	//create dialog BEWARE UGLY LONG STRING!
 	$( "body" ).append('<div id="dialog-site" title="'+title+'">\
@@ -1279,19 +1198,19 @@ function edit(newSite, duplicate) {
 			<input type="hidden" name="id" value="">\
 			<input type="hidden" name="share" value="">\
 			<p id="addTypeContainer">\
-				<span id="addTypeRadio">\
+				<span id="addTypeRadio" class="hbox" style="width: 100%;">\
 					<input type="radio" name="addType" value="new" id="addTypeRadio1">\
-					<label for="addTypeRadio1">\
+					<label for="addTypeRadio1" class="flex">\
 						<i class="fa fa-plus-square" style="font-size: 50px;"></i><br>\
 						Create new\
 					</label>\
 					<input type="radio" name="addType" value="add" id="addTypeRadio2">\
-					<label for="addTypeRadio2">\
+					<label for="addTypeRadio2" class="flex">\
 						<i class="fa fa-plug" style="font-size: 50px;"></i><br>\
 						Add existing\
 					</label>\
 					<input type="radio" name="addType" value="import" id="addTypeRadio3">\
-					<label for="addTypeRadio3">\
+					<label for="addTypeRadio3" class="flex">\
 						<i class="fa fa-upload" style="font-size: 50px;"></i><br>\
 						Import site\
 					</label>\
@@ -1312,17 +1231,17 @@ function edit(newSite, duplicate) {
 				<div>\
 					<p>\
 						<label>Stack:</label>\
-						<span id="stackRadio">\
+						<span id="stackRadio" class="hbox" style="width: 100%;">\
 							<input type="radio" name="stack" value="php" id="stackRadio1" checked>\
-							<label for="stackRadio1"" title="PHP">\
+							<label for="stackRadio1" class="flex" title="PHP">\
 								<i class="fab fa-php" style="font-size: 30px;"></i><br>\
 							</label>\
 							<input type="radio" name="stack" value="wordpress" id="stackRadio2">\
-							<label for="stackRadio2"" title="Wordpress">\
+							<label for="stackRadio2" class="flex" title="Wordpress">\
 								<i class="fab fa-wordpress" style="font-size: 30px;"></i><br>\
 							</label>\
 							<input type="radio" name="stack" value="git" id="stackRadio3">\
-							<label for="stackRadio3" title="Git Repository">\
+							<label for="stackRadio3" class="flex" title="Git Repository">\
 								<i class="fab fa-git" style="font-size: 30px;"></i><br>\
 							</label>\
 						</span>\
@@ -1380,11 +1299,6 @@ function edit(newSite, duplicate) {
 							</span>\
 						</p>\
 					</div>\
-					\
-					<label id="proxyfield">Use a PHP proxy file to handle connections. You will need to configure and upload the \
-					<a href="https://raw.githubusercontent.com/adamjimenez/shiftedit-ajax/master/shiftedit-proxy.php" target="_blank">proxy file</a>\
-					to your webspace.</label>\
-					\
 					<div id="host_container">\
 						<p>\
 							<label>Host:</label>\
@@ -1404,11 +1318,11 @@ function edit(newSite, duplicate) {
 					</p>\
 					<p id="ftp_user_container">\
 						<label>Username:</label>\
-						<input type="text" id="ftp_user" name="ftp_user" value="" class="text ui-widget-content ui-corner-all">\
+						<input type="text" id="ftp_user" name="ftp_user" placeholder="server username" value="" class="text ui-widget-content ui-corner-all">\
 					</p>\
 					<p id="pass_container">\
 						<label>Password:</label>\
-						<input type="password" id="ftp_pass" name="ftp_pass" value="" class="showPassword text ui-widget-content ui-corner-all" required disabled>\
+						<input type="password" id="ftp_pass" name="ftp_pass" placeholder="server password" value="" class="showPassword text ui-widget-content ui-corner-all" required disabled>\
 					</p>\
 					<p id="ssh_key_container">\
 						<label>Your SSH key:</label>\
@@ -1419,7 +1333,7 @@ function edit(newSite, duplicate) {
 						<label>Path:</label>\
 						<input type="hidden" name="dir_id" value="">\
 						<div class="custom-show-password-container text ui-widget-content ui-corner-all">\
-							<input type="text" name="dir" value="" class="text ui-widget-content ui-corner-all">\
+							<input type="text" name="dir" placeholder="public folder" value="" class="text ui-widget-content ui-corner-all">\
 							<button type="button" id="chooseFolder" class="ui-widget-content"><i class="fas fa-folder-open"></i></button>\
 						</div>\
 					</div>\
@@ -1429,13 +1343,13 @@ function edit(newSite, duplicate) {
 							<option value="1">https://</option>\
 							<option value="0">http://</option>\
 						</select>\
-						<input type="text" name="web_url" value="" class="text ui-widget-content ui-corner-all">\
+						<input type="text" name="web_url" value="" placeholder="www.mydomain.com" class="text ui-widget-content ui-corner-all">\
 					</p>\
 					<p id="turbo_mode_container">\
 						<label>Turbo mode:</label>\
 						<label>\
 						<input type="checkbox" name="turbo" value="1" class="text ui-widget-content ui-corner-all" >\
-						Use a proxy file for faster connections.\
+						Uploads a PHP proxy file\
 						</label>\
 					</p>\
 					<div class="accordion">\
@@ -1456,6 +1370,13 @@ function edit(newSite, duplicate) {
 									<input type="password" id="db_password" name="db_password" value="" class="showPassword text ui-widget-content ui-corner-all" disabled>\
 								</p>\
 							</div>\
+							<h4>Git</h4>\
+							<a href="#" style="display: flex; text-decoration: none;" id="git_config">\
+								<label style="cursor: pointer;">Config</label>\
+								<div style="text-align: right; flex: 1;">\
+									<i class="fas fa-caret-right"></i>\
+								</div>\
+							</a>\
 							<h4>Misc</h4>\
 							<p id="timeoutContainer">\
 								<label>Timeout:</label>\
@@ -1565,7 +1486,7 @@ function edit(newSite, duplicate) {
 		server_type: 'FTP',
 		timeout: 10
 	};
-	var settings = newSite ? defaults : getSettings();
+	var settings = newSite ? defaults : getSettings(siteId);
 	
 	if(settings.port==="0") {
 		delete settings.port;
@@ -1677,11 +1598,15 @@ function edit(newSite, duplicate) {
 	$('#chooseFolder').click(chooseFolder);
 	
 	$('#add_server').button().click(function() {
-		servers.edit(true);
+		servers.edit();
 	});
 	
 	$('#repo_sources').button().click(function() {
 		window.open('https://shiftedit.net/account/services');
+	});
+	
+	$('#git_config').click(function() {
+		git.configure();
 	});
 
 	//"Other" split button
@@ -1963,6 +1888,13 @@ function edit(newSite, duplicate) {
 	
 	// validation
 	$('#siteSettings input').on('change keyup input', function() {
+		// toggle turbo mode
+		if($('input[name=web_url]').val()) {
+			$('input[name=turbo]').removeAttr('disabled');
+		} else {
+			$('input[name=turbo]').attr('disabled', 'disabled');
+		}
+		
 		var required = {
 			'FTP': [
 				'name',
@@ -2192,8 +2124,8 @@ function get() {
 }
 
 
-$('body').on('click', '.newTab .addSite', function(e){
-	edit(true);
+$('body').on('click', '.newTab .addSite', function(e) {
+	edit();
 });
 
 exports.init = init;
@@ -2208,5 +2140,9 @@ exports.focus = focus;
 exports.masterPasswordPrompt = masterPasswordPrompt;
 exports.get = get;
 exports.edit = edit;
+exports.remove = remove;
+exports.duplicate = duplicate;
+exports.share = share;
+exports.database = database;
 
 });
