@@ -15,7 +15,10 @@ body{
 	margin: 0;
 }
 
-textarea{
+/* prevent ios context menu */
+body { -webkit-touch-callout: none !important; }
+a { -webkit-user-select: none !important; }
+
 textarea, input{
 	background-image: none !important;
 }
