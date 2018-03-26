@@ -502,11 +502,11 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 
 	function init() {
 		$('<form id="findForm">\
-		<div id="findInRadio" class="row">\
-			<input type="radio" id="findInSelection" name="findIn" value="selection"><label for="findInSelection" title="Find in selection"><i class="far fa-file-alt"></i></label>\
-			<input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label for="findInCurrent" title="Find in current document"><i class="far fa-file"></i></label>\
-			<input type="radio" id="findInOpen" name="findIn" value="open"><label for="findInOpen" title="Find in open documents"><i class="far fa-copy"></i></label>\
-			<input type="radio" id="findInRemote" name="findIn" value="remote"><label for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
+		<div id="findInRadio" class="hbox row panel-buttons ui-widget-header">\
+			<input type="radio" id="findInSelection" name="findIn" value="selection"><label class="flex" for="findInSelection" title="Find in selection"><i class="far fa-file-alt"></i></label>\
+			<input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label class="flex" for="findInCurrent" title="Find in current document"><i class="far fa-file"></i></label>\
+			<input type="radio" id="findInOpen" name="findIn" value="open"><label class="flex" for="findInOpen" title="Find in open documents"><i class="far fa-copy"></i></label>\
+			<input type="radio" id="findInRemote" name="findIn" value="remote"><label class="flex" for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
 		</div>\
 		<div class="row">\
 			<textarea id="find" name="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
