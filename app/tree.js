@@ -15,7 +15,6 @@ var singleClickOpen = false;
 var timer;
 var touched = false;
 var renameTimer;
-var image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'pxd'];
 
 function findChild(parent, name) {
 	for( i=0; i<parent.children.length; i++ ){
@@ -698,14 +697,13 @@ function open(data) {
 	}
 
 	var wasTouched = touched;
-	var selected = inst.get_selected();
+	var selected = inst.get_selected(true);
 	if(selected && selected.length) {
 		selected.forEach(function(file) {
-			var file_extension = util.fileExtension(util.basename(file));
-			if (image_extensions.indexOf(file_extension) != -1) {
-				window.open('/api/files?cmd=open_image&site=' + site.active() + '+&file=' + file);
-			} else {
-				tabs.open(file, site.active());
+			if (file.type === 'image') {
+				window.open('/api/files?cmd=open_image&site=' + site.active() + '+&file=' + file.id);
+			} else if (file.type === 'code') {
+				tabs.open(file.id, site.active());
 			}
 		});
 		
@@ -891,6 +889,8 @@ function getDir(node) {
 }
 
 function init() {
+	var prefs = preferences.get_prefs();
+	
 	var chunkedUploads = false;
 	r = new Resumable({
 		testChunks: false,
@@ -992,8 +992,8 @@ function init() {
 			},*/
 			'data': function (node, callback) {
 				if (treeFn) {
-					treeFn({node: node, callback: callback, tree:$('#tree')});
-				}else{
+					treeFn({node: node, callback: callback, tree: $('#tree')});
+				} else {
 					if(!ajaxOptions.url){
 						return false;
 					}
@@ -1037,7 +1037,7 @@ function init() {
 
 							if(!data.files) {
 								var files = [];
-								data.forEach(function(item){
+								data.forEach(function(item) {
 									files.push({
 										children: (!item.leaf),
 										data: {
@@ -1045,7 +1045,6 @@ function init() {
 											modified: item.modified,
 											size: item.size
 										},
-										icon: (item.leaf ? 'file '+item.iconCls : 'folder'),
 										id: item.id,
 										text: item.text,
 										type: (item.leaf ? 'file' : 'folder')
@@ -1053,6 +1052,54 @@ function init() {
 								});
 								data.files = files;
 							}
+							
+							var type = '';
+							var file_extension = '';
+							
+							function setTypes(files) {
+								for(var i=0; i<files.length; i++) {
+									if (files[i].type === 'file') {
+										file_extension = util.fileExtension(files[i].text);
+										
+										if (file_extension.match(/^(jpg|jpeg|png|gif|ico|bmp)$/)) {
+											type = 'image';
+										} else if (file_extension.match(/^(doc|docx)$/)) {
+											type = 'word';
+										} else if (file_extension.match(/^(xls|xlsx)$/)) {
+											type = 'excel';
+										} else if (file_extension.match(/^(ppt|pptx)$/)) {
+											type = 'powerpoint';
+										} else if (file_extension.match(/^(pdf)$/)) {
+											type = 'pdf';
+										} else if (file_extension.match(/^(mp3|wav)$/)) {
+											type = 'audio';
+										} else if (file_extension.match(/^(mp4|avi|mkv|qt|mov|wmv|flv)$/)) {
+											type = 'video';
+										} else if (file_extension.match(/^(zip|gz|tar|7z|rar)$/)) {
+											type = 'archive';
+										} else {
+											modes.forEach(function (item) {
+												if (item[2].indexOf(file_extension) !== -1) {
+													type = 'code';
+													return;
+												}
+											});
+										}
+										
+										if (type !== 'file') {
+											files[i].type = type;
+										}
+									} else if(typeof files[i].children === 'object' && files[i].children.length) {
+										setTypes(files[i].children);
+									}
+									
+									files[i].a_attr = {
+										"title": files[i].text
+									};
+								}
+							}
+							
+							setTypes(data.files);
 
 							callback.call(tree, data.files);
 						}
@@ -1219,14 +1266,15 @@ function init() {
 			'force_text': true,
 			'themes': {
 				'responsive': false,
-				'variant': 'small'
+				'variant': prefs.treeThemeVariant,
+				'dots': false
 			}
 		},
 		"dnd" : {
 			"touch": "selected"
 		},
 		'sort' : function(a, b) {
-			return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
+			return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) !== 'default' ? 1 : -1);
 		},
 		'contextmenu' : {
 			'items' : function(node) {
@@ -1435,7 +1483,7 @@ function init() {
 							
 							var settings = site.getSettings();
 
-							if(settings.server_type=='SFTP' && node.icon=="folder") {
+							if(settings.server_type=='SFTP' && node.type=="default") {
 								return false;
 							}else{
 								return true;
@@ -1462,8 +1510,17 @@ function init() {
 			}
 		},
 		'types' : {
-			'default' : { 'icon' : 'folder' },
-			'file' : { 'valid_children' : [], 'icon' : 'file' }
+			'default' : { 'icon' : 'fas fa-folder' },
+			'file' : { 'icon' : 'fas fa-file' },
+			'image' : { 'icon' : 'fas fa-file-image' },
+			'archive' : { 'icon' : 'fas fa-file-archive' },
+			'code' : { 'icon' : 'fas fa-file-code' },
+			'word' : { 'icon' : 'fas fa-file-word' },
+			'excel' : { 'icon' : 'fas fa-file-excel' },
+			'powerpoint' : { 'icon' : 'fas fa-file-powerpoint' },
+			'pdf' : { 'icon' : 'fas fa-file-pdf' },
+			'audio' : { 'icon' : 'fas fa-file-audio' },
+			'video' : { 'icon' : 'fas fa-file-video' }
 		},
 		'unique' : {
 			'duplicate' : function (name, counter) {
@@ -1475,12 +1532,10 @@ function init() {
 			resizable: true,
 			draggable: true,
 			stateful: true,
-			columns: [
-				{
+			columns: [{
 					//width: 'auto',
 					header: "Name"
-				},
-				{
+				}, {
 					width: 100,
 					header: "Modified",
 					value: "modified",
@@ -1496,8 +1551,7 @@ function init() {
 							day: "2-digit",
 						}) + ' ' + d.toTimeString().substr(0,5);
 					}
-				},
-				{
+				}, {
 					width: 50,
 					header: "Size",
 					value: "size",
@@ -1519,6 +1573,8 @@ function init() {
 			/*'state',*/'dnd','sort','types','contextmenu','unique','search','table'
 		]
 	})
+	.on('open_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder-open"); })
+	.on('close_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder"); })
 	.on('delete_node.jstree', function (e, data) {
 	})
 	.on('create_node.jstree', function (e, data) {
@@ -1895,7 +1951,7 @@ function init() {
 
 		var ref = this;
 
-		if ($(ref).hasClass('jstree-clicked')) {
+		if ($(ref).hasClass('jstree-clicked') && !singleClickOpen) {
 			clearTimeout(renameTimer);
 			renameTimer = setTimeout(function() {
 				if (ref) {
@@ -1926,7 +1982,7 @@ function init() {
 		if(singleClickOpen || touched) {
 			var inst = $.jstree.reference(this);
 			var node = inst.get_node(this);
-			if(node.icon==="folder") {
+			if(node.type==="default") {
 				inst.toggle_node(node);
 			} else {
 				open({
@@ -1938,9 +1994,16 @@ function init() {
 	.on('dblclick','a',function (e, data) {
 		clearTimeout(renameTimer);
 
-		open({
-			reference: this
-		});
+		var inst = $.jstree.reference(this);
+		var node = inst.get_node(this);
+
+		if(node.type==="default") {
+			inst.toggle_node(node);
+		} else {
+			open({
+				reference: this
+			});
+		}
 	})
 	.on('refresh.jstree', function(e, data){
 		//expand root node

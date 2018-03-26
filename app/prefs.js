@@ -66,12 +66,13 @@ defaultPrefs.sshPane = 'east';
 defaultPrefs.syntaxErrors = true;
 defaultPrefs.filePanelWidth = 250;
 defaultPrefs.designModeWarning = true;
-defaultPrefs.singleClickOpen = false;
+defaultPrefs.singleClickOpen = true;
 defaultPrefs.promptOnExit = 'unsaved';
 defaultPrefs.errorReporting = false;
 defaultPrefs.homeTab = true;
 defaultPrefs.local = false;
 defaultPrefs.restoreTabs = true;
+defaultPrefs.treeThemeVariant = 'small';
 defaultPrefs.openBrowserTab = false;
 defaultPrefs.stripWhitespace = false;
 defaultPrefs.saveWithMinified = false;
@@ -824,17 +825,21 @@ function updateSkin(name){
 				border: 0 solid '+activeBorderColor+';\
 			}\
 			\
+			.jstree-default .jstree-table-header-hovered{\
+				background: '+hoverBackground+' !important;\
+			}\
 			.jstree-default .jstree-hovered{\
 				background: '+hoverBackground+';\
 				color: '+hoverColor+';\
 				border: 0 solid '+hoverBorderColor+';\
+				box-shadow: none;\
 			}\
 			.jstree-table-header-regular{\
 				background-color: '+defaultBackground+' !important;\
 				color: '+defaultColor+';\
 			}\
 			.jstree-table-separator{\
-				border-color: '+defaultBorderColor+';\
+				border-color: '+hoverBackground+';\
 			}\
 			\
 			.jstree-table-midwrapper a.jstree-hovered:before{\
@@ -843,6 +848,12 @@ function updateSkin(name){
 			\
 			.jstree-table-midwrapper a.jstree-clicked:before{\
 				background: '+activeBackground+' !important;\
+			}\
+			.ui-draggable-handle {\
+				background: '+hoverBackground+' !important;\
+			}\
+			.ui-tabs-panel .ui-widget-header {\
+				background-color:  '+defaultBackground+' !important;\
 			}\
 			</style>').appendTo('head');
 	
@@ -877,6 +888,10 @@ function save(name, value) {
 
 	if(name==='singleClickOpen'){
 		tree.setSingleClickOpen(value);
+	}
+
+	if (name==='treeThemeVariant') {
+		$('#tree').jstree('set_theme_variant', value);
 	}
 
 	//apply change to open editors
@@ -958,6 +973,20 @@ function open(tabpanel) {
 		Always\
 	</label>\
 	<h2>Files</h2>\
+	<label>Tree theme</label>\
+	<label>\
+		<input type="radio" name="treeThemeVariant" value="small">\
+		Small\
+	</label>\
+	<label>\
+		<input type="radio" name="treeThemeVariant" value="default">\
+		Medium\
+	</label>\
+	<label>\
+		<input type="radio" name="treeThemeVariant" value="large">\
+		Large\
+	</label>\
+	<br>\
 	<label>\
 		Default template<br>\
 		<select id="defaultCode" class="ui-widget ui-state-default ui-corner-all"></select>\

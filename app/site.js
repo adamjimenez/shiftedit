@@ -879,13 +879,13 @@ function chooseFolder() {
 			},
 			'themes': {
 				'responsive': false,
-				'variant': 'small',
-				'stripes': true
+				'variant': prefs.treeThemeVariant,
+				'dots': false
 			}
 		},
 		'types' : {
-			'default' : { 'icon' : 'folder' },
-			'file' : { 'valid_children' : [], 'icon' : 'file' }
+			'default' : { 'icon' : 'fas fa-folder' },
+			'file' : { 'icon' : 'fas fa-file' }
 		},
 		'sort' : function(a, b) {
 			return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
@@ -893,7 +893,10 @@ function chooseFolder() {
 		'plugins' : [
 			'sort','types'
 		]
-	}).on('loaded.jstree', function(e, data) {
+	})
+	.on('open_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder-open"); })
+	.on('close_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder"); })
+	.on('loaded.jstree', function(e, data) {
 		//expand root node
 		var inst = $.jstree.reference($('#folderTree'));
 		var rootNode = $('#folderTree').jstree(true).get_node('#').children[0];

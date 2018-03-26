@@ -218,7 +218,7 @@ li[role=tab] .ui-icon {
 }
 
 /* START TREE */
-/*.jstree { float:left; min-width:319px; overflow:auto; padding:0px 0; }*/
+/*
 .jstree .folder { background:url('images/icons/file_sprite.png') right bottom no-repeat; }
 .jstree .file { background:url('images/icons/file_sprite.png') 0 0 no-repeat; }
 .jstree .file-pdf { background-position: -32px 0 }
@@ -243,6 +243,11 @@ li[role=tab] .ui-icon {
 .jstree .file-js { background-position: -434px -18px }
 .jstree .file-css { background-position: -144px 0 }
 .jstree .file-fla { background-position: -398px 0 }
+*/
+
+.jstree-table-header-regular, .jstree-table-column {
+	padding: 0.6em !important;
+}
 
 /* force tree table height to 100% */
 .jstree-table-wrapper{

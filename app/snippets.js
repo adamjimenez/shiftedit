@@ -1,4 +1,4 @@
-define(['./config', './tabs', './util', './prompt', './loading', './shortcuts', './lang', 'jstree', 'dialogResize'], function (config, tabs, util, prompt, loading, shortcuts, lang) {
+define(['./config', './prefs', './tabs', './util', './prompt', './loading', './shortcuts', './lang', 'jstree', 'dialogResize'], function (config, preferences, tabs, util, prompt, loading, shortcuts, lang) {
 lang = lang.lang;
 var confirmed = false;
 var inst;
@@ -155,6 +155,8 @@ function edit(node) {
 }
 
 function init() {
+	var prefs = preferences.get_prefs();
+	
 	tree = $('#snippets')
 	.jstree({
 		'core' : {
@@ -217,8 +219,8 @@ function init() {
 			},
 			'themes': {
 				'responsive': false,
-				'variant': 'small',
-				'stripes': true
+				'variant': prefs.treeThemeVariant,
+				'dots': false
 			}
 		},
 		'sort' : function(a, b) {
@@ -301,8 +303,8 @@ function init() {
 			}
 		},
 		'types' : {
-			'default' : { 'icon' : 'folder' },
-			'file' : { 'valid_children' : [], 'icon' : 'file' }
+			'default' : { 'icon' : 'fas fa-folder' },
+			'file' : { 'icon' : 'fas fa-file' }
 		},
 		'unique' : {
 			'duplicate' : function (name, counter) {
@@ -313,6 +315,8 @@ function init() {
 			'state','dnd','sort','types','contextmenu','unique'
 		]
 	})
+	.on('open_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder-open"); })
+	.on('close_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder"); })
 	.on('delete_node.jstree', function (e, data) {
 		/*
 		$.get('?operation=delete_node', { 'id' : data.node.id })

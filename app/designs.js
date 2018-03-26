@@ -121,11 +121,20 @@ function create(tab) {
 									type: 'folder'
 								});
 							}
+							
+							//backcompat old turbo mode
+							var params = util.clone(ajaxOptions.params);
+							params.path = '';
+							if(node.id!=='#root')
+								params.path = node.id;
 
-							$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+							$.ajax(ajaxOptions.url+'&cmd=get&path='+encodeURIComponent(node.id), {
 								method: 'POST',
 								dataType: 'json',
-								data: ajaxOptions.params,
+								data: params,
+								xhrFields: {
+									withCredentials: true
+								},
 								success: function(data) {
 									//console.log(data);
 									callback.call(imageTree, data.files);
@@ -136,12 +145,13 @@ function create(tab) {
 					'force_text': true,
 					'themes': {
 						'responsive': false,
-						'variant': 'small'
+						'variant': prefs.treeThemeVariant,
+						'dots': false
 					}
 				},
 				'types' : {
-					'default' : { 'icon' : 'folder' },
-					'file' : { 'valid_children' : [], 'icon' : 'file' }
+					'default' : { 'icon' : 'fas fa-folder' },
+					'file' : { 'icon' : 'fas fa-file' }
 				},
 				'sort' : function(a, b) {
 					return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
@@ -149,7 +159,10 @@ function create(tab) {
 				'plugins' : [
 					'sort', 'types'
 				]
-			}).on('refresh.jstree', function(e, data){
+			})
+			.on('open_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder-open"); })
+			.on('close_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder"); })
+			.on('refresh.jstree', function(e, data){
 				//expand root node
 				var inst = $.jstree.reference($('#imageTree'));
 				var rootNode = $('#imageTree').jstree(true).get_node('#').children[0];
