@@ -30,14 +30,12 @@ function init() {
 		<div class="ui-layout-content">\
 			<div id="tabs-filetree">\
 				<div class="vbox">\
-					<div id="filetree-buttons" class="hbox">\
-						<div id="sitebar" class="flex">\
+					<div class="hbox ui-widget-header panel-buttons">\
+						<div id="sitebar" class="flex ui-widget-content ui-state-default">\
 							<select id="sites">\
 							</select>\
 						</div>\
 						<button id="refresh_site"><i class="fas fa-sync"></i></button>\
-						<button id="siteNenuBtn"><i class="fa fa-bars"></i></button>\
-						<ul id="siteMenu"></ul>\
 					</div>\
 					<div id="tree-container" class="vbox" style="display: none;">\
 						<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all" style="display: none;">\
@@ -49,7 +47,7 @@ function init() {
 			<div id="tabs-find"></div>\
 			<div id="tabs-definitions"></div>\
 			<div id="tabs-notes">\
-				<textarea id="notes" class="ui-widget ui-state-default ui-corner-all"></textarea>\
+				<textarea id="notes" class="ui-widget ui-state-default ui-corner-all" placeholder="Put your development notes in here.."></textarea>\
 			</div>\
 			<div id="tabs-snippets">\
 				<div id="snippets"></div>\
