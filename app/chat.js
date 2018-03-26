@@ -32,14 +32,14 @@ function send(msg) {
 	var message = {
 		userId: userId,
 		name: username,
-		timestamp: Firebase.ServerValue.TIMESTAMP,
+		timestamp: firebase.timestamp(),
 		message: msg,
 		avatar: avatar
 	};
 
 	var ref = groupRef.push();
 	var callback;
-	ref.setWithPriority(message, Firebase.ServerValue.TIMESTAMP, callback);
+	ref.setWithPriority(message, firebase.timestamp(), callback);
 }
 
 function add() {
@@ -86,7 +86,7 @@ function add() {
 		timestamp = timestamp.setDate(timestamp.getDate()-7);
 		ref.endAt(timestamp).on("child_added", function(snap) {
 			console.log('delete old');
-			snap.ref().remove();
+			snap.ref.remove();
 		});
 
 		recentRef.on('value', function(snapshot) {
@@ -245,7 +245,7 @@ function remove(li) {
 	timestamp = timestamp.setDate(timestamp.getDate());
 	groupRef.endAt(timestamp).on("child_added", function(snap) {
 		console.log('delete old');
-		snap.ref().remove();
+		snap.ref.remove();
 	});
 
 	$('#messages').html('');
