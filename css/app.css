@@ -395,20 +395,6 @@ li[role=tab] .ui-icon {
 	opacity: 0.8;
 }
 
-.editor_toolbar {
-	overflow: hidden;
-}
-
-.editor_toolbar .ui-menu {
-	max-height: 400px;
-	overflow-x: hidden;
-	overflow-y: auto;
-}
-
-.editor_toolbar .ui-menubar-item a{
-	white-space: nowrap;
-}
-
 /* syntax errors */
 .editor_status{
 	/*background: #C8E2F9;*/
