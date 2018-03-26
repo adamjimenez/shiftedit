@@ -97,8 +97,6 @@ function create(tab) {
 				editor.insert(code);
 
 				tabs.setEdited(tab, true);
-				
-				editor_toolbar.update(tab);
 			});
 
 			//add save shortcut
