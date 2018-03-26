@@ -1,4 +1,4 @@
-define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', "./editor_toolbar", './prompt','./editor_contextmenu','./autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, editor_toolbar, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools) {
+define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu','./autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools) {
 
 lang = lang.lang;
 var editor;
@@ -112,8 +112,6 @@ function onChange(e, document) {
 		}
 	}
 
-	editor_toolbar.update(tab);
-	
 	// clear tinymce undo stack
 	if (tab.data('view')==='code') {
 		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
@@ -1764,9 +1762,6 @@ snippet ifeil\n\
 	if (options && options.state) {
 		restoreState(options.state);
 	}
-
-	//make toolbar
-	editor_toolbar.create(tab);
 	
 	editor.focus();
 
