@@ -110,8 +110,26 @@ textarea, input{
 	padding: 10px;
 }
 
-.ui-tabs .ui-tabs-nav, .ui-layout-container .ui-layout-pane{
-	border-radius: 0;
+.ui-tabs .ui-tabs-tab, .ui-tabs .ui-tabs-nav, .ui-layout-container .ui-layout-pane, .ui-widget, .ui-corner-all, .ui-state-default, .ui-widget-header, .ui-widget-content .ui-state-active{
+	border-radius: 0 !important;
+	border: 0 !important;
+}
+
+.ui-sortable-placeholder{
+	margin: 0 !important;
+}
+
+.ui-tabs .ui-tabs-nav{
+	padding: 0 !important;
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
+}
+
+.ui-tabs-panel .ui-widget-header {
+	background-image: none !important;
 }
 
 div.buttons {
