@@ -15,58 +15,41 @@ function init() {
 
 			switch(key) {
 				case 'new':
-					$(this).closest(".ui-tabs").tabs('add');
+					tab.closest(".ui-tabs").tabs('add');
 				break;
 				case 'reload':
-					var tabpanel = tab.closest(".ui-tabs");
 					tabs.reload(tab);
 				break;
 				case 'revert':
-					var editor = tabs.getEditor(tab);
-
-					if( editor && tab.data('original')!==editor.getValue() ){
-						editor.setValue(tab.data('original'));
-					} else {
-						console.log('file is unchanged');
-					}
-					
-					tabs.setEdited(tab, false);
-				break;
+					return tabs.revert(tab);
 				case 'close':
-					return tabs.close($(this));
+					return tabs.close(tab);
 				case 'closeOtherTabs':
-					return tabs.closeOther($(this));
+					return tabs.closeOther(tab);
 				case 'closeAllTabs':
-					return tabs.closeAll($(this));
+					return tabs.closeAll(tab);
 				case 'closeTabsRight':
-					return tabs.closeTabsRight($(this));
+					return tabs.closeTabsRight(tab);
 				case 'save':
-					return tabs.save($(this));
+					return tabs.save(tab);
 				case 'saveAs':
-					return tabs.saveAs($(this));
+					return tabs.saveAs(tab);
 				case 'saveAll':
-					return tabs.saveAll($(this));
+					return tabs.saveAll(tab);
+				case 'saveWithMinified':
+					return tabs.save(tab, {minify: true});
+				case 'download':
+					return tabs.download(tab);
 				case 'revealInTree':
-					siteId = tab.data('site');
-
-					function revealFile() {
-						return tree.select(tab.data('file'));
-					}
-
-					if(site.active()==siteId) {
-						return revealFile();
-					}else{
-						$('#tree').one('refresh.jstree', revealFile);
-						return site.open(siteId, null);
-					}
-				break;
+					return tabs.revealInTree(tab);
 				case 'bookmarkAll':
 					var name = '';
 					var link = location.protocol+'//'+location.host+location.pathname+'#';
 
 					$('li[role="tab"][data-site][data-file]:not(.button)').each(function() {
-						var siteId = $(this).data('site');
-						var file = $(this).data('file');
+						var tab = $(this);
+						var siteId = tab.data('site');
+						var file = tab.data('file');
 						var settings = site.getSettings(siteId);
 
 						link += settings.name + '/' + file + '|';
@@ -97,6 +80,8 @@ function init() {
 			"save": {name: makeMenuText('Save', preferences.getKeyBinding('save'), 'save'), isHtmlName: true, disabled: notFile},
 			"saveAs": {name: makeMenuText('Save as...', preferences.getKeyBinding('saveAs'), 'saveAs'), isHtmlName: true, disabled: notFile},
 			"saveAll": {name: makeMenuText('Save all', 'Ctrl-Shift-S'), isHtmlName: true, disabled: notFile},
+			"saveWithMinified": {name: makeMenuText('Save with minified'), isHtmlName: true, disabled: notFile, match: 'js|css'},
+			"download": {name: makeMenuText('Download'), isHtmlName: true, disabled: notFile},
 			"sep4": "---------",
 			"revealInTree": {name: "Reveal in file tree", isHtmlName: true, disabled: notFile},
 			"bookmarkAll": {name: "Bookmark all files", isHtmlName: true}
@@ -104,8 +89,22 @@ function init() {
 	});
 }
 
-function notFile() {
-	return typeof $(this).data('file') === 'undefined';
+function notFile(name, menu) {
+	var file = $(this).data('file');
+	if (typeof file === 'undefined') {
+		return true;
+	}
+	
+	var item = menu.items[name];
+	if (item.match) {
+		var extension = util.fileExtension(file);
+		var r = new RegExp(item.match, "i");
+		if (!r.test(extension)){
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 return {
