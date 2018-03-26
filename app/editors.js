@@ -581,8 +581,10 @@ function addFirepad(tab) {
 				console.log('new revision: ' + data.revision);
 				tabs.setEdited(tab, false);
 				
-				// refresh preview
+				// refresh preview avoiding recursion
+				$(tab).off('save', jQuery.proxy(pushSave, tab));
 				tab.trigger('save');
+				$(tab).on('save', jQuery.proxy(pushSave, tab));
 			}
 
 			if( data && data.last_modified ){
