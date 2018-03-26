@@ -1452,6 +1452,29 @@ function applyPrefs(tab) {
 	});
 }
 
+function pushSave() {
+	var tab = this;
+	var firepad = tab.data('firepad');
+	var firepadRef = $(tab).data('firepadRef');
+	
+	if( firepad ){
+		var revision = firepad.firebaseAdapter_.revision_;
+		
+		if (!tab.data('mdate')) {
+			console.log('missing mdate');
+		} else {
+			var saveRef = firepadRef.child('save');
+			
+			saveRef.set({
+				revision: revision,
+				last_modified: tab.data('mdate'),
+				username: localStorage.username
+			});
+			console.log('revision set to: '+revision);
+		}
+	}
+}
+
 function create(file, content, siteId, options) {
 	var settings = {};
 
@@ -1703,20 +1726,6 @@ snippet ifeil\n\
 	editor.getSession().on("changeAnnotation", jQuery.proxy(syntax_errors.update, tab));
 	editor.on('guttermousedown', jQuery.proxy(onGutterClick, tab));
 	editor.getSession().selection.on('changeCursor', jQuery.proxy(onChangeCursor, tab));
-
-	$(tab).on('save', function() {
-		var firepad = $(tab).data('firepad');
-		
-		if( firepad ){
-			var revision = firepad.firebaseAdapter_.revision_;
-			firepad.firebaseAdapter_.ref_.child('save').set({
-				revision: revision,
-				last_modified: $(tab).data('mdate'),
-				username: localStorage.username
-			});
-			console.log('revision set to: '+revision);
-		}
-	});
 	
 	$(tab).on('share', function() {
 		console.log('shared');
