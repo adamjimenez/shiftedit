@@ -16,6 +16,7 @@ body{
 }
 
 textarea{
+textarea, input{
 	background-image: none !important;
 }
 
