@@ -1375,24 +1375,24 @@ function init() {
 
 	// TABS - sortable
 	$( ".ui-layout-west" ).tabs({event: 'mousedown'});
-	var tabs = $( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).tabs({closable: true, addTab:true, event: 'mousedown'});
+	var tabs = $( ".ui-layout-east, .ui-layout-center" ).tabs({closable: true, addTab:true, event: 'mousedown'});
 
 	//console.log(tabs);
 
 	// initialize overflow
-	$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').tabs('overflowResize');
-	$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', checkEdited);
-	$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsremove', afterClose);
-	$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsadd', newTab);
+	$('.ui-layout-west, .ui-layout-east, .ui-layout-center').tabs('overflowResize');
+	$('.ui-layout-west, .ui-layout-east, .ui-layout-center').on('tabsbeforeremove', checkEdited);
+	$('.ui-layout-west, .ui-layout-east, .ui-layout-center').on('tabsremove', afterClose);
+	$('.ui-layout-west, .ui-layout-east, .ui-layout-center').on('tabsadd', newTab);
 
 	//remember scroll
-	$( ".ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south" ).on( "tabsbeforeactivate", function(e, ui){
+	$( ".ui-layout-west, .ui-layout-east, .ui-layout-center" ).on( "tabsbeforeactivate", function(e, ui){
 		var oldPanel = $(ui.oldPanel);
 		oldPanel.data('scrollTop', oldPanel.closest('.ui-layout-content').scrollTop());
 	});
 
 	//restore scroll
-	$( ".ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south" ).on( "tabsactivate", function(e, ui){
+	$( ".ui-layout-west, .ui-layout-east, .ui-layout-center" ).on( "tabsactivate", function(e, ui){
 		var newPanel = $(ui.newPanel);
 		newPanel.closest('.ui-layout-content').scrollTop(newPanel.data("scrollTop"));
 
