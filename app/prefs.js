@@ -6,7 +6,7 @@ var openingFilesBatch = [];
 var news = {};
 
 var defaultPrefs = {};
-defaultPrefs.skin = 'mint-choc';
+defaultPrefs.skin = 'dark-hive';
 defaultPrefs.defaultCode = JSON.stringify({
 	html: "<!DOCTYPE HTML>\n\
 <html>\n\
@@ -67,6 +67,7 @@ defaultPrefs.syntaxErrors = true;
 defaultPrefs.filePanelWidth = 250;
 defaultPrefs.designModeWarning = true;
 defaultPrefs.singleClickOpen = true;
+defaultPrefs.customCssUrl = '';
 defaultPrefs.promptOnExit = 'unsaved';
 defaultPrefs.errorReporting = false;
 defaultPrefs.homeTab = true;
@@ -107,11 +108,11 @@ var skins = [{
 	title: "Base",
 	name: "base",
 	icon: "theme_90_base.png"
-},*/ {
+},*/ /*{ //ugly
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
-}, /*{ // tree highlight issue
+},*/ /*{ // tree highlight issue
 	title: "Blitzer",
 	name: "blitzer",
 	icon: "theme_90_blitzer.png"
@@ -127,11 +128,11 @@ var skins = [{
 	title: "Dot Luv",
 	name: "dot-luv",
 	icon: "theme_90_dot_luv.png"
-}, {
+}, /*{ //ugly
 	title: "Eggplant",
 	name: "eggplant",
 	icon: "theme_90_eggplant.png"
-}, /*{ //menu issue
+},*/ /*{ //menu issue
 	title: "Excite Bike",
 	name: "excite-bike",
 	icon: "theme_90_excite_bike.png"
@@ -144,15 +145,15 @@ var skins = [{
 	title: "Hot Sneaks",
 	name: "hot-sneaks",
 	icon: "theme_90_hot_sneaks.png"
-},*/ {
+},*/ /*{ //ugly
 	title: "Humanity",
 	name: "humanity",
 	icon: "theme_90_humanity.png"
-}, {
+},*/ /*{ //ugly
 	title: "Le Frog",
 	name: "le-frog",
 	icon: "theme_90_le_frog.png"
-}, {
+}, */{
 	title: "Mint Choc",
 	name: "mint-choc",
 	icon: "theme_90_mint_choco.png"
@@ -160,47 +161,47 @@ var skins = [{
 	title: "Overcast",
 	name: "overcast",
 	icon: "theme_90_overcast.png"
-},*/ {
+},*/ /*{ //ugly
 	title: "Pepper Grinder",
 	name: "pepper-grinder",
 	icon: "theme_90_pepper_grinder.png"
-}, {
+},*/ /*{ //ugly
 	title: "Redmond",
 	name: "redmond",
 	icon: "theme_90_windoze.png"
-}, {
+}, *//*{ //ugly
 	title: "South Street",
 	name: "south-street",
 	icon: "theme_90_south_street.png"
-}, /*{ // menu issues
+}, *//*{ // menu issues
 	title: "Start",
 	name: "start",
 	icon: "theme_90_start_menu.png"
-},*/ {
+},*/ /*{ // ugly
 	title: "Sunny",
 	name: "sunny",
 	icon: "theme_90_sunny.png"
-}, {
+},*/ /* { //ugly
 	title: "Swanky Purse",
 	name: "swanky-purse",
 	icon: "theme_90_swanky_purse.png"
-}, {
+},*/ /*{ //ugly
 	title: "Trontastic",
 	name: "trontastic",
 	icon: "theme_90_trontastic.png"
-}, {
+},*/ {
 	title: "UI Darkness",
 	name: "ui-darkness",
 	icon: "theme_90_ui_dark.png"
-}, {
+}/*, { //ugly
 	title: "UI Lightness",
 	name: "ui-lightness",
 	icon: "theme_90_ui_light.png"
-}, {
+}*//*, { //ugly
 	title: "Vader",
 	name: "vader",
 	icon: "theme_90_black_matte.png"
-}];
+}*/];
 
 var skinHTML = '';
 skins.forEach(function(item){
@@ -693,6 +694,11 @@ function load() {
 			if(prefs.skin) {
 				updateSkin(prefs.skin);
 			}
+	
+			//custom css
+			if(prefs.customCssUrl) {
+				updateCustomCssUrl(prefs.customCssUrl);
+			}
 			
 			//prompt
 			if(data.expired) {
@@ -866,6 +872,14 @@ function updateSkin(name){
 	}
 }
 
+function updateCustomCssUrl() {
+	$('#customCss').remove();
+	
+	if (prefs.customCssUrl) {
+		$( "body" ).append( '<link id="customCss" href="' + prefs.customCssUrl + '" type="text/css" rel="Stylesheet" />');
+	}
+}
+
 function save(name, value) {
 	//nested array value
 	parts = name.split('.');
@@ -880,6 +894,11 @@ function save(name, value) {
 	//skin
 	if(name==='skin' || name=='skinUrl') {
 		updateSkin(value);
+	}
+	
+	//custom css
+	if(name==='customCssUrl') {
+		updateCustomCssUrl(value);
 	}
 
 	if(name==='customTheme'){
@@ -963,6 +982,10 @@ function open(tabpanel) {
 	'+skinHTML+'<br>\
 	<label>Code theme</label>\
 	'+themeHTML+'<br>\
+	<label>\
+		Custom CSS URL<br>\
+		<input type="text" name="customCssUrl" placeholder="use your own css theme" id="customCssUrl" class="text ui-widget-content ui-corner-all"><br>\
+	</label><br>\
 	<label>Prompt on exit</label>\
 	<label>\
 		<input type="radio" name="promptOnExit" value="unsaved">\
@@ -1019,7 +1042,8 @@ function open(tabpanel) {
 	<label>\
 		<input type="checkbox" name="autoSave" value="1">\
 		Autosave\
-	</label><br>\
+	</label>\
+	<br>\
 	<label>\
 		Maximum number of files in each folder<br>\
 		<input type="number" name="maxFiles" value="" class="ui-widget ui-state-default ui-corner-all">\
@@ -1119,10 +1143,6 @@ function open(tabpanel) {
 	<label>\
 		<input type="radio" name="sshPane" value="east">\
 		East\
-	</label>\
-	<label>\
-		<input type="radio" name="sshPane" value="south">\
-		South\
 	</label>\
 	<br>\
 	<h2>Security</h2>\
