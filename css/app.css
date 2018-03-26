@@ -155,21 +155,61 @@ li[role=tab] .ui-icon {
 }
 
 .addTab{
-	padding-bottom: 4px !important;
 	background-position: top;
+	margin-left: 2px !important;
+	height: 100%;
+}
+
+/* Mobile Menubar */
+.mobileButton .ui-menu{
+	overflow: scroll;
+}
+
+.ui-menubar .header{
+	font-style: italic;
+	opacity: 1 !important;
+}
+
+.mobileButton {
+	display: none;
+}
+
+.ui-menubar .user img{
+	border-radius: 24px;
+	vertical-align: middle;
+	margin-right: 10px;
+}
+
+@media screen and (max-width: 600px) {
+	.mobileButton {
+		display: list-item;
+	}
+	.desktopButton {
+		display: none;
+	}
 }
 
 /* Menubar */
 .ui-menubar .ui-menu{
 	width: 300px;
+	max-height: calc(100vh - 50px);
 }
 
-.ui-menubar{
-	font-size: 12px;
+.ui-menubar .ui-button{
+	padding: .6em 1em;
 }
 
-.ui-widget {
-	font-size: 12px;
+.status_bar .ui-menu{
+	overflow: scroll;
+}
+
+.ui-menubar, .ui-widget {
+	font-size: 1em;
+	line-height: 1em;
+}
+
+.ui-menubar .ui-button-icon-secondary{
+	display: none;
 }
 
 .ui-menu-item {
@@ -208,7 +248,8 @@ li[role=tab] .ui-icon {
 }
 
 .context-menu-item {
-	padding: 2px 20px;
+	line-height: 2.4em;
+	padding: 0 2em;
 }
 
 /* dialogs */
@@ -402,6 +443,7 @@ li[role=tab] .ui-icon {
 	padding: 2px;
 	overflow: none;
 	white-space: nowrap;
+	border: 1px solid transparent;
 }
 
 .editor_status button span{
@@ -596,6 +638,12 @@ div.fullScreen{
 	font-weight: bold;
 }
 
+.user {
+	background: transparent !important;
+	text-shadow: 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black;
+	-webkit-font-smoothing: antialiased
+}
+
 /*
 .chats .selected{
 	background: #ccc;
@@ -690,10 +738,8 @@ div.fullScreen{
 }
 
 #findForm{
-	padding: 6px;
 	display: flex;
 	flex-direction: column;
-	height: 100%;
 	overflow: hidden;
 }
 
@@ -832,6 +878,10 @@ div.fullScreen{
 	overflow: auto;
 }
 
+#tabs-snippets{
+	overflow: auto;
+}
+
 #tabs-notes{
 	display: flex;
 }
@@ -839,6 +889,7 @@ div.fullScreen{
 #notes{
 	width: 100%;
 	flex-grow: 1;
+	margin-top: .4em;
 }
 
 .ui-menu{
@@ -853,6 +904,8 @@ div.fullScreen{
 .ui-menu .ui-menu-item-wrapper{
 	display: block;
 	white-space: nowrap;
+	padding: 0em 2em !important;
+	line-height: 2.4em;
 }
 
 #picker{
@@ -885,9 +938,9 @@ div.fullScreen{
 
 .vbox {
 	display: flex;
-	height: 100%;
 	align-content: stretch;
 	flex-direction: column;
+	height: 100%;
 }
 
 .hbox {
@@ -1083,13 +1136,25 @@ div.fullScreen{
 	display: none;
 }
 
-#filetree-buttons {
-	padding: 4px 0;
+.panel-buttons {
+	padding: 0.4em 0;
 }
 
 /* stretch site dropdown */
-#sitebar{
-	padding: 2px;
+#sitebar, #gitBranchBar{
+	padding: .4em 1em;
+	cursor: default;
+	position: relative;
+	border: 0;
+}
+
+#sitebar .label, #gitBranchBar .label{
+	position: absolute;
+}
+
+#sitebar .caret, #gitBranchBar .caret{
+	position: absolute;
+	right: 5px;
 }
 
 #sitebar span, .preview_toolbar span{
@@ -1098,6 +1163,24 @@ div.fullScreen{
 
 #sitebar .custom-combobox-input, #dialog-site .custom-combobox-input, .preview_toolbar .custom-combobox-input{
 	width: calc(100% - 50px);
+}
+
+#dialog-panel .filter{
+	width: 50px;
+	margin-right: 10px;
+}
+
+#dialog-panel ul{
+	flex: 1;
+	overflow-y: scroll;
+	position: relative;
+	margin-top: 10px;
+}
+
+#dialog-panel ul li i{
+	position: absolute;
+	right: 0;
+	padding: 0 10px;
 }
 
 #dialog-site .custom-combobox{
@@ -1122,11 +1205,11 @@ div.fullScreen{
 	background: none;
 }
 
-.jstree-default-small > .jstree-container-ul .jstree-loading > .jstree-ocl {
+.jstree-container-ul .jstree-loading > .jstree-ocl {
 	position: relative;
-	background: none;
+	background: none !important;
 }
-.jstree-default-small > .jstree-container-ul .jstree-loading > .jstree-ocl:before {
+.jstree-container-ul .jstree-loading > .jstree-ocl:before {
 	content: "\f021";
 	font-family: "Font Awesome\ 5 Free";
 	left: 2px;
@@ -1289,19 +1372,6 @@ div.fullScreen{
 	display: inline-block;
 	white-space: nowrap;
 	color: #000;
-}
-
-.user .ui-button-text{
-	text-shadow: 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black;
-	-webkit-font-smoothing: antialiased
-}
-
-.tabCloseButton {
-	display: none;
-}
-
-.tabCloseButton {
-	display: none;
 }
 
 .closable:hover .tabCloseButton {
