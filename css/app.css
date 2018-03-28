@@ -23,6 +23,10 @@ textarea, input{
 	background-image: none !important;
 }
 
+a input {
+	vertical-align: -2px;
+}
+
 ::-webkit-scrollbar {
 	width: 10px;
 	height: 10px;
@@ -110,7 +114,7 @@ textarea, input{
 	padding: 10px;
 }
 
-.ui-tabs .ui-tabs-tab, .ui-tabs .ui-tabs-nav, .ui-layout-container .ui-layout-pane, .ui-widget, .ui-corner-all, .ui-state-default, .ui-widget-header, .ui-widget-content .ui-state-active{
+.ui-tabs .ui-tabs-tab, .ui-tabs .ui-tabs-nav, .ui-layout-container .ui-layout-pane, .ui-state-default, .ui-widget-header, .ui-checkboxradio-label, .text, button{
 	border-radius: 0 !important;
 	border: 0 !important;
 }
@@ -130,6 +134,18 @@ textarea, input{
 
 .ui-tabs-panel .ui-widget-header {
 	background-image: none !important;
+}
+
+.ui-checkboxradio-icon{
+	background-color: transparent !important;
+}
+
+.ui-icon-check {
+	background-position: -64px -144px !important;
+}
+
+.ui-icon-blank {
+	background-position: 16px 16px !important;
 }
 
 div.buttons {
@@ -174,7 +190,7 @@ li[role=tab] .ui-icon {
 	display: none;
 }
 
-.ui-menubar .user img{
+.ui-menu img{
 	border-radius: 24px;
 	vertical-align: middle;
 	margin-right: 10px;
@@ -218,6 +234,12 @@ li[role=tab] .ui-icon {
 
 .ui-menu-item a{
 	text-decoration: none;
+}
+
+.ui-menu-item .check {
+	position: relative;
+	left: -20px;
+	width: 0;
 }
 
 .ui-selectmenu-menu, .ui-autocomplete{
@@ -280,10 +302,6 @@ li[role=tab] .ui-icon {
 	opacity: .50 !important; /* Make sure to change both of these, as IE only sees the second one */
 	filter: Alpha(Opacity=50) !important;
 	background-color: rgb(50, 50, 50) !important; /* This will make it darker */
-}
-
-.ui-checkboxradio-icon{
-	background-color: transparent !important;
 }
 
 /* START TREE */
@@ -500,15 +518,6 @@ div.fullScreen{
 	background-position: 4px center;
 }
 
-.other_cursor{
-	position: relative;
-	font-size: 10px;
-	color: #000;
-	opacity: 0.8;
-	padding: 1px;
-	border-radius: 1px;
-}
-
 /* revisions */
 .ace_added{
 	background: #eaf2c2;
@@ -642,6 +651,16 @@ div.fullScreen{
 	background: transparent !important;
 	text-shadow: 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black;
 	-webkit-font-smoothing: antialiased
+}
+
+.other_cursor{
+	position: relative;
+	font-size: 10px;
+	padding: 2px 4px;
+	color: #fff;
+	text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
+	-webkit-font-smoothing: antialiased;
+	z-index: 1;
 }
 
 /*
@@ -836,6 +855,7 @@ div.fullScreen{
 	align-items: center;
 }
 
+/*
 .prefs label{
 	display: block;
 	padding-left: 10px;
@@ -852,14 +872,17 @@ div.fullScreen{
 .prefs label.ui-button{
 	padding: 0;
 }
+*/
 
-.prefs input, .prefs textarea{
+.prefs input[type=text], .prefs textarea{
 	flex-grow: 1;
 }
 
+/*
 .prefs input[type=checkbox]{
 	flex-grow: 0;
 }
+*/
 
 .prefs input[type=number]{
 	width: 50px;
@@ -870,8 +893,9 @@ div.fullScreen{
 	width: 70px;
 }
 
-#skinUrl {
-	width: calc(100% - 30px);
+.prefs .ui-checkboxradio-label{
+	min-width: 220px;
+	text-align: left;
 }
 
 #tabs-definitions{
