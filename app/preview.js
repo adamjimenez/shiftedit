@@ -264,7 +264,7 @@ function run(tab) {
 	var panel = 'east';
 	var minWidth = 300;
 
-	if(tab.length) {
+	if(previewTab.length) {
 		tabpanel = previewTab.closest('.ui-tabs');
 		tabpanel.tabs("option", "active", previewTab.index());
 
