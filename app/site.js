@@ -291,6 +291,7 @@ function loadUsers() {
 					var shared = data.shared.length ? true : false;
 					
 					if (entry.shared != shared) {
+						console.log('toggle shared');
 						entry.shared = shared;
 						
 						// toggle shared icon
@@ -1304,7 +1305,7 @@ function edit(siteId, duplicate) {
 							<label>Host:</label>\
 							<input type="text" id="domain" name="domain" value="" class="text ui-widget-content ui-corner-all">\
 							<span id="portContainer">\
-								<label>&nbsp;:</label>\
+								<label>&nbsp;</label>\
 								<input type="number" name="port" value="" placeholder="Port" min="1" class="text ui-widget-content ui-corner-all">\
 							</span>\
 						</p>\
@@ -1349,7 +1350,7 @@ function edit(siteId, duplicate) {
 						<label>Turbo mode:</label>\
 						<label>\
 						<input type="checkbox" name="turbo" value="1" class="text ui-widget-content ui-corner-all" >\
-						Uploads a PHP proxy file\
+						Enable turbo mode\
 						</label>\
 					</p>\
 					<div class="accordion">\
@@ -1633,6 +1634,11 @@ function edit(siteId, duplicate) {
 	$( "#serverTypeRadio input[type='radio'], #stackRadio input[type='radio'], #cloudRadio input[type='radio'], #authenticationRadio input[type='radio']" ).checkboxradio({
 		icon: false
 	});
+	
+	//turbo button
+	$( "#siteSettings input[name='turbo']" ).checkboxradio({
+		icon: false
+	});
 
 	//server combo
 	if(settings.server>0) {
@@ -1890,9 +1896,9 @@ function edit(siteId, duplicate) {
 	$('#siteSettings input').on('change keyup input', function() {
 		// toggle turbo mode
 		if($('input[name=web_url]').val()) {
-			$('input[name=turbo]').removeAttr('disabled');
+			$('input[name=turbo]').removeAttr('disabled').checkboxradio('refresh');
 		} else {
-			$('input[name=turbo]').attr('disabled', 'disabled');
+			$('input[name=turbo]').attr('disabled', 'disabled').checkboxradio('refresh');
 		}
 		
 		var required = {
