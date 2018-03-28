@@ -688,7 +688,7 @@ function uploadByURl() {
 	});
 }
 
-function open(data) {
+function open(data, force) {
 	var inst = $.jstree.reference(data.reference);
 	var node = inst.get_node(data.reference);
 
@@ -702,7 +702,7 @@ function open(data) {
 		selected.forEach(function(file) {
 			if (file.type === 'image') {
 				window.open('/api/files?cmd=open_image&site=' + site.active() + '+&file=' + file.id);
-			} else if (file.type === 'code') {
+			} else if (file.type === 'code' || force) {
 				tabs.open(file.id, site.active());
 			}
 		});
@@ -1306,7 +1306,9 @@ function init() {
 					"open": {
 						"label": "Open",
 						"shortcut": 13,
-						"action": open
+						"action": function(data) {
+							open(data, true);
+						}
 					},
 					"create": {
 						"label": "New",
@@ -2002,7 +2004,7 @@ function init() {
 		} else {
 			open({
 				reference: this
-			});
+			}, true);
 		}
 	})
 	.on('refresh.jstree', function(e, data){
