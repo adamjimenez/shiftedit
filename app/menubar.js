@@ -208,7 +208,7 @@ function init () {
 			tabs.open();
 		}
 	}, {
-		text: 'Upload...',
+		text: lang.upload + '...',
 		handler: function(){
 			$('#upload').click();
 		}
@@ -249,7 +249,7 @@ function init () {
 		match: 'js|css'
 	}, {
 		id: 'download',
-		text: makeMenuText('Download', ''),
+		text: makeMenuText(lang.download, ''),
 		handler: function () {
 			tabs.download($('.ui-layout-center .ui-tabs-active'));
 		},
@@ -275,7 +275,7 @@ function init () {
 	var editItems = [{
 		id: 'undo',
 		className: 'undoBtn',
-		text: makeMenuText('Undo', 'Ctrl-Z'),
+		text: makeMenuText(lang.undo, 'Ctrl-Z'),
 		handler: function () {
 			var tab = activeTab;
 			if (tab.data('view')==='design') {
@@ -294,7 +294,7 @@ function init () {
 	}, {
 		id: 'redo',
 		className: 'redoBtn',
-		text: makeMenuText('Redo', 'Ctrl-Y'),
+		text: makeMenuText(lang.redo, 'Ctrl-Y'),
 		handler: function () {
 			var tab = activeTab;
 			if (tab.data('view')==='design') {
@@ -322,7 +322,7 @@ function init () {
 		target: 'file'
 	}, '-', {
 		id: 'toggleBreakpoint',
-		text: makeMenuText('Toggle Breakpoint', preferences.getKeyBinding('toggleBreakpoint'), 'toggleBreakpoint'),
+		text: makeMenuText(lang.toggleBreakpoint, preferences.getKeyBinding('toggleBreakpoint'), 'toggleBreakpoint'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -332,7 +332,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'nextBreakpoint',
-		text: makeMenuText('Next Breakpoint', preferences.getKeyBinding('nextBreakpoint'), 'nextBreakpoint'),
+		text: makeMenuText(lang.nextBreakpoint, preferences.getKeyBinding('nextBreakpoint'), 'nextBreakpoint'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -343,7 +343,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'prevBreakpoint',
-		text: makeMenuText('Previous Breakpoint', preferences.getKeyBinding('prevBreakpoint'), 'prevBreakpoint'),
+		text: makeMenuText(lang.previousBreakpoint, preferences.getKeyBinding('prevBreakpoint'), 'prevBreakpoint'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -354,7 +354,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'clearBreakpoints',
-		text: makeMenuText('Clear Breakpoints'),
+		text: makeMenuText(lang.clearBreakpoints),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -374,7 +374,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'jumpToMatching',
-		text: makeMenuText('Jump to Matching', 'Ctrl-P'),
+		text: makeMenuText(lang.jumpToMatching, 'Ctrl-P'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -385,7 +385,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'selectToMatching',
-		text: makeMenuText('Select to Matching', 'Ctrl-Shift-P'),
+		text: makeMenuText(lang.selectToMatching, 'Ctrl-Shift-P'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -456,7 +456,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'applySourceFormatting',
-		text: makeMenuText('Beautify', 'Alt-Shift-F'),
+		text: makeMenuText(lang.beautify, 'Alt-Shift-F'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -467,7 +467,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'keyboardShortcuts',
-		text: makeMenuText('Keyboard Bindings...'),
+		text: makeMenuText(lang.keyboardBindings + '...'),
 		handler: preferences.openKeyBindings
 	}];
 	
@@ -516,14 +516,14 @@ function init () {
 		}
 	}, {
 		id: 'codeSplit',
-		text: 'Split view',
+		text: lang.splitView,
 		tooltip: 'Split',
 		enableToggle: true,
 		disabled: true,
 		target: 'file',
 		items: [{
 			id: 'split1_0',
-			text: 'None',
+			text: lang.none,
 			checked: true,
 			handler: function () {
 				var tab = activeTab;
@@ -535,7 +535,7 @@ function init () {
 			group: 'codeSplit'
 		}, {
 			id: 'split2_1',
-			text: 'Below',
+			text: lang.below,
 			checked: false,
 			handler: function () {
 				var tab = activeTab;
@@ -556,7 +556,7 @@ function init () {
 			group: 'codeSplit'
 		}, {
 			id: 'split2_0',
-			text: 'Beside',
+			text: lang.beside,
 			checked: false,
 			handler: function () {
 				var tab = activeTab;
@@ -578,13 +578,13 @@ function init () {
 		}]
 	}, {
 		id: 'toggleTreeView',
-		text: makeMenuText('Toggle Tree View', 'Ctrl-\\'),
+		text: makeMenuText(lang.toggleTreeView, 'Ctrl-\\'),
 		handler: function (item, checked) {
 			tree.toggle();
 		}
 	}, {
 		id: 'shortcuts',
-		text: makeMenuText('Shortcuts', 'Ctrl-/'),
+		text: makeMenuText(lang.shortcuts, 'Ctrl-/'),
 		handler: function (item, checked) {
 			shortcuts.show();
 		}
@@ -615,7 +615,7 @@ function init () {
 		},
 		
 		'save': {
-			tooltip: 'Save (Ctrl-S)',
+			tooltip: lang.saveText + ' (Ctrl-S)',
 			className: 'fileButton saveBtn',
 			text: '<i class="far fa-save"></i>',
 			handler: function () {
@@ -628,7 +628,7 @@ function init () {
 		}, 
 		
 		'undo': {
-			tooltip: 'Undo (Ctrl-Z)',
+			tooltip: lang.undo + ' (Ctrl-Z)',
 			className: 'fileButton undoBtn',
 			text: '<i class="fa fa-undo"></i>',
 			handler: function () {
@@ -650,7 +650,7 @@ function init () {
 		}, 
 		
 		'redo': {
-			tooltip: 'Redo (Ctrl-Y)',
+			tooltip: lang.redo + ' (Ctrl-Y)',
 			className: 'fileButton redoBtn',
 			text: '<i class="fa fa-undo fa-flip-horizontal"></i>',
 			handler: function () {
@@ -676,7 +676,7 @@ function init () {
 			target: 'file',
 			match: 'htm|html|php',
 			text: '<i class="fas fa-font"></i>',
-			tooltip: 'Design View',
+			tooltip: lang.designView,
 			enableToggle: true,
 			handler: function () {
 				var tab = activeTab;
@@ -717,7 +717,7 @@ function init () {
 		}, 
 		
 		'run': {
-			tooltip: 'Run',
+			tooltip: lang.run,
 			className: 'fileButton previewBtn',
 			text: '<i class="fa fa-play"></i>',
 			handler: function () {
@@ -734,14 +734,14 @@ function init () {
 
 		'chat': {
 			id: 'chatButton',
-			tooltip: 'Chat',
+			tooltip: lang.chat,
 			text: '<i class="fa fa-comment"></i>',
 			disabled: true
 		},
 
 		'share': {
 			id: 'share',
-			text: 'Share',
+			text: lang.share,
 			hidden: true,
 			handler: function () {
 				if( prefs.useMasterPassword ){
@@ -864,10 +864,10 @@ function init () {
 			text: '<i class="fas fa-user"></i>',
 			items: [{
 				text: '<img src="' + storage.get('avatar') + '">' + storage.get('username'), 
-				className: 'header user', 
+				className: 'header', 
 				disabled: true
 			}, {
-				text: 'Account',
+				text: lang.accountText,
 				handler: function () {
 					window.open('/account');
 				}
@@ -896,7 +896,7 @@ function init () {
 				handler: preferences.open
 			}, '-', {
 				id: 'reportIssue',
-				text: 'Report an issue',
+				text: lang.reportAnIssue,
 				handler: function() {
 					window.open('https://github.com/adamjimenez/shiftedit/issues');
 				}
@@ -1039,7 +1039,7 @@ function init () {
 				}
 			}, {
 				id: 'support',
-				text: 'Help',
+				text: lang.help,
 				handler: function() {
 					window.open('/docs/');
 				}
@@ -1107,7 +1107,9 @@ function init () {
 			
 			// split state
 			var sp = window.splits[tab.attr('id')];
-			$('#split'+sp.getSplits()+'_'+sp.getOrientation()+' input').prop('checked', true);
+			
+			$('#menubar ').find('[data-group=codeSplit] .check').hide();
+			$('#split'+sp.getSplits()+'_'+sp.getOrientation()+' .check').show();
 			
 			checkUndoRedo();
 			
@@ -1146,7 +1148,7 @@ function init () {
 	});
 
 	$(window).on( "tabsremove", function(e, ui) {
-		if (activeTab.attr('id') === ui.tabId) {
+		if (activeTab && activeTab.attr('id') === ui.tabId) {
 			activeTab = null;
 			$('.fileButton').hide();
 			toggleOptions('file', false);
