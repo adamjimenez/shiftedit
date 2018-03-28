@@ -57,6 +57,35 @@ function findAvailableName(d, text) {
 	return newName;
 }
 
+function extensionToType(file_extension) {
+	if (file_extension.match(/^(jpg|jpeg|png|gif|ico|bmp)$/)) {
+		return 'image';
+	} else if (file_extension.match(/^(doc|docx)$/)) {
+		return 'word';
+	} else if (file_extension.match(/^(xls|xlsx)$/)) {
+		return 'excel';
+	} else if (file_extension.match(/^(ppt|pptx)$/)) {
+		return 'powerpoint';
+	} else if (file_extension.match(/^(pdf)$/)) {
+		return 'pdf';
+	} else if (file_extension.match(/^(mp3|wav)$/)) {
+		return 'audio';
+	} else if (file_extension.match(/^(mp4|avi|mkv|qt|mov|wmv|flv)$/)) {
+		return 'video';
+	} else if (file_extension.match(/^(zip|gz|tar|7z|rar)$/)) {
+		return 'archive';
+	} else {
+		var type = 'file';
+		modes.forEach(function (item) {
+			if (item[2].indexOf(file_extension) !== -1) {
+				type = 'code';
+				return;
+			}
+		});
+		return type;
+	}
+}
+
 function paste(node) {
 	if (clipboard.files.length === 0) {
 		return;
@@ -114,7 +143,7 @@ function buildQueue(nodes, d) {
 	queue.push({
 		path: path,
 		dest: dest+'/'+newName,
-		isDir: (node.type!=='file')
+		isDir: (node.type==='default')
 	});
 
 	if (node.type=='file') {
@@ -259,10 +288,12 @@ function newFile(data) {
 		i++;
 		newName = prefix + i + '.' + extension;
 	}
+	
+	var type = extensionToType(extension);
 
 	newName = findAvailableName(parent, newName);
 
-	inst.create_node(parent, { type : "file", text: newName, data: {} }, "last", function (new_node) {
+	inst.create_node(parent, { type : type, text: newName, data: {} }, "last", function (new_node) {
 		setTimeout(function () {
 			inst.deselect_all();
 			inst.select_node(new_node);
@@ -1060,32 +1091,7 @@ function init() {
 								for(var i=0; i<files.length; i++) {
 									if (files[i].type === 'file') {
 										file_extension = util.fileExtension(files[i].text);
-										
-										if (file_extension.match(/^(jpg|jpeg|png|gif|ico|bmp)$/)) {
-											type = 'image';
-										} else if (file_extension.match(/^(doc|docx)$/)) {
-											type = 'word';
-										} else if (file_extension.match(/^(xls|xlsx)$/)) {
-											type = 'excel';
-										} else if (file_extension.match(/^(ppt|pptx)$/)) {
-											type = 'powerpoint';
-										} else if (file_extension.match(/^(pdf)$/)) {
-											type = 'pdf';
-										} else if (file_extension.match(/^(mp3|wav)$/)) {
-											type = 'audio';
-										} else if (file_extension.match(/^(mp4|avi|mkv|qt|mov|wmv|flv)$/)) {
-											type = 'video';
-										} else if (file_extension.match(/^(zip|gz|tar|7z|rar)$/)) {
-											type = 'archive';
-										} else {
-											modes.forEach(function (item) {
-												if (item[2].indexOf(file_extension) !== -1) {
-													type = 'code';
-													return;
-												}
-											});
-										}
-										
+										type = extensionToType(file_extension);
 										if (type !== 'file') {
 											files[i].type = type;
 										}
