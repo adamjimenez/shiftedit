@@ -48,14 +48,23 @@ define(["jquery.menubar"], function () {
 					item.addClass(menu[i].cls);
 				}
 
+				// checkboxes
+				var toggle = false;
 				if(menu[i].group) {
-					item.children('a').prepend('<input type="radio" name="'+menu[i].group+'">');
+					toggle = true;
+					item.data('group', menu[i].group);
+					item.attr('data-group', menu[i].group);
 				}else if(typeof menu[i].checked === "boolean") {
-					$('<input type="checkbox">').prependTo(item.children('a'));
+					toggle = true;
 				}
 
-				if(menu[i].checked) {
-					item.find('input').prop('checked', true);
+				if(toggle) {
+					item.data('toggle', true);
+					
+					var icon = $('<i class="check fas fa-check"></i>').prependTo(item.children('a'));
+					if (!menu[i].checked) {
+						icon.hide();
+					}
 				}
 
 				//trigger the correct handler with the checkbox value
@@ -63,12 +72,24 @@ define(["jquery.menubar"], function () {
 					item.click(
 						(function(i, item, context) {
 							return function(e) {
-								var checkbox = $(item).find('input');
-								if(e.target.nodeName!=='INPUT') {
-									checkbox.prop("checked", !checkbox.prop("checked"));
+								var check = $(item).find('.check');
+								var group = $(item).data('group');
+								
+								if ($(item).data('toggle')) {
+									if (check.is(":visible")) {
+										if (!group) {
+											check.hide();
+										}
+									} else {
+										if (group) {
+											el.find('[data-group='+group+'] .check').hide();
+										}
+										
+										check.show();
+									}
 								}
 
-								jQuery.proxy(menu[i].handler, item, context, checkbox.prop("checked"))();
+								jQuery.proxy(menu[i].handler, item, context, check.is(":visible"))();
 								
 								// prevent hash change
 								if ($(e.target).is('a') || $(e.target).parents('a').length > 0) {
