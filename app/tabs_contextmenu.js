@@ -5,10 +5,6 @@ var makeMenuText = util.makeMenuText;
 function init() {
 	$.contextMenu({
 		selector: '.ui-tabs-nav li.closable',
-		beforeOpen: function(event, ui) {
-			// appear above layout bars
-			ui.menu.zIndex(3);
-		},
 		callback: function(key, opt){
 			var tab = $(this);
 			var siteId;
@@ -85,7 +81,8 @@ function init() {
 			"sep4": "---------",
 			"revealInTree": {name: "Reveal in file tree", isHtmlName: true, disabled: notFile},
 			"bookmarkAll": {name: "Bookmark all files", isHtmlName: true}
-		}
+		},
+		zIndex: 3
 	});
 }
 
