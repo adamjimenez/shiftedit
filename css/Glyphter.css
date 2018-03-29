@@ -9,14 +9,14 @@
     font-weight: normal;
     font-style: normal;
 }
-[class*='icon-']:before{
+.icon-case-sensitive:before, .icon-regex:before, .icon-whole-word:before{
 	display: inline-block;
-   font-family: 'Glyphter';
-   font-style: normal;
-   font-weight: normal;
-   line-height: 1;
-   -webkit-font-smoothing: antialiased;
-   -moz-osx-font-smoothing: grayscale
+	font-family: 'Glyphter';
+	font-style: normal;
+	font-weight: normal;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale
 }
 .icon-case-sensitive:before{content:'\0041';}
 .icon-regex:before{content:'\0042';}
