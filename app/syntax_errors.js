@@ -126,8 +126,8 @@ function show() {
 	var error = errors[currentError].text;
 	var line = errors[currentError].row + 1;
 
-	$(editor_status).find('.status').html('[' + (currentError + 1) + '/' + errors.length + '] ' + error +
-	' on <a href="#" class="line" data-line="' + line + '">line ' + line + '</a>');
+	$(editor_status).find('.status').text('[' + (currentError + 1) + '/' + errors.length + '] ' + error +
+	' on ').append('<a href="#" class="line" data-line="' + line + '">line ' + line + '</a>');
 
 	$(editor_status).addClass('ui-state-highlight');
 
