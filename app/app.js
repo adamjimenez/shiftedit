@@ -12,7 +12,6 @@ requirejs.config({
 		"markdown-it": "node_modules/markdown-it/dist/markdown-it",
 		"resumablejs": "node_modules/resumablejs/resumable",
 		"lzma": "node_modules/lzma",
-		//"jquery-ui": "node_modules/jquery-ui-bundle/jquery-ui",
 		"jquery-ui-bundle": "node_modules/jquery-ui-bundle/jquery-ui",
 		"uglify-js": "node_modules/uglify-js",
 		"diff": "node_modules/diff/dist/diff",
