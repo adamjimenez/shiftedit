@@ -17,7 +17,7 @@ define(["jquery.menubar"], function () {
 				var tooltip = menu[i].tooltip ? menu[i].tooltip : '';
 
 				var item = $('<li>\
-					<a href="#'+i+'" title="'+tooltip+'">'+menu[i].text+'</a>\
+					<div title="'+tooltip+'">'+menu[i].text+'</div>\
 				</li>').appendTo(el);
 
 				if(menu[i].id) {
@@ -61,14 +61,14 @@ define(["jquery.menubar"], function () {
 				if(toggle) {
 					item.data('toggle', true);
 					
-					var icon = $('<i class="check fas fa-check"></i>').prependTo(item.children('a'));
+					var icon = $('<i class="check fas fa-check"></i>').prependTo(item.children('div'));
 					if (!menu[i].checked) {
 						icon.hide();
 					}
 				}
 
 				//trigger the correct handler with the checkbox value
-				if(menu[i].handler) {
+				if(menu[i].handler && !menu[i].buttons) {
 					item.click(
 						(function(i, item, context) {
 							return function(e) {
@@ -90,14 +90,28 @@ define(["jquery.menubar"], function () {
 								}
 
 								jQuery.proxy(menu[i].handler, item, context, check.is(":visible"))();
-								
-								// prevent hash change
-								if ($(e.target).is('a') || $(e.target).parents('a').length > 0) {
-									e.preventDefault();
-								}
 							};
 						}(i, item, context))
 					);
+				}
+				
+				
+				if(typeof menu[i].buttons === 'object'){
+					item.find('.label').removeClass('label');
+					
+					menu[i].buttons.forEach(function(button) {
+						var input = $('<label><input type="radio" name="' + button.group + '" value="' + button.value + '">' + button.text + '</label>').appendTo(item.find('.shortcut'))
+						.attr('id', button.id);
+						
+						if(button.checked) {
+							input.prop('checked', true);
+						}
+					});
+					
+					var buttons = $(item).find('input');
+					buttons.checkboxradio({icon: false});
+					
+					buttons.change(menu[i].handler);
 				}
 
 				if(typeof menu[i].items === 'object'){

@@ -516,64 +516,68 @@ function init () {
 		}
 	}, {
 		id: 'codeSplit',
-		text: lang.splitView,
+		text: makeMenuText(lang.splitText, ''),
 		tooltip: 'Split',
 		enableToggle: true,
 		disabled: true,
 		target: 'file',
-		items: [{
+		handler: function () {
+			var tab = activeTab;
+			var sp = window.splits[tab.attr('id')];
+			var editor = tabs.getEditor(tab);
+			var secondSession;
+			var newEditor;
+			var session;
+			var newSession;
+			
+			switch(this.value) {
+				case 'beside':
+					secondSession = null;
+					newEditor = (sp.getSplits() == 1);
+					sp.setOrientation(sp.BESIDE);
+					sp.setSplits(2);
+					if (newEditor) {
+						session = secondSession || sp.getEditor(0).session;
+						newSession = sp.setSession(session, 1);
+						newSession.name = session.name;
+						editors.applyPrefs(tab);
+					}
+				break;
+				case 'below':
+					secondSession = null;
+					newEditor = (sp.getSplits() == 1);
+					sp.setOrientation(sp.BELOW);
+					sp.setSplits(2);
+					if (newEditor) {
+						session = secondSession || sp.getEditor(0).session;
+						newSession = sp.setSession(session, 1);
+						newSession.name = session.name;
+						editors.applyPrefs(tab);
+					}
+				break;
+				default:
+					sp.setSplits(1);
+					sp.setOrientation(sp.BESIDE);
+				break;
+			}
+		},
+		buttons: [{
 			id: 'split1_0',
-			text: lang.none,
+			text: '<i class="far fa-window-maximize"></i>',
+			value: 'none',
 			checked: true,
-			handler: function () {
-				var tab = activeTab;
-				var sp = window.splits[tab.attr('id')];
-				sp.setSplits(1);
-				var editor = tabs.getEditor(tab);
-				editor.focus();
-			},
 			group: 'codeSplit'
 		}, {
 			id: 'split2_1',
-			text: lang.below,
+			text: '<i class="fas fa-columns fa-rotate-270"></i>',
+			value: 'below',
 			checked: false,
-			handler: function () {
-				var tab = activeTab;
-				var secondSession = null;
-				var editor = tabs.getEditor(tab);
-				var sp = window.splits[tab.attr('id')];
-				var newEditor = (sp.getSplits() == 1);
-				sp.setOrientation(sp.BELOW);
-				sp.setSplits(2);
-				if (newEditor) {
-					var session = secondSession || sp.getEditor(0).session;
-					var newSession = sp.setSession(session, 1);
-					newSession.name = session.name;
-					editors.applyPrefs(tab);
-				}
-				editor.focus();
-			},
 			group: 'codeSplit'
 		}, {
 			id: 'split2_0',
-			text: lang.beside,
+			text: '<i class="fas fa-columns"></i>',
+			value: 'beside',
 			checked: false,
-			handler: function () {
-				var tab = activeTab;
-				var secondSession = null;
-				var editor = tabs.getEditor(tab);
-				var sp = window.splits[tab.attr('id')];
-				var newEditor = (sp.getSplits() == 1);
-				sp.setOrientation(sp.BESIDE);
-				sp.setSplits(2);
-				if (newEditor) {
-					var session = secondSession || sp.getEditor(0).session;
-					var newSession = sp.setSession(session, 1);
-					newSession.name = session.name;
-					editors.applyPrefs(tab);
-				}
-				editor.focus();
-			},
 			group: 'codeSplit'
 		}]
 	}, {
@@ -1107,9 +1111,10 @@ function init () {
 			
 			// split state
 			var sp = window.splits[tab.attr('id')];
-			
-			$('#menubar ').find('[data-group=codeSplit] .check').hide();
-			$('#split'+sp.getSplits()+'_'+sp.getOrientation()+' .check').show();
+			if (sp) {
+				$('#split'+sp.getSplits()+'_'+sp.getOrientation() + ' input').prop('checked', true);
+			}
+			$('#menubar input[name=codeSplit]').checkboxradio('refresh');
 			
 			checkUndoRedo();
 			
@@ -1141,17 +1146,27 @@ function init () {
 		}
 	}
 	
-	$(document).on("tabsactivate focusEditor editorChange", function(e, ui) {
-		tab = ui.newTab ? $(ui.newTab) : $(ui);
+	function disableFileButtons() {
+		activeTab = null;
+		$('.fileButton').hide();
+		toggleOptions('file', false);
+	}
+	
+	$(document).on("focusEditor", function(e, tab) {
 		activeTab = tab;
 		setTimeout(function() {checkButtons(tab);}, 10);
 	});
-
+	
+	$(window).on( "tabsadd tabsactivate", function(e, ui) {
+		var tab = ui.newTab ? ui.newTab : ui.tab;
+		if (activeTab && activeTab.parent().has(tab).length) {
+			disableFileButtons();
+		}
+	});
+	
 	$(window).on( "tabsremove", function(e, ui) {
 		if (activeTab && activeTab.attr('id') === ui.tabId) {
-			activeTab = null;
-			$('.fileButton').hide();
-			toggleOptions('file', false);
+			disableFileButtons();
 		}
 	});
 	
@@ -1163,6 +1178,11 @@ function init () {
 	$( window ).on( "siteDisable", function(e, ui){ 
 		console.log('hide site');
 		toggleOptions('site', false); 
+	});
+	
+	// stop buttons from de-activating
+	$('#menubar').on('menublur', function(event) {
+		setTimeout(function() {checkButtons(activeTab);}, 10);
 	});
 }
 
