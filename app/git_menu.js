@@ -4,7 +4,7 @@ var makeMenuText = util.makeMenuText;
 
 function init() {
 	var select = $( "#gitBranch" );
-	var placeholder = 'Select a branch';
+	var placeholder = lang.selectBranch;
 	var list;
 	var dialog;
 	
@@ -35,7 +35,7 @@ function init() {
 			<form class="ui-corner-all vbox">\
 				<div class="hbox">\
 					<input type="text" placeholder="Filter" class="filter flex text ui-widget-content ui-corner-all" autocomplete="off" autofocus>\
-					<button class="addBranch" type="button">New branch</button>\
+					<button class="addBranch" type="button">' + lang.newBranch + '</button>\
 				</div>\
 				<ul></ul>\
 			</form>\
@@ -156,7 +156,7 @@ function init() {
 			}
 		},
 		items: {
-			"delete": {name: 'Delete', disabled: function() { return ($(this).data('value')==='master'); }}
+			"delete": {name: lang.deleteText, disabled: function() { return ($(this).data('value')==='master'); }}
 		},
 		zIndex: 3
 	});

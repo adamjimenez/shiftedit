@@ -966,7 +966,7 @@ function open() {
 	</label>\
 	<br>\
 	<br>\
-	<h2>Theme</h2>\
+	<h2>'+lang.themeText+'</h2>\
 	<button type="button" class="editCustomTheme" name="editCustomTheme">'+lang.editCustomTheme+'</button><br>\
 	<br>\
 	<h4>'+lang.skin+'</h4>\
@@ -978,83 +978,83 @@ function open() {
 	<h2>Files</h2>\
 	<label>\
 		<input type="checkbox" name="restoreTabs" value="1">\
-		Restore tabs on startup\
+		' + lang.restoreTabsOnStartupText + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="singleClickOpen" value="1">\
-		Single click to open files\
+		' + lang.singleClickOpen + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="stripWhitespace" value="1">\
-		Strip whitespace on save\
+		' + lang.stripWhitespace + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="saveWithMinified" value="1">\
-		Save with minified\
+		' + lang.minify + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="compileLESS" value="1">\
-		Compile LESS/ SCSS on save\
+		' + lang.compileLess + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="compileCoffeeScript" value="1">\
-		Compile CoffeeScript on save\
+		' + lang.compileCoffee + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="autoSave" value="1">\
-		Autosave\
+		' + lang.autoSave + '\
 	</label>\
 	<br>\
 	<br>\
-	<h4>Tree theme</h4>\
+	<h4>' + lang.treeTheme + '</h4>\
 	<label>\
 		<input type="radio" name="treeThemeVariant" value="small">\
-		Small\
+		' + lang.small + '\
 	</label>\
 	<label>\
 		<input type="radio" name="treeThemeVariant" value="default">\
-		Medium\
+		' + lang.medium + '\
 	</label>\
 	<label>\
 		<input type="radio" name="treeThemeVariant" value="large">\
-		Large\
+		' + lang.large + '\
 	</label>\
 	<br>\
 	<br>\
-	<h4>Default template</h4>\
+	<h4>' + lang.defaultTemplate + '</h4>\
 	<select id="defaultCode" class="ui-widget ui-state-default ui-corner-all"></select>\
-	<button id="editDefaultCode" type="button">Edit</button>\
+	<button id="editDefaultCode" type="button">' + lang.editText + '</button>\
 	<br>\
 	<br>\
-	<h4>Maximum number of files in each folder</h4>\
+	<h4>' + lang.maxFiles + '</h4>\
 	<input type="number" name="maxFiles" value="" class="ui-widget ui-state-default ui-corner-all">\
 	</label><br>\
 	<br>\
-	<h4>Default encoding</h4>\
+	<h4>' + lang.defaultEncoding + '</h4>\
 	<select name="encoding" class="ui-widget ui-state-default ui-corner-all"></select>\
 	\
 	<br>\
 	<br>\
-	<h2>Editor</h2>\
+	<h2>' + lang.editor + '</h2>\
 	<label>\
 		<input type="checkbox" name="autocomplete" value="1">\
-		Autocomplete\
+		' + lang.autocomplete + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="snippets" value="1">\
-		Snippets\
+		' + lang.snippetsText + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="indentOnPaste" value="1">\
-		Indent on paste\
+		' + lang.indentOnPaste + '\
 	</label>\
 	<br>\
 	<label>\
@@ -1064,24 +1064,24 @@ function open() {
 	<br>\
 	<label>\
 		<input type="checkbox" name="behaviours" value="1">\
-		Auto-close tags etc\
+		' + lang.autoclose + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="selectDollar" value="1">\
-		Select $ with PHP variable\
+		' + lang.selectDollar + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="scrollPastEnd" value="1">\
-		Scroll past end\
+		' + lang.scrollPastEnd + '\
 	</label>\
 	<br>\
 	<br>\
-	<h4>Key binding</h4>\
+	<h4>' + lang.keyboardBindings +'</h4>\
 	<label>\
 		<input type="radio" name="keyBinding" value="default">\
-		Default\
+		' + lang.default + '\
 	</label>\
 	<label>\
 		<input type="radio" name="keyBinding" value="vim">\
@@ -1095,16 +1095,16 @@ function open() {
 	<br>\
 	<label>\
 		<input type="checkbox" name="autoTabs" value="1">\
-		Detect tab type\
+		' + lang.detectTabType + '\
 	</label>\
 	<br>\
 	<label>\
 		<input type="checkbox" name="softTabs" value="1">\
-		Indent with spaces\
+		' + lang.indentWithSpaces + '\
 	</label>\
 	<br>\
 	<br>\
-	<h4>Tab size<h4>\
+	<h4>' + lang.tabSizeText + '<h4>\
 	<select name="tabSize" class="ui-widget ui-state-default ui-corner-all">\
 		<option>2</option>\
 		<option>3</option>\
@@ -1113,7 +1113,7 @@ function open() {
 	</select>\
 	<br>\
 	<br>\
-	<h4>Line break</h4>\
+	<h4>' + lang.lineBreak + '</h4>\
 	<label>\
 		<input type="radio" name="lineBreak" value="auto">\
 		Auto\
@@ -1127,56 +1127,56 @@ function open() {
 		Windows\
 	</label><br>\
 	<br>\
-	<h4>Font size</h4>\
+	<h4>' + lang.fontSizeText + '</h4>\
 	<input type="number" name="fontSize" value="" class="ui-widget ui-state-default ui-corner-all">\
 	<br>\
 	<br>\
-	<h4>Print margin column</h4>\
+	<h4>' + lang.printMarginColumn + '</h4>\
 	<input type="number" name="printMarginColumn" value="" class="ui-widget ui-state-default ui-corner-all">\
 	<br>\
 	<br>\
-	<h2>SSH</h2>\
-	<h4>Default Pane</h4>\
+	<h2>' + lang.ssh + '</h2>\
+	<h4>' + lang.defaultPane +'</h4>\
 	<label>\
 		<input type="radio" name="sshPane" value="center">\
-		Center\
+		' + lang.center +'\
 	</label>\
 	<label>\
 		<input type="radio" name="sshPane" value="east">\
-		East\
+		' + lang.east +'\
 	</label>\
 	<br>\
 	<br>\
-	<h2>Security</h2>\
-	<p>A Master Password is used to protect your passwords.</p>\
+	<h2>' + lang.security + '</h2>\
+	<p>' + lang.masterPasswordInfoText + '</p>\
 	<label>\
 		<input type="checkbox" id="useMasterPassword" name="useMasterPassword" value="1">\
-		Use a master password\
+		' + lang.useMasterPasswordText + '\
 	</label>\
-	<p><button type="button" id="changeMasterPassword">Change master password</button></p>\
+	<p><button type="button" id="changeMasterPassword">' + lang.changeMasterPasswordText + '</button></p>\
 	<br>\
 	<div class="accordion">\
-		<h4>Advanced</h4>\
+		<h4>' + lang.advanced + '</h4>\
 		<div>\
-			<h2>Lint Checking</h2>\
+			<h2>' + lang.lintChecking + '</h2>\
 			<h4>Javascript</h4>\
 			<label>\
 				<input type="checkbox" name="jslint_disable" value="1">\
-				Disable lint checking\
+				' + lang.disableLintChecking + '\
 			</label><br>\
-			'+ jslintHTML +'<br>\
+			' + jslintHTML + '<br>\
 			<h4>CSS</h4>\
 			<label>\
 				<input type="checkbox" name="csslint_disable" value="1">\
-				Disable lint checking\
+				' + lang.disableLintChecking + '\
 			</label><br>\
-			'+ csslintHTML +'<br>\
+			' + csslintHTML + '<br>\
 			<h4>Coffeescript</h4>\
 			<label>\
 				<input type="checkbox" name="coffeescriptlint_disable" value="1">\
 				Disable lint checking\
 			</label><br>\
-			'+ coffeescriptlintHTML +'<br>\
+			' + coffeescriptlintHTML + '<br>\
 			</form>\
 		</div>\
 	</div>');

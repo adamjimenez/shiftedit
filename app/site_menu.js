@@ -35,7 +35,7 @@ function init() {
 			<form class="ui-corner-all vbox">\
 				<div class="hbox">\
 					<input type="text" placeholder="Filter" class="filter flex text ui-widget-content ui-corner-all" autocomplete="off" autofocus>\
-					<button class="addSite" type="button">New site</button>\
+					<button class="addSite" type="button">'+lang.newSiteText+'</button>\
 				</div>\
 				<ul></ul>\
 			</form>\
@@ -173,12 +173,12 @@ function init() {
 			}
 		},
 		items: {
-			"new": {name: 'New...'},
-			"edit": {name: 'Edit...', disabled: noValue},
-			"delete": {name: 'Delete', disabled: noValue},
-			"duplicate": {name: 'Duplicate...', disabled: noValue},
-			"share": {name: 'Share...', disabled: noValue},
-			"database": {name: 'Database', disabled: noValue}
+			"new": {name: lang.newText + '...'},
+			"edit": {name: lang.editText + '...', disabled: noValue},
+			"delete": {name: lang.deleteText + '', disabled: noValue},
+			"duplicate": {name: lang.duplicate + '...', disabled: noValue},
+			"share": {name: lang.share + '...', disabled: noValue},
+			"database": {name: lang.database, disabled: noValue}
 		},
 		zIndex: 3
 	});

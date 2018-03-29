@@ -1310,27 +1310,27 @@ function init() {
 
 				var tmp = {
 					"open": {
-						"label": "Open",
+						"label": lang.open,
 						"shortcut": 13,
 						"action": function(data) {
 							open(data, true);
 						}
 					},
 					"create": {
-						"label": "New",
+						"label": lang.newText,
 						"submenu": submenu
 					},
 					"ccp": {
 						"separator_before": true,
 						"icon": false,
 						"separator_after": true,
-						"label": "Edit",
+						"label": lang.editText,
 						"action": false,
 						"submenu": {
 							"cut": {
 								"separator_before": false,
 								"separator_after": false,
-								"label": "Cut",
+								"label": lang.cut,
 								"shortcut": 88,
 								"shortcut_ctrl": true,
 								"shortcut_label": "Ctrl+X",
@@ -1343,7 +1343,7 @@ function init() {
 								"separator_before": false,
 								"icon": false,
 								"separator_after": false,
-								"label": "Copy",
+								"label": lang.copy,
 								"shortcut": 67,
 								"shortcut_ctrl": true,
 								"shortcut_label": "Ctrl+C",
@@ -1360,7 +1360,7 @@ function init() {
 									return (clipboard.files.length===0);
 								},
 								"separator_after": false,
-								"label": "Paste",
+								"label": lang.paste,
 								"shortcut": 86,
 								"shortcut_ctrl": true,
 								"shortcut_label": "Ctrl+V",
@@ -1373,7 +1373,7 @@ function init() {
 								"separator_before": false,
 								"separator_after": false,
 								"_disabled": false,
-								"label": "Rename",
+								"label": lang.renameText,
 								"shortcut": 113,
 								"shortcut_label": 'F2',
 								"icon": "glyphicon glyphicon-leaf",
@@ -1392,7 +1392,7 @@ function init() {
 								"icon": false,
 								"separator_after": false,
 								"_disabled": false,
-								"label": "Delete",
+								"label": lang.deleteText,
 								"shortcut": 46,
 								"shortcut_label": "Del",
 								"action": function (data) {
@@ -1411,7 +1411,7 @@ function init() {
 								"separator_before": false,
 								"icon": false,
 								"separator_after": false,
-								"label": "Duplicate",
+								"label": lang.duplicate,
 								"stop_event": true,
 								"shortcut": 68,
 								"shortcut_ctrl": true,
@@ -1427,20 +1427,20 @@ function init() {
 						"separator_before": true,
 						"icon": false,
 						"separator_after": true,
-						"label": "Upload",
+						"label": lang.upload,
 						"action": false,
 						"submenu": {
 							"upload" : {
-								"label": "File",
+								"label": lang.fileText,
 								//icon: 'upload',
 								action: upload
 							},
 							"upload_folder": {
-								"label": "Folder",
+								"label": lang.folder,
 								action: uploadFolder
 							},
 							"upload_url": {
-								"label": "URL",
+								"label": lang.url,
 								action: uploadByURl
 							}
 						}
@@ -1460,15 +1460,15 @@ function init() {
 						action: extract
 					},
 					"download": {
-						"label": "Download",
+						"label": lang.download,
 						action: downloadFile
 					},
 					"downloadzip": {
-						"label": "Download as zip",
+						"label": lang.downloadZip,
 						action: downloadZip
 					},
 					"reload": {
-						"label": "Reload",
+						"label": lang.reload,
 						"stop_event": true,
 						"shortcut": 82,
 						"shortcut_ctrl": true,
@@ -1479,12 +1479,12 @@ function init() {
 						}
 					},
 					"chmod": {
-						"label": "Set permissions",
+						"label": lang.setPermissions,
 						"separator_after": true,
 						action: chmod
 					},
 					"ssh": {
-						"label": "Open in SSH",
+						"label": lang.openSSH,
 						"_disabled": function (data) {
 							var inst = $.jstree.reference(data.reference);
 							var node = inst.get_node(data.reference);
@@ -1542,10 +1542,10 @@ function init() {
 			stateful: true,
 			columns: [{
 					//width: 'auto',
-					header: "Name"
+					header: lang.name
 				}, {
 					width: 100,
-					header: "Modified",
+					header: lang.modified,
 					value: "modified",
 					format: function(v) {
 						if(!v) {
@@ -1561,7 +1561,7 @@ function init() {
 					}
 				}, {
 					width: 50,
-					header: "Size",
+					header: lang.size,
 					value: "size",
 					format: function(size) {
 						if( size === '' || size === -1 ){
@@ -1574,7 +1574,7 @@ function init() {
 						return ''+Math.round(size)+'BKMGT'.substr(si, 1);
 					}
 				},
-				{width: 90, header: "Permissions", value: "perms"}
+				{width: 90, header: lang.permissions, value: "perms"}
 			]
 		},
 		'plugins' : [
@@ -1697,8 +1697,8 @@ function init() {
 	})
 	.on('move_node.jstree', function (e, data) {
 		prompt.confirm({
-			title: 'Move',
-			msg: 'Are you sure you want to move the selected files?',
+			title: lang.move,
+			msg: lang.confirmMove,
 			fn: function(btn) {
 				switch(btn){
 					case 'yes':
@@ -1784,8 +1784,6 @@ function init() {
 		var reference = this;
 		var inst = $.jstree.reference(this);
 		
-		
-
 		switch(keycode) {
 			//escape
 			case 27:

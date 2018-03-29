@@ -902,21 +902,21 @@ function newTab (e, ui) {
 			</div>\
 			<div class="columns">\
 				<div class="box create">\
-					<h3 class="ui-widget-header">Create</h3>\
+					<h3 class="ui-widget-header">' + lang.createText + '</h3>\
 					<ul class="fileTypes"></ul>\
 					<ul class="moreFileTypes" style="display:none; margin-top: 10px;"></ul>\
 					<a href="#" class="toggleMore ui-state-default">' + showMoreText + '</i></a>\
 				</div>\
 				<div class="box tools">\
-					<h3 class="ui-widget-header">Tools</h3>\
+					<h3 class="ui-widget-header">' + lang.toolsText + '</h3>\
 					<ul class="other">\
-						<li class="ui-state-default"><a href="#" class="addSite"><i class="fas fa-plus-square"></i> Add Site</a></li>\
-						<li class="ui-state-default"><a href="#" class="ssh"><i class="fa fa-terminal"></i> Terminal</a></li>\
-						<li class="ui-state-default"><a href="#" class="preview"><i class="fa fa-desktop"></i> Preview</a></li>\
-						<li class="ui-state-default"><a href="#" class="diff"><i class="fa fa-copy"></i> File Compare</a></li>\
-						<li class="ui-state-default"><a href="#" class="preferences"><i class="fa fa-wrench"></i> Preferences</a></li>\
+						<li class="ui-state-default"><a href="#" class="addSite"><i class="fas fa-plus-square"></i> ' + lang.addSite + '</a></li>\
+						<li class="ui-state-default"><a href="#" class="ssh"><i class="fa fa-terminal"></i> ' + lang.terminal + '</a></li>\
+						<li class="ui-state-default"><a href="#" class="preview"><i class="fa fa-desktop"></i> ' + lang.preview + '</a></li>\
+						<li class="ui-state-default"><a href="#" class="diff"><i class="fa fa-copy"></i> ' + lang.fileCompare + '</a></li>\
+						<li class="ui-state-default"><a href="#" class="preferences"><i class="fa fa-wrench"></i> ' + lang.preferencesText + '</a></li>\
 						<li class="ui-state-default"><a href="#" class="server"><i class="fa fa-server"></i> Servers</a></li>\
-						<li class="ui-state-default"><a href="#" class="database"><i class="fas fa-database"></i> Database</a></li>\
+						<li class="ui-state-default"><a href="#" class="database"><i class="fas fa-database"></i> ' + lang.database + '</a></li>\
 					</ul>\
 				</div>\
 			</div>\

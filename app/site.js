@@ -410,7 +410,7 @@ function share(siteId) {
 		<form id="shareSiteForm">\
 			<div class="hbox">\
 				<input id="share_email" type="text" name="email" placeholder="Email address" class="flex text ui-widget-content ui-corner-all" required autofocus>\
-				<button type="submit">Add</button>\
+				<button type="submit">' + lang.add + '</button>\
 			</div>\
 			<h2>Shared with</h2>\
 			<div id="users">\
@@ -1203,35 +1203,35 @@ function edit(siteId, duplicate) {
 					<input type="radio" name="addType" value="new" id="addTypeRadio1">\
 					<label for="addTypeRadio1" class="flex">\
 						<i class="fa fa-plus-square" style="font-size: 50px;"></i><br>\
-						Create new\
+						' + lang.createNew + '\
 					</label>\
 					<input type="radio" name="addType" value="add" id="addTypeRadio2">\
 					<label for="addTypeRadio2" class="flex">\
 						<i class="fa fa-plug" style="font-size: 50px;"></i><br>\
-						Add existing\
+						' + lang.addExisting + '\
 					</label>\
 					<input type="radio" name="addType" value="import" id="addTypeRadio3">\
 					<label for="addTypeRadio3" class="flex">\
 						<i class="fa fa-upload" style="font-size: 50px;"></i><br>\
-						Import site\
+						' + lang.importSiteText + '\
 					</label>\
 				</span>\
 			</p>\
 			<div id="nameContainer" style="display:none;">\
 				<p>\
-					<label>Name:</label>\
+					<label>' + lang.name + ':</label>\
 					<input type="text" name="name" value="" placeholder="my awesome website" class="text ui-widget-content ui-corner-all" required>\
 				</p>\
 			</div>\
 			<div id="newContainer" style="display:none;">\
 				<p>\
-					<label for="server">Server:</label>\
+					<label for="server">' + lang.server + ':</label>\
 					<input type="text" id="server" name="server">\
 					<button type="button" id="add_server"><i class="fas fa-plus"></i></button>\
 				</p>\
 				<div>\
 					<p>\
-						<label>Stack:</label>\
+						<label>' + lang.stack + ':</label>\
 						<span id="stackRadio" class="hbox" style="width: 100%;">\
 							<input type="radio" name="stack" value="php" id="stackRadio1" checked>\
 							<label for="stackRadio1" class="flex" title="PHP">\
@@ -1249,17 +1249,17 @@ function edit(siteId, duplicate) {
 					</p>\
 				</div>\
 				<p id="gitURLContainer" style="display:none;">\
-					<label>Git URL:</label>\
+					<label>' + lang.gitURL + ':</label>\
 					<input type="hidden" id="git_url" name="git_url">\
 					<button type="button" id="repo_sources"><i class="fas fa-plus"></i></button>\
 				</p>\
 				<p style="display: none;">\
-					<label>Create Database:</label>\
+					<label>' + lang.createDatabase + ':</label>\
 					<input type="checkbox" name="database" value="1" checked class="text ui-widget-content ui-corner-all" >\
 				</p>\
 				<div id="domainsContainer" style="display: none;">\
 					<div style="display: flex;">\
-						<label>Domains:</label>\
+						<label>' + lang.domains + ':</label>\
 						<div class="flex">\
 							<table id="domains" width="100%"></table>\
 							<button type="button" id="addDomain">Add domain</button>\
@@ -1270,7 +1270,7 @@ function edit(siteId, duplicate) {
 			<div id="addContainer" style="display:none;">\
 				<div>\
 					<p>\
-						<label>Server type:</label>\
+						<label>' + lang.serverType + ':</label>\
 						<span id="serverTypeRadio">\
 							<input type="radio" name="serverTypeItem" value="FTP" id="radio1"><label for="radio1">FTP</label>\
 							<input type="radio" name="serverTypeItem" value="SFTP" id="radio2"><label for="radio2">SFTP</label>\
@@ -1280,7 +1280,7 @@ function edit(siteId, duplicate) {
 					</p>\
 					<div id="cloud_container">\
 						<p>\
-							<label>Cloud services:</label>\
+							<label>' + lang.cloudServices + ':</label>\
 							<span id="cloudRadio">\
 								<input type="radio" name="cloud" value="Dropbox" id="cloudRadio1">\
 								<label for="cloudRadio1">\
@@ -1302,7 +1302,7 @@ function edit(siteId, duplicate) {
 					</div>\
 					<div id="host_container">\
 						<p>\
-							<label>Host:</label>\
+							<label>' + lang.host + ':</label>\
 							<input type="text" id="domain" name="domain" value="" class="text ui-widget-content ui-corner-all">\
 							<span id="portContainer">\
 								<label>&nbsp;</label>\
@@ -1311,27 +1311,27 @@ function edit(siteId, duplicate) {
 						</p>\
 					</div>\
 					<p id="authentication_container">\
-						<label>Authentication:</label>\
+						<label>' + lang.authentication + ':</label>\
 						<span id="authenticationRadio">\
 							<input type="radio" name="logon_type" value="" id="logon_password" checked><label for="logon_password">Password</label>\
 							<input type="radio" name="logon_type" value="key" id="logon_key"><label for="logon_key">Public Key</label>\
 						</span>\
 					</p>\
 					<p id="ftp_user_container">\
-						<label>Username:</label>\
+						<label>' + lang.username + ':</label>\
 						<input type="text" id="ftp_user" name="ftp_user" placeholder="server username" value="" class="text ui-widget-content ui-corner-all">\
 					</p>\
 					<p id="pass_container">\
-						<label>Password:</label>\
+						<label>' + lang.password + ':</label>\
 						<input type="password" id="ftp_pass" name="ftp_pass" placeholder="server password" value="" class="showPassword text ui-widget-content ui-corner-all" required disabled>\
 					</p>\
 					<p id="ssh_key_container">\
-						<label>Your SSH key:</label>\
+						<label>' + lang.yourSSHKey + ':</label>\
 						<textarea id="sshKey" rows="4" class="text ui-widget-content ui-corner-all" readonly>'+storage.get('public_key')+'</textarea>\
 						<label>Save the SSH key in: ~/.ssh/authorized_keys</label>\
 					</p>\
 					<div id="dir_container" class="hbox">\
-						<label>Path:</label>\
+						<label>' + lang.path + ':</label>\
 						<input type="hidden" name="dir_id" value="">\
 						<div class="custom-show-password-container text ui-widget-content ui-corner-all">\
 							<input type="text" name="dir" placeholder="public folder" value="" class="text ui-widget-content ui-corner-all">\
@@ -1339,7 +1339,7 @@ function edit(siteId, duplicate) {
 						</div>\
 					</div>\
 					<p id="web_url">\
-						<label>Website URL:</label>\
+						<label>' + lang.websiteURL + ':</label>\
 						<select name="encryption" class="ui-widget ui-state-default ui-corner-all">\
 							<option value="1">https://</option>\
 							<option value="0">http://</option>\
@@ -1347,7 +1347,7 @@ function edit(siteId, duplicate) {
 						<input type="text" name="web_url" value="" placeholder="www.mydomain.com" class="text ui-widget-content ui-corner-all">\
 					</p>\
 					<p id="turbo_mode_container">\
-						<label>Turbo mode:</label>\
+						<label>' + lang.turboMode + ':</label>\
 						<label>\
 						<input type="checkbox" name="turbo" value="1" class="text ui-widget-content ui-corner-all" >\
 						Enable turbo mode\
@@ -1356,7 +1356,7 @@ function edit(siteId, duplicate) {
 					<div class="accordion">\
 						<h3>Advanced</h3>\
 						<div>\
-							<h4>Database</h4>\
+							<h4>' + lang.database + '</h4>\
 							<div>\
 								<p>\
 									<label>PhpMyAdmin Url:</label>\
@@ -1380,7 +1380,7 @@ function edit(siteId, duplicate) {
 							</a>\
 							<h4>Misc</h4>\
 							<p id="timeoutContainer">\
-								<label>Timeout:</label>\
+								<label>' + lang.timeout + ':</label>\
 								<input type="number" name="timeout" value="" min="0" max="90" class="text ui-widget-content ui-corner-all">\
 							</p>\
 							<p>\

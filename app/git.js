@@ -22,8 +22,8 @@ function init() {
 				</div>\
 				<div class="flex" id="gitViewContainer">\
 					<span id="gitViewRadio">\
-						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio" disabled><label for="changesRadio">Changes</label>\
-						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label for="historyRadio">History</label>\
+						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio" disabled><label for="changesRadio">' + lang.changes + '</label>\
+						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label for="historyRadio">' + lang.history + '</label>\
 					</span>\
 				</div>\
 				<button type="button" id="gitSync"><span class="count"></span><i class="fas fa-sync"></i></button>\
@@ -33,9 +33,9 @@ function init() {
 				<div id="changesContainer" class="vbox" style="display: none;">\
 					<ul id="gitChanges" class="flex"></ul>\
 					<div id="commitPanel">\
-						<input id="gitSubject" type="text" name="subject" placeholder="Summary" class="text ui-widget-content ui-corner-all">\
-						<textarea id="gitDescription" placeholder="Description" class="text ui-widget-content ui-corner-all"></textarea>\
-						<button type="button" id="commitBtn" disabled>Commit to master</button>\
+						<input id="gitSubject" type="text" name="subject" placeholder="' + lang.summary + '" class="text ui-widget-content ui-corner-all">\
+						<textarea id="gitDescription" placeholder="' + lang.description + '" class="text ui-widget-content ui-corner-all"></textarea>\
+						<button type="button" id="commitBtn" disabled>' + lang.commitTo + ' master</button>\
 					</div>\
 				</div>\
 			</div>\
@@ -187,8 +187,8 @@ function init() {
 			}
 		},
 		items: {
-			"open": {name: "Open file"},
-			"discard": {name: "Discard changes"}
+			"open": {name: lang.openFile},
+			"discard": {name: lang.discardChanges}
 		}
 	});
 	
@@ -403,11 +403,11 @@ function createBranch() {
 	$( "body" ).append('<div id="dialog-branch" title="Branch">\
 	  <form id="branchForm" class="tidy">\
 		<p class="hbox">\
-			<label>Name:</label>\
+			<label>'+lang.name+':</label>\
 			<input type="text" name="name" class="flex text ui-widget-content ui-corner-all">\
 		</p>\
 		<p class="hbox">\
-			<label>From branch:</label>\
+			<label>'+lang.fromBranch+':</label>\
 			<select name="from" class="flex text ui-widget-content ui-corner-all"></select>\
 		</p>\
 	  </form>\
@@ -422,7 +422,7 @@ function createBranch() {
 		},
 		buttons: {
 			create: {
-				text: "Create new branch",
+				text: lang.createNewBranch,
 				id: "createBranchBtn",
 				click: function() {
 					var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
@@ -488,8 +488,8 @@ function doRemoveBranch(branch) {
 		error: function(error) {
 			if (error.indexOf('is not fully merged')) {
 				prompt.confirm({
-					title: 'Force Delete branch '+branch,
-					msg: 'Branch is not fully merged, delete anyway?',
+					title: lang.forceDeleteBranch+' '+branch,
+					msg: lang.confirmDeleteUnmergedBranch,
 					fn: function(value) {
 						if (value==='yes') {
 							var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
@@ -515,8 +515,8 @@ function doRemoveBranch(branch) {
 
 function removeBranch(branch) {
 	prompt.confirm({
-		title: 'Delete branch '+branch,
-		msg: 'Are you sure?',
+		title: lang.deleteBranch + ' ' + branch,
+		msg: lang.areYouSure,
 		fn: function(value) {
 			if (value==='yes') {
 				doRemoveBranch(branch);
@@ -532,11 +532,11 @@ function configure() {
 	$( "body" ).append('<div id="dialog-config" title="Config">\
 	  <form id="configForm" class="tidy">\
 		<p class="hbox">\
-			<label>Name:</label>\
+			<label>'+lang.name+':</label>\
 			<input type="text" name="name" class="flex text ui-widget-content ui-corner-all">\
 		</p>\
 		<p class="hbox">\
-			<label>Email:</label>\
+			<label>'+lang.email+':</label>\
 			<input type="email" name="email" class="flex text ui-widget-content ui-corner-all">\
 		</p>\
 	  </form>\
@@ -567,7 +567,7 @@ function configure() {
 								$( '#dialog-config' ).dialogResize( "close" );
 								refresh();
 							} else {
-								prompt.alert({title:'Error', msg:data.error});
+								prompt.alert({title: lang.errorText, msg:data.error});
 							}
 						}
 					});
@@ -596,9 +596,9 @@ function sync() {
 				html = html.replace(/remote:\s/g, '');
 				html = html.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
 				html = linkifyHtml(html);
-				prompt.alert({title:'Success', msg:html});
+				prompt.alert({title:lang.success, msg:html});
 			} else {
-				prompt.alert({title:'Error', msg:data.error});
+				prompt.alert({title:lang.errorText, msg:data.error});
 			}
 		}
 	});

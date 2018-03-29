@@ -56,7 +56,7 @@ function init() {
 					name = name.substr(0, (name.length - 2));
 
 					return prompt.alert({
-						title: 'Bookmark all files',
+						title: lang.bookmarkAllFiles,
 						msg: 'Drag the link to your bookmarks: <br>\
 						<a href="' + link + '">' + name + '</a>'
 					});
@@ -65,22 +65,22 @@ function init() {
 		items: {
 			"new": {name: makeMenuText(lang.newText + '...', 'Alt-N'), isHtmlName: true},
 			"sep1": "---------",
-			"reload": {name: makeMenuText('Reload', preferences.getKeyBinding('reload'), 'reload'), isHtmlName: true, disabled: notFile},
-			"revert": {name: makeMenuText('Revert to Saved', preferences.getKeyBinding('revertToOriginal'), 'revertToOriginal'), isHtmlName: true, disabled: notFile},
+			"reload": {name: makeMenuText(lang.reload, preferences.getKeyBinding('reload'), 'reload'), isHtmlName: true, disabled: notFile},
+			"revert": {name: makeMenuText(lang.revertToSaved, preferences.getKeyBinding('revertToOriginal'), 'revertToOriginal'), isHtmlName: true, disabled: notFile},
 			"sep2": "---------",
-			"close": {name: makeMenuText('Close Tab', 'Alt-W'), isHtmlName: true},
-			"closeOtherTabs": {name: "Close other tabs", isHtmlName: true},
-			"closeAllTabs": {name: makeMenuText('Close all tabs', 'Ctrl-Shift-W'), isHtmlName: true},
-			"closeTabsRight": {name: "Close tabs to the right", isHtmlName: true},
+			"close": {name: makeMenuText(lang.closeTab, 'Alt-W'), isHtmlName: true},
+			"closeOtherTabs": {name: lang.closeOtherTabs, isHtmlName: true},
+			"closeAllTabs": {name: makeMenuText(lang.closeAllTabs, 'Ctrl-Shift-W'), isHtmlName: true},
+			"closeTabsRight": {name: lang.closeTabsRight, isHtmlName: true},
 			"sep3": "---------",
-			"save": {name: makeMenuText('Save', preferences.getKeyBinding('save'), 'save'), isHtmlName: true, disabled: notFile},
-			"saveAs": {name: makeMenuText('Save as...', preferences.getKeyBinding('saveAs'), 'saveAs'), isHtmlName: true, disabled: notFile},
-			"saveAll": {name: makeMenuText('Save all', 'Ctrl-Shift-S'), isHtmlName: true, disabled: notFile},
-			"saveWithMinified": {name: makeMenuText('Save with minified'), isHtmlName: true, disabled: notFile, match: 'js|css'},
-			"download": {name: makeMenuText('Download'), isHtmlName: true, disabled: notFile},
+			"save": {name: makeMenuText(lang.saveText, preferences.getKeyBinding('save'), 'save'), isHtmlName: true, disabled: notFile},
+			"saveAs": {name: makeMenuText(lang.saveAsText + '...', preferences.getKeyBinding('saveAs'), 'saveAs'), isHtmlName: true, disabled: notFile},
+			"saveAll": {name: makeMenuText(lang.saveAllText, 'Ctrl-Shift-S'), isHtmlName: true, disabled: notFile},
+			"saveWithMinified": {name: makeMenuText(lang.minify), isHtmlName: true, disabled: notFile, match: 'js|css'},
+			"download": {name: makeMenuText(lang.download), isHtmlName: true, disabled: notFile},
 			"sep4": "---------",
-			"revealInTree": {name: "Reveal in file tree", isHtmlName: true, disabled: notFile},
-			"bookmarkAll": {name: "Bookmark all files", isHtmlName: true}
+			"revealInTree": {name: lang.revealInFileTree, isHtmlName: true, disabled: notFile},
+			"bookmarkAll": {name: lang.bookmarkAllFiles, isHtmlName: true}
 		},
 		zIndex: 3
 	});
