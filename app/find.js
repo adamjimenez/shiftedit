@@ -116,6 +116,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			var start;
 			var end;
 			var editor;
+			var i;
 
 			if (findIn == 'open') {
 				files = $('li[data-file]');
@@ -196,23 +197,25 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 
 				var found = false;
 				for (var tab in results) {
-					for (i = 0; i < results[tab].length; i++) {
-						if (
-							active.attr('id') == $('#'+tab).attr('id') &&
-							results[tab][i].start.row == range.start.row &&
-							results[tab][i].start.column == range.start.column &&
-							results[tab][i].end.row == range.end.row &&
-							results[tab][i].end.column == range.end.column
-						) {
-							found = true;
+					if(results.hasOwnProperty(tab)) {
+						for (i = 0; i < results[tab].length; i++) {
+							if (
+								active.attr('id') == $('#'+tab).attr('id') &&
+								results[tab][i].start.row == range.start.row &&
+								results[tab][i].start.column == range.start.column &&
+								results[tab][i].end.row == range.end.row &&
+								results[tab][i].end.column == range.end.column
+							) {
+								found = true;
+								break;
+							}
+	
+							current++;
+						}
+	
+						if (found) {
 							break;
 						}
-
-						current++;
-					}
-
-					if (found) {
-						break;
 					}
 				}
 
@@ -236,27 +239,29 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 
 					found = false;
 					var count = 0;
-					for (tabId in results) {
-						for (var i = 0; i < results[tabId].length; i++) {
-							tab = $('#'+tabId);
-							if (count == target) {
-								//fixme get tab panel
-
-								// set tab
-								$(".ui-layout-center").tabs("option", "active", tab.index());
-
-								//select
-								tabs.getEditor(tab).selection.setSelectionRange(results[tabId][i]);
-
-								found = true;
+					for (var tabId in results) {
+						if(results.hasOwnProperty(tabId)) {
+							for (i = 0; i < results[tabId].length; i++) {
+								tab = $('#'+tabId);
+								if (count == target) {
+									//fixme get tab panel
+	
+									// set tab
+									$(".ui-layout-center").tabs("option", "active", tab.index());
+	
+									//select
+									tabs.getEditor(tab).selection.setSelectionRange(results[tabId][i]);
+	
+									found = true;
+									break;
+								}
+	
+								count++;
+							}
+	
+							if (found) {
 								break;
 							}
-
-							count++;
-						}
-
-						if (found) {
-							break;
 						}
 					}
 
@@ -382,7 +387,6 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 	}
 
 	function keyUp(e){
-		console.log(arguments)
 		if (e && e.key === 'Escape') {
 			//focus editor
 			var tab = tabs.active();
