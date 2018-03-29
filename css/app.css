@@ -114,7 +114,7 @@ a input {
 	padding: 10px;
 }
 
-.ui-tabs .ui-tabs-tab, .ui-tabs .ui-tabs-nav, .ui-layout-container .ui-layout-pane, .ui-state-default, .ui-widget-header, .ui-checkboxradio-label, .text, button{
+.ui-tabs .ui-tabs-tab, .ui-tabs .ui-tabs-nav, .ui-layout-container .ui-layout-pane, .ui-state-default, .ui-widget-header, .ui-checkboxradio-label, .custom-combobox-toggle, .text, button{
 	border-radius: 0 !important;
 	border: 0 !important;
 }
@@ -855,18 +855,17 @@ div.fullScreen{
 	align-items: center;
 }
 
+.prefs label{
+	min-width: 110px;
+	width: 110px;
+}
+
 /*
 .prefs label{
 	display: block;
 	padding-left: 10px;
 	padding-right: 4px;
 	line-height: 16px;
-}
-
-.prefs label:first-child{
-	min-width: 110px;
-	width: 110px;
-	padding: 0;
 }
 
 .prefs label.ui-button{
@@ -928,7 +927,7 @@ div.fullScreen{
 .ui-menu .ui-menu-item-wrapper{
 	display: block;
 	white-space: nowrap;
-	padding: 0em 2em !important;
+	padding: 0 1em 0 2em !important;
 	line-height: 2.4em;
 }
 

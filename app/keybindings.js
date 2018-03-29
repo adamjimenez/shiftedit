@@ -551,7 +551,7 @@ function openKeyBindings() {
 		keyBindingsHTML += '<p>\
 			<label>\
 				' + item.label + '\
-			</label>\
+			</label><br>\
 			<button type="button" class="changeKeyBinding" data-name="' + key + '">' + keyLabel + '\</button>\
 			<button type="button" class="clearKeyBinding" data-name="' + key + '">Clear</button>\
 			<button type="button" class="resetKeyBinding" data-name="' + key + '">Use default</button>\
