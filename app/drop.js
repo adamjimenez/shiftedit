@@ -11,7 +11,6 @@ if (window.addEventListener) { //not supported by IE
 		e.preventDefault();
 	}, false);
 	window.addEventListener("drop", function (e) {
-		console.log(e);
 		var dt = e.dataTransfer;
 		var files = dt.files;
 		e.preventDefault();
@@ -35,11 +34,11 @@ if (window.addEventListener) { //not supported by IE
 			*/
 
 			reader[i] = new FileReader();
-			reader[i].onloadend = function (file, i) {
+			reader[i].onloadend = (function (file, i) {
 				return function () {
 					editors.create(file.name, reader[i].result);
 				};
-			}(file, i);
+			}(file, i));
 			reader[i].readAsText(file);
 		}
 	}, false);
