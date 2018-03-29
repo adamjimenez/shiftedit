@@ -100,31 +100,63 @@ function init() {
 	
 	$( '.ui-layout-south .title a' ).tooltip();
 	
-	$(document).on("activate tabsactivate tabsremove focusEditor", function(e, ui) {
-		var tab = ui.newTab ? $(ui.newTab) : $(ui);
+	$(document).on("focusEditor", function(e, tab) {
+		activeTab = tab;
 		showTitle(tab);
 		showPos(tab);
 		showMode(tab);
 	});
 	
+	$(window).on( "tabsadd tabsactivate", function(e, ui) {
+		var tab = ui.newTab ? ui.newTab : ui.tab;
+		if (activeTab && activeTab.parent().has(tab).length) {
+			disableFileButtons();
+		}
+	});
+	
+	$(window).on( "tabsremove", function(e, ui) {
+		if (activeTab && activeTab.attr('id') === ui.tabId) {
+			disableFileButtons();
+		}
+	});
+	
+	$(window).on( "tabsremove", function(e, ui) {
+		if (activeTab && activeTab.attr('id') === ui.tabId) {
+			disableFileButtons();
+		}
+	});
+	
 	$(document).on("changeSelection", function(e, tab) {
-		showPos(tab);
+		if (activeTab) {
+			showPos(activeTab);
+		}
 	});
 	
 	$(document).on("changeMode", function(e, tab) {
-		showMode(tab);
+		if (activeTab) {
+			showMode(activeTab);
+		}
 	});
 }
 
+function disableFileButtons() {
+	activeTab = null;
+	showTitle(null);
+	showPos(null);
+	showMode(null);
+}
+
 function showTitle(tab) {
-	activeTab = tab;
-	
-	var title = tab.children('a.ui-tabs-anchor').prop('title');
-	if (!title) {
-		title = tab.children('a.ui-tabs-anchor').text();
+	var title;
+	if (tab) {
+		title = tab.children('a.ui-tabs-anchor').prop('title');
 	}
 	
-	$('.ui-layout-south .title a').text(title);
+	if(!title) {
+		title = '&nbsp;';
+	}
+	
+	$('.ui-layout-south .title a').html(title);
 }
 
 function showMode(tab) {
@@ -142,18 +174,19 @@ function showMode(tab) {
 }
 
 function showPos(tab) {
-	var editor = tabs.getEditor(tab);
-	if (!editor) {
-		$('.ui-layout-south .pos a').html('&nbsp;');
-		return;
+	var text = '&nbsp;';
+	if (tab) {
+		var editor = tabs.getEditor(tab);
+		if (editor) {
+			var sel = editor.session.getSelection();
+			text = (sel.lead.row+1)+':'+(sel.lead.column+1);
+			if (!sel.isEmpty()) {
+				text += ' ('+(sel.anchor.row+1)+':'+(sel.anchor.column+1)+')';
+			}
+		}
 	}
 	
-	var sel = editor.session.getSelection();
-	var text = (sel.lead.row+1)+':'+(sel.lead.column+1);
-	if (!sel.isEmpty()) {
-		text += ' ('+(sel.anchor.row+1)+':'+(sel.anchor.column+1)+')';
-	}
-	$('.ui-layout-south .pos a').text(text);
+	$('.ui-layout-south .pos a').html(text);
 }
 
 exports.init = init;
