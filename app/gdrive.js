@@ -19,7 +19,7 @@ function authorise(fn) {
 	var callback = function() {
 		console.log('connected to gdrive');
 		fn();
-	}
+	};
 
 	gapi.auth.authorize(
 		{'client_id': client_id, 'scope': SCOPES, 'immediate': true},
