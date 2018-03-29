@@ -92,9 +92,14 @@ function refresh() {
 				});
 			}
 			
+			$('.preview > iframe').on("load", function() {
+				$('.refreshButton i').removeClass('fa-spin');
+			});
+			
+			$('.refreshButton i').addClass('fa-spin');
 			$('.preview > iframe').attr('src', preview_url);
 		}
-	
+		
 		if( childWindow ){
 			childWindow.location.href = preview_url;
 		}
@@ -106,7 +111,6 @@ function create(tabpanel) {
 	tab = $(tabpanel).tabs('add', 'Preview', '\
 	<div class="vbox">\
 		<div class="preview_toolbar ui-widget-header ui-corner-all" style="min-height: 28px;">\
-			<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
 			<button type="button" class="refreshButton"><i class="fas fa-sync"></i></button>\
 			<div class="flex">\
 				<div class="addressbar flex">\
