@@ -27,7 +27,7 @@ function create(tabpanel) {
 			<div class="diff_toolbar ui-widget-header ui-corner-all">\
 				<select class="diffFiles flex ui-widget ui-state-default ui-corner-all"></select>\
 				<select class="diffFiles flex ui-widget ui-state-default ui-corner-all"></select>\
-				<label><input type="checkbox" id="autofold" value="1">Fold similar chunks</label>\
+				<label><input type="checkbox" id="autofold" value="1">Fold similar</label>\
 			</div>\
 			<div class="editor"></div>\
 		</div>\
@@ -43,7 +43,7 @@ function create(tabpanel) {
 	editor.setReadOnly(true);
 	updateOptions();
 	
-	$('#autofold').change(select);
+	$('#autofold').checkboxradio({icon: false}).change(select);
 
 	return tab;
 }
