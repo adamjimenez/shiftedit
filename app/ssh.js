@@ -250,7 +250,7 @@ function open(tabpanel) {
 		<p>\
 			<label>Profile:</label>\
 			<select id="sshName" name="sshName"></select>\
-			<button type="button" class="delete">X</button>\
+			<button type="button" class="delete"><i class="fas fa-trash"></i></button>\
 		</p>\
 		<p>\
 			<label>Username:</label>\
@@ -393,7 +393,7 @@ $('body').on('click','.newTab .ssh', function() {
 });
 
 // clean up closed tabs
-$('.ui-layout-west, .ui-layout-east, .ui-layout-center, .ui-layout-south').on('tabsbeforeremove', function(e, ui) {
+$('.ui-layout-west, .ui-layout-east, .ui-layout-center').on('tabsbeforeremove', function(e, ui) {
 	var id = $(this).data('ssh');
 	
 	if (!id) {

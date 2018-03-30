@@ -6,7 +6,7 @@ var openingFilesBatch = [];
 var news = {};
 
 var defaultPrefs = {};
-defaultPrefs.skin = 'mint-choc';
+defaultPrefs.skin = 'dark-hive';
 defaultPrefs.defaultCode = JSON.stringify({
 	html: "<!DOCTYPE HTML>\n\
 <html>\n\
@@ -48,12 +48,13 @@ defaultPrefs.showInvisibles = false;
 defaultPrefs.lineNumbers = true;
 defaultPrefs.customKeyBindings = JSON.stringify({});
 defaultPrefs.keyBinding = 'default';
-defaultPrefs.codeFolding = 'manual';
+defaultPrefs.codeFolding = 'markbegin'; // manual, markbegin, markbeginend
 defaultPrefs.scrollSpeed = 2;
 defaultPrefs.printMargin = false;
 defaultPrefs.hScroll = true;
 defaultPrefs.printMarginColumn = 80;
-defaultPrefs.codeTheme = 'twilight'; //default
+defaultPrefs.codeTheme = 'tomorrow_night'; //default
+defaultPrefs.customTheme = '';
 defaultPrefs.autocomplete = true;
 defaultPrefs.snippets = true;
 defaultPrefs.colorPicker = true;
@@ -66,12 +67,13 @@ defaultPrefs.sshPane = 'east';
 defaultPrefs.syntaxErrors = true;
 defaultPrefs.filePanelWidth = 250;
 defaultPrefs.designModeWarning = true;
-defaultPrefs.singleClickOpen = false;
+defaultPrefs.singleClickOpen = true;
 defaultPrefs.promptOnExit = 'unsaved';
 defaultPrefs.errorReporting = false;
 defaultPrefs.homeTab = true;
 defaultPrefs.local = false;
 defaultPrefs.restoreTabs = true;
+defaultPrefs.treeThemeVariant = 'small';
 defaultPrefs.openBrowserTab = false;
 defaultPrefs.stripWhitespace = false;
 defaultPrefs.saveWithMinified = false;
@@ -106,11 +108,11 @@ var skins = [{
 	title: "Base",
 	name: "base",
 	icon: "theme_90_base.png"
-},*/ {
+},*/ /*{ //ugly
 	title: "Black Tie",
 	name: "black-tie",
 	icon: "theme_90_black_tie.png"
-}, /*{ // tree highlight issue
+},*/ /*{ // tree highlight issue
 	title: "Blitzer",
 	name: "blitzer",
 	icon: "theme_90_blitzer.png"
@@ -126,11 +128,11 @@ var skins = [{
 	title: "Dot Luv",
 	name: "dot-luv",
 	icon: "theme_90_dot_luv.png"
-}, {
+}, /*{ //ugly
 	title: "Eggplant",
 	name: "eggplant",
 	icon: "theme_90_eggplant.png"
-}, /*{ //menu issue
+},*/ /*{ //menu issue
 	title: "Excite Bike",
 	name: "excite-bike",
 	icon: "theme_90_excite_bike.png"
@@ -143,15 +145,15 @@ var skins = [{
 	title: "Hot Sneaks",
 	name: "hot-sneaks",
 	icon: "theme_90_hot_sneaks.png"
-},*/ {
+},*/ /*{ //ugly
 	title: "Humanity",
 	name: "humanity",
 	icon: "theme_90_humanity.png"
-}, {
+},*/ /*{ //ugly
 	title: "Le Frog",
 	name: "le-frog",
 	icon: "theme_90_le_frog.png"
-}, {
+}, */{
 	title: "Mint Choc",
 	name: "mint-choc",
 	icon: "theme_90_mint_choco.png"
@@ -159,77 +161,74 @@ var skins = [{
 	title: "Overcast",
 	name: "overcast",
 	icon: "theme_90_overcast.png"
-},*/ {
+},*/ /*{ //ugly
 	title: "Pepper Grinder",
 	name: "pepper-grinder",
 	icon: "theme_90_pepper_grinder.png"
-}, {
+},*/ /*{ //ugly
 	title: "Redmond",
 	name: "redmond",
 	icon: "theme_90_windoze.png"
-}, {
+}, *//*{ //ugly
 	title: "South Street",
 	name: "south-street",
 	icon: "theme_90_south_street.png"
-}, /*{ // menu issues
+}, *//*{ // menu issues
 	title: "Start",
 	name: "start",
 	icon: "theme_90_start_menu.png"
-},*/ {
+},*/ /*{ // ugly
 	title: "Sunny",
 	name: "sunny",
 	icon: "theme_90_sunny.png"
-}, {
+},*/ /* { //ugly
 	title: "Swanky Purse",
 	name: "swanky-purse",
 	icon: "theme_90_swanky_purse.png"
-}, {
+},*/ /*{ //ugly
 	title: "Trontastic",
 	name: "trontastic",
 	icon: "theme_90_trontastic.png"
-}, {
+},*/ {
 	title: "UI Darkness",
 	name: "ui-darkness",
 	icon: "theme_90_ui_dark.png"
-}, {
+}/*, { //ugly
 	title: "UI Lightness",
 	name: "ui-lightness",
 	icon: "theme_90_ui_light.png"
-}, {
+}*//*, { //ugly
 	title: "Vader",
 	name: "vader",
 	icon: "theme_90_black_matte.png"
-}];
+}*/];
 
 var skinHTML = '';
 skins.forEach(function(item){
 	skinHTML += '<label>\
 		<input type="radio" name="skin" value="'+item.name+'">\
 		'+item.title+'\
-	</label>';
+	</label><br>';
 });
 
 skinHTML += '<label>\
-	<input type="radio" name="skin" value="custom">\
-	<input type="text" name="skinUrl" id="skinUrl" class="text ui-widget-content ui-corner-all" placeholder="Themeroller url e.g http://jqueryui.com/themeroller/..">\
+		<input type="radio" name="skin" value="custom">Custom theme\
+	</label><br>\
+	<input name="skinUrl" id="skinUrl" class="text ui-widget-content ui-corner-all" placeholder="Themeroller url e.g http://jqueryui.com/themeroller/..">\
 	<a href="http://jqueryui.com/themeroller/" target="_blank">Theme roller</a>\
-</label>';
+	<br>';
 
-var codeThemes = ['custom', 'ambiance', 'chaos', 'chrome', 'clouds', 'clouds_midnight', 'cobalt', 'crimson_editor', 'dawn', 'dreamweaver', 'eclipse', 'idle_fingers', 'katzenmilch', 'kr_theme', 'kuroir', 'merbivore', 'merbivore_soft', 'mono_industrial', 'monokai', 'pastel_on_dark', 'solarized_dark', 'solarized_light', 'terminal', 'textmate', 'tomorrow', 'tomorrow_night', 'tomorrow_night_blue', 'tomorrow_night_bright', 'tomorrow_night_eighties', 'twilight', 'vibrant_ink', 'xcode'];
+var codeThemes = ['ambiance', 'chaos', 'chrome', 'clouds', 'clouds_midnight', 'cobalt', 'crimson_editor', 'dawn', 'dreamweaver', 'eclipse', 'idle_fingers', 'katzenmilch', 'kr_theme', 'kuroir', 'merbivore', 'merbivore_soft', 'mono_industrial', 'monokai', 'pastel_on_dark', 'solarized_dark', 'solarized_light', 'terminal', 'textmate', 'tomorrow', 'tomorrow_night', 'tomorrow_night_blue', 'tomorrow_night_bright', 'tomorrow_night_eighties', 'twilight', 'vibrant_ink', 'xcode'];
 
 var themeHTML = '';
 codeThemes.forEach(function(item){
 	var label = item.replace(/_/g, ' ');
 	label = label.charAt(0).toUpperCase() + label.slice(1);
 
-	if(item==='custom') {
-		label += ' (<a class="editCustomTheme" href="#">Edit</a>)';
-	}
-
 	themeHTML += '<label>\
 		<input type="radio" name="codeTheme" value="'+item+'">\
 		'+ label +'\
-	</label>';
+	</label><br>';
 });
 
 var charsets = {
@@ -623,7 +622,7 @@ jslint_options.forEach(function (item) {
 	jslintHTML += '<label>\
 	<input type="checkbox" name="jslint_'+item.name+'" value="1">\
 	'+item.description+'\
-</label>';
+</label><br>';
 
 	defaultPrefs['jslint_'+item.name] = item.value;
 });
@@ -633,7 +632,7 @@ css_rules.forEach(function (item) {
 	csslintHTML += '<label>\
 	<input type="checkbox" name="csslint_'+item.id+'" value="1">\
 	'+item.desc+'\
-</label>';
+</label><br>';
 });
 
 var coffeescriptlintHTML = '';
@@ -641,7 +640,7 @@ coffeelint_options.forEach(function (item) {
 	coffeescriptlintHTML += '<label>\
 	<input type="checkbox" name="coffeelint_'+item.name+'" value="1">\
 	'+item.description+'\
-</label>';
+</label><br>';
 
 	defaultPrefs['coffeelint_'+item.name] = item.value;
 });
@@ -692,6 +691,11 @@ function load() {
 			if(prefs.skin) {
 				updateSkin(prefs.skin);
 			}
+	
+			//custom css
+			if(prefs.customTheme) {
+				updateCustomTheme(prefs.customTheme);
+			}
 			
 			//prompt
 			if(data.expired) {
@@ -733,6 +737,77 @@ function unzip( zipped, callback ) {
 	});
 }
 
+function loadSkinUrl(url) {
+	var style = $('<link type="text/css" rel="stylesheet" id="theme" href="'+url+'">').appendTo("head");
+
+	style.on('load', function(){
+		//set resizer color
+		var borderColor = $('.ui-widget-header').css('border-color');
+		$('.ui-layout-resizer').css('background', borderColor);
+
+		//var activeColor = $('.ui-widget-header').css('border-color');
+		//var hoverColor = $('.ui-widget-header').css('border-color');
+
+		var div = $('<div class="ui-state-highlight"></div>').appendTo('body');
+		var activeBackground = div.css('background-color');
+		var activeColor = div.css('color');
+		var activeBorderColor = div.css('border-color');
+		div.remove();
+
+		div = $('<div class="ui-state-focus"></div>').appendTo('body');
+		var hoverBackground = div.css('background-color');
+		var hoverColor = div.css('color');
+		var hoverBorderColor = div.css('border-color');
+		div.remove();
+
+		div = $('<div class="ui-state-default"></div>').appendTo('body');
+		var defaultBackground = div.css('background-color');
+		var defaultColor = div.css('color');
+		var defaultBorderColor = div.css('border-color');
+		div.remove();
+
+		$('<style id="themeStyle">\
+		.jstree-default .jstree-clicked{\
+			background: '+activeBackground+' !important;\
+			color: '+activeColor+' !important;\
+			border: 0 solid '+activeBorderColor+';\
+		}\
+		\
+		.jstree-default .jstree-table-header-hovered{\
+			background: '+hoverBackground+' !important;\
+		}\
+		.jstree-default .jstree-hovered{\
+			background: '+hoverBackground+';\
+			color: '+hoverColor+';\
+			border: 0 solid '+hoverBorderColor+';\
+			box-shadow: none;\
+		}\
+		.jstree-table-header-regular{\
+			background-color: '+defaultBackground+' !important;\
+			color: '+defaultColor+';\
+		}\
+		.jstree-table-separator{\
+			border-color: '+hoverBackground+';\
+		}\
+		\
+		.jstree-table-midwrapper a.jstree-hovered:before{\
+			background: '+hoverBackground+' !important;\
+		}\
+		\
+		.jstree-table-midwrapper a.jstree-clicked:before{\
+			background: '+activeBackground+' !important;\
+		}\
+		.ui-draggable-handle {\
+			background: '+hoverBackground+' !important;\
+		}\
+		.ui-tabs-panel .ui-widget-header {\
+			background-color:  '+defaultBackground+' !important;\
+		}\
+		</style>').appendTo('head');
+
+	});
+}
+
 function parsethemeUrl(url) {
 	if (!url) {
 		return;
@@ -744,7 +819,7 @@ function parsethemeUrl(url) {
 	
 	unzip( zThemeParams, function( unzipped ) {
 		var url = config.apiBaseUrl+'prefs?cmd=skin&' + $.param(unzipped);
-		$( "body" ).append( "<link href=\"" + url + "\" type=\"text/css\" rel=\"Stylesheet\" />");
+		loadSkinUrl(url);
 	});
 	
 	return;
@@ -782,76 +857,16 @@ function updateSkin(name){
 			url = urlPrefix + name + "/jquery-ui.css";
 			currentStyle = $('link[href^="' + urlPrefix + '"]').remove();
 		}
+		
+		loadSkinUrl(url);
+	}
+}
+
+function updateCustomTheme() {
+	$('#customCss').remove();
 	
-		var style = $("<link/>")
-		.attr("type","text/css")
-		.attr("rel","stylesheet")
-		.attr("id","theme")
-		.attr("href", url);
-	
-		style.appendTo("head");
-	
-		style.on('load', function(){
-			//set resizer color
-			var borderColor = $('.ui-widget-header').css('border-color');
-			$('.ui-layout-resizer').css('background', borderColor);
-	
-			//var activeColor = $('.ui-widget-header').css('border-color');
-			//var hoverColor = $('.ui-widget-header').css('border-color');
-	
-			var div = $('<div class="ui-state-highlight"></div>').appendTo('body');
-			var activeBackground = div.css('background-color');
-			var activeColor = div.css('color');
-			var activeBorderColor = div.css('border-color');
-			div.remove();
-	
-			div = $('<div class="ui-state-focus"></div>').appendTo('body');
-			var hoverBackground = div.css('background-color');
-			var hoverColor = div.css('color');
-			var hoverBorderColor = div.css('border-color');
-			div.remove();
-	
-			div = $('<div class="ui-state-default"></div>').appendTo('body');
-			var defaultBackground = div.css('background-color');
-			var defaultColor = div.css('color');
-			var defaultBorderColor = div.css('border-color');
-			div.remove();
-	
-			$('<style id="themeStyle">\
-			.jstree-default .jstree-clicked{\
-				background: '+activeBackground+' !important;\
-				color: '+activeColor+' !important;\
-				border: 0 solid '+activeBorderColor+';\
-			}\
-			\
-			.jstree-default .jstree-hovered{\
-				background: '+hoverBackground+';\
-				color: '+hoverColor+';\
-				border: 0 solid '+hoverBorderColor+';\
-			}\
-			.jstree-table-header-regular{\
-				background-color: '+defaultBackground+' !important;\
-				color: '+defaultColor+';\
-			}\
-			.jstree-table-separator{\
-				border-color: '+defaultBorderColor+';\
-			}\
-			\
-			.jstree-table-midwrapper a.jstree-hovered:before{\
-				background: '+hoverBackground+' !important;\
-			}\
-			\
-			.jstree-table-midwrapper a.jstree-clicked:before{\
-				background: '+activeBackground+' !important;\
-			}\
-			</style>').appendTo('head');
-	
-		});
-	
-		/*
-		$.cookie(settings.cookiename, data.name,
-			{ expires: settings.cookieexpires, path: settings.cookiepath }
-		);*/
+	if (prefs.customTheme) {
+		$( "body" ).append( '<style id="customCss">'+prefs.customTheme+'</style>');
 	}
 }
 
@@ -866,29 +881,28 @@ function save(name, value) {
 		prefs[name] = value;
 	}
 
-	//skin
 	if(name==='skin' || name=='skinUrl') {
+		//skin
 		updateSkin(value);
-	}
-
-	if(name==='customTheme'){
-		$('#ace-custom').remove();
-	}
-
-	if(name==='singleClickOpen'){
+	} else if(name==='customTheme') {
+		//custom css
+		updateCustomTheme(value);
+	} else if(name==='singleClickOpen'){
 		tree.setSingleClickOpen(value);
-	}
-
-	//apply change to open editors
-	$('li[data-file]').each(function() {
-		editors.applyPrefs(this);
-	});
-
-	if(typeof(prefs[name])==='object') {
-		value = JSON.stringify(prefs[name]);
-	}
+	} else if (name==='treeThemeVariant') {
+		$('#tree').jstree('set_theme_variant', value);
+	} else {
+		//apply change to open editors
+		$('li[data-file]').each(function() {
+			editors.applyPrefs(this);
+		});
 	
-	keybindings.updateKeyBindings();
+		if(typeof(prefs[name])==='object') {
+			value = JSON.stringify(prefs[name]);
+		}
+		
+		keybindings.updateKeyBindings();
+	}
 
 	$.ajax({
 		url: config.apiBaseUrl+'prefs?cmd=save&name='+name,
@@ -907,7 +921,7 @@ function save(name, value) {
 	});
 }
 
-function open(tabpanel) {
+function open() {
 	var myLayout = layout.get();
 
 	//check if already open
@@ -933,78 +947,141 @@ function open(tabpanel) {
 		return;
 	}
 
-	if (!tabpanel) {
-		tabpanel = '.ui-layout-east';
-	} else {
-		pane = tabpanel.closest('.ui-layout-pane');
-		paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
-	}
+	var	tabpanel = $('.ui-layout-east');
+	pane = tabpanel.closest('.ui-layout-pane');
+	paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 
 	//create tab
 	tab = $(tabpanel).tabs('add', 'Preferences', '<div class="prefs">\
 	<form id="prefsForm">\
-	<h2>General</h2>\
-	<label>Skin</label>\
-	'+skinHTML+'<br>\
-	<label>Code theme</label>\
-	'+themeHTML+'<br>\
-	<label>Prompt on exit</label>\
+	<h2>'+lang.general+'</h2>\
+	<h4>'+lang.promptOnExit+'</h4>\
 	<label>\
 		<input type="radio" name="promptOnExit" value="unsaved">\
-		When there are unsaved changes\
+		'+lang.withUnsavedChanges+'\
 	</label>\
 	<label>\
 		<input type="radio" name="promptOnExit" value="always">\
-		Always\
+		'+lang.always+'\
 	</label>\
+	<br>\
+	<br>\
+	<h2>'+lang.themeText+'</h2>\
+	<button type="button" class="editCustomTheme" name="editCustomTheme">'+lang.editCustomTheme+'</button><br>\
+	<br>\
+	<h4>'+lang.skin+'</h4>\
+	'+skinHTML+'<br>\
+	<h4>Code theme</h4>\
+	'+themeHTML+'<br>\
+	<br>\
+	<br>\
 	<h2>Files</h2>\
 	<label>\
-		Default template<br>\
-		<select id="defaultCode" class="ui-widget ui-state-default ui-corner-all"></select>\
-		<button id="editDefaultCode" type="button">Edit</button>\
-	</label>\
-	<label>\
 		<input type="checkbox" name="restoreTabs" value="1">\
-		Restore tabs on startup\
+		' + lang.restoreTabsOnStartupText + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="singleClickOpen" value="1">\
-		Single click to open files\
+		' + lang.singleClickOpen + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="stripWhitespace" value="1">\
-		Strip whitespace on save\
+		' + lang.stripWhitespace + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="saveWithMinified" value="1">\
-		Save with minified\
+		' + lang.minify + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="compileLESS" value="1">\
-		Compile LESS/ SCSS on save\
+		' + lang.compileLess + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="compileCoffeeScript" value="1">\
-		Compile CoffeeScript on save\
+		' + lang.compileCoffee + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="autoSave" value="1">\
-		Autosave\
-	</label><br>\
-	<label>\
-		Maximum number of files in each folder<br>\
-		<input type="number" name="maxFiles" value="" class="ui-widget ui-state-default ui-corner-all">\
-	</label><br>\
-	<label>\
-		Default encoding<br>\
-		<select name="encoding" class="ui-widget ui-state-default ui-corner-all"></select>\
+		' + lang.autoSave + '\
 	</label>\
+	<br>\
+	<br>\
+	<h4>' + lang.treeTheme + '</h4>\
+	<label>\
+		<input type="radio" name="treeThemeVariant" value="small">\
+		' + lang.small + '\
+	</label>\
+	<label>\
+		<input type="radio" name="treeThemeVariant" value="default">\
+		' + lang.medium + '\
+	</label>\
+	<label>\
+		<input type="radio" name="treeThemeVariant" value="large">\
+		' + lang.large + '\
+	</label>\
+	<br>\
+	<br>\
+	<h4>' + lang.defaultTemplate + '</h4>\
+	<select id="defaultCode" class="ui-widget ui-state-default ui-corner-all"></select>\
+	<button id="editDefaultCode" type="button">' + lang.editText + '</button>\
+	<br>\
+	<br>\
+	<h4>' + lang.maxFiles + '</h4>\
+	<input type="number" name="maxFiles" value="" class="ui-widget ui-state-default ui-corner-all">\
+	</label><br>\
+	<br>\
+	<h4>' + lang.defaultEncoding + '</h4>\
+	<select name="encoding" class="ui-widget ui-state-default ui-corner-all"></select>\
 	\
-	<h2>Editor</h2>\
-	<label>Key binding</label>\
+	<br>\
+	<br>\
+	<h2>' + lang.editor + '</h2>\
+	<label>\
+		<input type="checkbox" name="autocomplete" value="1">\
+		' + lang.autocomplete + '\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="snippets" value="1">\
+		' + lang.snippetsText + '\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="indentOnPaste" value="1">\
+		' + lang.indentOnPaste + '\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="zen" value="1">\
+		Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="behaviours" value="1">\
+		' + lang.autoclose + '\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="selectDollar" value="1">\
+		' + lang.selectDollar + '\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="scrollPastEnd" value="1">\
+		' + lang.scrollPastEnd + '\
+	</label>\
+	<br>\
+	<br>\
+	<h4>' + lang.keyboardBindings +'</h4>\
 	<label>\
 		<input type="radio" name="keyBinding" value="default">\
-		Default\
+		' + lang.default + '\
 	</label>\
 	<label>\
 		<input type="radio" name="keyBinding" value="vim">\
@@ -1015,24 +1092,28 @@ function open(tabpanel) {
 		Emacs\
 	</label>\
 	<br>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="autoTabs" value="1">\
-		Detect tab type\
+		' + lang.detectTabType + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="checkbox" name="softTabs" value="1">\
-		Indent with spaces\
-	</label><br>\
-	<label>\
-		Tab size<br>\
-		<select name="tabSize" class="ui-widget ui-state-default ui-corner-all">\
-			<option>2</option>\
-			<option>3</option>\
-			<option>4</option>\
-			<option>8</option>\
-		</select>\
-	</label><br>\
-	<label>Line break</label>\
+		' + lang.indentWithSpaces + '\
+	</label>\
+	<br>\
+	<br>\
+	<h4>' + lang.tabSizeText + '<h4>\
+	<select name="tabSize" class="ui-widget ui-state-default ui-corner-all">\
+		<option>2</option>\
+		<option>3</option>\
+		<option>4</option>\
+		<option>8</option>\
+	</select>\
+	<br>\
+	<br>\
+	<h4>' + lang.lineBreak + '</h4>\
 	<label>\
 		<input type="radio" name="lineBreak" value="auto">\
 		Auto\
@@ -1045,85 +1126,67 @@ function open(tabpanel) {
 		<input type="radio" name="lineBreak" value="windows">\
 		Windows\
 	</label><br>\
-	<label>\
-		Font size<br>\
-		<input type="number" name="fontSize" value="" class="ui-widget ui-state-default ui-corner-all">\
-	</label>\
-	<label>\
-		Print margin column<br>\
-		<input type="number" name="printMarginColumn" value="" class="ui-widget ui-state-default ui-corner-all">\
-	</label><br>\
-	<label>\
-		<input type="checkbox" name="autocomplete" value="1">\
-		Autocomplete\
-	</label>\
-	<label>\
-		<input type="checkbox" name="snippets" value="1">\
-		Snippets\
-	</label>\
-	<label>\
-		<input type="checkbox" name="indentOnPaste" value="1">\
-		Indent on paste\
-	</label>\
-	<label>\
-		<input type="checkbox" name="zen" value="1">\
-		Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
-	</label>\
-	<label>\
-		<input type="checkbox" name="behaviours" value="1">\
-		Auto-close tags, brackets, quotes etc\
-	</label>\
-	<label>\
-		<input type="checkbox" name="selectDollar" value="1">\
-		Select $ with PHP variable\
-	</label>\
-	<label>\
-		<input type="checkbox" name="scrollPastEnd" value="1">\
-		Scroll past end\
-	</label>\
-	<h2>SSH</h2>\
-	<label>Default Pane</label>\
+	<br>\
+	<h4>' + lang.fontSizeText + '</h4>\
+	<input type="number" name="fontSize" value="" class="ui-widget ui-state-default ui-corner-all">\
+	<br>\
+	<br>\
+	<h4>' + lang.printMarginColumn + '</h4>\
+	<input type="number" name="printMarginColumn" value="" class="ui-widget ui-state-default ui-corner-all">\
+	<br>\
+	<br>\
+	<h2>' + lang.ssh + '</h2>\
+	<h4>' + lang.defaultPane +'</h4>\
 	<label>\
 		<input type="radio" name="sshPane" value="center">\
-		Center\
+		' + lang.center +'\
 	</label>\
 	<label>\
 		<input type="radio" name="sshPane" value="east">\
-		East\
-	</label>\
-	<label>\
-		<input type="radio" name="sshPane" value="south">\
-		South\
+		' + lang.east +'\
 	</label>\
 	<br>\
-	<h2>Security</h2>\
-	<p>A Master Password is used to protect your passwords.</p>\
+	<br>\
+	<h2>' + lang.security + '</h2>\
+	<p>' + lang.masterPasswordInfoText + '</p>\
 	<label>\
 		<input type="checkbox" id="useMasterPassword" name="useMasterPassword" value="1">\
-		Use a master password\
+		' + lang.useMasterPasswordText + '\
 	</label>\
-	<p><button type="button" id="changeMasterPassword">Change master password</button></p>\
-	<h2>Lint Checking</h2>\
-	<h3>Javascript</h3>\
-	<label>\
-		<input type="checkbox" name="jslint_disable" value="1">\
-		Disable lint checking\
-	</label>\
-	'+ jslintHTML +'<br>\
-	<h3>CSS</h3>\
-	<label>\
-		<input type="checkbox" name="csslint_disable" value="1">\
-		Disable lint checking\
-	</label>\
-	'+ csslintHTML +'<br>\
-	<h3>Coffeescript</h3>\
-	<label>\
-		<input type="checkbox" name="coffeescriptlint_disable" value="1">\
-		Disable lint checking\
-	</label>\
-	'+ coffeescriptlintHTML +'<br>\
-	</form>\
+	<p><button type="button" id="changeMasterPassword">' + lang.changeMasterPasswordText + '</button></p>\
+	<br>\
+	<div class="accordion">\
+		<h4>' + lang.advanced + '</h4>\
+		<div>\
+			<h2>' + lang.lintChecking + '</h2>\
+			<h4>Javascript</h4>\
+			<label>\
+				<input type="checkbox" name="jslint_disable" value="1">\
+				' + lang.disableLintChecking + '\
+			</label><br>\
+			' + jslintHTML + '<br>\
+			<h4>CSS</h4>\
+			<label>\
+				<input type="checkbox" name="csslint_disable" value="1">\
+				' + lang.disableLintChecking + '\
+			</label><br>\
+			' + csslintHTML + '<br>\
+			<h4>Coffeescript</h4>\
+			<label>\
+				<input type="checkbox" name="coffeescriptlint_disable" value="1">\
+				Disable lint checking\
+			</label><br>\
+			' + coffeescriptlintHTML + '<br>\
+			</form>\
+		</div>\
 	</div>');
+	
+	// accordion
+	$( ".accordion" ).accordion({
+		collapsible: true,
+		active: false,
+		heightStyle: "content"
+	});
 
 	tab.addClass('closable');
 	tab.attr('data-type', 'prefs');
@@ -1189,6 +1252,10 @@ function open(tabpanel) {
 		var tab = editors.create('defaultCode.'+val, prefs.defaultCode[val], 0);
 		tab.data('pref', 'defaultCode.'+val);
 	});
+	
+	//checkboxradio
+	pane.find('input[type=checkbox]').checkboxradio();
+	pane.find('input[type=radio]').checkboxradio();
 
 	// master password
 	function changeMasterPassword() {
@@ -1203,7 +1270,7 @@ function open(tabpanel) {
 		</div>');
 
 		if(!prefs.useMasterPassword){
-			$('#currentMasterPassword').val('No password set').prop('disabled', true);
+			$('#currentMasterPassword').val('No password set').prop('disabled', true).button('refresh');
 		}
 
 		//open dialog
@@ -1254,7 +1321,7 @@ function open(tabpanel) {
 								prefs.useMasterPassword = true;
 
 								$('#useMasterPassword').prop('checked', true);
-								$('#changeMasterPassword').prop('disabled', false);
+								$('#changeMasterPassword').prop('disabled', false).button('refresh');
 								$( "#dialog-changeMasterPasword" ).dialogResize( "close" );
 							}
 						});
@@ -1275,9 +1342,9 @@ function open(tabpanel) {
 
 		$('#forceRemovePassword').click(function() {
 			if ($(this).is(':checked')) {
-				$('#currentMasterPassword').prop('disabled', true);
+				$('#currentMasterPassword').prop('disabled', true).button('refresh');
 			} else {
-				$('#currentMasterPassword').prop('disabled', false);
+				$('#currentMasterPassword').prop('disabled', false).button('refresh');
 			}
 		});
 
@@ -1314,7 +1381,7 @@ function open(tabpanel) {
 								prefs.masterPasswordHash = '';
 
 								$('#useMasterPassword').prop('checked', false);
-								$('#changeMasterPassword').prop('disabled', true);
+								$('#changeMasterPassword').prop('disabled', true).button('refresh');
 								$( "#dialog-removeMasterPasword" ).dialogResize( "close" );
 								$( "#dialog-removeMasterPasword" ).remove();
 							}
@@ -1329,7 +1396,7 @@ function open(tabpanel) {
 	$('#changeMasterPassword').button().click(changeMasterPassword);
 
 	if(!prefs.useMasterPassword){
-		$('#changeMasterPassword').prop('disabled', true);
+		$('#changeMasterPassword').prop('disabled', true).button('refresh');
 	}
 
 	$('#useMasterPassword').click(function() {
@@ -1342,6 +1409,11 @@ function open(tabpanel) {
 		return false;
 	});
 
+	$('.editCustomTheme').button().click(function(e){
+		var tab = editors.create('customTheme.css', prefs.customTheme, 0);
+		tab.data('pref', 'customTheme');
+	});
+
 	//expand panel
 	myLayout.open(paneName);
 	if(myLayout.panes.east.outerWidth() < minWidth) {
@@ -1349,22 +1421,8 @@ function open(tabpanel) {
 	}
 }
 
-$('body').on('click', '#openPreferences a', function(e){
+$('body').on('click', '#openPreferences a, a.preferences', function(e){
 	open();
-});
-
-$('body').on('click', 'a.preferences', function(e){
-	var tabpanel = $(this).closest('.ui-tabs');
-	var id = $(this).closest('[role=tabpanel]').attr('id');
-	var tab = $('[aria-controls='+id+']');
-	tabs.close(tab);
-
-	open(tabpanel);
-});
-
-$('body').on('click', '.editCustomTheme', function(e){
-	var tab = editors.create('customTheme.css', prefs.customTheme, 0);
-	tab.data('pref', 'customTheme');
 });
 
 exports.get_prefs = function() {

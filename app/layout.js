@@ -1,4 +1,4 @@
-define(['exports', "./menubar", "jquery.layout"], function (exports, menubar) {
+define(['exports', "./menubar", './status_bar', "jquery.layout"], function (exports, menubar, status_bar) {
 var myLayout;
 
 function init() {
@@ -8,12 +8,7 @@ function init() {
 		<ul id="menubar" class="menubar"></ul>\
 	</div>\
 	\
-	<div class="ui-layout-south ui-widget-content" style="display: none;">\
-		<ul></ul>\
-		<!-- add wrapper that layout will auto-size to fill space -->\
-		<div class="ui-layout-content">\
-		</div>\
-	</div>\
+	<div class="ui-layout-south ui-widget-content" style="display: none;"></div>\
 	\
 	<div class="ui-layout-center" style="display: none;">\
 		<ul></ul>\
@@ -35,14 +30,12 @@ function init() {
 		<div class="ui-layout-content">\
 			<div id="tabs-filetree">\
 				<div class="vbox">\
-					<div id="filetree-buttons" class="hbox">\
-						<div id="sitebar" class="flex">\
+					<div class="hbox ui-widget-header panel-buttons">\
+						<div id="sitebar" class="flex ui-widget-content ui-state-default">\
 							<select id="sites">\
 							</select>\
 						</div>\
 						<button id="refresh_site"><i class="fas fa-sync"></i></button>\
-						<button id="siteNenuBtn"><i class="fa fa-bars"></i></button>\
-						<ul id="siteMenu"></ul>\
 					</div>\
 					<div id="tree-container" class="vbox" style="display: none;">\
 						<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all" style="display: none;">\
@@ -54,7 +47,7 @@ function init() {
 			<div id="tabs-find"></div>\
 			<div id="tabs-definitions"></div>\
 			<div id="tabs-notes">\
-				<textarea id="notes" class="ui-widget ui-state-default ui-corner-all"></textarea>\
+				<textarea id="notes" class="ui-widget ui-state-default ui-corner-all" placeholder="Put your development notes in here.."></textarea>\
 			</div>\
 			<div id="tabs-snippets">\
 				<div id="snippets"></div>\
@@ -71,6 +64,7 @@ function init() {
 	</div>').appendTo($('body'));
 
 	menubar.init();
+	status_bar.init();
 
 	//page layout
 	myLayout = $('body').layout({
@@ -78,23 +72,46 @@ function init() {
 		//showOverflowOnHover: true,
 		west__size: 300,
 		west__minSize: 200,
-		east__size: 300,
-		east__initClosed: true,
-		south__size: 300,
-		south__initClosed: true,
-		livePaneResizing: true,
-		enableCursorHotkey: false,
 		north: {
 			closable: false,
 			resizable: false,
 			spacing_open: 0,
 			spacing_closed: 0,
-			minSize: 30,
-			size: 30,
-			maxSize: 30
+			minSize: 36,
+			size: 36,
+			maxSize: 36
 		},
+		east: {
+			//closable: false,
+			//resizable: false,
+			spacing_open: 10,
+			spacing_closed: 10,
+			//minSize: 36,
+			size: 300,
+			initClosed: true
+		},
+		south: {
+			closable: false,
+			resizable: false,
+			spacing_open: 0,
+			spacing_closed: 0,
+			minSize: 36,
+			size: 36,
+			maxSize: 36
+		},
+		west: {
+			//closable: false,
+			//resizable: false,
+			spacing_open: 10,
+			spacing_closed: 10,
+			size: 300,
+			minSize: 200
+		},
+		livePaneResizing: true,
+		enableCursorHotkey: false,
 		stateManagement__enabled: true,
-		slideTrigger_close: 'click'
+		slideTrigger_close: 'click',
+		noAlert: true
 		//maskContents: true
 		// RESIZE Accordion widget when panes resize
 		//west__onresize: $.layout.callbacks.resizePaneAccordions
@@ -117,11 +134,6 @@ function init() {
 		if (myLayout.state.east.isSliding) {
 			if ($(e.target).closest('.ui-layout-east').length===0) {
 				myLayout.slideClose('east');
-			}
-		}
-		if (myLayout.state.south.isSliding) {
-			if ($(e.target).closest('.ui-layout-south').length===0) {
-				myLayout.slideClose('south');
 			}
 		}
 	});
@@ -148,7 +160,9 @@ function init() {
 	}, 1000 ); /* allow time for browser to re-render with new theme */
 
 	//send resize events to window
-	$('.ui-layout-pane').on('layoutpaneonresize', function() { $(window).trigger('resize'); });
+	$('.ui-layout-pane').on('layoutpaneonresize', function() { 
+		$(window).trigger('resize');
+	});
 	
 	// expand panes when tab is dragged over
 	$('.ui-layout-resizer').droppable({

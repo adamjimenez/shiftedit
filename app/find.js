@@ -116,6 +116,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			var start;
 			var end;
 			var editor;
+			var i;
 
 			if (findIn == 'open') {
 				files = $('li[data-file]');
@@ -196,23 +197,25 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 
 				var found = false;
 				for (var tab in results) {
-					for (i = 0; i < results[tab].length; i++) {
-						if (
-							active.attr('id') == $('#'+tab).attr('id') &&
-							results[tab][i].start.row == range.start.row &&
-							results[tab][i].start.column == range.start.column &&
-							results[tab][i].end.row == range.end.row &&
-							results[tab][i].end.column == range.end.column
-						) {
-							found = true;
+					if(results.hasOwnProperty(tab)) {
+						for (i = 0; i < results[tab].length; i++) {
+							if (
+								active.attr('id') == $('#'+tab).attr('id') &&
+								results[tab][i].start.row == range.start.row &&
+								results[tab][i].start.column == range.start.column &&
+								results[tab][i].end.row == range.end.row &&
+								results[tab][i].end.column == range.end.column
+							) {
+								found = true;
+								break;
+							}
+	
+							current++;
+						}
+	
+						if (found) {
 							break;
 						}
-
-						current++;
-					}
-
-					if (found) {
-						break;
 					}
 				}
 
@@ -236,27 +239,29 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 
 					found = false;
 					var count = 0;
-					for (tabId in results) {
-						for (var i = 0; i < results[tabId].length; i++) {
-							tab = $('#'+tabId);
-							if (count == target) {
-								//fixme get tab panel
-
-								// set tab
-								$(".ui-layout-center").tabs("option", "active", tab.index());
-
-								//select
-								tabs.getEditor(tab).selection.setSelectionRange(results[tabId][i]);
-
-								found = true;
+					for (var tabId in results) {
+						if(results.hasOwnProperty(tabId)) {
+							for (i = 0; i < results[tabId].length; i++) {
+								tab = $('#'+tabId);
+								if (count == target) {
+									//fixme get tab panel
+	
+									// set tab
+									$(".ui-layout-center").tabs("option", "active", tab.index());
+	
+									//select
+									tabs.getEditor(tab).selection.setSelectionRange(results[tabId][i]);
+	
+									found = true;
+									break;
+								}
+	
+								count++;
+							}
+	
+							if (found) {
 								break;
 							}
-
-							count++;
-						}
-
-						if (found) {
-							break;
 						}
 					}
 
@@ -382,7 +387,6 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 	}
 
 	function keyUp(e){
-		console.log(arguments)
 		if (e && e.key === 'Escape') {
 			//focus editor
 			var tab = tabs.active();
@@ -502,11 +506,11 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 
 	function init() {
 		$('<form id="findForm">\
-		<div id="findInRadio" class="row">\
-			<input type="radio" id="findInSelection" name="findIn" value="selection"><label for="findInSelection" title="Find in selection"><i class="far fa-file-alt"></i></label>\
-			<input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label for="findInCurrent" title="Find in current document"><i class="far fa-file"></i></label>\
-			<input type="radio" id="findInOpen" name="findIn" value="open"><label for="findInOpen" title="Find in open documents"><i class="far fa-copy"></i></label>\
-			<input type="radio" id="findInRemote" name="findIn" value="remote"><label for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
+		<div id="findInRadio" class="hbox row panel-buttons ui-widget-header">\
+			<input type="radio" id="findInSelection" name="findIn" value="selection"><label class="flex" for="findInSelection" title="Find in selection"><i class="far fa-file-alt"></i></label>\
+			<input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label class="flex" for="findInCurrent" title="Find in current document"><i class="far fa-file"></i></label>\
+			<input type="radio" id="findInOpen" name="findIn" value="open"><label class="flex" for="findInOpen" title="Find in open documents"><i class="far fa-copy"></i></label>\
+			<input type="radio" id="findInRemote" name="findIn" value="remote"><label class="flex" for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
 		</div>\
 		<div class="row">\
 			<textarea id="find" name="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\

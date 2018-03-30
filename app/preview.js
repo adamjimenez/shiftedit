@@ -92,9 +92,14 @@ function refresh() {
 				});
 			}
 			
+			$('.preview > iframe').on("load", function() {
+				$('.refreshButton i').removeClass('fa-spin');
+			});
+			
+			$('.refreshButton i').addClass('fa-spin');
 			$('.preview > iframe').attr('src', preview_url);
 		}
-	
+		
 		if( childWindow ){
 			childWindow.location.href = preview_url;
 		}
@@ -106,7 +111,6 @@ function create(tabpanel) {
 	tab = $(tabpanel).tabs('add', 'Preview', '\
 	<div class="vbox">\
 		<div class="preview_toolbar ui-widget-header ui-corner-all" style="min-height: 28px;">\
-			<button type="button" class="runButton"><i class="fa fa-play"></i></button>\
 			<button type="button" class="refreshButton"><i class="fas fa-sync"></i></button>\
 			<div class="flex">\
 				<div class="addressbar flex">\
@@ -238,22 +242,38 @@ function load(tab) {
 	}
 }
 
-function run(fileTab) {
+function run(tab) {
+	var siteId = tab.data('site');
+	var editor = tabs.getEditor(tab);
+	var mode = editor.getSession().$modeId.replace('ace/mode/', '');
+	if (mode !== 'markdown') {
+		if(!siteId) {
+			prompt.alert({title:'File is not saved', msg:'Save the file to a site first'});
+			return;
+		} else {
+			var settings = site.getSettings(siteId);
+			if(!settings.web_url) {
+				prompt.alert({title:'Missing web url', msg:'Add a web url in site settings'});
+				return;
+			}
+		}
+	}
+	
 	var myLayout = layout.get();
 	
 	// find existing
-	var tab = $('li[data-type=preview]');
+	var previewTab = $('li[data-type=preview]');
 	
 	// open
 	var panel = 'east';
 	var minWidth = 300;
 
-	if(tab.length) {
-		tabpanel = tab.closest('.ui-tabs');
-		tabpanel.tabs("option", "active", tab.index());
+	if(previewTab.length) {
+		tabpanel = previewTab.closest('.ui-tabs');
+		tabpanel.tabs("option", "active", previewTab.index());
 
 		//get nearest panel
-		var pane = tab.closest('.ui-layout-pane');
+		var pane = previewTab.closest('.ui-layout-pane');
 		panel = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 
 		//expand panel
@@ -262,7 +282,7 @@ function run(fileTab) {
 			myLayout.sizePane(panel, minWidth);
 		}
 		
-		load(fileTab);
+		load(tab);
 		return;
 	}
 
@@ -274,7 +294,7 @@ function run(fileTab) {
 	}
 	
 	create($(tabpanel));
-	load(fileTab);
+	load(tab);
 }
 
 $('body').on('click','.newTab .preview', function(){

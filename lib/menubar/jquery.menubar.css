@@ -16,7 +16,6 @@
 }
 
 .ui-menubar .ui-button {
-	float: left;
 	border-top-width: 0 !important;
 	border-bottom-width: 0 !important;
 	margin: 0;
@@ -33,4 +32,10 @@
 	position: absolute;
 	z-index: 9999;
 	font-weight: normal;
+	overflow-y: auto;
+}
+
+.ui-menubar .ui-menubar-item .ui-state-active {
+	border: 0 !important;
+	margin: 0 !important;
 }

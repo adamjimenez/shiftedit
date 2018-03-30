@@ -11,11 +11,13 @@ define(["jquery.menubar"], function () {
 				//el.css('overflow-x', 'auto');
 				el.css('-webkit-overflow-scrolling', 'touch');
 				el.append('<li class="ui-state-default" style="flex-grow:2"></li>');
+			}else if(menu[i]==='-') {
+				el.append('<li class="ui-state-default">&nbsp;</li>');
 			}else{
 				var tooltip = menu[i].tooltip ? menu[i].tooltip : '';
 
 				var item = $('<li>\
-					<a href="#'+i+'" title="'+tooltip+'">'+menu[i].text+'</a>\
+					<div title="'+tooltip+'">'+menu[i].text+'</div>\
 				</li>').appendTo(el);
 
 				if(menu[i].id) {
@@ -46,35 +48,70 @@ define(["jquery.menubar"], function () {
 					item.addClass(menu[i].cls);
 				}
 
+				// checkboxes
+				var toggle = false;
 				if(menu[i].group) {
-					item.children('a').prepend('<input type="radio" name="'+menu[i].group+'">');
+					toggle = true;
+					item.data('group', menu[i].group);
+					item.attr('data-group', menu[i].group);
 				}else if(typeof menu[i].checked === "boolean") {
-					$('<input type="checkbox">').prependTo(item.children('a'));
+					toggle = true;
 				}
 
-				if(menu[i].checked) {
-					item.find('input').prop('checked', true);
+				if(toggle) {
+					item.data('toggle', true);
+					
+					var icon = $('<i class="check fas fa-check"></i>').prependTo(item.children('div'));
+					if (!menu[i].checked) {
+						icon.hide();
+					}
 				}
 
 				//trigger the correct handler with the checkbox value
-				if(menu[i].handler) {
+				if(menu[i].handler && !menu[i].buttons) {
 					item.click(
 						(function(i, item, context) {
 							return function(e) {
-								var checkbox = $(item).find('input');
-								if(e.target.nodeName!=='INPUT') {
-									checkbox.prop("checked", !checkbox.prop("checked"));
+								var check = $(item).find('.check');
+								var group = $(item).data('group');
+								
+								if ($(item).data('toggle')) {
+									if (check.is(":visible")) {
+										if (!group) {
+											check.hide();
+										}
+									} else {
+										if (group) {
+											el.find('[data-group='+group+'] .check').hide();
+										}
+										
+										check.show();
+									}
 								}
 
-								jQuery.proxy(menu[i].handler, item, context, checkbox.prop("checked"))();
-								
-								// prevent hash change
-								if ($(e.target).is('a') || $(e.target).parents('a').length > 0) {
-									e.preventDefault();
-								}
+								jQuery.proxy(menu[i].handler, item, context, check.is(":visible"))();
 							};
 						}(i, item, context))
 					);
+				}
+				
+				
+				if(typeof menu[i].buttons === 'object'){
+					item.find('.label').removeClass('label');
+					
+					menu[i].buttons.forEach(function(button) {
+						var input = $('<label><input type="radio" name="' + button.group + '" value="' + button.value + '">' + button.text + '</label>').appendTo(item.find('.shortcut'))
+						.attr('id', button.id);
+						
+						if(button.checked) {
+							input.prop('checked', true);
+						}
+					});
+					
+					var buttons = $(item).find('input');
+					buttons.checkboxradio({icon: false});
+					
+					buttons.change(menu[i].handler);
 				}
 
 				if(typeof menu[i].items === 'object'){

@@ -1,4 +1,4 @@
-define(['./config', './tabs', './site', "./editor_toolbar", 'exports', 'dialogResize'], function (config, tabs, site, editor_toolbar, exports) {
+define(['./util', './config', './tabs', './site', './prefs', 'exports', 'dialogResize'], function (util, config, tabs, site, preferences, exports) {
 function create(tab) {
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 	var editor = tabs.getEditor(tab);
@@ -10,14 +10,28 @@ function create(tab) {
 	var designId = ta.uniqueId().attr('id');
 	
 	var base_url = '';
-	if (tab.data("site")) {
-	var settings = site.getSettings(tab.data("site"));
-		base_url = settings.web_url;
+	var relative_urls = true;
+	var convert_urls = false;
 	
-		if (settings.encryption == "1") {
-			base_url = 'https://'+base_url;
-		} else {
-			base_url = 'http://'+base_url;
+	if (tab.data("site")) {
+		relative_urls = false;
+		convert_urls = true;
+		
+		var settings = site.getSettings(tab.data("site"));
+		
+		if (settings.web_url) {
+			base_url = settings.web_url;
+		
+			if (settings.encryption == "1") {
+				base_url = 'https://'+base_url;
+			} else {
+				base_url = 'http://'+base_url;
+			}
+			
+			var dirname = util.dirname($(tab).data('file'));
+			if (dirname) {
+				base_url = base_url + dirname + '/';
+			}
 		}
 	}
 
@@ -30,8 +44,8 @@ function create(tab) {
 			toolbar: [ 'undo', 'bold', 'italic', 'styleselect' ]
 		},
 		selector : '#'+designId,
-		relative_urls : false,
-		convert_urls: true,
+		relative_urls : relative_urls,
+		convert_urls: convert_urls,
 		document_base_url : base_url,
 		remove_script_host : false,
 		//body_class: 'mceForceColors',
@@ -47,13 +61,14 @@ function create(tab) {
 		],
 		//insert_toolbar: 'quickimage quicktable media codesample',
 		insert_toolbar: '',
-		selection_toolbar: 'bold italic | quicklink h1 h2 h3 blockquote bullist',
+		selection_toolbar: 'bold italic strikethrough | quicklink h1 h2 h3 blockquote bullist | forecolor backcolor',
 		inline: true,
 		paste_data_images: true,
 
 		init_instance_callback: function (inst) {
-			inst.on('change undo redo keypress', function(e){
+			inst.on('change undo redo keypress ExecCommand', function(e) {
 				var code = inst.getContent();
+				
 				var regexp = /<body[^>]*>([\s\S]*)<\/body>/gi;
 				var match = regexp.exec(code);
 				code = match[1];
@@ -82,8 +97,6 @@ function create(tab) {
 				editor.insert(code);
 
 				tabs.setEdited(tab, true);
-				
-				editor_toolbar.update(tab);
 			});
 
 			//add save shortcut
@@ -98,6 +111,7 @@ function create(tab) {
 			var siteId = site.active();
 			var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 			var settings = site.getSettings();
+			var prefs = preferences.get_prefs();
 
 			$( "body" ).append('<div id="dialog-choose-image" title="Choose image">\
 			<div id="imageTree"></div>\
@@ -108,7 +122,7 @@ function create(tab) {
 					'data' : function (node, callback) {
 						if( ['GDrive', 'GDriveLimited'].indexOf(settings.server_type) !== -1 ){
 							gdrive.directFn({node: node, callback: callback, tree: $('#imageTree')});
-						}else{
+						} else {
 							if(!ajaxOptions.url){
 								return false;
 							}
@@ -121,11 +135,20 @@ function create(tab) {
 									type: 'folder'
 								});
 							}
+							
+							//backcompat old turbo mode
+							var params = util.clone(ajaxOptions.params);
+							params.path = '';
+							if(node.id!=='#root')
+								params.path = node.id;
 
-							$.ajax(ajaxOptions.url+'&cmd=list&path='+encodeURIComponent(node.id), {
+							$.ajax(ajaxOptions.url+'&cmd=get&path='+encodeURIComponent(node.id), {
 								method: 'POST',
 								dataType: 'json',
-								data: ajaxOptions.params,
+								data: params,
+								xhrFields: {
+									withCredentials: true
+								},
 								success: function(data) {
 									//console.log(data);
 									callback.call(imageTree, data.files);
@@ -136,12 +159,13 @@ function create(tab) {
 					'force_text': true,
 					'themes': {
 						'responsive': false,
-						'variant': 'small'
+						'variant': prefs.treeThemeVariant,
+						'dots': false
 					}
 				},
 				'types' : {
-					'default' : { 'icon' : 'folder' },
-					'file' : { 'valid_children' : [], 'icon' : 'file' }
+					'default' : { 'icon' : 'fas fa-folder' },
+					'file' : { 'icon' : 'fas fa-file' }
 				},
 				'sort' : function(a, b) {
 					return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
@@ -149,7 +173,10 @@ function create(tab) {
 				'plugins' : [
 					'sort', 'types'
 				]
-			}).on('refresh.jstree', function(e, data){
+			})
+			.on('open_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder-open"); })
+			.on('close_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fas fa-folder"); })
+			.on('refresh.jstree', function(e, data){
 				//expand root node
 				var inst = $.jstree.reference($('#imageTree'));
 				var rootNode = $('#imageTree').jstree(true).get_node('#').children[0];

@@ -1,4 +1,4 @@
-define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','./recent','./repositories','./editors', './tree', './site', './shortcuts','./hash','./definitions','./find', './exit', './notes', './snippets', './resize','./splash', './appcache', './prompt', './git', './servers', './notifications', "jquery-ui-bundle"], function (exports, lang, preferences, tabs, layout, drop, restore, recent, repositories, editors, tree, site, shortcuts, hash, definitions, find, exit, notes, snippets, resize, splash, appcache, prompt, git, servers, notifications) {
+define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','./recent','./repositories','./editors', './tree', './site', './shortcuts','./hash','./definitions','./find', './exit', './notes', './snippets', './resize','./splash', './appcache', './prompt', './git', './notifications', './syntax_errors', "jquery-ui-bundle"], function (exports, lang, preferences, tabs, layout, drop, restore, recent, repositories, editors, tree, site, shortcuts, hash, definitions, find, exit, notes, snippets, resize, splash, appcache, prompt, git, notifications, syntax_errors) {
 	var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
 	var locale = lang;
 	
@@ -40,7 +40,7 @@ define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','.
 				var hash = window.location.hash;
 				if(prefs.restoreTabs) {
 					restore.restoreBatch(preferences.getOpeningFilesBatch(), function() {
-						$( ".ui-layout-east, .ui-layout-center, .ui-layout-south" ).each(function( index ) {
+						$( ".ui-layout-east, .ui-layout-center" ).each(function( index ) {
 							if (!$( this ).children('.ui-tabs-nav').children(':not(.button)').length) {
 								$( this ).tabs('add');
 							}
@@ -62,6 +62,7 @@ define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','.
 		snippets.init();
 		git.init();
 		resize.init();
+		syntax_errors.init();
 
 		splash.close();
 	});

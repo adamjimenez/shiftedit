@@ -1,4 +1,4 @@
-define(['./config', './loading', './util', './prefs', './prompt', './ssh', './storage', 'aes', './lang', 'dialogResize'], function (config, loading, util, preferences, prompt, ssh, storage, Aes, lang) {
+define(['./config', './loading', './util', './prefs', './prompt', './ssh', './storage', 'aes', './lang', 'dialogResize', 'showPassword'], function (config, loading, util, preferences, prompt, ssh, storage, Aes, lang) {
 
 var selected;
 var servers = [];
@@ -103,11 +103,11 @@ function edit(add) {
 		<form id="serverSettings" autocomplete="off">\
 			<input type="hidden" name="id" value="">\
 			<p>\
-				<label>Name:</label>\
+				<label>' + lang.name + ':</label>\
 				<input type="text" name="name" value="" placeholder="dev server" class="text ui-widget-content ui-corner-all" required>\
 			</p>\
 			<p>\
-				<label for="platform">Platform:</label>\
+				<label for="platform">' + lang.platform + ':</label>\
 				<span id="platformRadio">\
 					<input type="radio" name="platform" value="apache" id="platformRadio1" checked>\
 					<label for="platformRadio1">\
@@ -143,42 +143,41 @@ function edit(add) {
 				</span>\
 			</p>\
 			<div id="aws_help" style="display: none;">\
-				<p style="display: block;">To connect to AWS you will need an <a href="https://shiftedit.net/docs/servers#amazon_web_services">Access key and password</a></p>\
+				<p style="display: block;">To connect to AWS you will need an <a href="https://shiftedit.net/docs/servers#amazon_web_services" target="_blank">Access key and password</a></p>\
 			</div>\
-			<p id="pass_container" style="display: none;">\
-				<label>Password:</label>\
-				<input type="password" id="password" name="password" value="" placeholder="Secret Access Key" class="text ui-widget-content ui-corner-all" required disabled>\
-				<button type="button" class="showPassword">Show</button>\
-				<button type="button" class="generatePassword">Generate</button>\
+			<p id="custom_container" style="display: none;">\
+				Manually add a server, it should not contain any previous sites.<br>User will require sudo privileges.\
+			</p>\
+			<p id="ip_container" style="display: none;">\
+				<label>' + lang.ipAddress + ':</label>\
+				<input type="text" name="domain" value="" placeholder="Server IPv4 address" class="text ui-widget-content ui-corner-all">\
+			</p>\
+			<p id="user_container" style="display: none;">\
+				<label>' + lang.username + ':</label>\
+				<input type="text" id="username" name="username" value="" placeholder="Server username" class="text ui-widget-content ui-corner-all">\
+			</p>\
+			<p class="pass_container" style="display: none;">\
+				<label>' + lang.password + ':</label>\
+				<input type="password" id="password" name="password" value="" placeholder="Secret Access Key" class="showPassword text ui-widget-content ui-corner-all" required disabled>\
 			</p>\
 			<p id="region_container" style="display: none;">\
-				<label>Region:</label>\
+				<label>' + lang.region + ':</label>\
 				<span class="flex">\
 					<select id="region" name="region" class="text ui-widget-content ui-corner-all" required></select>\
 				</span>\
 			</p>\
 			<p id="image_container" style="display: none;">\
-				<label>Image:</label>\
+				<label>' + lang.image + ':</label>\
 				<span class="flex">\
 					<select id="image" name="image" class="text ui-widget-content ui-corner-all" required></select>\
 				</span>\
 			</p>\
-			<p id="custom_container" style="display: none;">\
-				<p>Manually add a server, it should not contain any previous sites.<br>User will require sudo privileges.</p>\
-			</p>\
-			<p id="ip_container" style="display: none;">\
-				<label>IP address:</label>\
-				<input type="text" name="domain" value="" placeholder="Server IPv4 address" class="text ui-widget-content ui-corner-all">\
-			</p>\
-			<p id="user_container" style="display: none;">\
-				<label>Username:</label>\
-				<input type="text" id="username" name="username" value="" placeholder="Server username" class="text ui-widget-content ui-corner-all">\
-			</p>\
 			<p class="ssh_key_container" style="display: none;">\
-				<label>Your SSH key:</label>\
-				<textarea rows="4" readonly>'+storage.get('public_key')+'</textarea>\
-				<label>Save the SSH key in your: ~/.ssh/authorized_keys</label>\
+				<label>' + lang.yourSSHKey + ':</label>\
+				<textarea rows="4" class="text ui-widget-content ui-corner-all" readonly>'+storage.get('public_key')+'</textarea>\
+				<label>' + lang.saveSSHKey + ': ~/.ssh/authorized_keys</label>\
 			</p>\
+			<p>' + lang.serverCharges + '</p>\
 		</form>\
 	</div>');
 	
@@ -193,8 +192,7 @@ function edit(add) {
 		
 		$('#aws_help').hide();
 		$('#user_container').hide();
-		$('#pass_container').hide();
-		$('.generatePassword').hide();
+		$('#serverSettings .pass_container').hide();
 		$('#region_container').hide();
 		$('#image_container').hide();
 		$('#custom_container').hide();
@@ -205,7 +203,7 @@ function edit(add) {
 		if (provider==='AWS') {
 			$('#aws_help').show();
 			$('#user_container').show();
-			$('#pass_container').show();
+			$('#serverSettings .pass_container').show();
 			$('#username').attr('placeholder', 'Access Key ID');
 			//$('#password').attr('placeholder', 'Secret Access Key');
 		} else if (provider==='DigitalOcean') {
@@ -228,22 +226,8 @@ function edit(add) {
 		}
 	});
 	
-	$( ".showPassword" ).button().click(function() {
-		var input = ($( this ).prev());
-		if(input.attr('type')==='text') {
-			input.attr('type', 'password');
-		}else{
-			input.attr('type', 'text');
-		}
-	});
-	
-	$( ".generatePassword" ).button().click(function() {
-		switch($("#providerRadio input[type='radio']:checked").val()) {
-			case 'Linode':
-				window.open('https://manager.linode.com/profile/api');
-			break;
-		}
-	});
+	// password toggle
+	$('.showPassword').showPassword();
 	
 	//set values
 	var defaults = {};
@@ -284,14 +268,14 @@ function edit(add) {
 	//open dialog
 	var dialog = $( "#dialog-server" ).dialogResize({
 		width: 620,
-		height: 500,
+		height: 520,
 		modal: true,
 		close: function( event, ui ) {
 			$( this ).remove();
 		},
 		buttons: {
 			"Save": {
-				text: "Save",
+				text: lang.saveText,
 				id: "saveBtn",
 				click: save,
 				disabled: false
@@ -338,13 +322,13 @@ function remove(undef, e, confirmed) {
 	
 	if(!confirmed) {
 		var me = this;
-		var msg = 'Any sites on this server will cease to work and this can not be undone';
+		var msg = lang.confirmServerDelete;
 		if (server.provider=='Custom') {
-			msg = 'Are you sure?';
+			msg = lang.areYouSure;
 		}
 		
 		prompt.confirm({
-			title: 'Delete server: '+server.name,
+			title: lang.deleteServer+': '+server.name,
 			msg: msg,
 			fn: function(value) {
 				switch(value) {
@@ -380,7 +364,7 @@ function reboot() {
 	var server = servers[selected.data('index')];
 	
 	loading.fetch(config.apiBaseUrl+'servers?cmd=reboot&server='+currentServer, {
-		action: 'Rebooting server '+server.name,
+		action: lang.rebootingServer + ' '+server.name,
 		success: function(data) {
 			if (data.require_auth) {
 				$(window).on('authorized', reboot);
@@ -420,12 +404,15 @@ function open() {
 			$( this ).remove();
 		},
 		buttons: {
-			"Add Server": function() {
-				edit(true);
+			"Add Server": {
+				text: lang.addServer,
+				click: function() {
+					edit(true);
+				}
 			},
 			/*
 			Edit: {
-				text: "Edit",
+				text: lang.editText,
 				id: "editBtn",
 				click: function() {
 					edit();
@@ -434,13 +421,13 @@ function open() {
 			},
 			*/
 			Remove: {
-				text: "Remove",
+				text: lang.remove,
 				id: "removeBtn",
 				click: remove,
 				disabled: true
 			},
 			SSH: {
-				text: "SSH",
+				text: lang.ssh,
 				id: "sshBtn",
 				click: function() {
 					var server = servers[selected.data('index')];
@@ -461,7 +448,7 @@ function open() {
 				disabled: true
 			},
 			Reboot: {
-				text: "Reboot",
+				text: lang.reboot,
 				id: "rebootBtn",
 				click: reboot,
 				disabled: true
@@ -490,7 +477,7 @@ function save() {
 	var ajax;
 	var wait = true;
 	
-	if (!loading.start('Saving server ' + params.name + ' (this may take a few minutes..)', function(){
+	if (!loading.start(lang.savingServer + ' ' + params.name + ' (' + lang.wait + ')', function(){
 		console.log('abort saving server');
 		ajax.abort();
 	})) {
@@ -569,14 +556,13 @@ function save() {
 									check_status();
 								}
 							} else {
-								prompt.alert({title:'Error', msg:data.error});
+								prompt.alert({title:lang.errorText, msg:data.error});
 								return;
 							}
 						});
 						
 						loading.start(status, function() {
 							console.log('abort server status');
-							console.log(ajax);
 							ajax.abort();
 						}, true);
 					};
@@ -598,7 +584,7 @@ function save() {
 							loading.stop(false);
 							
 							if (msg.substr(0, 6)==='Error:') {
-								prompt.alert({title:'Error', msg: msg});
+								prompt.alert({title:lang.errorText, msg: msg});
 							} else if (msg==='waiting for server') {
 								stopLoading = false;
 								check_status();
@@ -627,11 +613,11 @@ function save() {
 				if (data.error) {
 					error = data.error.replace(/\n/g, "<br>");
 				}
-				prompt.alert({title:'Error', msg: error});
+				prompt.alert({title:lang.errorText, msg: error});
 			}
 		}).fail(function() {
 			loading.stop();
-			prompt.alert({title:lang.failedText, msg:'Error saving server'});
+			prompt.alert({title:lang.failedText, msg: lang.errorSavingServer});
 		});
 	}
 	
