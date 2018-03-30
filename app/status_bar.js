@@ -156,7 +156,7 @@ function showTitle(tab) {
 		title = '&nbsp;';
 	}
 	
-	$('.ui-layout-south .title a').html(title);
+	$('.ui-layout-south .title div').html(title);
 }
 
 function showMode(tab) {
@@ -186,7 +186,7 @@ function showPos(tab) {
 		}
 	}
 	
-	$('.ui-layout-south .pos a').html(text);
+	$('.ui-layout-south .pos div').html(text);
 }
 
 exports.init = init;
