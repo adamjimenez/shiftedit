@@ -950,12 +950,10 @@ function applyPrefs(tab) {
 			},
 			exec: function (editor, args, request) {
 				var breakpoints = editor.getSession().$breakpoints;
-	
 				var cursor = editor.getCursorPosition();
 				var row = cursor.row;
-	
 				var real_breakpoints = [];
-	
+				
 				for( var i=0; i<breakpoints.length; i++ ) {
 					if(breakpoints[i]=='ace_breakpoint') {
 						if( i>row ){
@@ -981,13 +979,11 @@ function applyPrefs(tab) {
 			},
 			exec: function (editor, args, request) {
 				var breakpoints = editor.getSession().$breakpoints;
-	
 				var cursor = editor.getCursorPosition();
 				var row = cursor.row;
-	
 				var real_breakpoints = [];
 	
-				for( var i=breakpoints.length; i>0; i-- ) {
+				for( var i=breakpoints.length; i>=0; i-- ) {
 					if(breakpoints[i]=='ace_breakpoint') {
 						if( i<row ){
 							editor.gotoLine(i+1);
@@ -997,7 +993,6 @@ function applyPrefs(tab) {
 						real_breakpoints.push(i);
 					}
 				}
-	
 	
 				if( real_breakpoints[0] ){
 					editor.gotoLine(real_breakpoints[0]+1);
