@@ -250,7 +250,7 @@ function open(tabpanel) {
 		<p>\
 			<label>Profile:</label>\
 			<select id="sshName" name="sshName"></select>\
-			<button type="button" class="delete">X</button>\
+			<button type="button" class="delete"><i class="fas fa-trash"></i></button>\
 		</p>\
 		<p>\
 			<label>Username:</label>\
