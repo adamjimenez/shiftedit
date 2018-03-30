@@ -50,128 +50,6 @@ function toggleOptions(target, show) {
 }
 
 function init () {
-	selectionMenuItems = [{
-		id: 'collapseSelection',
-		text: makeMenuText(lang.collapseSelection, preferences.getKeyBinding('collapseSelection')),
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('fold', editor);
-		},
-		disabled: true,
-		target: 'file'
-	}, {
-		id: 'expandSelection',
-		text: makeMenuText(lang.expandSelection, preferences.getKeyBinding('expandSelection')),
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('unfold', editor);
-		},
-		disabled: true,
-		target: 'file'
-	}, '-', {
-		id: 'applyHTMLComment',
-		text: lang.applyHTMLComment,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('wrapSelection', editor, ['<!--', '-->']);
-		},
-		disabled: true,
-		target: 'file'
-	}, {
-		id: 'applySlashStarComment',
-		text: lang.applySlashStarComment,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('wrapSelection', editor, ['/*', '*/']);
-		},
-		disabled: true,
-		target: 'file'
-	}, {
-		id: 'applySlashComment',
-		text: lang.applySlashComment,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('prependLineSelection', editor, ['//']);
-		},
-		disabled: true,
-		target: 'file'
-	}, '-', {
-		id: 'convertSingleQuotes',
-		text: lang.convertSingleQuotes,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('replaceInSelection', editor, ['\'', '"']);
-		},
-		disabled: true,
-		target: 'file'
-	}, {
-		id: 'convertDoubleQuotes',
-		text: lang.convertDoubleQuotes,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('replaceInSelection', editor, ['"', "\'"]);
-		},
-		disabled: true,
-		target: 'file'
-	}, {
-		id: 'convertTabs',
-		text: 'Convert Tabs To Spaces',
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('replaceInSelection', editor, ["\t", "    "]);
-		},
-		disabled: true,
-		target: 'file'
-	}, {
-		id: 'convertSpaces',
-		text: lang.convertSpaces,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('replaceInSelection', editor, ["    ", "\t"]);
-		},
-		disabled: true,
-		target: 'file'
-	}, {
-		id: 'addLineBreaks',
-		text: lang.addLineBreaks,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('appendLineSelection', editor, ['<br>']);
-		},
-		disabled: true,
-		target: 'file'
-	}, '-', {
-		id: 'convertToUppercase',
-		text: lang.convertToUppercase,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('selectionToUppercase', editor);
-		},
-		disabled: true,
-		target: 'file'
-	}, {
-		id: 'convertToLowercase',
-		text: lang.convertToLowercase,
-		handler: function () {
-			var tab = activeTab;
-			var editor = tabs.getEditor(tab);
-			editor.commands.exec('selectionToLowercase', editor);
-		},
-		disabled: true,
-		target: 'file'
-	}];
-	
 	prefs = preferences.get_prefs();
 
 	$('body').append('<input type="file" id="upload" style="visibility: hidden;">');
@@ -731,10 +609,9 @@ function init () {
 				editor.focus();
 			},
 			hidden: true
-		},		
+		},
 
 		'->':'->',
-
 
 		'chat': {
 			id: 'chatButton',
@@ -1049,7 +926,6 @@ function init () {
 				}
 			}]
 		}
-
 	};
 
 	menus.create($("#menubar"), menu);
@@ -1139,6 +1015,13 @@ function init () {
 				$('#menubar .previewBtn').removeClass('ui-state-disabled');
 			}
 			
+			// breakpoint buttons
+			if (!Object.keys(editor.session.getBreakpoints()).length) {
+				$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').addClass('ui-state-disabled');
+			} else {
+				$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').removeClass('ui-state-disabled');
+			}
+			
 			$('.fileButton').show();
 		} else {
 			toggleOptions('file', false);
@@ -1152,7 +1035,7 @@ function init () {
 		toggleOptions('file', false);
 	}
 	
-	$(document).on("focusEditor", function(e, tab) {
+	$(document).on("focusEditor editorChange", function(e, tab) {
 		activeTab = tab;
 		setTimeout(function() {checkButtons(tab);}, 10);
 	});
@@ -1187,6 +1070,5 @@ function init () {
 }
 
 exports.init = init;
-exports.selectionMenuItems = function () { return selectionMenuItems; };
 
 });
