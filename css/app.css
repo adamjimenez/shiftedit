@@ -997,16 +997,17 @@ div.fullScreen{
 	margin: 0;
 }
 
-.newTab a{
+.newTab li div, .newTab .toggleMore{
 	text-decoration: none;
 	font-size: 12px;
+	cursor: pointer;
 }
 
-.newTab a:hover{
+.newTab li div:hover, .newTab .toggleMore:hover{
 	text-decoration: underline !important;
 }
 
-.newTab .box li a, .newTab .box > a{
+.newTab .box li div, .newTab .box > div{
 	display: block;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -1240,6 +1241,12 @@ div.fullScreen{
 	top: 0;
 	font-weight: 900;
 	animation: a 2s infinite linear;
+ }
+ 
+.check:before {
+	content: "\f00c";
+	font-family: "Font Awesome\ 5 Free";
+	font-weight: 900;
  }
  
  /* stretch site dropdown */

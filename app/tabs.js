@@ -897,7 +897,7 @@ function newTab (e, ui) {
 				<div class="ui-widget-content inner">\
 					<h3><a href="/blog/' + news.page_name + '" target="_blank">' + news.headline + '</a></h3>\
 					<div class="copy">' + news.copy + '</div>\
-					<a href="#" class="closeButton" data-name="' + news.page_name + '"><i class="fa fa-times"></i></a>\
+					<div class="closeButton" data-name="' + news.page_name + '"><i class="fa fa-times"></i></div>\
 				</div>\
 			</div>\
 			<div class="columns">\
@@ -905,18 +905,18 @@ function newTab (e, ui) {
 					<h3 class="ui-widget-header">' + lang.createText + '</h3>\
 					<ul class="fileTypes"></ul>\
 					<ul class="moreFileTypes" style="display:none; margin-top: 10px;"></ul>\
-					<a href="#" class="toggleMore ui-state-default">' + showMoreText + '</i></a>\
+					<div class="toggleMore ui-state-default">' + showMoreText + '</i></div>\
 				</div>\
 				<div class="box tools">\
 					<h3 class="ui-widget-header">' + lang.toolsText + '</h3>\
 					<ul class="other">\
-						<li class="ui-state-default"><a href="#" class="addSite"><i class="fas fa-plus-square"></i> ' + lang.addSite + '</a></li>\
-						<li class="ui-state-default"><a href="#" class="ssh"><i class="fa fa-terminal"></i> ' + lang.terminal + '</a></li>\
-						<li class="ui-state-default"><a href="#" class="preview"><i class="fa fa-desktop"></i> ' + lang.preview + '</a></li>\
-						<li class="ui-state-default"><a href="#" class="diff"><i class="fa fa-copy"></i> ' + lang.fileCompare + '</a></li>\
-						<li class="ui-state-default"><a href="#" class="preferences"><i class="fa fa-wrench"></i> ' + lang.preferencesText + '</a></li>\
-						<li class="ui-state-default"><a href="#" class="server"><i class="fa fa-server"></i> Servers</a></li>\
-						<li class="ui-state-default"><a href="#" class="database"><i class="fas fa-database"></i> ' + lang.database + '</a></li>\
+						<li class="ui-state-default"><div class="addSite"><i class="fas fa-plus-square"></i> ' + lang.addSite + '</div></li>\
+						<li class="ui-state-default"><div class="ssh"><i class="fa fa-terminal"></i> ' + lang.terminal + '</div></li>\
+						<li class="ui-state-default"><div class="preview"><i class="fa fa-desktop"></i> ' + lang.preview + '</div></li>\
+						<li class="ui-state-default"><div class="diff"><i class="fa fa-copy"></i> ' + lang.fileCompare + '</div></li>\
+						<li class="ui-state-default"><div class="preferences"><i class="fa fa-wrench"></i> ' + lang.preferencesText + '</div></li>\
+						<li class="ui-state-default"><div class="server"><i class="fa fa-server"></i> Servers</div></li>\
+						<li class="ui-state-default"><div class="database"><i class="fas fa-database"></i> ' + lang.database + '</div></li>\
 					</ul>\
 				</div>\
 			</div>\
@@ -947,7 +947,7 @@ function newTab (e, ui) {
 	prefs.newFiles.forEach(function(value) {
 		modes.forEach(function(mode) {
 			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
-				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
+				HTML += '<li class="'+mode[0]+' ui-state-default"><div data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</div></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
@@ -959,7 +959,7 @@ function newTab (e, ui) {
 	prefs.newFilesOther.forEach(function(value) {
 		modes.forEach(function(mode) {
 			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
-				HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
+				HTML += '<li class="'+mode[0]+' ui-state-default"><div data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</div></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
@@ -968,12 +968,12 @@ function newTab (e, ui) {
 	// lump any that aren't found into other
 	modes.forEach(function(mode) {
 		if (addedModes.indexOf(mode[2][0])===-1) {
-			HTML += '<li class="'+mode[0]+' ui-state-default"><a href="#" data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</a></li>';
+			HTML += '<li class="'+mode[0]+' ui-state-default"><div data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</div></li>';
 		}
 	});
 	panel.find('ul.moreFileTypes').append(HTML);
 
-	panel.find('a.newfile').click(function() {
+	panel.find('div.newfile').click(function() {
 		var tabpanel = $(ui.tab.closest('.ui-tabs'));
 
 		var content = '';
@@ -1203,20 +1203,48 @@ function quickOpen() {
 }
 
 function init() {
+	var prefs = preferences.get_prefs();
+
+	// hide tabs
+	if(!prefs.showDefinitions) {
+		$('.ui-layout-west').find('.definitions').hide();
+	}
+	if(!prefs.showNotes) {
+		$('.ui-layout-west').find('.notes').hide();
+	}
+	if(!prefs.showSnippets) {
+		$('.ui-layout-west').find('.snippets').hide();
+	}
+	if(!prefs.showGit) {
+		$('.ui-layout-west').find('.git').hide();
+	}
+	
 	tabs_contextmenu.init();
 
 	// TABS - sortable
 	$( ".ui-layout-west" ).tabs({event: 'mousedown'});
 	var tabs = $( ".ui-layout-east, .ui-layout-center" ).tabs({closable: true, addTab:true, event: 'mousedown'});
 
-	//console.log(tabs);
+	// hide tabs
+	if(!prefs.showDefinitions) {
+		$('.ui-layout-west').find('.definitions').hide();
+	}
+	if(!prefs.showNotes) {
+		$('.ui-layout-west').find('.notes').hide();
+	}
+	if(!prefs.showSnippets) {
+		$('.ui-layout-west').find('.snippets').hide();
+	}
+	if(!prefs.showGit) {
+		$('.ui-layout-west').find('.git').hide();
+	}
 
 	// initialize overflow
 	$('.ui-layout-west, .ui-layout-east, .ui-layout-center').tabs('overflowResize');
 	$('.ui-layout-west, .ui-layout-east, .ui-layout-center').on('tabsbeforeremove', checkEdited);
 	$('.ui-layout-west, .ui-layout-east, .ui-layout-center').on('tabsremove', afterClose);
 	$('.ui-layout-west, .ui-layout-east, .ui-layout-center').on('tabsadd', newTab);
-
+	
 	//remember scroll
 	$( ".ui-layout-west, .ui-layout-east, .ui-layout-center" ).on( "tabsbeforeactivate", function(e, ui){
 		var oldPanel = $(ui.oldPanel);
@@ -1411,37 +1439,12 @@ fullScreen = function (toggle) {
 };
 
 //listeners
-$('body').on('click', 'a.openfile', function() {
+$('body').on('click', 'div.openfile', function() {
 	open($(this).data('file'), $(this).data('site'));
 });
 
-$('body').on('click', 'a.database', function() {
-	var settings = site.getSettings(site.active());
-	
-	if(!settings.db_phpmyadmin) {
-		site.edit();
-		return;
-	}
-	
-	var password = settings.db_password;
-	
-	var prefs = preferences.get_prefs();
-	if (prefs.useMasterPassword && password) {
-		password = Aes.Ctr.decrypt(password, storage.get('masterPassword'), 256);
-	}
-	
-	// create hidden form
-	var form = $('<form id="pma_form" method="post" target="_blank" action="'+settings.db_phpmyadmin+'">\
-	<input type="hidden" name="pma_username" value="'+settings.db_username+'">\
-	<input type="hidden" name="pma_password" value="'+password+'">\
-	</form>').appendTo('body')
-	.on('submit', function(){
-		var el = this;
-		setTimeout(function() {
-			el.remove();
-		}, 10);
-	})
-	.submit();
+$('body').on('click', 'div.database', function() {
+	site.database(site.active());
 });
 
 	exports.active = active;

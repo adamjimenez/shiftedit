@@ -73,7 +73,7 @@ function init() {
 		className: 'title',
 		tooltip: 'Click to copy',
 		handler: function (tab) {
-			var clipboard = $('<input id="clipboard">').appendTo('body').val(this.children('a').text()).focus().select();
+			var clipboard = $('<input id="clipboard">').appendTo('body').val(this.children('div').text()).focus().select();
 		    document.execCommand("Copy");
 		    clipboard.remove();
 		    $('.ui-tooltip-content').text('Copied');
@@ -98,7 +98,7 @@ function init() {
 	
 	menus.create($(".ui-layout-south .status_bar"), menu);
 	
-	$( '.ui-layout-south .title a' ).tooltip();
+	$( '.ui-layout-south .title div' ).tooltip();
 	
 	$(document).on("focusEditor", function(e, tab) {
 		activeTab = tab;
@@ -156,7 +156,7 @@ function showTitle(tab) {
 		title = '&nbsp;';
 	}
 	
-	$('.ui-layout-south .title a').html(title);
+	$('.ui-layout-south .title div').html(title);
 }
 
 function showMode(tab) {
@@ -186,7 +186,7 @@ function showPos(tab) {
 		}
 	}
 	
-	$('.ui-layout-south .pos a').html(text);
+	$('.ui-layout-south .pos div').html(text);
 }
 
 exports.init = init;

@@ -1,4 +1,4 @@
-define(['exports','./lang', './util', './prefs', './tabs', './storage', './main', './prompt','./menus',  './shortcuts',  './editors', './site', './tree', './preview', './designs', "jquery.menubar", './revisions', './chat'], function (exports, lang, util, preferences, tabs,storage, main, prompt, menus, shortcuts, editors, site, tree, preview, designs) {
+define(['exports','./lang', './util', './prefs', './tabs', './storage', './main', './prompt','./menus',  './shortcuts',  './editors', './site', './tree', './preview', './designs', './revisions', "jquery.menubar", './chat'], function (exports, lang, util, preferences, tabs,storage, main, prompt, menus, shortcuts, editors, site, tree, preview, designs, revisions) {
 lang = lang.lang;
 var makeMenuText = util.makeMenuText;
 var prefs = {};
@@ -136,6 +136,9 @@ function init () {
 	}, {
 		id: 'revisionHistory',
 		text: makeMenuText(lang.revisionHistoryText + '...', 'Ctrl-Alt-Shift-H'),
+		handler: function () {
+			revisions.open();
+		},
 		disabled: true,
 		target: 'site'
 	},

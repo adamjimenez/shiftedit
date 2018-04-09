@@ -1082,14 +1082,9 @@ function save() {
 			
 			var finish = function() {
 				currentSite = siteId;
-				if (wait) {
-					load({callback: edit});
-				} else {
-					load();
-				}
+				load();
 	
 				$( "#dialog-site" ).dialogResize( "close" );
-				$( "#dialog-site" ).remove();
 			};
 			
 			var status = '';
@@ -1200,15 +1195,15 @@ function edit(siteId, duplicate) {
 			<input type="hidden" name="share" value="">\
 			<p id="addTypeContainer">\
 				<span id="addTypeRadio" class="hbox" style="width: 100%;">\
-					<input type="radio" name="addType" value="new" id="addTypeRadio1">\
-					<label for="addTypeRadio1" class="flex">\
-						<i class="fa fa-plus-square" style="font-size: 50px;"></i><br>\
-						' + lang.createNew + '\
-					</label>\
 					<input type="radio" name="addType" value="add" id="addTypeRadio2">\
 					<label for="addTypeRadio2" class="flex">\
 						<i class="fa fa-plug" style="font-size: 50px;"></i><br>\
 						' + lang.addExisting + '\
+					</label>\
+					<input type="radio" name="addType" value="new" id="addTypeRadio1">\
+					<label for="addTypeRadio1" class="flex">\
+						<i class="fa fa-plus-square" style="font-size: 50px;"></i><br>\
+						' + lang.createNew + '\
 					</label>\
 					<input type="radio" name="addType" value="import" id="addTypeRadio3">\
 					<label for="addTypeRadio3" class="flex">\
@@ -1500,14 +1495,15 @@ function edit(siteId, duplicate) {
 	}
 	
 	if(newSite || settings.server>0) {
-		$('[name=addType][value=new]:first').prop("checked", true);
-		
-		if(settings.server>0) {
+		$('[name=addType][value=add]:first').prop("checked", true);
+	} else {
+		if (settings.server>0) {
+			$('[name=addType][value=new]:first').prop("checked", true);
+			$('#addTypeContainer').hide();
+		} else {
+			$('[name=addType][value=add]:first').prop("checked", true);
 			$('#addTypeContainer').hide();
 		}
-	} else {
-		$('[name=addType][value=add]:first').prop("checked", true);
-		$('#addTypeContainer').hide();
 	}
 
 	for(i in settings) {
@@ -1599,7 +1595,7 @@ function edit(siteId, duplicate) {
 	$('#chooseFolder').click(chooseFolder);
 	
 	$('#add_server').button().click(function() {
-		servers.edit();
+		servers.edit(true);
 	});
 	
 	$('#repo_sources').button().click(function() {
@@ -2014,7 +2010,6 @@ function edit(siteId, duplicate) {
 	//import
 	function doImport(content){
 		$( "#dialog-site" ).dialogResize( "close" );
-		$( "#dialog-site" ).remove();
 
 		loading.fetch(config.apiBaseUrl+'sites?cmd=import', {
 			action: 'Importing site',

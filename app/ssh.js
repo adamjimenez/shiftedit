@@ -21,7 +21,9 @@ init = function() {
 	});
 
 	socket.on('data', function(id, data) {
-		//console.log(data);
+		// prevent line wrapping issue: https://github.com/xtermjs/xterm.js/issues/179
+		data = data.replace(/\r(?!\n)/g, '\r\n');
+		
 		var tab = $('li[data-ssh="'+id+'"]');
 		var session = tab.data('session');
 
