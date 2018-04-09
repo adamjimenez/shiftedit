@@ -3,6 +3,8 @@ lang = lang.lang;
 var makeMenuText = util.makeMenuText;
 
 function init() {
+	var prefs = preferences.get_prefs();
+	
 	$.contextMenu({
 		selector: '.ui-tabs-nav li.closable',
 		callback: function(key, opt){
@@ -84,6 +86,87 @@ function init() {
 		},
 		zIndex: 3
 	});
+	
+	// east tabs toggles
+	$.contextMenu({
+		selector: '.ui-layout-east, .ui-tab',
+		callback: function(key, opt){
+			var tab = $(this);
+
+			switch(key) {
+				case 'definitions':
+					tab.parent().find('.definitions').toggle(!prefs.showDefinitions);
+					preferences.save('showDefinitions', !prefs.showDefinitions);
+				break;
+				case 'notes':
+					tab.parent().find('.notes').toggle(!prefs.showNotes);
+					preferences.save('showNotes', !prefs.showNotes);
+				break;
+				case 'snippets':
+					tab.parent().find('.snippets').toggle(!prefs.showSnippets);
+					preferences.save('showSnippets', !prefs.showSnippets);
+				break;
+				case 'git':
+					tab.parent().find('.git').toggle(!prefs.showGit);
+					preferences.save('showGit', !prefs.showGit);
+				break;
+			}
+			
+			// if current tab, default to first tab
+			if (!tab.is(':visible')) {
+				$(".ui-layout-west").tabs("option", "active", 0);
+			}
+			
+			// trigger resize
+			$(".ui-layout-west").tabs('doResize');
+		},
+		items: {
+			"file": {
+				name: 'Files', 
+				disabled: true,
+				icon: 'context-menu-icon check'
+			},
+			"find": {
+				name: 'Find', 
+				disabled: true,
+				icon: 'context-menu-icon check'
+			},
+			"definitions": {
+				name: 'Definitions',
+				icon: function(opt, $itemElement, itemKey, item) {
+					if (prefs.showDefinitions) {
+						return 'context-menu-icon check';
+					}
+				}
+			},
+			"notes": {
+				name: 'Notes',
+				icon: function(opt, $itemElement, itemKey, item) {
+					if (prefs.showNotes) {
+						return 'context-menu-icon check';
+					}
+				}
+			},
+			"snippets": {
+				name: 'Snippets',
+				icon: function(opt, $itemElement, itemKey, item) {
+					if (prefs.showSnippets) {
+						return 'context-menu-icon check';
+					}
+				}
+			},
+			"git": {
+				name: 'Git',
+				icon: function(opt, $itemElement, itemKey, item) {
+					if (prefs.showGit) {
+						return 'context-menu-icon check';
+					}
+				}
+			},
+		},
+		zIndex: 3
+	});
+	
 }
 
 function notFile(name, menu) {

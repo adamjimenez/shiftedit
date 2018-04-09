@@ -99,6 +99,10 @@ defaultPrefs.find = '{}';
 defaultPrefs.skinUrl = '';
 defaultPrefs.newFiles = ['html', 'js', 'css', 'php', 'json', 'xml', 'txt'];
 defaultPrefs.newFilesOther = [];
+defaultPrefs.showDefinitiions = true;
+defaultPrefs.showSnippets = true;
+defaultPrefs.showNotes = true;
+defaultPrefs.showGit = true;
 
 var skins = [{
 	title: "Smoothness",
@@ -1421,7 +1425,6 @@ function open() {
 	}
 }
 
-$('body').on('click', '#openPreferences a, a.preferences', function(e){
 $('body').on('click', '.preferences', function(e){
 	open();
 });
