@@ -1422,6 +1422,7 @@ function open() {
 }
 
 $('body').on('click', '#openPreferences a, a.preferences', function(e){
+$('body').on('click', '.preferences', function(e){
 	open();
 });
 

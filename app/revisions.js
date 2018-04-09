@@ -260,9 +260,6 @@ function open() {
 	});
 }
 
-//listener
-$('body').on('click', '#revisionHistory a', open);
-
 return {
 	open: open
 };
