@@ -1,4 +1,4 @@
-define(['./config', './loading','./tabs', './prefs', './util', "./modes", "jquery-ui-bundle",'ace/ace','diff',"ui.basicMenu","dialogResize"], function (config, loading, tabs, preferences, util, modes) {
+define(['./config', './loading','./tabs', './site', './prefs', './util', "./modes", "jquery-ui-bundle",'ace/ace','diff',"ui.basicMenu","dialogResize"], function (config, loading, tabs, site, preferences, util, modes) {
 var JsDiff = require("diff");
 
 var revisionsEditor;
@@ -20,7 +20,7 @@ function show(li) {
 	}
 
 	// don't diff big files or the browser will crash
-	if( editor.getValue().length < 100000 ){
+	if( editor && editor.getValue().length < 100000 ){
 		var range = require("ace/range").Range;
 		var diff = JsDiff.diffLines(editor.getValue(), content);
 
@@ -112,8 +112,10 @@ function select(li) {
 		//revert file
 		tab = tabs.active();
 		var editor = tabs.getEditor(tab);
-		var content = $( this ).parent().data('content');
-		editor.setValue(content);
+		if (editor) {
+			var content = $( this ).parent().data('content');
+			editor.setValue(content);
+		}
 
 		$( "#dialog-revisions" ).dialogResize( "close" );
 	});
@@ -125,12 +127,15 @@ function select(li) {
 	} else {
 		tab = tabs.active();
 	
-		if(!tab) {
-			return false;
+		var siteId;
+		var file;
+		if(tab.data('site')) {
+			siteId = tab.data('site');
+			file = $( "#revisionFile" ).val();
+		} else {
+			siteId = site.active();
 		}
 		
-		var siteId = tab.data('site');
-		var file = $( "#revisionFile" ).val();
 		
 		load(siteId, file, li.data('id'));
 	}
@@ -162,7 +167,10 @@ function load(siteId, file, revision) {
 				// add revision options if content is different
 				var tab = tabs.active();
 				var editor = tabs.getEditor(tab);
-				var content = editor.getValue();
+				var content = '';
+				if (editor) {
+					content = editor.getValue();
+				}
 				$.each(data.revisions, function( index, item ) {
 					if (item.content!==content) {
 						$( '<li><a href="#"><span class="date">' + item.date + '</span><span class="author">' + item.author + '</span></a></li>' ).appendTo( "#revision" )
@@ -178,12 +186,14 @@ function load(siteId, file, revision) {
 function open() {
 	var tab = tabs.active();
 
-	if(!tab) {
-		return false;
+	var siteId;
+	var file;
+	if(tab.data('site')) {
+		siteId = tab.data('site');
+		file = tab.data('file');
+	} else {
+		siteId = site.active();
 	}
-	
-	var siteId = tab.data('site');
-	var file = tab.data('file');
 	
 	if (!siteId) {
 		return false;
