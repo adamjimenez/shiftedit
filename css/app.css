@@ -46,6 +46,15 @@ a input {
 	background-color: #aaa;
 }
 
+#main-container{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+}
+
 /* START LAYOUT */
 .ui-layout-container .ui-layout-pane {
 	padding: 0;
@@ -1406,6 +1415,37 @@ div.fullScreen{
 
 .closable:hover .tabCloseButton {
 	display: block;
+}
+
+.virtual_keyboard{
+	background: #000;
+	color: #fff;
+	height: 50px;
+	width: 100%;
+}
+
+.virtual_keyboard ul{
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.virtual_keyboard li {
+	flex-basis: 11.5%;
+	overflow: hidden;
+	border: 1px solid transparent;
+}
+
+.virtual_keyboard li.active {
+	border-color: #fff;
+}
+
+.virtual_keyboard div{
+	cursor: default;
+	padding: 5px;
+	text-align: center;
 }
 
 .keyboard{

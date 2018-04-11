@@ -29,6 +29,7 @@ requirejs.config({
 		"json": "node_modules/requirejs-plugins/src/json",
 		
 		// these ones below should be moved to node_modules
+		"virtualKeyboardDetector": "lib/virtualKeyboardDetector/virtualKeyboardDetector",
 		"linkify": "lib/linkify/linkify",
 		"linkify-html": "lib/linkify/linkify-html",
 		"aes": "lib/crypto/aes",

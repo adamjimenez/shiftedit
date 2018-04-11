@@ -148,16 +148,6 @@ function new_session(tab, host, username, port, password, cwd) {
 	if (!parseInt(port)) {
 		port = 22;
 	}
-	
-	var session = {
-		id: null,
-		host: host,
-		username: username,
-		port: port,
-		password: password,
-		cwd: cwd
-	};
-	tab.data('session', session);
 
 	var tabpanel = $(tab).closest(".ui-tabs");
 	var panel = tabpanel.tabs('getPanelForTab', tab);
@@ -166,6 +156,44 @@ function new_session(tab, host, username, port, password, cwd) {
 	var term = new Terminal({
 		cursorBlink: true,
 		screenKeys: true
+	});
+	
+	var session = {
+		id: null,
+		host: host,
+		username: username,
+		port: port,
+		password: password,
+		cwd: cwd,
+		term: term,
+		ctrlKey: false,
+		altKey: false,
+		insert: function(string) {
+			socket.emit('data', this.id, string);
+		},
+		focus: function() {
+			this.term.focus();
+		}
+	};
+	tab.data('session', session);
+	
+	term.attachCustomKeyEventHandler(function(e) {
+		if (!e.modified && (session.ctrlKey || session.altKey)) {
+			var event = jQuery.Event(e.type, { 
+				keyCode: e.keyCode, 
+				ctrlKey: session.ctrlKey, 
+				altKey: session.altKey, 
+				modified: true 
+			});
+			
+			if (event.type==='keydown') {
+				session.term._keyDown(event);
+			}/* else if (event.type==='keypress') {
+				session.term._keyDown(event);
+			}*/
+			
+			return false;
+		}
 	});
 	
 	term.on('data', function(data) {
@@ -385,6 +413,11 @@ function connect(options) {
 	new_session(tab, options.domain, username, options.port, options.password, cwd);
 }
 
+function get(tab) {
+	var session = tab.data('session');
+	return session;
+}
+
 $('body').on('click','.newTab .ssh', function() {
 	var tabpanel = $(this).closest('.ui-tabs');
 	open(tabpanel);
@@ -435,7 +468,8 @@ function handle_resize() {
 $(window).on('resize activate', handle_resize);
 
 return {
-	connect: connect
+	connect: connect,
+	get: get
 };
 
 });

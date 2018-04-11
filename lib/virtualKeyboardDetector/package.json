@@ -1,0 +1,25 @@
+{
+  "name": "virtualKeyboardDetector",
+  "version": "0.0.1",
+  "title": "Virtual Keyboard Detector",
+  "description": "JavaScript library that tries to detect when a virtual keyboard (dis)appears.",
+  "keywords": [
+    "virtual",
+    "keyboard",
+    "detect",
+    "android",
+    "webview"
+  ],
+  "homepage": "https://github.com/GillesVermeulen/virtualKeyboardDetector",
+  "author": "Gilles Vermeulen",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/GillesVermeulen/virtualKeyboardDetector.git"
+  },
+  "license": "MIT",
+  "main": "virtualKeyboardDetector.js",
+  "ignore": [
+    "*.md",
+    "/LICENSE"
+  ]
+}
