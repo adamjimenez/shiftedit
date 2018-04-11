@@ -385,6 +385,10 @@ function connect(options) {
 	
 	var prefs = preferences.get_prefs();
 	var paneName = prefs.sshPane;
+	if (!$('.ui-layout-resizer-east').is(':visible')) {
+		paneName = 'center';
+	}
+	
 	var tabpanel = $('.ui-layout-'+paneName);
 	var tab = create(tabpanel);
 	if (!options.domain) {

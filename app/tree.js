@@ -1504,6 +1504,10 @@ function init() {
 								path += node.id;
 							}
 							
+							if (!$('.ui-layout-resizer-east').is(':visible')) {
+								toggle();
+							}
+							
 							ssh.connect({
 								username: settings.ftp_user,
 								password: settings.ftp_pass,
@@ -2273,10 +2277,6 @@ function toggle() {
 		node.children('.jstree-anchor').focus();
 	} else {
 		layout.get().close('west', false, true);
-		
-		//focus editor
-		var tab = tabs.active();
-		$(".ui-layout-center").trigger("tabsactivate", [{newTab: tab}]);
 	}
 }
 

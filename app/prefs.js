@@ -933,6 +933,10 @@ function open() {
 	var pane;
 	var paneName = 'east';
 	var minWidth = 300;
+	if (!$('.ui-layout-resizer-east').is(':visible')) {
+		layout.get().close('west', false, true);
+		paneName = 'center';
+	}
 
 	if(tab.length) {
 		tabpanel = tab.closest('.ui-tabs');
@@ -944,14 +948,14 @@ function open() {
 
 		//expand panel
 		myLayout.open(paneName);
-		if (pane.outerWidth() < minWidth) {
+		if (paneName != 'center' && pane.outerWidth() < minWidth) {
 			myLayout.sizePane(paneName, minWidth);
 		}
 
 		return;
 	}
 
-	var	tabpanel = $('.ui-layout-east');
+	var	tabpanel = $('.ui-layout-'+paneName);
 	pane = tabpanel.closest('.ui-layout-pane');
 	paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 

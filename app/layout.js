@@ -1,73 +1,79 @@
-define(['exports', "./menubar", './status_bar', "jquery.layout"], function (exports, menubar, status_bar) {
+define(['exports', "./menubar", './status_bar', './prefs', "jquery.layout"], function (exports, menubar, status_bar, preferences) {
 var myLayout;
 
 function init() {
+	prefs = preferences.get_prefs();
+	
 	console.log('layout');
 
-	$('<div class="ui-layout-north ui-widget-content" style="display: none;">\
-		<ul id="menubar" class="menubar"></ul>\
-	</div>\
-	\
-	<div class="ui-layout-south ui-widget-content" style="display: none;"></div>\
-	\
-	<div class="ui-layout-center" style="display: none;">\
-		<ul></ul>\
-		<!-- add wrapper that layout will auto-size to fill space -->\
-		<div class="ui-layout-content">\
+	$('<div id="main-container" class="vbox">\
+	<div id="layout-container" class="flex">\
+		<div class="ui-layout-north ui-widget-content" style="display: none;">\
+			<ul id="menubar" class="menubar"></ul>\
 		</div>\
-	</div>\
-	\
-	<div class="ui-layout-west" style="display: none;">\
-		<ul>\
-			<li><a href="#tabs-filetree" title="File tree"><i class="fa fa-folder"></i></a></li>\
-			<li><a href="#tabs-find" title="Find"><i class="fa fa-search"></i></a></li>\
-			<li class="definitions"><a href="#tabs-definitions" title="Definitions"><i class="fa fa-code"></i></a></li>\
-			<li class="notes"><a href="#tabs-notes" title="Notes"><i class="fas fa-pencil-alt"></i></a></li>\
-			<li class="snippets"><a href="#tabs-snippets" title="Snippets"><i class="fa fa-cut"></i></a></li>\
-			<li class="git"><a href="#tabs-git" title="Git"><i class="fab fa-git"></i></a></li>\
-		</ul>\
-		<!-- add wrapper that layout will auto-size to fill space -->\
-		<div class="ui-layout-content">\
-			<div id="tabs-filetree">\
-				<div class="vbox">\
-					<div class="hbox ui-widget-header panel-buttons">\
-						<div id="sitebar" class="flex ui-widget-content ui-state-default">\
-							<select id="sites">\
-							</select>\
+		\
+		<div class="ui-layout-south ui-widget-content" style="display: none;"></div>\
+		\
+		<div class="ui-layout-center" style="display: none;">\
+			<ul></ul>\
+			<!-- add wrapper that layout will auto-size to fill space -->\
+			<div class="ui-layout-content">\
+			</div>\
+		</div>\
+		\
+		<div class="ui-layout-west" style="display: none;">\
+			<ul>\
+				<li><a href="#tabs-filetree" title="File tree"><i class="fa fa-folder"></i></a></li>\
+				<li><a href="#tabs-find" title="Find"><i class="fa fa-search"></i></a></li>\
+				<li class="definitions"><a href="#tabs-definitions" title="Definitions"><i class="fa fa-code"></i></a></li>\
+				<li class="notes"><a href="#tabs-notes" title="Notes"><i class="fas fa-pencil-alt"></i></a></li>\
+				<li class="snippets"><a href="#tabs-snippets" title="Snippets"><i class="fa fa-cut"></i></a></li>\
+				<li class="git"><a href="#tabs-git" title="Git"><i class="fab fa-git"></i></a></li>\
+			</ul>\
+			<!-- add wrapper that layout will auto-size to fill space -->\
+			<div class="ui-layout-content">\
+				<div id="tabs-filetree">\
+					<div class="vbox">\
+						<div class="hbox ui-widget-header panel-buttons">\
+							<div id="sitebar" class="flex ui-widget-content ui-state-default">\
+								<select id="sites">\
+								</select>\
+							</div>\
+							<button id="refresh_site"><i class="fas fa-sync"></i></button>\
 						</div>\
-						<button id="refresh_site"><i class="fas fa-sync"></i></button>\
-					</div>\
-					<div id="tree-container" class="vbox" style="display: none;">\
-						<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all" style="display: none;">\
-						<div id="tree"></div>\
+						<div id="tree-container" class="vbox" style="display: none;">\
+							<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all" style="display: none;">\
+							<div id="tree"></div>\
+						</div>\
 					</div>\
 				</div>\
+				\
+				<div id="tabs-find"></div>\
+				<div id="tabs-definitions"></div>\
+				<div id="tabs-notes">\
+					<textarea id="notes" class="ui-widget ui-state-default ui-corner-all" placeholder="Put your development notes in here.."></textarea>\
+				</div>\
+				<div id="tabs-snippets">\
+					<div id="snippets"></div>\
+				</div>\
+				<div id="tabs-git"></div>\
 			</div>\
-			\
-			<div id="tabs-find"></div>\
-			<div id="tabs-definitions"></div>\
-			<div id="tabs-notes">\
-				<textarea id="notes" class="ui-widget ui-state-default ui-corner-all" placeholder="Put your development notes in here.."></textarea>\
+		</div>\
+		\
+		<div class="ui-layout-east" style="display: none;">\
+			<ul></ul>\
+			<!-- add wrapper that layout will auto-size to fill space -->\
+			<div class="ui-layout-content">\
 			</div>\
-			<div id="tabs-snippets">\
-				<div id="snippets"></div>\
-			</div>\
-			<div id="tabs-git"></div>\
 		</div>\
 	</div>\
-	\
-	<div class="ui-layout-east" style="display: none;">\
-		<ul></ul>\
-		<!-- add wrapper that layout will auto-size to fill space -->\
-		<div class="ui-layout-content">\
-		</div>\
 	</div>').appendTo($('body'));
 
 	menubar.init();
 	status_bar.init();
 
 	//page layout
-	myLayout = $('body').layout({
+	myLayout = $('#layout-container').layout({
 		resizable: true,
 		//showOverflowOnHover: true,
 		west__size: 300,
@@ -97,7 +103,8 @@ function init() {
 			spacing_closed: 0,
 			minSize: 36,
 			size: 36,
-			maxSize: 36
+			maxSize: 36,
+			initHidden: !prefs.statusBar
 		},
 		west: {
 			//closable: false,
@@ -162,6 +169,31 @@ function init() {
 	//send resize events to window
 	$('.ui-layout-pane').on('layoutpaneonresize', function() { 
 		$(window).trigger('resize');
+		
+		var needResize = false;
+				console.log(myLayout)
+		if ($(window).width() < 768) {
+			if ($('.ui-layout-resizer-east').is(':visible')) {
+				$('.ui-layout-resizer-east').show();
+				myLayout.hide("east");
+				myLayout.state.isClosed = true;
+				needResize = true;
+			}
+		} else {
+			if (!$('.ui-layout-resizer-east').is(':visible')) {
+				$('.ui-layout-resizer-east').show();
+				myLayout.show("east");
+				myLayout.state.isClosed = false;
+				myLayout.sizePane('east', 200);
+				needResize = true;
+			}
+		}
+		
+		if (needResize) {
+			setTimeout( function() {
+				myLayout.resizeAll();
+			}, 1000);
+		}
 	});
 	
 	// expand panes when tab is dragged over
