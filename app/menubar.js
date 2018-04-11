@@ -924,7 +924,8 @@ function init () {
 						title: title,
 						msg: html,
 						width: 500,
-						height: 520
+						height: 520,
+						show: { effect: "fade", duration: 250 } 
 					});
 				}
 			}, {

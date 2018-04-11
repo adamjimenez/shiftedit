@@ -6,7 +6,8 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 			value: '',
 			placeholder: '',
 			width: 300,
-			height: 'auto'
+			height: 'auto',
+			show: null
 		};
 
 		options = $.extend({}, defaults, options);
@@ -30,7 +31,8 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 				Ok: function() {
 					$( "#dialog-message" ).remove();
 				}
-			}
+			},
+			show: options.show
 		});
 	}
 
