@@ -107,7 +107,7 @@ var doResize = function(session) {
 	}
 	
 	cols = Math.floor($(term.element).parent().innerWidth() / term.charMeasure.width)-2;
-	rows = Math.floor($(term.element).parent().innerHeight() / term.charMeasure.height)-2;
+	rows = Math.floor($(term.element).parent().innerHeight() / term.charMeasure.height);
 
 	console.log('resize '+cols+'x'+rows);
 
@@ -175,6 +175,7 @@ function new_session(tab, host, username, port, password, cwd) {
 			this.term.focus();
 		}
 	};
+	
 	tab.data('session', session);
 	
 	term.attachCustomKeyEventHandler(function(e) {
