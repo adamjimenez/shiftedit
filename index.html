@@ -20,9 +20,16 @@
 			<progress class="progressbar"></progress>
 			<p><span class="status">loading..</span></p>
 		</div>
-		<div class="slow">
+		<div class="slow" style="display: none;">
 			<a href="/support">Taking a long time?</a>
 		</div>
 	</div>
+	<script>
+		setTimeout(function() {
+			if (document.getElementsByClassName('slow').length) {
+				document.getElementsByClassName('slow')[0].style.display = "block";
+			}
+		}, 10000);
+	</script>
 </body>
 </html>
