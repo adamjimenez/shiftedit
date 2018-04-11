@@ -86,6 +86,10 @@ function update() {
 	if (editor_status.not(":visible")) {
 		editor_status.show();
 		resize.resize();
+		
+		if ($('.ace_autocomplete').is(':visible')) {
+			editor.commands.exec('startAutocomplete', editor);
+		}
 	}
 
 	jQuery.proxy(show, this)();
