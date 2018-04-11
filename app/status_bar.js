@@ -73,9 +73,7 @@ function init() {
 		className: 'title',
 		tooltip: 'Click to copy',
 		handler: function (tab) {
-			var clipboard = $('<input id="clipboard">').appendTo('body').val(this.children('div').text()).focus().select();
-		    document.execCommand("Copy");
-		    clipboard.remove();
+			util.copy(this.children('div').text());
 		    $('.ui-tooltip-content').text('Copied');
 		}
 	}, {
