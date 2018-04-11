@@ -997,12 +997,12 @@ function newTab (e, ui) {
 			panel.find( ".fileTypes, .moreFileTypes" ).removeClass('dropable');
 			
 			var newFiles = [];
-			panel.find('.fileTypes li a').each(function( index ) {
+			panel.find('.fileTypes li div').each(function( index ) {
 				newFiles.push($(this).data('filetype'));
 			});
 			
 			var newFilesOther = [];
-			panel.find('.moreFileTypes li a').each(function( index ) {
+			panel.find('.moreFileTypes li div').each(function( index ) {
 				newFilesOther.push($(this).data('filetype'));
 			});
 			
@@ -1327,12 +1327,6 @@ function init() {
 		},
 		change: function(e, ui) {
 			var receiver = $(this).parent();
-			console.log('change');
-			console.log(arguments);
-			console.log(receiver);
-			//remove tooltip
-			//ui.item.tooltip();
-			//ui.item.tooltip( "disable" );
 			
 			// overflow resize
 			receiver.tabs('doResize');
