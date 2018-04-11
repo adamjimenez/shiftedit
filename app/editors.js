@@ -1,4 +1,4 @@
-define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu','./autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools) {
+define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu', './autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools) {
 
 lang = lang.lang;
 var editor;
@@ -33,22 +33,27 @@ Firepad.ACEAdapter.prototype.setCursor = function(cursor) {
 };
 
 // custom completions
+var timer;
 var shifteditCompleter = {
 	getCompletions: function(editor, session, pos, prefix, callback) {
-		var completions = autocomplete.run(editor, session, pos, prefix, callback);
+		clearTimeout(timer);
 		
-		var prefs = preferences.get_prefs();
-		if (prefs.snippets) {
-			language_tools.snippetCompleter.getCompletions(editor, session, pos, prefix, function(empty, snippetCompletions) {
-				if (!completions) {
-					completions = [];
-				}
-				
-				callback(null, completions.concat(snippetCompletions));
-			});
-		} else if (completions) {
-			callback(null, completions);
-		}
+		setTimeout(function() {
+			var completions = autocomplete.run(editor, session, pos, prefix, callback);
+			
+			var prefs = preferences.get_prefs();
+			if (prefs.snippets) {
+				language_tools.snippetCompleter.getCompletions(editor, session, pos, prefix, function(empty, snippetCompletions) {
+					if (!completions) {
+						completions = [];
+					}
+					
+					callback(null, completions.concat(snippetCompletions));
+				});
+			} else if (completions) {
+				callback(null, completions);
+			}
+		}, 10);
 	},
 	getDocTooltip: function(selected){
 		if (selected.doc) {

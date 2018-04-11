@@ -51,6 +51,7 @@ defaultPrefs.keyBinding = 'default';
 defaultPrefs.codeFolding = 'markbegin'; // manual, markbegin, markbeginend
 defaultPrefs.scrollSpeed = 2;
 defaultPrefs.printMargin = false;
+defaultPrefs.statusBar = true;
 defaultPrefs.hScroll = true;
 defaultPrefs.printMarginColumn = 80;
 defaultPrefs.codeTheme = 'tomorrow_night'; //default
@@ -895,6 +896,13 @@ function save(name, value) {
 		tree.setSingleClickOpen(value);
 	} else if (name==='treeThemeVariant') {
 		$('#tree').jstree('set_theme_variant', value);
+	} else if (name==='statusBar') {
+		var myLayout = layout.get();
+		if (value) {
+			myLayout.show('south');
+		} else {
+			myLayout.hide('south');
+		}
 	} else {
 		//apply change to open editors
 		$('li[data-file]').each(function() {
