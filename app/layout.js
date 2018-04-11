@@ -167,11 +167,11 @@ function init() {
 	}, 1000 ); /* allow time for browser to re-render with new theme */
 
 	//send resize events to window
+	var timer;
 	$('.ui-layout-pane').on('layoutpaneonresize', function() { 
 		$(window).trigger('resize');
 		
 		var needResize = false;
-				console.log(myLayout)
 		if ($(window).width() < 768) {
 			if ($('.ui-layout-resizer-east').is(':visible')) {
 				$('.ui-layout-resizer-east').show();
@@ -190,7 +190,8 @@ function init() {
 		}
 		
 		if (needResize) {
-			setTimeout( function() {
+			clearTimeout(timer);
+			timer = setTimeout( function() {
 				myLayout.resizeAll();
 			}, 1000);
 		}
