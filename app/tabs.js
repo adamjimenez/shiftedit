@@ -575,7 +575,6 @@ function saveAs(tab, options) {
 		title: lang.saveChangesText,
 		msg: 'Save as:',
 		value: tab.attr('data-file'),
-		buttons: 'YESNOCANCEL',
 		fn: function (btn, file) {
 			function fileExistsCallback(data) {
 				loading.stop();
@@ -808,7 +807,6 @@ function checkEdited (e, ui) {
 		prompt.confirm({
 			title: lang.saveChangesText,
 			msg: 'Save changes to: '+$(ui.tab).data('file'),
-			buttons: 'YESNOCANCEL',
 			fn: function (btn) {
 				if (btn == "yes") {
 					//save
