@@ -74,7 +74,7 @@ function init() {
 		tooltip: 'Click to copy',
 		handler: function (tab) {
 			util.copy(this.children('div').text());
-		    $('.ui-tooltip-content').text('Copied');
+			$('.ui-tooltip-content').text('Copied');
 		}
 	}, {
 		text: '&nbsp;',
