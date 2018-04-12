@@ -916,9 +916,16 @@ function applyPrefs(tab) {
 				sender: "editor"
 			},
 			exec: function (editor, args, request) {
+				var sel = editor.session.getSelection();
+				
 				prompt.prompt({
 					title: 'Go to Line',
-					fn :function (button, line) {
+					value: sel.anchor.row+1,
+					type: 'number',
+					min: 1,
+					max: editor.getSession().getDocument().getLength(),
+					step: 1,
+					fn: function (button, line) {
 						if (button == 'ok') {
 							editor.gotoLine(line);
 							setTimeout(function(){editor.focus();}, 50);
@@ -959,7 +966,7 @@ function applyPrefs(tab) {
 				var row = cursor.row;
 				var real_breakpoints = [];
 				
-				for( var i=0; i<breakpoints.length; i++ ) {
+				for(var i=0; i<breakpoints.length; i++) {
 					if(breakpoints[i]=='ace_breakpoint') {
 						if( i>row ){
 							editor.gotoLine(i+1);
@@ -1861,8 +1868,6 @@ function setMode(editor, mode) {
 
 	// toggle lint checking
 	editor.session.setUseWorker(useLint);
-	//$(panel).find('.editor_status').toggle(useLint);
-	//$(panel).find('.syntaxErrorsButton').toggleClass('ui-state-disabled', !useLint);
 	resize.resize();
 }
 
@@ -1877,11 +1882,6 @@ window.onunload = function(){
 		removeFirepad(this);
 	});
 };
-
-/*
-return {
-	create: create
-};*/
 
 exports.init = init;
 exports.create = create;

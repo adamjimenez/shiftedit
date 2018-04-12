@@ -189,7 +189,7 @@ function open(siteId, options) {
 					title: 'Require server password for '+site.name,
 					msg: lang.passwordText,
 					value: password,
-					password: true,
+					type: 'password',
 					fn: function(btn, password) {
 						switch(btn) {
 							case 'ok':
@@ -243,7 +243,7 @@ function masterPasswordPrompt(callback) {
 	prompt.prompt({
 		title: lang.requireMasterPasswordText,
 		msg: lang.passwordText,
-		password: true,
+		type: 'password',
 		fn: function(btn, password) {
 			switch(btn) {
 				case 'ok':
@@ -1972,13 +1972,6 @@ function edit(siteId, duplicate) {
 			$( this ).remove();
 		},
 		buttons: {
-			/*
-			Connect: {
-				text: "Connect",
-				id: "connectBtn",
-				click: test,
-				disabled: newSite
-			},*/
 			Save: {
 				text: "Save",
 				id: "saveBtn",
