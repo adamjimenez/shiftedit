@@ -12,7 +12,6 @@ requirejs.config({
 		"markdown-it": "node_modules/markdown-it/dist/markdown-it",
 		"resumablejs": "node_modules/resumablejs/resumable",
 		"lzma": "node_modules/lzma",
-		"jquery-ui-bundle": "node_modules/jquery-ui-bundle/jquery-ui",
 		"uglify-js": "node_modules/uglify-js",
 		"diff": "node_modules/diff/dist/diff",
 		"autosize": "node_modules/autosize/dist/autosize",
@@ -29,6 +28,7 @@ requirejs.config({
 		"json": "node_modules/requirejs-plugins/src/json",
 		
 		// these ones below should be moved to node_modules
+		"jquery-ui-bundle": "lib/jquery-ui/jquery-ui",
 		"virtualKeyboardDetector": "lib/virtualKeyboardDetector/virtualKeyboardDetector",
 		"linkify": "lib/linkify/linkify",
 		"linkify-html": "lib/linkify/linkify-html",
