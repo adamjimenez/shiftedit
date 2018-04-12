@@ -220,8 +220,7 @@ function init () {
 			editor.commands.exec('nextBreakpoint', editor);
 			editor.focus();
 		},
-		disabled: true,
-		target: 'file'
+		disabled: true
 	}, {
 		id: 'prevBreakpoint',
 		text: makeMenuText(lang.previousBreakpoint, preferences.getKeyBinding('prevBreakpoint'), 'prevBreakpoint'),
@@ -231,8 +230,7 @@ function init () {
 			editor.commands.exec('prevBreakpoint', editor);
 			editor.focus();
 		},
-		disabled: true,
-		target: 'file'
+		disabled: true
 	}, {
 		id: 'clearBreakpoints',
 		text: makeMenuText(lang.clearBreakpoints),
@@ -241,8 +239,7 @@ function init () {
 			var editor = tabs.getEditor(tab);
 			editor.commands.exec('clearBreakpoints', editor);
 		},
-		disabled: true,
-		target: 'file'
+		disabled: true
 	}, '-', {
 		id: 'toggleComment',
 		text: makeMenuText(lang.toggleComment, 'Ctrl-/'),
@@ -1049,15 +1046,15 @@ function init () {
 			checkUndoRedo();
 			
 			// breakpoint buttons
-			if (!Object.keys(editor.session.getBreakpoints()).length) {
-				if (breakpointEnabled) {
-					$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').addClass('ui-state-disabled');
-					breakpointEnabled = false;
-				}
-			} else {
+			if (Object.keys(editor.session.getBreakpoints()).length) {
 				if (!breakpointEnabled) {
 					$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').removeClass('ui-state-disabled');
 					breakpointEnabled = true;
+				}
+			} else {
+				if (breakpointEnabled) {
+					$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').addClass('ui-state-disabled');
+					breakpointEnabled = false;
 				}
 			}
 		} else {
