@@ -1342,10 +1342,10 @@ function edit(siteId, duplicate) {
 						<input type="text" name="web_url" value="" placeholder="www.mydomain.com" class="text ui-widget-content ui-corner-all">\
 					</p>\
 					<p id="turbo_mode_container">\
-						<label>' + lang.turboMode + ':</label>\
+						<label>&nbsp;</label>\
 						<label>\
 						<input type="checkbox" name="turbo" value="1" class="text ui-widget-content ui-corner-all" >\
-						Enable turbo mode\
+						' + lang.turboMode + '\
 						</label>\
 					</p>\
 					<div class="accordion">\
