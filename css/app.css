@@ -1,6 +1,6 @@
 @import url("../node_modules/jstree/dist/themes/default/style.css");
 @import url("../node_modules/xterm/dist/xterm.css");
-@import url("../node_modules/jquery-ui-bundle/jquery-ui.css");
+/*@import url("../node_modules/jquery-ui-bundle/jquery-ui.css");*/
 @import url("../node_modules/jquery-contextmenu/dist/jquery.contextMenu.css");
 @import url("../lib/layout/layout-default-latest.css");
 @import url("../lib/menubar/jquery.menubar.css");
@@ -477,12 +477,6 @@ li[role=tab] .ui-icon {
 	font-size: 10px;
 }
 
-/*
-.editor_status_alert{
-	background: #eef09f;
-}
-*/
-
 .editor_status button[disabled]{
 	opacity: 0.5;
 }
@@ -559,10 +553,6 @@ div.fullScreen{
 
 #siteSettings label, #snippetForm label, .tidy label{
 	display: inline-block;
-	/*
-	padding-left: 10px;
-	padding-right: 4px;
-	*/
 	line-height: 16px;
 }
 
@@ -578,12 +568,6 @@ div.fullScreen{
 	width: auto;
 }
 
-/*
-#siteSettings label.ui-button{
-	padding: 0;
-}
-*/
-
 #siteSettings input, #siteSettings textarea, #siteSettings .custom-show-password-container, #snippetForm input{
 	flex-grow: 1;
 }
@@ -595,6 +579,11 @@ div.fullScreen{
 #siteSettings .ui-menu {
 	position: absolute;
 	width: 70px;
+}
+
+#siteSettings .hbox label:first-child{
+	min-width: 110px;
+	padding: 0;
 }
 
 #siteTabs li {
@@ -672,12 +661,6 @@ div.fullScreen{
 	z-index: 1;
 }
 
-/*
-.chats .selected{
-	background: #ccc;
-}
-*/
-
 .messagePanel{
 	flex-grow: 1;
 	width: 100%;
@@ -747,7 +730,6 @@ div.fullScreen{
 }
 
 #ssh .delete{
-	position: relative;
 	left: 40px;
 }
 
@@ -758,11 +740,7 @@ div.fullScreen{
 
 /* TERMINAL */
 .terminal {
-	border: #000 solid 5px;
-	font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
-	font-size: 1em;
-	color: #f0f0f0;
-	background: #000;
+	padding: 10px;
 }
 
 #findForm{
@@ -869,28 +847,9 @@ div.fullScreen{
 	width: 110px;
 }
 
-/*
-.prefs label{
-	display: block;
-	padding-left: 10px;
-	padding-right: 4px;
-	line-height: 16px;
-}
-
-.prefs label.ui-button{
-	padding: 0;
-}
-*/
-
 .prefs input[type=text], .prefs textarea{
 	flex-grow: 1;
 }
-
-/*
-.prefs input[type=checkbox]{
-	flex-grow: 0;
-}
-*/
 
 .prefs input[type=number]{
 	width: 50px;
@@ -984,11 +943,6 @@ div.fullScreen{
 	display: flex;
 	vertical-align: middle;
 	align-items: center;
-}
-
-#siteSettings .hbox label:first-child{
-	min-width: 110px;
-	padding: 0;
 }
 
 .flex{
@@ -1513,8 +1467,6 @@ div.fullScreen{
 	margin: 0 10px;
 	width: 140px;
 }
-
-/*.key:hover{box-shadow:0px 0px 10px #14B524; z-index:1000;}*/
 
 .link{
 	cursor: pointer;
