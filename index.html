@@ -11,7 +11,13 @@
 	<script src="https://ssh.shiftedit.net/socket.io/socket.io.js"></script>
 	<script src="https://apis.google.com/js/client.js"></script>
 	<script src="//cloud.tinymce.com/dev/tinymce.min.js" defer="defer"></script>
-    <script data-main="app/app" src="node_modules/requirejs/require.js"></script>
+	<script src="//shiftedit.s3.amazonaws.com/js/require.js"></script>
+	<script>
+	requirejs.config({
+		baseUrl: ''
+	});
+	require(['app/app']);
+	</script>
 </head>
 <body>
 	<div class="splash">

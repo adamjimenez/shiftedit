@@ -60,7 +60,7 @@ defaultPrefs.autocomplete = true;
 defaultPrefs.snippets = true;
 defaultPrefs.colorPicker = true;
 defaultPrefs.numberPicker = true;
-defaultPrefs.zen = true;
+defaultPrefs.emmet = false;
 defaultPrefs.behaviours = true;
 defaultPrefs.scrollPastEnd = true;
 defaultPrefs.selectDollar = false;
@@ -1074,7 +1074,7 @@ function open() {
 	</label>\
 	<br>\
 	<label>\
-		<input type="checkbox" name="zen" value="1">\
+		<input type="checkbox" name="emmet" value="1">\
 		Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
 	</label>\
 	<br>\

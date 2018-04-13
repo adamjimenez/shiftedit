@@ -1,4 +1,4 @@
-define(['./tabs', './lang', './layout', './site', './prompt', './util', './ssl', 'jquery', 'markdown-it'], function (tabs, lang, layout, site, prompt, util, ssl) {
+define(['./tabs', './lang', './layout', './site', './prompt', './util', './ssl', 'jquery'], function (tabs, lang, layout, site, prompt, util, ssl) {
 	lang = lang.lang;
 
 	var combobox;
@@ -46,26 +46,27 @@ function refresh() {
 	var mode = editor.getSession().$modeId.replace('ace/mode/', '');
 	
 	if (mode === 'markdown') {
-		var MarkdownIt = require('markdown-it');
-		var md = new MarkdownIt();
-		var result = md.render(editor.getValue());
-		
-		if($('.preview > iframe')) {
-			var loadPreview = function() {
-				$('.preview > iframe').contents().find('html').html(result);
-			};
+		require(['markdown-it'], function(MarkdownIt){
+			var md = new MarkdownIt();
+			var result = md.render(editor.getValue());
 			
-			if (url!=default_url) {
-				url = default_url;
-				$('.preview > iframe').attr('src', default_url).on("load", loadPreview);
-			} else {
-				loadPreview();
+			if($('.preview > iframe')) {
+				var loadPreview = function() {
+					$('.preview > iframe').contents().find('html').html(result);
+				};
+				
+				if (url!=default_url) {
+					url = default_url;
+					$('.preview > iframe').attr('src', default_url).on("load", loadPreview);
+				} else {
+					loadPreview();
+				}
 			}
-		}
-	
-		if( childWindow ){
-			childWindow.document.body.innerHTML = result;
-		}
+		
+			if( childWindow ){
+				childWindow.document.body.innerHTML = result;
+			}
+		});
 	} else {
 		if(combobox) {
 			var val = combobox.input.val();
@@ -267,6 +268,10 @@ function run(tab) {
 	// open
 	var panel = 'east';
 	var minWidth = 300;
+	
+	if (!$('.ui-layout-resizer-east').is(':visible')) {
+		panel = 'center';
+	}
 
 	if(previewTab.length) {
 		tabpanel = previewTab.closest('.ui-tabs');
@@ -286,7 +291,7 @@ function run(tab) {
 		return;
 	}
 
-	tabpanel = '.ui-layout-east';
+	tabpanel = '.ui-layout-'+panel;
 	//expand east panel
 	myLayout.open(panel);
 	if(myLayout.panes.east.outerWidth() < minWidth) {

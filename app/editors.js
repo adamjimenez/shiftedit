@@ -1,8 +1,7 @@
-define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu', './autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/autocomplete', 'ace/ext-emmet', 'ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'ace/ext/tern', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools) {
+define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu', './autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/ext-emmet', /*'ace/ext/tern',*/ 'ace/autocomplete','ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools, emmet/*, tern*/) {
 
 lang = lang.lang;
 var editor;
-var tern = require("ace/tern/tern");
 var snippetManager = require("ace/snippets").snippetManager;
 var Firepad = require('firepad');
 var FirepadUserList = require('firepad-userlist');
@@ -65,7 +64,8 @@ var shifteditCompleter = {
 };
 
 // set completer
-tern.addCompleter(shifteditCompleter);
+//tern.addCompleter(shifteditCompleter);
+language_tools.addCompleter(shifteditCompleter);
 
 /*
 var ternCompleter = {
@@ -691,60 +691,37 @@ function applyPrefs(tab) {
 			editor.removeAllListeners("paste");
 		}
 
-		if( prefs.zen ){
-			console.log('loading emmet');
+		if( prefs.emmet ){
 			//emmet fka zen
-			editor.setOption("enableEmmet", true);
-		}else{
+			console.log('loading emmet');
+			require(['emmet'], function(emmet){
+				editor.setOption("enableEmmet", true);
+			});
+		} else if(editor.getOption("enableEmmet")) {
+			console.log('disable emmet');
 			editor.setOption("enableEmmet", false);
 		}
 		
 		// tern
+		/*
 		editor.setOptions({
-			/**
-			 * Either `true` or `false` or to enable with custom options pass object that
-			 * has options for tern server: http://ternjs.net/doc/manual.html#server_api
-			 * If `true`, then default options will be used
-			 */
 			enableTern: {
-				/* http://ternjs.net/doc/manual.html#option_defs */
 				defs: ['browser', 'ecma5', 'jquery'],
-				/* http://ternjs.net/doc/manual.html#plugins */
 				plugins: {
 					doc_comment: {
 						fullDocs: true
 					}
 				},
-				/**
-				 * (default is true) If web worker is used for tern server.
-				 * This is recommended as it offers better performance, but prevents this from working in a local html file due to browser security restrictions
-				 */
-				//useWorker: true,
-				/* if your editor supports switching between different files (such as tabbed interface) then tern can do this when jump to defnition of function in another file is called, but you must tell tern what to execute in order to jump to the specified file */
 				switchToDoc: function (name, start) {
 					console.log('switchToDoc called but not defined. name=' + name + '; start=', start);
 				},
-				/**
-				 * if passed, this function will be called once ternServer is started.
-				 * This is needed when useWorker=false because the tern source files are loaded asynchronously before the server is started.
-				 */
 				startedCb: function () {
 					//once tern is enabled, it can be accessed via editor.ternServer
 					console.log('editor.ternServer:', editor.ternServer);
 				},
 			},
-			/**
-			 * when using tern, it takes over Ace's built in snippets support.
-			 * this setting affects all modes when using tern, not just javascript.
-			 */
-			//enableSnippets: true,
-			/**
-			 * when using tern, Ace's basic text auto completion is enabled still by deafult.
-			 * This settings affects all modes when using tern, not just javascript.
-			 * For javascript mode the basic auto completion will be added to completion results if tern fails to find completions or if you double tab the hotkey for get completion (default is ctrl+space, so hit ctrl+space twice rapidly to include basic text completions in the result)
-			 */
-			//enableBasicAutocompletion: true,
 		});
+		*/
 		
 
 		var keybinding = null;
