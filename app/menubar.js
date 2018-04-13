@@ -586,7 +586,15 @@ function init () {
 						inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
 					} else {
 						inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
-						inst.setContent(editor.getValue());
+						
+						var code = editor.getValue();
+						var bodyStartPos = code.indexOf('<body');
+						var bodyEndPos = code.indexOf('</body');
+						if (bodyStartPos !== -1 && bodyEndPos !== -1) {
+							code = code.substr(bodyStartPos, bodyEndPos-bodyStartPos);
+						}
+						
+						inst.setContent(code);
 						inst.focus();
 					}
 				} else {

@@ -4,9 +4,16 @@ function create(tab) {
 	var editor = tabs.getEditor(tab);
 
 	tab.data('design-ready', true);
+	
+	var code = editor.getValue();
+	var bodyStartPos = code.indexOf('<body');
+	var bodyEndPos = code.indexOf('</body');
+	if (bodyStartPos !== -1 && bodyEndPos !== -1) {
+		code = code.substr(bodyStartPos, bodyEndPos-bodyStartPos);
+	}
 
 	var ta = $('<div class="tinymce"></div>').appendTo(panel.find('.design'));
-	ta[0].value = editor.getValue();
+	ta[0].value = code;
 	var designId = ta.uniqueId().attr('id');
 	
 	var base_url = '';
@@ -51,7 +58,7 @@ function create(tab) {
 		//body_class: 'mceForceColors',
 		plugins: [
 			"advlist autolink lists link image charmap print preview anchor",
-			"searchreplace visualblocks code fullscreen",
+			"searchreplace visualblocks code fullscreen fullpage",
 			"insertdatetime media table contextmenu paste fullpage textcolor colorpicker"
 		],
 		//toolbar: "styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image forecolor backcolor",
@@ -68,10 +75,12 @@ function create(tab) {
 		init_instance_callback: function (inst) {
 			inst.on('change undo redo keypress ExecCommand', function(e) {
 				var code = inst.getContent();
-				
 				var regexp = /<body[^>]*>([\s\S]*)<\/body>/gi;
 				var match = regexp.exec(code);
-				code = match[1];
+				
+				if (match) {
+					code = match[1];
+				}
 
 				//preserve outter html
 				oldCode = editor.getValue();
