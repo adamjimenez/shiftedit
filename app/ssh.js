@@ -117,7 +117,9 @@ var doResize = function(session) {
 
 var destroy = function(session) {
 	socket.emit('kill', session.id);
-	terms[session.id].destroy();
+	if (terms[session.id]) {
+		terms[session.id].destroy();
+	}
 };
 
 function create(tabpanel) {
