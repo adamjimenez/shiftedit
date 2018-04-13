@@ -295,7 +295,7 @@ function open(tabpanel) {
 		</p>\
 		<p>\
 			<label>Port:</label>\
-			<input type="number" name="port" value="22" class="ui-widget ui-state-default ui-corner-all">\
+			<input type="number" name="port" value="22" min="1" max="65535" class="ui-widget ui-state-default ui-corner-all">\
 		</p>\
 		</form>\
 	</div>');

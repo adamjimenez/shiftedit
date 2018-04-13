@@ -1301,7 +1301,7 @@ function edit(siteId, duplicate) {
 							<input type="text" id="domain" name="domain" value="" class="text ui-widget-content ui-corner-all">\
 							<span id="portContainer">\
 								<label>&nbsp;</label>\
-								<input type="number" name="port" value="" placeholder="Port" min="1" class="text ui-widget-content ui-corner-all">\
+								<input type="number" name="port" value="" placeholder="Port" min="1" max="65535" class="text ui-widget-content ui-corner-all">\
 							</span>\
 						</p>\
 					</div>\
