@@ -550,9 +550,6 @@ function updateCategory() {
 			'web_url',
 			'turbo_mode_container'
 		],
-		'Cloud': [
-			'cloud_container',
-		],
 		'AmazonS3': [
 			'cloud_container',
 			's3_public',
@@ -1265,36 +1262,25 @@ function edit(siteId, duplicate) {
 			<div id="addContainer" style="display:none;">\
 				<div>\
 					<p>\
-						<label>' + lang.serverType + ':</label>\
 						<span id="serverTypeRadio">\
 							<input type="radio" name="serverTypeItem" value="FTP" id="radio1"><label for="radio1">FTP</label>\
 							<input type="radio" name="serverTypeItem" value="SFTP" id="radio2"><label for="radio2">SFTP</label>\
-							<input type="radio" name="serverTypeItem" value="Cloud" id="radio3"><label for="radio3">Cloud Services</label>\
-							<input type="radio" name="serverTypeItem" value="WebDAV" id="radio4"><label for="radio4">WebDAV</label>\
+							<input type="radio" name="serverTypeItem" value="Dropbox" id="radio3"><label for="radio3">Dropbox</label>\
+							<input type="radio" name="serverTypeItem" value="GDrive" id="radio4"><label for="radio4">GDrive</label>\
+							<input type="radio" name="serverTypeItem" value="AmazonS3" id="radio5"><label for="radio5">AmazonS3</label>\
+							<input type="radio" name="serverTypeItem" value="WebDAV" id="radio6"><label for="radio6">WebDAV</label>\
 						</span>\
 					</p>\
+					<!--\
 					<div id="cloud_container">\
 						<p>\
-							<label>' + lang.cloudServices + ':</label>\
-							<span id="cloudRadio">\
-								<input type="radio" name="cloud" value="Dropbox" id="cloudRadio1">\
-								<label for="cloudRadio1">\
-									<img src="https://shiftedit.s3.amazonaws.com/images/logos/dropbox.svg" height="32" width="32"><br>\
-									Dropbox\
-								</label>\
-								<input type="radio" name="cloud" value="GDrive" id="cloudRadio2">\
-								<label for="cloudRadio2">\
-									<img src="https://shiftedit.s3.amazonaws.com/images/logos/googledrive.svg" height="32" width="32"><br>\
-									Google Drive\
-								</label>\
-								<input type="radio" name="cloud" value="AmazonS3" id="cloudRadio3">\
-								<label for="cloudRadio3">\
-									<img src="https://shiftedit.s3.amazonaws.com/images/logos/amazons3.svg" height="32" width="32"><br>\
-									Amazon S3\
-								</label>\
+							<label>&nbsp;</label>\
+							<span>\
+								<button type="button" id="connect">Connect</button>\
 							</span>\
 						</p>\
 					</div>\
+					-->\
 					<div id="host_container">\
 						<p>\
 							<label>' + lang.host + ':</label>\
@@ -1874,11 +1860,13 @@ function edit(siteId, duplicate) {
 		}
 		
 		updateCategory();
-			
+		
 		if( ['GDrive', 'GDriveLimited', 'Dropbox'].indexOf(this.value) !== -1 ){
 			connect();
 		}
 	});
+	
+	//$('#connect').button().click(connect);
 
 	//trim values
 	$('#siteSettings input[type=text]').blur(function(){
