@@ -685,6 +685,10 @@ div.fullScreen{
 	align-self: base-line;
 }
 
+#dialog-ssh {
+	overflow: visible;
+}
+
 #ssh p{
 	display: flex;
 	vertical-align: middle;
