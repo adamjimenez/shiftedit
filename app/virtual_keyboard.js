@@ -11,9 +11,9 @@ var editorKeys = [{
 }, {
 	label: '>'
 }, {
-	label: '('
+	label: '['
 }, {
-	label: ')'
+	label: ']'
 }, {
 	label: 'HOME',
 	command: 'gotolinestart'
@@ -31,10 +31,9 @@ var editorKeys = [{
 }, {
 	label: '}'
 }, {
-	label: ';'
+	label: '='
 }, {
-	label: 'TAB',
-	command: 'indent'
+	label: '/',
 }, {
 	label: '<i class="fas fa-arrow-left"></i>',
 	command: 'gotoleft'
