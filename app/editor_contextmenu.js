@@ -27,7 +27,27 @@ function init() {
 					util.copy(editor.getSelectedText());
 				break;
 				case 'paste':
-					prompt.alert({'title': 'Notice', 'msg': 'Press Ctrl-V to paste'});
+					var ok = function(value) {
+						editor.insert(value);
+						editor.focus();
+					};
+					prompt.prompt({
+						'title': 'Paste in here',
+						'type': 'textarea', 
+						fn: function(button, value) {
+							if (button == 'ok') {
+								ok(value);
+							}
+						}
+					});
+					$('#input').on('paste', function () {
+						var element = this;
+						setTimeout(function() {
+							var value = $(element).val();
+							$( "#dialog-prompt" ).dialogResize( "close" );
+							ok(value);
+						}, 100);
+					});
 				break;
 				case 'delete':
 					editor.commands.exec('cut', editor);

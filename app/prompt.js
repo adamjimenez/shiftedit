@@ -87,18 +87,28 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 			}
 		};
 		
-		if (!options.msg) {
+		if (options.type === "textarea") {
+			defaults.height = 170;
+		} else if (!options.msg) {
 			defaults.height = 120;
 		}
 
 		options = $.extend({}, defaults, options);
+		
+		var input;
+		
+		if (options.type==='textarea') {
+			input = '<textarea name="input" id="input" value="'+options.value+'" placeholder="'+options.placeholder+'" rows="4" class="flex text ui-widget-content ui-corner-all" required></textarea>';
+		} else {
+			input = '<input type="'+options.type+'" name="input" id="input" value="'+options.value+'" placeholder="'+options.placeholder+'" class="flex text ui-widget-content ui-corner-all" required>';
+		}
 
 		//create dialog markup
 		$( "body" ).append('<div id="dialog-prompt" title="'+options.title+'">\
 	<form>\
 		<div class="vbox">\
 			<label for="name">'+options.msg+'</label>\
-			<input type="'+options.type+'" name="input" id="input" value="'+options.value+'" placeholder="'+options.placeholder+'" class="flex text ui-widget-content ui-corner-all" required>\
+			'+ input +'\
 		</div>\
 		<!-- Allow form submission with keyboard without duplicating the dialog button -->\
 		<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
