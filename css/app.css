@@ -13,6 +13,7 @@
 body{
 	font-size: 12px;
 	margin: 0;
+	overflow-y: hidden;
 }
 
 /* prevent ios context menu */
