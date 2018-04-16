@@ -5,6 +5,7 @@ var prefs = {};
 
 var selectionMenuItems = [];
 var activeTab;
+var timer;
 
 function toggleOptions(target, show) {
 	if(target) {
@@ -52,7 +53,7 @@ function toggleOptions(target, show) {
 function init () {
 	prefs = preferences.get_prefs();
 
-	$('body').append('<input type="file" id="upload" style="visibility: hidden;">');
+	$('#layout-container').append('<input type="file" id="upload" style="visibility: hidden;">');
 
 	//handle uploads
 	$('#upload').change(function(e){
@@ -141,8 +142,7 @@ function init () {
 		},
 		disabled: true,
 		target: 'site'
-	},
-	{
+	}, {
 		id: 'print',
 		text: makeMenuText(lang.print+'...', 'Ctrl-P'),
 		disabled: true,
@@ -220,8 +220,7 @@ function init () {
 			editor.commands.exec('nextBreakpoint', editor);
 			editor.focus();
 		},
-		disabled: true,
-		target: 'file'
+		disabled: true
 	}, {
 		id: 'prevBreakpoint',
 		text: makeMenuText(lang.previousBreakpoint, preferences.getKeyBinding('prevBreakpoint'), 'prevBreakpoint'),
@@ -231,8 +230,7 @@ function init () {
 			editor.commands.exec('prevBreakpoint', editor);
 			editor.focus();
 		},
-		disabled: true,
-		target: 'file'
+		disabled: true
 	}, {
 		id: 'clearBreakpoints',
 		text: makeMenuText(lang.clearBreakpoints),
@@ -241,8 +239,7 @@ function init () {
 			var editor = tabs.getEditor(tab);
 			editor.commands.exec('clearBreakpoints', editor);
 		},
-		disabled: true,
-		target: 'file'
+		disabled: true
 	}, '-', {
 		id: 'toggleComment',
 		text: makeMenuText(lang.toggleComment, 'Ctrl-/'),
@@ -392,8 +389,14 @@ function init () {
 		text: lang.printMargin,
 		checked: Boolean(prefs.printMargin), // when checked has a boolean value, it is assumed to be a CheckItem
 		handler: function (item, checked) {
-			//prefs.printMargin = $(this).prop('checked');
 			preferences.save('printMargin', checked);
+		}
+	},  {
+		id: 'statusBar',
+		text: 'Status bar',
+		checked: Boolean(prefs.statusBar), // when checked has a boolean value, it is assumed to be a CheckItem
+		handler: function (item, checked) {
+			preferences.save('statusBar', checked);
 		}
 	}, {
 		id: 'codeSplit',
@@ -583,7 +586,15 @@ function init () {
 						inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
 					} else {
 						inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
-						inst.setContent(editor.getValue());
+						
+						var code = editor.getValue();
+						var bodyStartPos = code.indexOf('<body');
+						var bodyEndPos = code.indexOf('</body');
+						if (bodyStartPos !== -1 && bodyEndPos !== -1) {
+							code = code.substr(bodyStartPos, bodyEndPos-bodyStartPos);
+						}
+						
+						inst.setContent(code);
 						inst.focus();
 					}
 				} else {
@@ -918,7 +929,8 @@ function init () {
 						title: title,
 						msg: html,
 						width: 500,
-						height: 520
+						height: 520,
+						show: { effect: "fade", duration: 250 } 
 					});
 				}
 			}, {
@@ -933,12 +945,13 @@ function init () {
 
 	menus.create($("#menubar"), menu);
 	
+	var undoEnabled = false;
+	var redoEnabled = false;
 	function checkUndoRedo() {
 		tab = activeTab;
 		
 		if (tab) {
 			//redo undo
-			var editor = tabs.getEditor(tab);
 			var canRedo = false;
 			var canUndo = false;
 			if (tab.data('view')==='code') {
@@ -949,6 +962,7 @@ function init () {
 					return;
 				}
 				
+				var editor = tabs.getEditor(tab);
 				var undoManager = firepad ? firepad.client_.undoManager : editor.session.getUndoManager();
 				canRedo = undoManager.canRedo();
 				canUndo = undoManager.canUndo();
@@ -962,24 +976,65 @@ function init () {
 			}
 			
 			if (canRedo) {
-				$('#menubar .redoBtn').removeClass('ui-state-disabled');
+				if (!redoEnabled) {
+					$('#menubar .redoBtn').removeClass('ui-state-disabled');
+					redoEnabled = true;
+				}
 			} else {
-				$('#menubar .redoBtn').addClass('ui-state-disabled');
+				if (redoEnabled) {
+					$('#menubar .redoBtn').addClass('ui-state-disabled');
+					redoEnabled = false;
+				}
 			}
 			
 			if (canUndo) {
-				$('#menubar .undoBtn').removeClass('ui-state-disabled');
+				if (!undoEnabled) {
+					$('#menubar .undoBtn').removeClass('ui-state-disabled');
+					undoEnabled = true;
+				}
 			} else {
-				$('#menubar .undoBtn').addClass('ui-state-disabled');
+				if (undoEnabled) {
+					$('#menubar .undoBtn').addClass('ui-state-disabled');
+					undoEnabled = false;
+				}
 			}	
 		}
 	}
 	
+	var inFile = false;
+	var breakpointEnabled = false;
 	function checkButtons(tab) {
 		var editor = tabs.getEditor(tab);
 		
 		if (editor) {
-			toggleOptions('file', true);
+			if (!inFile) {
+				inFile = true;
+			
+				toggleOptions('file', true);
+			
+				// preview button
+				var disable = false;
+				var mode = editor.getSession().$modeId.replace('ace/mode/', '');
+				if (mode !== 'markdown') {
+					var siteId = tab.data('site');
+					if(!siteId) {
+						disable = true;
+					} else {
+						var settings = site.getSettings(siteId);
+						if(!settings.web_url) {
+							disable = true;
+						}
+					}
+				}
+
+				if (disable) {
+					$('#menubar .previewBtn').addClass('ui-state-disabled');
+				} else {
+					$('#menubar .previewBtn').removeClass('ui-state-disabled');
+				}
+				
+				$('.fileButton').show();
+			}
 			
 			// save button
 			if (tab.data('edited')) {
@@ -990,69 +1045,57 @@ function init () {
 			
 			// split state
 			var sp = window.splits[tab.attr('id')];
-			if (sp) {
-				$('#split'+sp.getSplits()+'_'+sp.getOrientation() + ' input').prop('checked', true);
+			var input = $('#split'+sp.getSplits()+'_'+sp.getOrientation() + ' input');
+			if (!input.prop('checked')) {
+				input.prop('checked', true);
+				$('#menubar input[name=codeSplit]').checkboxradio('refresh');
 			}
-			$('#menubar input[name=codeSplit]').checkboxradio('refresh');
 			
 			checkUndoRedo();
 			
-			// preview button
-			var disable = false;
-			var mode = editor.getSession().$modeId.replace('ace/mode/', '');
-			if (mode !== 'markdown') {
-				var siteId = tab.data('site');
-				if(!siteId) {
-					disable = true;
-				} else {
-					var settings = site.getSettings(siteId);
-					if(!settings.web_url) {
-						disable = true;
-					}
+			// breakpoint buttons
+			if (Object.keys(editor.session.getBreakpoints()).length) {
+				if (!breakpointEnabled) {
+					$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').removeClass('ui-state-disabled');
+					breakpointEnabled = true;
+				}
+			} else {
+				if (breakpointEnabled) {
+					$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').addClass('ui-state-disabled');
+					breakpointEnabled = false;
 				}
 			}
-
-			if (disable) {
-				$('#menubar .previewBtn').addClass('ui-state-disabled');
-			} else {
-				$('#menubar .previewBtn').removeClass('ui-state-disabled');
-			}
-			
-			// breakpoint buttons
-			if (!Object.keys(editor.session.getBreakpoints()).length) {
-				$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').addClass('ui-state-disabled');
-			} else {
-				$('#prevBreakpoint, #nextBreakpoint, #clearBreakpoints').removeClass('ui-state-disabled');
-			}
-			
-			$('.fileButton').show();
 		} else {
-			toggleOptions('file', false);
-			$('.fileButton').hide();
+			disableFileButtons();
 		}
 	}
 	
 	function disableFileButtons() {
-		activeTab = null;
-		$('.fileButton').hide();
-		toggleOptions('file', false);
+		if (inFile) {
+			inFile = false;
+			$('.fileButton').hide();
+			toggleOptions('file', false);
+		}
 	}
 	
 	$(document).on("focusEditor editorChange", function(e, tab) {
 		activeTab = tab;
-		setTimeout(function() {checkButtons(tab);}, 10);
+		clearTimeout(timer);
+		timer = setTimeout(function() {checkButtons(tab);}, 50);
 	});
 	
 	$(window).on( "tabsadd tabsactivate", function(e, ui) {
 		var tab = ui.newTab ? ui.newTab : ui.tab;
 		if (activeTab && activeTab.parent().has(tab).length) {
 			disableFileButtons();
+			activeTab = $(tab);
 		}
 	});
 	
 	$(window).on( "tabsremove", function(e, ui) {
 		if (activeTab && activeTab.attr('id') === ui.tabId) {
 			disableFileButtons();
+			activeTab = null;
 		}
 	});
 	

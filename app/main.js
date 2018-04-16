@@ -1,4 +1,4 @@
-define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','./recent','./repositories','./editors', './tree', './site', './shortcuts','./hash','./definitions','./find', './exit', './notes', './snippets', './resize','./splash', './appcache', './prompt', './git', './notifications', './syntax_errors', "jquery-ui-bundle"], function (exports, lang, preferences, tabs, layout, drop, restore, recent, repositories, editors, tree, site, shortcuts, hash, definitions, find, exit, notes, snippets, resize, splash, appcache, prompt, git, notifications, syntax_errors) {
+define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','./recent','./repositories','./editors','./virtual_keyboard', './tree', './site', './shortcuts','./hash','./definitions','./find', './exit', './notes', './snippets', './resize','./splash', './appcache', './prompt', './git', './notifications', './syntax_errors', "jquery-ui-bundle"], function (exports, lang, preferences, tabs, layout, drop, restore, recent, repositories, editors, virtual_keyboard, tree, site, shortcuts, hash, definitions, find, exit, notes, snippets, resize, splash, appcache, prompt, git, notifications, syntax_errors) {
 	var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
 	var locale = lang;
 	
@@ -63,6 +63,7 @@ define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','.
 		git.init();
 		resize.init();
 		syntax_errors.init();
+		virtual_keyboard.init();
 
 		splash.close();
 	});

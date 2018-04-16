@@ -107,7 +107,7 @@ var doResize = function(session) {
 	}
 	
 	cols = Math.floor($(term.element).parent().innerWidth() / term.charMeasure.width)-2;
-	rows = Math.floor($(term.element).parent().innerHeight() / term.charMeasure.height)-2;
+	rows = Math.floor($(term.element).parent().innerHeight() / term.charMeasure.height);
 
 	console.log('resize '+cols+'x'+rows);
 
@@ -117,7 +117,9 @@ var doResize = function(session) {
 
 var destroy = function(session) {
 	socket.emit('kill', session.id);
-	terms[session.id].destroy();
+	if (terms[session.id]) {
+		terms[session.id].destroy();
+	}
 };
 
 function create(tabpanel) {
@@ -148,16 +150,6 @@ function new_session(tab, host, username, port, password, cwd) {
 	if (!parseInt(port)) {
 		port = 22;
 	}
-	
-	var session = {
-		id: null,
-		host: host,
-		username: username,
-		port: port,
-		password: password,
-		cwd: cwd
-	};
-	tab.data('session', session);
 
 	var tabpanel = $(tab).closest(".ui-tabs");
 	var panel = tabpanel.tabs('getPanelForTab', tab);
@@ -166,6 +158,45 @@ function new_session(tab, host, username, port, password, cwd) {
 	var term = new Terminal({
 		cursorBlink: true,
 		screenKeys: true
+	});
+	
+	var session = {
+		id: null,
+		host: host,
+		username: username,
+		port: port,
+		password: password,
+		cwd: cwd,
+		term: term,
+		ctrlKey: false,
+		altKey: false,
+		insert: function(string) {
+			socket.emit('data', this.id, string);
+		},
+		focus: function() {
+			this.term.focus();
+		}
+	};
+	
+	tab.data('session', session);
+	
+	term.attachCustomKeyEventHandler(function(e) {
+		if (!e.modified && (session.ctrlKey || session.altKey)) {
+			var event = jQuery.Event(e.type, { 
+				keyCode: e.keyCode, 
+				ctrlKey: session.ctrlKey, 
+				altKey: session.altKey, 
+				modified: true 
+			});
+			
+			if (event.type==='keydown') {
+				session.term._keyDown(event);
+			}/* else if (event.type==='keypress') {
+				session.term._keyDown(event);
+			}*/
+			
+			return false;
+		}
 	});
 	
 	term.on('data', function(data) {
@@ -264,7 +295,7 @@ function open(tabpanel) {
 		</p>\
 		<p>\
 			<label>Port:</label>\
-			<input type="number" name="port" value="22" class="ui-widget ui-state-default ui-corner-all">\
+			<input type="number" name="port" value="22" min="1" max="65535" class="ui-widget ui-state-default ui-corner-all">\
 		</p>\
 		</form>\
 	</div>');
@@ -356,6 +387,10 @@ function connect(options) {
 	
 	var prefs = preferences.get_prefs();
 	var paneName = prefs.sshPane;
+	if (!$('.ui-layout-resizer-east').is(':visible')) {
+		paneName = 'center';
+	}
+	
 	var tabpanel = $('.ui-layout-'+paneName);
 	var tab = create(tabpanel);
 	if (!options.domain) {
@@ -383,6 +418,11 @@ function connect(options) {
 	}
 	
 	new_session(tab, options.domain, username, options.port, options.password, cwd);
+}
+
+function get(tab) {
+	var session = tab.data('session');
+	return session;
 }
 
 $('body').on('click','.newTab .ssh', function() {
@@ -435,7 +475,8 @@ function handle_resize() {
 $(window).on('resize activate', handle_resize);
 
 return {
-	connect: connect
+	connect: connect,
+	get: get
 };
 
 });

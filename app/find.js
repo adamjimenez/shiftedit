@@ -418,7 +418,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			}
 
 			//searching..
-			$("#findprogress").progressbar( "option", "disabled", false ).show();
+			$("#findprogress").show();
 
 			var options = site.getAjaxOptions("/api/files?site="+currentSite);
 			searchSource = new EventSource(options.url+'&cmd=search&s='+s);
@@ -434,7 +434,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 					searchSource.close();
 
 					//finished
-					$( "#findprogress" ).progressbar( "option", "disabled", true ).hide();
+					$( "#findprogress" ).hide();
 				}
 			}, false);
 		} else {
@@ -466,7 +466,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			$('#findResults').show();
 			keyUp();
 		} else {
-			$( "#findprogress" ).progressbar( "option", "disabled", true ).hide();
+			$( "#findprogress" ).hide();
 			$('#replace').show();
 			$('#findButtons').show();
 			$('#replaceButtons').show();
@@ -515,7 +515,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 		<div class="row">\
 			<textarea id="find" name="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
 		</div>\
-		<div id="findprogress"></div>\
+		<progress id="findprogress"></progress>\
 		<div id="findResults">\
 		</div>\
 		<div id="findButtons" class="row">\
@@ -544,10 +544,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 		$( "#findForm input[type=checkbox]" ).checkboxradio({
 			icon: false
 		});
-		$('#findprogress').progressbar({
-		  disabled: true,
-		  value: false
-		}).hide();
+		$('#findprogress').hide();
 
 		autosize($('#findForm textarea'));
 		

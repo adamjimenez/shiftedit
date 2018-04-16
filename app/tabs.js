@@ -1,11 +1,10 @@
-define(['./config', './editors', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", 'coffee-script', "ui.tabs.overflowResize", 'uglify-js/lib/compress', 'cssmin', 'dialogResize'], function (config, editors, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
+define(['./config', './editors', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", "ui.tabs.overflowResize", 'cssmin', 'dialogResize'], function (config, editors, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
 lang = lang.lang;
 modes = modes.modes;
 var closing = [];
 var saving = [];
 var opening = [];
 var autoSaveTimer;
-var CoffeeScript = require('coffee-script');
 var manuallyAborted = false;
 
 function active() {
@@ -434,15 +433,18 @@ function saveFiles(options) {
 					file = tab.data('file');
 					pos = file.lastIndexOf('.');
 					newFile = file.substr(0, pos) + '.js';
-					
-					content = CoffeeScript.compile(content);
 
-					saving.push({
-						site: tab.data('site'),
-						title: newTitle,
-						file: file,
-						parent: parent,
-						content: content
+
+					require(['coffee-script'], function(CoffeeScript) {					
+						content = CoffeeScript.compile(content);
+	
+						saving.push({
+							site: tab.data('site'),
+							title: newTitle,
+							file: file,
+							parent: parent,
+							content: content
+						});
 					});
 				}
 				
@@ -457,16 +459,18 @@ function saveFiles(options) {
 					
 					uglify_options = {};
 					
-					content = uglify(content, uglify_options);
-					
-					if (content !== false) {
-						saving.push({
-							site: tab.data('site'),
-							title: newTitle,
-							file: newFile,
-							content: content
-						});
-					}
+					require(['uglify-js/lib/compress'], function(){
+						content = uglify(content, uglify_options);
+						
+						if (content !== false) {
+							saving.push({
+								site: tab.data('site'),
+								title: newTitle,
+								file: newFile,
+								content: content
+							});
+						}
+					});
 				}
 				
 				if (minify && util.fileExtension(title)==='css' && !util.endsWith(title, '.min.css')) {
@@ -575,7 +579,6 @@ function saveAs(tab, options) {
 		title: lang.saveChangesText,
 		msg: 'Save as:',
 		value: tab.attr('data-file'),
-		buttons: 'YESNOCANCEL',
 		fn: function (btn, file) {
 			function fileExistsCallback(data) {
 				loading.stop();
@@ -808,7 +811,6 @@ function checkEdited (e, ui) {
 		prompt.confirm({
 			title: lang.saveChangesText,
 			msg: 'Save changes to: '+$(ui.tab).data('file'),
-			buttons: 'YESNOCANCEL',
 			fn: function (btn) {
 				if (btn == "yes") {
 					//save
@@ -997,12 +999,12 @@ function newTab (e, ui) {
 			panel.find( ".fileTypes, .moreFileTypes" ).removeClass('dropable');
 			
 			var newFiles = [];
-			panel.find('.fileTypes li a').each(function( index ) {
+			panel.find('.fileTypes li div').each(function( index ) {
 				newFiles.push($(this).data('filetype'));
 			});
 			
 			var newFilesOther = [];
-			panel.find('.moreFileTypes li a').each(function( index ) {
+			panel.find('.moreFileTypes li div').each(function( index ) {
 				newFilesOther.push($(this).data('filetype'));
 			});
 			
@@ -1327,12 +1329,6 @@ function init() {
 		},
 		change: function(e, ui) {
 			var receiver = $(this).parent();
-			console.log('change');
-			console.log(arguments);
-			console.log(receiver);
-			//remove tooltip
-			//ui.item.tooltip();
-			//ui.item.tooltip( "disable" );
 			
 			// overflow resize
 			receiver.tabs('doResize');
@@ -1361,10 +1357,8 @@ var default_options = {
 		hoist_vars: false,
 		if_return: true,
 		join_vars: true,
-		cascade: true,
 		side_effects: true,
 		negate_iife: true,
-		screw_ie8: false,
 		
 		warnings: true,
 		global_defs: {}
@@ -1373,7 +1367,6 @@ var default_options = {
 		indent_start: 0,
 		indent_level: 4,
 		quote_keys: false,
-		space_colon: true,
 		ascii_only: false,
 		inline_script: true,
 		width: 80,
@@ -1383,8 +1376,7 @@ var default_options = {
 		bracketize: false,
 		semicolons: true,
 		comments: /@license|@preserve|^!/,
-		preserve_line: false,
-		screw_ie8: false
+		preserve_line: false
 	}
 };
 function uglify(code, options) {

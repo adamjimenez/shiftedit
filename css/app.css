@@ -1,6 +1,6 @@
 @import url("../node_modules/jstree/dist/themes/default/style.css");
 @import url("../node_modules/xterm/dist/xterm.css");
-@import url("../node_modules/jquery-ui-bundle/jquery-ui.css");
+/*@import url("../node_modules/jquery-ui-bundle/jquery-ui.css");*/
 @import url("../node_modules/jquery-contextmenu/dist/jquery.contextMenu.css");
 @import url("../lib/layout/layout-default-latest.css");
 @import url("../lib/menubar/jquery.menubar.css");
@@ -13,6 +13,7 @@
 body{
 	font-size: 12px;
 	margin: 0;
+	overflow-y: hidden;
 }
 
 /* prevent ios context menu */
@@ -44,6 +45,15 @@ a input {
 
 ::-webkit-scrollbar-thumb:hover {
 	background-color: #aaa;
+}
+
+#main-container{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: hidden;
 }
 
 /* START LAYOUT */
@@ -468,12 +478,6 @@ li[role=tab] .ui-icon {
 	font-size: 10px;
 }
 
-/*
-.editor_status_alert{
-	background: #eef09f;
-}
-*/
-
 .editor_status button[disabled]{
 	opacity: 0.5;
 }
@@ -550,10 +554,6 @@ div.fullScreen{
 
 #siteSettings label, #snippetForm label, .tidy label{
 	display: inline-block;
-	/*
-	padding-left: 10px;
-	padding-right: 4px;
-	*/
 	line-height: 16px;
 }
 
@@ -569,12 +569,6 @@ div.fullScreen{
 	width: auto;
 }
 
-/*
-#siteSettings label.ui-button{
-	padding: 0;
-}
-*/
-
 #siteSettings input, #siteSettings textarea, #siteSettings .custom-show-password-container, #snippetForm input{
 	flex-grow: 1;
 }
@@ -586,6 +580,11 @@ div.fullScreen{
 #siteSettings .ui-menu {
 	position: absolute;
 	width: 70px;
+}
+
+#siteSettings .hbox label:first-child{
+	min-width: 110px;
+	padding: 0;
 }
 
 #siteTabs li {
@@ -663,12 +662,6 @@ div.fullScreen{
 	z-index: 1;
 }
 
-/*
-.chats .selected{
-	background: #ccc;
-}
-*/
-
 .messagePanel{
 	flex-grow: 1;
 	width: 100%;
@@ -690,6 +683,10 @@ div.fullScreen{
 	width: 100%;
 	height: 80px;
 	align-self: base-line;
+}
+
+#dialog-ssh {
+	overflow: visible;
 }
 
 #ssh p{
@@ -738,7 +735,6 @@ div.fullScreen{
 }
 
 #ssh .delete{
-	position: relative;
 	left: 40px;
 }
 
@@ -749,11 +745,7 @@ div.fullScreen{
 
 /* TERMINAL */
 .terminal {
-	border: #000 solid 5px;
-	font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
-	font-size: 1em;
-	color: #f0f0f0;
-	background: #000;
+	padding: 10px;
 }
 
 #findForm{
@@ -860,28 +852,9 @@ div.fullScreen{
 	width: 110px;
 }
 
-/*
-.prefs label{
-	display: block;
-	padding-left: 10px;
-	padding-right: 4px;
-	line-height: 16px;
-}
-
-.prefs label.ui-button{
-	padding: 0;
-}
-*/
-
 .prefs input[type=text], .prefs textarea{
 	flex-grow: 1;
 }
-
-/*
-.prefs input[type=checkbox]{
-	flex-grow: 0;
-}
-*/
 
 .prefs input[type=number]{
 	width: 50px;
@@ -975,11 +948,6 @@ div.fullScreen{
 	display: flex;
 	vertical-align: middle;
 	align-items: center;
-}
-
-#siteSettings .hbox label:first-child{
-	min-width: 110px;
-	padding: 0;
 }
 
 .flex{
@@ -1408,6 +1376,37 @@ div.fullScreen{
 	display: block;
 }
 
+.virtual_keyboard{
+	background: #000;
+	color: #fff;
+	height: 50px;
+	width: 100%;
+}
+
+.virtual_keyboard ul{
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.virtual_keyboard li {
+	flex-basis: 11.5%;
+	overflow: hidden;
+	border: 1px solid transparent;
+}
+
+.virtual_keyboard li.active {
+	border-color: #fff;
+}
+
+.virtual_keyboard div{
+	cursor: default;
+	padding: 5px;
+	text-align: center;
+}
+
 .keyboard{
   width:790px; height: 260px;
   background-color: #111;
@@ -1473,8 +1472,6 @@ div.fullScreen{
 	margin: 0 10px;
 	width: 140px;
 }
-
-/*.key:hover{box-shadow:0px 0px 10px #14B524; z-index:1000;}*/
 
 .link{
 	cursor: pointer;

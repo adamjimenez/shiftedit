@@ -6,7 +6,16 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 			value: '',
 			placeholder: '',
 			width: 300,
-			height: 'auto'
+			height: 'auto',
+			modal: true,
+			close: function( event, ui ) {
+				$( this ).remove();
+			},
+			buttons: {
+				Ok: function() {
+					$( "#dialog-message" ).remove();
+				}
+			}
 		};
 
 		options = $.extend({}, defaults, options);
@@ -19,32 +28,11 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 	</p>\
 </div>');
 
-		$( "#dialog-message" ).dialogResize({
-			width: options.width,
-			height: options.height,
-			modal: true,
-			close: function( event, ui ) {
-				$( this ).remove();
-			},
-			buttons: {
-				Ok: function() {
-					$( "#dialog-message" ).remove();
-				}
-			}
-		});
+		$( "#dialog-message" ).dialogResize(options);
 	}
 
 	function confirm(options) {
-		$( "#dialog-confirm" ).remove();
-
-		$( "body" ).append('<div id="dialog-confirm" title="'+options.title+'">\
-	<p>\
-		<span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>\
-		'+options.msg+'\
-	</p>\
-</div>');
-
-		$( "#dialog-confirm" ).dialogResize({
+		var defaults = {
 			modal: true,
 			close: function( event, ui ) {
 				$( this ).remove();
@@ -63,7 +51,20 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 					options.fn('cancel');
 				}
 			}
-		});
+		};
+
+		options = $.extend({}, defaults, options);
+		
+		$( "#dialog-confirm" ).remove();
+
+		$( "body" ).append('<div id="dialog-confirm" title="'+options.title+'">\
+	<p>\
+		<span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>\
+		'+options.msg+'\
+	</p>\
+</div>');
+
+		$( "#dialog-confirm" ).dialogResize(options);
 	}
 
 	function prompt(options) {
@@ -71,24 +72,60 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 			title: '',
 			msg: '',
 			value: '',
-			placeholder: ''
+			placeholder: '',
+			type: 'text',
+			modal: true,
+			close: function( event, ui ) {
+				$( this ).remove();
+			},
+			buttons: {
+				OK: ok,
+				Cancel: function() {
+					$( this ).dialogResize( "close" );
+					options.fn('cancel');
+				}
+			}
 		};
+		
+		if (options.type === "textarea") {
+			defaults.height = 170;
+		} else if (!options.msg) {
+			defaults.height = 120;
+		}
 
 		options = $.extend({}, defaults, options);
+		
+		var input;
+		
+		if (options.type==='textarea') {
+			input = '<textarea name="input" id="input" value="'+options.value+'" placeholder="'+options.placeholder+'" rows="4" class="flex text ui-widget-content ui-corner-all" required></textarea>';
+		} else {
+			input = '<input type="'+options.type+'" name="input" id="input" value="'+options.value+'" placeholder="'+options.placeholder+'" class="flex text ui-widget-content ui-corner-all" required>';
+		}
 
 		//create dialog markup
-		var inputType = options.password ? 'password' : 'text';
-
 		$( "body" ).append('<div id="dialog-prompt" title="'+options.title+'">\
 	<form>\
 		<div class="vbox">\
 			<label for="name">'+options.msg+'</label>\
-			<input type="'+inputType+'" name="input" id="input" value="'+options.value+'" placeholder="'+options.placeholder+'" class="flex text ui-widget-content ui-corner-all" required>\
+			'+ input +'\
 		</div>\
 		<!-- Allow form submission with keyboard without duplicating the dialog button -->\
 		<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
 	</form>\
 </div>');
+
+		if (options.min) {
+			$('#input').attr('min', options.min);
+		}
+
+		if (options.max) {
+			$('#input').attr('max', options.max);
+		}
+
+		if (options.step) {
+			$('#input').attr('step', options.step);
+		}
 
 		//select filename before dot
 		$('#input').focus(util.selectFilename);
@@ -103,19 +140,7 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 		$( "#dialog-prompt" ).submit(ok);
 
 		//open dialog
-		var dialog = $( "#dialog-prompt" ).dialogResize({
-			modal: true,
-			close: function( event, ui ) {
-				$( this ).remove();
-			},
-			buttons: {
-				OK: ok,
-				Cancel: function() {
-					$( this ).dialogResize( "close" );
-					options.fn('cancel');
-				}
-			}
-		});
+		var dialog = $( "#dialog-prompt" ).dialogResize(options);
 
 		//ensure focus
 		setTimeout(function(){ $('#input').focus(); }, 100);

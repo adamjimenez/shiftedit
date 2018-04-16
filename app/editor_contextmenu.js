@@ -1,4 +1,4 @@
-define(["./util",'./lang','./tabs','./menubar','./prefs', "jquery-contextmenu"], function (util, lang, tabs, menubar, preferences) {
+define(["./util",'./lang','./tabs','./prompt','./menubar','./prefs', "jquery-contextmenu"], function (util, lang, tabs, prompt, menubar, preferences) {
 lang = lang.lang;
 var makeMenuText = util.makeMenuText;
 
@@ -19,20 +19,53 @@ function init() {
 			var editor = tabs.getEditor(tab);
 
 			switch(key) {
+				case 'cut':
+					util.copy(editor.getSelectedText());
+					editor.commands.exec('cut', editor);
+				break;
+				case 'copy':
+					util.copy(editor.getSelectedText());
+				break;
+				case 'paste':
+					var ok = function(value) {
+						editor.insert(value);
+						editor.focus();
+					};
+					prompt.prompt({
+						'title': 'Paste in here',
+						'type': 'textarea', 
+						fn: function(button, value) {
+							if (button == 'ok') {
+								ok(value);
+							}
+						}
+					});
+					$('#input').on('paste', function () {
+						var element = this;
+						setTimeout(function() {
+							var value = $(element).val();
+							$( "#dialog-prompt" ).dialogResize( "close" );
+							ok(value);
+						}, 100);
+					});
+				break;
+				case 'delete':
+					editor.commands.exec('cut', editor);
+				break;
 				case 'find':
-					editor.exec('find', editor);
+					editor.commands.exec('find', editor);
 				break;
 				case 'findPrev':
-					editor.exec('findprevious', editor);
+					editor.commands.exec('findprevious', editor);
 				break;
 				case 'findNext':
-					editor.exec('findnext', editor);
+					editor.commands.exec('findnext', editor);
 				break;
 				case 'replace':
-					editor.exec('replace', editor);
+					editor.commands.exec('replace', editor);
 				break;
 				case 'replaceAll':
-					editor.exec('replaceall', editor);
+					editor.commands.exec('replaceall', editor);
 				break;
 				case 'selectAll':
 					editor.selectAll();
@@ -82,6 +115,11 @@ function init() {
 			}
 		},
 		items: {
+			"cut": {name: makeMenuText('Cut', 'Ctrl-X'), isHtmlName: true, disabled: noSelection},
+			"copy": {name: makeMenuText('Copy', 'Ctrl-C'), isHtmlName: true, disabled: noSelection},
+			"paste": {name: makeMenuText('Paste', 'Ctrl-V'), isHtmlName: true},
+			"delete": {name: makeMenuText('Delete', 'Delete'), isHtmlName: true, disabled: noSelection},
+			"sep0": "---------",
 			"selection": {
 				"name": "Selection",
 				"items": {

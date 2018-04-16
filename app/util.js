@@ -193,6 +193,11 @@ return {
 		return file.substring(pos+1,file.length);
 	},
 	clone: clone,
+	copy: function(text) {
+		var clipboard = $('<textarea id="clipboard"><textarea>').appendTo('body').val(text).focus().select();
+	    document.execCommand("Copy");
+	    clipboard.remove();
+	},
 	date: function(format, timestamp) {
 		var that = this,
 			jsdate,

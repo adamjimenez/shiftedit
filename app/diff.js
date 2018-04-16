@@ -1,4 +1,4 @@
-define(['./tabs', './layout', './modes', './util', 'jquery','ace/ace','diff'], function (tabs, layout, modes, util) {
+define(['./tabs', './layout', './modes', './util', 'jquery','ace/ace'], function (tabs, layout, modes, util) {
 
 var updateTimer;
 
@@ -92,82 +92,82 @@ function select() {
 	// don't diff big files or the browser will crash
 	if( content1.length < 100000 ){
 		var range = require("ace/range").Range;
-		var JsDiff = require("diff");
-		var diff = JsDiff.diffLines(content1, content2);
-
-		diffContent = '';
-		var ranges = [];
-		var index = 0;
-		var start = {};
-		var end = {};
-		var className = '';
-		var firstDiff = true;
-		
-		var lineCount = 0;
-		var lineNum = 0;
-		lineNumbers = [];
-		for (i=0; i < diff.length; i++) {
-			lineCount = diff[i].value.split(/\r\n|\r|\n/).length;
+		require(["diff"], function(JsDiff) {
+			var diff = JsDiff.diffLines(content1, content2);
+			diffContent = '';
+			var ranges = [];
+			var index = 0;
+			var start = {};
+			var end = {};
+			var className = '';
+			var firstDiff = true;
 			
-			if (i<diff.length-1) {
-				lineCount--;
-			}
-			
-			for (j=0; j<lineCount; j++) {
-				if( !diff[i].removed ){
-					lineNum += 1;
-				}
-				lineNumbers.push(lineNum);
-			}
+			var lineCount = 0;
+			var lineNum = 0;
+			lineNumbers = [];
+			for (i=0; i < diff.length; i++) {
+				lineCount = diff[i].value.split(/\r\n|\r|\n/).length;
 				
-			diffContent += diff[i].value;
-		}
-		
-		editor.setValue(diffContent);
-		editor.moveCursorToPosition({column:0, row:0});
-
-		var foldStart = 0;
-		var foldEnd = 0;
-		var lastRow = 0; // last diff row
-		var diffPadding = 3; // 3 lines of padding
-		for (i=0; i < diff.length; i++) {
-			if( diff[i].added || diff[i].removed ){
-				start = session.getDocument().indexToPosition(index);
-				end = session.getDocument().indexToPosition(index+diff[i].value.length);
-
-				if( diff[i].added ){
-					className = 'added';
-				}else if( diff[i].removed ){
-					className = 'removed';
-				}else{
-					className = '';
-				}
-
-				if( className ){
-					session.addMarker(new range(start.row, start.column, end.row, end.column), "ace_"+className, 'text');
+				if (i<diff.length-1) {
+					lineCount--;
 				}
 				
-				// fold rows before
-				foldEnd = start.row - diffPadding;
-				if (autofold && foldEnd > foldStart) {
-					session.addFold("...", new range(foldStart, 0, foldEnd, 0));
+				for (j=0; j<lineCount; j++) {
+					if( !diff[i].removed ){
+						lineNum += 1;
+					}
+					lineNumbers.push(lineNum);
 				}
-				foldStart = end.row + diffPadding;
-
-				// scroll to first marker
-				if( firstDiff ){
-					editor.scrollToRow(start.row-5);
-					firstDiff = false;
-				}
+					
+				diffContent += diff[i].value;
 			}
-			index += diff[i].value.length;
-		}
-		
-		// final fold
-		foldEnd = session.getLength();					
-		if (autofold && foldEnd > foldStart) {
-			session.addFold("...", new range(foldStart, 0, foldEnd, 0));
-		}
+			
+			editor.setValue(diffContent);
+			editor.moveCursorToPosition({column:0, row:0});
+	
+			var foldStart = 0;
+			var foldEnd = 0;
+			var lastRow = 0; // last diff row
+			var diffPadding = 3; // 3 lines of padding
+			for (i=0; i < diff.length; i++) {
+				if( diff[i].added || diff[i].removed ){
+					start = session.getDocument().indexToPosition(index);
+					end = session.getDocument().indexToPosition(index+diff[i].value.length);
+	
+					if( diff[i].added ){
+						className = 'added';
+					}else if( diff[i].removed ){
+						className = 'removed';
+					}else{
+						className = '';
+					}
+	
+					if( className ){
+						session.addMarker(new range(start.row, start.column, end.row, end.column), "ace_"+className, 'text');
+					}
+					
+					// fold rows before
+					foldEnd = start.row - diffPadding;
+					if (autofold && foldEnd > foldStart) {
+						session.addFold("...", new range(foldStart, 0, foldEnd, 0));
+					}
+					foldStart = end.row + diffPadding;
+	
+					// scroll to first marker
+					if( firstDiff ){
+						editor.scrollToRow(start.row-5);
+						firstDiff = false;
+					}
+				}
+				index += diff[i].value.length;
+			}
+			
+			// final fold
+			foldEnd = session.getLength();					
+			if (autofold && foldEnd > foldStart) {
+				session.addFold("...", new range(foldStart, 0, foldEnd, 0));
+			}
+		});
 	}else{
 		editor.setValue(content1);
 		editor.moveCursorToPosition({column:0, row:0});

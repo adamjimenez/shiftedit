@@ -1,5 +1,4 @@
-define(['exports', './loading', './config', './layout', './site', './tree', './tabs', './prompt', './git_menu', './lang', "ui.basicMenu", 'diff2html-ui', 'linkify-html', 'dialogResize'], function (exports, loading, config, layout, site, tree, tabs, prompt, git_menu, lang) {
-var linkifyHtml = require('linkify-html');
+define(['exports', './loading', './config', './layout', './site', './tree', './tabs', './prompt', './git_menu', 'linkify-html', './lang', "ui.basicMenu", 'dialogResize'], function (exports, loading, config, layout, site, tree, tabs, prompt, git_menu, linkifyHtml, lang) {
 lang = lang.lang;
 var gitEditor;
 var gitConfig = {
@@ -225,14 +224,16 @@ function show(title, result) {
 	tab.children('.ui-tabs-anchor').attr('title', title);
 	tab.children('.ui-tabs-anchor').contents().last().replaceWith(title);
 	
-	var diff2htmlUi = new Diff2HtmlUI({diff: result});
-
-	diff2htmlUi.draw('#gitDiff', {
-		inputFormat: 'json', //diff
-		//showFiles: true,
-		matching: 'lines'
+	require(['diff2html-ui'], function() {
+		var diff2htmlUi = new Diff2HtmlUI({diff: result});
+	
+		diff2htmlUi.draw('#gitDiff', {
+			inputFormat: 'json', //diff
+			//showFiles: true,
+			matching: 'lines'
+		});
+		//diff2htmlUi.highlightCode('#gitDiff');
 	});
-	//diff2htmlUi.highlightCode('#gitDiff');
 }
 
 function refresh() {

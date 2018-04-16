@@ -89,7 +89,7 @@ function init() {
 	
 	// east tabs toggles
 	$.contextMenu({
-		selector: '.ui-layout-east, .ui-tab',
+		selector: '.ui-layout-west .ui-tab',
 		callback: function(key, opt){
 			var tab = $(this);
 

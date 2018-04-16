@@ -51,6 +51,7 @@ defaultPrefs.keyBinding = 'default';
 defaultPrefs.codeFolding = 'markbegin'; // manual, markbegin, markbeginend
 defaultPrefs.scrollSpeed = 2;
 defaultPrefs.printMargin = false;
+defaultPrefs.statusBar = true;
 defaultPrefs.hScroll = true;
 defaultPrefs.printMarginColumn = 80;
 defaultPrefs.codeTheme = 'tomorrow_night'; //default
@@ -59,7 +60,7 @@ defaultPrefs.autocomplete = true;
 defaultPrefs.snippets = true;
 defaultPrefs.colorPicker = true;
 defaultPrefs.numberPicker = true;
-defaultPrefs.zen = true;
+defaultPrefs.emmet = false;
 defaultPrefs.behaviours = true;
 defaultPrefs.scrollPastEnd = true;
 defaultPrefs.selectDollar = false;
@@ -895,6 +896,13 @@ function save(name, value) {
 		tree.setSingleClickOpen(value);
 	} else if (name==='treeThemeVariant') {
 		$('#tree').jstree('set_theme_variant', value);
+	} else if (name==='statusBar') {
+		var myLayout = layout.get();
+		if (value) {
+			myLayout.show('south');
+		} else {
+			myLayout.hide('south');
+		}
 	} else {
 		//apply change to open editors
 		$('li[data-file]').each(function() {
@@ -933,6 +941,10 @@ function open() {
 	var pane;
 	var paneName = 'east';
 	var minWidth = 300;
+	if (!$('.ui-layout-resizer-east').is(':visible')) {
+		layout.get().close('west', false, true);
+		paneName = 'center';
+	}
 
 	if(tab.length) {
 		tabpanel = tab.closest('.ui-tabs');
@@ -944,14 +956,14 @@ function open() {
 
 		//expand panel
 		myLayout.open(paneName);
-		if (pane.outerWidth() < minWidth) {
+		if (paneName != 'center' && pane.outerWidth() < minWidth) {
 			myLayout.sizePane(paneName, minWidth);
 		}
 
 		return;
 	}
 
-	var	tabpanel = $('.ui-layout-east');
+	var	tabpanel = $('.ui-layout-'+paneName);
 	pane = tabpanel.closest('.ui-layout-pane');
 	paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
 
@@ -1062,7 +1074,7 @@ function open() {
 	</label>\
 	<br>\
 	<label>\
-		<input type="checkbox" name="zen" value="1">\
+		<input type="checkbox" name="emmet" value="1">\
 		Emmet (<a href="http://docs.emmet.io/abbreviations/syntax/" target="_blank">?</a>)\
 	</label>\
 	<br>\
