@@ -11,7 +11,7 @@ function doResize() {
 
 		var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
 		var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
-		if(inst && tab.data('design-ready')) {
+		if(inst && inst.theme && tab.data('design-ready')) {
 			var container = panel.find('.design');
 			inst.theme.resizeTo(panel.width(), panel.height()-$('.mce-top-part').height());
 		}
