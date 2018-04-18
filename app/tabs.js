@@ -1416,17 +1416,31 @@ function uglify(code, options) {
 }
 
 fullScreen = function (toggle) {
-	var editor = getEditor(this);
-	var editorDiv = $(editor.container);
-	
-	if (toggle!== false && !editorDiv.hasClass('fullScreen')) {
-		editorDiv.addClass('fullScreen');
-		$('body').addClass('fullScreen');
-	} else {
-		$('.fullScreen').removeClass('fullScreen');
+	if (tab.data('file')) {
+		var editor = getEditor(this);
+		var editorDiv = $(editor.container);
+		
+		if (toggle!== false && !editorDiv.hasClass('fullScreen')) {
+			editorDiv.addClass('fullScreen');
+			$('body').addClass('fullScreen');
+		} else {
+			$('.fullScreen').removeClass('fullScreen');
+		}
+		
+		editor.focus();
+	} else if (tab.data('ssh')) {
+		var session = tab.data('session');
+		var el = $(session.term.element);
+		
+		if (toggle!== false && !el.hasClass('fullScreen')) {
+			el.addClass('fullScreen');
+			$('body').addClass('fullScreen');
+		} else {
+			$('.fullScreen').removeClass('fullScreen');
+		}
+		
+		session.focus();
 	}
-	
-	editor.focus();
 	resize.resize();
 };
 

@@ -244,6 +244,10 @@ function new_session(tab, host, username, port, password, cwd) {
 	setTimeout(function() {
 		doResize(session);
 	}, 1000);
+	
+
+	$('<div class="fullScreenBtn" title="Full Screen (Ctrl-Shift-F)"><i class="fa fa-expand"></i></div>').appendTo($(panel))
+	.click(jQuery.proxy(tabs.fullScreen, tab));
 }
 
 function loadProfiles(val) {
