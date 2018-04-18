@@ -440,7 +440,13 @@ function ready(tab) {
 	if (prefs.autoTabs) {
 		var whitespace = require("ace/ext/whitespace");
 		whitespace.detectIndentation(editor.getSession());
-	} 
+	}
+	
+	// design mode
+	if (prefs.designMode && tab.data('view')!=='design') {
+		tab.trigger('focusEditor', [tab]);
+		$('.codeBtn').click();
+	}
 }
 
 function destroy(e) {

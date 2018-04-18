@@ -83,18 +83,20 @@ function create(tab) {
 		paste_data_images: true,
 		init_instance_callback: function (inst) {
 			inst.on('change undo redo keypress ExecCommand', function(e) {
-				var code = getBodyContent(inst);
-
-				//preserve outter html
-				code = editors.replaceBodyContent(editor, code);
-				editor.selectAll();
-				editor.insert(code);
-				
-				tabs.setEdited(tab, true);
+				updateEditor(inst);
+			});
+			
+			inst.on('focus', function (e) {
+				tab.trigger('focusEditor', [tab]);
+			});
+			
+			inst.on('blur', function (e) {
+				tab.trigger('blurEditor', [tab]);
 			});
 
 			//add save shortcut
-			inst.addShortcut('ctrl+s','Save', function(){
+			inst.addShortcut('ctrl+s', 'Save', function() {
+				updateEditor(inst);
 				tabs.save(tab);
 			}, this);
 			
@@ -388,7 +390,33 @@ function updateDesignSelection(inst) {
 	return;
 }
 
+function updateEditor(inst) {
+	var panel = $(inst.getElement()).closest('.ui-tabs-panel');
+	var tab = $( "[aria-controls="+panel.attr('id')+"]" );
+	var editor = tabs.getEditor(tab);
+	var code = getBodyContent(inst);
+
+	//preserve outter html
+	code = editors.replaceBodyContent(editor, code);
+	editor.selectAll();
+	editor.insert(code);
+}
+
+function update(inst) {
+	var panel = $(inst.getElement()).closest('.ui-tabs-panel');
+	var tab = $( "[aria-controls="+panel.attr('id')+"]" );
+	var editor = tabs.getEditor(tab);
+	inst.setContent(editor.getValue());
+}
+
+function get(tab) {
+	var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
+	return tinymce.get(panel.find('.design .tinymce').attr('id'));
+}
+
 	exports.updateEditorSelection = updateEditorSelection;
 	exports.updateDesignSelection = updateDesignSelection;
+	exports.update = update;
 	exports.create = create;
+	exports.get = get;
 });

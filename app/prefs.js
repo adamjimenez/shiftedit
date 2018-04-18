@@ -105,6 +105,7 @@ defaultPrefs.showNotes = true;
 defaultPrefs.showGit = true;
 defaultPrefs.hideKeyboardNotice = false;
 defaultPrefs.virtualKeyboardAddOn = true;
+defaultPrefs.designMode = false;
 
 var skins = [{
 	title: "Smoothness",
@@ -1025,6 +1026,11 @@ function open() {
 	<label>\
 		<input type="checkbox" name="autoSave" value="1">\
 		' + lang.autoSave + '\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="designMode" value="1">\
+		Open in design mode\
 	</label>\
 	<br>\
 	<br>\

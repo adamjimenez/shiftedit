@@ -1,4 +1,4 @@
-define(['./config', './editors', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", "ui.tabs.overflowResize", 'cssmin', 'dialogResize'], function (config, editors, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
+define(['./config', './editors', './designs', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", "ui.tabs.overflowResize", 'cssmin', 'dialogResize'], function (config, editors, designs, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
 lang = lang.lang;
 modes = modes.modes;
 var closing = [];
@@ -178,9 +178,8 @@ function openFiles(options) {
 							editor.focus();
 							
 							if (tab.data('view')==='design') {
-								var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
-								var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
-								inst.setContent(data.content);
+								var inst = designs.get(tab);
+								designs.update(inst);
 							}
 							
 							setEdited(tab, false);
@@ -723,6 +722,11 @@ function revert(tab) {
 
 	if( editor && tab.data('original')!==editor.getValue() ){
 		editor.setValue(tab.data('original'));
+		
+		if (tab.data('view')==='design') {
+			var inst = designs.get(tab);
+			designs.update(inst);
+		}
 	} else {
 		console.log('file is unchanged');
 	}
@@ -1052,7 +1056,16 @@ function tabActivate(tab) {
 	if (!$("#find").is(":focus")) {
 		if (editor) {
 			//editor.focus();
-			setTimeout(function(){editor.focus();}, 0);
+			if (tab.data('view')==='design') {
+				setTimeout(function() {
+					var inst = designs.get(tab);
+					inst.focus();
+				}, 0);
+			} else {
+				setTimeout(function() {
+					editor.focus();
+				}, 0);
+			}
 		} else {
 			var tabpanel = $(tab).closest(".ui-tabs");
 			var panel = tabpanel.tabs('getPanelForTab', tab);

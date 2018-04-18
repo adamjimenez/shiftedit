@@ -572,6 +572,11 @@ function init () {
 				var editor = tabs.getEditor(tab);
 				var inst;
 				var code;
+				
+				var extension = util.fileExtension(tab.data('file'));
+				if (!extension.match(menu.code.match)) {
+					return false;
+				}
 		
 				if (tab.data('view')==='code') {
 					panel.find('.editor_status').hide();
@@ -914,6 +919,14 @@ function init () {
 							</td>\
 							<td>\
 								<a href="https://github.com/markdown-it/markdown-it/blob/master/LICENSE" target="_blank">License</a>\
+							</td>\
+						</tr>\
+						<tr>\
+							<td>\
+								<a href="https://www.tinymce.com/" target="_blank">TinyMce</a>\
+							</td>\
+							<td>\
+								<a href="https://github.com/tinymce/tinymce/blob/master/LICENSE.TXT" target="_blank">License</a>\
 							</td>\
 						</tr>\
 						<tr>\
