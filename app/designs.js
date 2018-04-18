@@ -1,10 +1,10 @@
-define(['./util', './config', './tabs', './editors', './site', './prefs', 'exports', 'dialogResize'], function (util, config, tabs, editors, site, preferences, exports) {
+define(['./util', './config', './tabs', './editors', './site', './prefs', './resize', 'exports', 'dialogResize'], function (util, config, tabs, editors, site, preferences, resize, exports) {
 
 var tokenStart = String.fromCharCode(8286);
 var tokenEnd = String.fromCharCode(8285);
 
 function create(tab) {
-	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+	var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
 	var editor = tabs.getEditor(tab);
 	tab.data('design-ready', true);
 	
@@ -385,8 +385,7 @@ function updateDesignSelection(inst) {
 	startEl.parentNode.removeChild(startEl);
 	endEl.parentNode.removeChild(endEl);
 	
-	var container = panel.find('.design');
-	inst.theme.resizeTo(container.width(), container.height()-110);
+	resize.resize();
 	
 	return;
 }

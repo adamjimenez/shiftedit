@@ -9,11 +9,11 @@ function doResize() {
 		var tab = $(this);
 		window.splits[tab.attr('id')].resize(true);
 
-		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-		var inst = tinymce.get(panel.find('.design textarea').attr('id'));
-		if(inst) {
+		var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
+		var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+		if(inst && tab.data('design-ready')) {
 			var container = panel.find('.design');
-			inst.theme.resizeTo(container.width(), container.height()-110);
+			inst.theme.resizeTo(panel.width(), panel.height()-$('.mce-top-part').height());
 		}
 	});
 }

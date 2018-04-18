@@ -98,6 +98,7 @@ a input {
 
 .ui-tabs .ui-tabs-panel {
 	padding: 0 !important;
+	border-radius: 0 !important;
 }
 
 .ui-layout-west li[role=tab]{
