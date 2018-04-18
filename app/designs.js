@@ -56,32 +56,31 @@ function create(tab) {
 			plugins: [ 'autosave', 'lists', 'autolink' ],
 			toolbar: [ 'undo', 'bold', 'italic', 'styleselect' ]
 		},
-		selector : '#'+designId,
-		relative_urls : relative_urls,
+		selector: '#'+designId,
+		relative_urls: relative_urls,
 		convert_urls: convert_urls,
-		document_base_url : base_url,
-		remove_script_host : false,
+		document_base_url: base_url,
+		remove_script_host: false,
 		//body_class: 'mceForceColors',
-		force_br_newlines : false,
-		force_p_newlines : false,
-		forced_root_block : '',
+		//force_br_newlines: false,
+		//force_p_newlines: false,
+		forced_root_block: '',
 		plugins: [
 			"advlist autolink lists link image charmap print preview anchor",
 			"searchreplace visualblocks code fullscreen fullpage",
 			"insertdatetime media table contextmenu paste fullpage textcolor colorpicker"
 		],
-		toolbar: "styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image forecolor backcolor",
-
+		toolbar: "formatselect | bold italic strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image forecolor backcolor",
 		protect: [
 			/<\?[\s\S]*\?>/g // Protect php code
 		],
-		//insert_toolbar: 'quickimage quicktable media codesample',
 		menubar: false,
 		statusbar: false,
+		branding: false,
+		//insert_toolbar: 'quickimage quicktable media codesample',
 		insert_toolbar: '',
 		selection_toolbar: 'bold italic strikethrough | quicklink h1 h2 h3 blockquote bullist | forecolor backcolor',
 		paste_data_images: true,
-
 		init_instance_callback: function (inst) {
 			inst.on('change undo redo keypress ExecCommand', function(e) {
 				var code = getBodyContent(inst);
@@ -99,9 +98,12 @@ function create(tab) {
 				tabs.save(tab);
 			}, this);
 			
+			// move css file so as not to override user styles
+			var doc = inst.getDoc();
+			doc.head.insertBefore(doc.getElementById('u0'), doc.head.firstChild);
+			
 			inst.focus();
 		},
-
 		file_browser_callback: function(field_name, url, type, win) {
 			var siteId = site.active();
 			var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
@@ -118,7 +120,7 @@ function create(tab) {
 						if( ['GDrive', 'GDriveLimited'].indexOf(settings.server_type) !== -1 ){
 							gdrive.directFn({node: node, callback: callback, tree: $('#imageTree')});
 						} else {
-							if(!ajaxOptions.url){
+							if(!ajaxOptions.url) {
 								return false;
 							}
 
@@ -145,7 +147,6 @@ function create(tab) {
 									withCredentials: true
 								},
 								success: function(data) {
-									//console.log(data);
 									callback.call(imageTree, data.files);
 								}
 							});
@@ -236,13 +237,28 @@ function create(tab) {
 					}
 				}
 			});
-
-
 		}
 	});
 }
 
-function addCursorTokens(inst) {
+function getBodyContent(inst) {
+	var code = inst.getContent();
+	var regexp = /<body[^>]*>([\s\S]*)<\/body>/gi;
+	var match = regexp.exec(code);
+	
+	if (match) {
+		code = match[1];
+	}
+	
+	return code;
+}
+
+function updateEditorSelection(inst) {
+	var panel = $(inst.getElement()).closest('.ui-tabs-panel');
+	var tab = $( "[aria-controls="+panel.attr('id')+"]" );
+	var editor = tabs.getEditor(tab);
+	
+	// add cursor tokens
 	var range = inst.selection.getRng();
 	var doc = inst.getDoc();
 	
@@ -267,26 +283,8 @@ function addCursorTokens(inst) {
 			}
 		}
 	}
-}
-
-function getBodyContent(inst) {
-	var code = inst.getContent();
-	var regexp = /<body[^>]*>([\s\S]*)<\/body>/gi;
-	var match = regexp.exec(code);
 	
-	if (match) {
-		code = match[1];
-	}
-	
-	return code;
-}
-
-function updateEditorSelection(inst) {
-	var panel = $(inst.getElement()).closest('.ui-tabs-panel');
-	var tab = $( "[aria-controls="+panel.attr('id')+"]" );
-	var editor = tabs.getEditor(tab);
-	
-	addCursorTokens(inst);
+	// find cursor positions
 	var code = getBodyContent(inst);
 	code = editors.replaceBodyContent(editor, code);
 	var startPos = code.indexOf(tokenStart);
@@ -324,14 +322,14 @@ function updateDesignSelection(inst) {
 	
 	// make sure cursor is in an editable area (outside tags, script blocks, entities, and inside the body)
 	after = value.substring( startIndex, value.length );
-	if ( after.match(/^[^<]*>/) ) {
+	if (after.match(/^[^<]*>/)) {
 		tagEnd = after.indexOf(">") + 1;
 		startIndex += tagEnd;
 	}
 	
 	// make sure cursor is in an editable area (outside tags, script blocks, entities, and inside the body)
 	after = value.substring( endIndex, value.length );
-	if ( after.match(/^[^<]*>/) ) {
+	if (after.match(/^[^<]*>/)) {
 		tagEnd = after.indexOf(">") + 1;
 		endIndex += tagEnd;
 	}
@@ -373,9 +371,9 @@ function updateDesignSelection(inst) {
 		range.selectNodeContents(startEl);
 	}
 	
-	if( endEl ){
-		range.setStart(startEl,0);
-		range.setEnd(endEl,0);
+	if(endEl) {
+		range.setStart(startEl, 0);
+		range.setEnd(endEl, 0);
 	}
 
 	selObj.removeAllRanges();
@@ -393,5 +391,4 @@ function updateDesignSelection(inst) {
 	exports.updateEditorSelection = updateEditorSelection;
 	exports.updateDesignSelection = updateDesignSelection;
 	exports.create = create;
-	exports.addCursorTokens = addCursorTokens;
 });
