@@ -83,7 +83,6 @@ defaultPrefs.compileLESS = false;
 defaultPrefs.autoSave = false;
 defaultPrefs.maxFiles = 1000;
 defaultPrefs.revisions = 10;
-defaultPrefs.hideAds = false;
 defaultPrefs.useMasterPassword = false;
 defaultPrefs.masterPasswordHash = '';
 defaultPrefs.fileExtensions = '';
@@ -662,7 +661,7 @@ function load() {
 	return $.getJSON(config.apiBaseUrl+'prefs')
 		.then(function (data) {
 			console.log('loaded prefs');
-			prefs = $.extend(defaultPrefs, data.prefs);
+			prefs = $.extend({}, defaultPrefs, data.prefs);
 
 			for(var i in prefs){
 				if (prefs.hasOwnProperty(i)) {
@@ -693,9 +692,7 @@ function load() {
 			news = data.news;
 
 			//load skin
-			if(prefs.skin) {
-				updateSkin(prefs.skin);
-			}
+			updateSkin(prefs.skin);
 	
 			//custom css
 			if(prefs.customTheme) {
@@ -743,7 +740,7 @@ function unzip( zipped, callback ) {
 }
 
 function loadSkinUrl(url) {
-	var style = $('<link type="text/css" rel="stylesheet" id="theme" href="'+url+'">').appendTo("head");
+	var style = $('<link type="text/css" rel="stylesheet" class="theme" href="'+url+'">').appendTo("head");
 
 	style.on('load', function(){
 		//set resizer color
@@ -824,25 +821,25 @@ function parsethemeUrl(url) {
 	
 	unzip( zThemeParams, function( unzipped ) {
 		var url = config.apiBaseUrl+'prefs?cmd=skin&' + $.param(unzipped);
+		updateSkin('smoothness');
 		loadSkinUrl(url);
 	});
 	
 	return;
 }
 
-function updateSkin(name){
+function updateSkin(name) {
 	//remove old ones
 	$( "link[href*=cmd\\=skin]" ).remove();
-	$( "#theme" ).remove();
+	$( ".theme" ).remove();
 	$('#themeStyle').remove();
 	
-	if (prefs.skin === 'custom') {
+	if (name === 'custom') {
 		parsethemeUrl(prefs.skinUrl);
 	} else {
 		var url;
 		var currentStyle = [];
 		var themepath = '//shiftedit.s3.amazonaws.com/css';
-		//themepath = 'css';
 	
 		//check skin is valid
 		var found = false;
@@ -852,9 +849,9 @@ function updateSkin(name){
 				return;
 			}
 		});
-	
+
 		if(!found) {
-			name = prefs.skin;
+			name = defaultPrefs.skin;
 		}
 	
 		if (!url) {
@@ -976,6 +973,7 @@ function open() {
 		<input type="radio" name="promptOnExit" value="unsaved">\
 		'+lang.withUnsavedChanges+'\
 	</label>\
+	<br>\
 	<label>\
 		<input type="radio" name="promptOnExit" value="always">\
 		'+lang.always+'\
@@ -1033,10 +1031,12 @@ function open() {
 		<input type="radio" name="treeThemeVariant" value="small">\
 		' + lang.small + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="radio" name="treeThemeVariant" value="default">\
 		' + lang.medium + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="radio" name="treeThemeVariant" value="large">\
 		' + lang.large + '\
@@ -1099,10 +1099,12 @@ function open() {
 		<input type="radio" name="keyBinding" value="default">\
 		' + lang.default + '\
 	</label>\
+	<br>\
 	<label>\
 		<input type="radio" name="keyBinding" value="vim">\
 		Vim\
 	</label>\
+	<br>\
 	<label>\
 		<input type="radio" name="keyBinding" value="emacs">\
 		Emacs\
@@ -1134,10 +1136,12 @@ function open() {
 		<input type="radio" name="lineBreak" value="auto">\
 		Auto\
 	</label>\
+	<br>\
 	<label>\
 		<input type="radio" name="lineBreak" value="unix">\
 		Unix\
 	</label>\
+	<br>\
 	<label>\
 		<input type="radio" name="lineBreak" value="windows">\
 		Windows\
@@ -1157,6 +1161,7 @@ function open() {
 		<input type="radio" name="sshPane" value="center">\
 		' + lang.center +'\
 	</label>\
+	<br>\
 	<label>\
 		<input type="radio" name="sshPane" value="east">\
 		' + lang.east +'\
@@ -1236,7 +1241,9 @@ function open() {
 				$(this).prop('checked', val);
 			break;
 			case 'radio':
-				$("input[name=" + name + "][value=" + val + "]").prop('checked', true);
+				if (val) {
+					$("input[name=" + name + "][value=" + val + "]").prop('checked', true);
+				}
 			break;
 			default:
 				$(this).val(prefs[$(this).prop('name')]);
