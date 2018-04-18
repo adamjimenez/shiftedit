@@ -103,6 +103,8 @@ defaultPrefs.showDefinitiions = true;
 defaultPrefs.showSnippets = true;
 defaultPrefs.showNotes = true;
 defaultPrefs.showGit = true;
+defaultPrefs.hideKeyboardNotice = false;
+defaultPrefs.virtualKeyboardAddOn = true;
 
 var skins = [{
 	title: "Smoothness",
@@ -1091,6 +1093,11 @@ function open() {
 	<label>\
 		<input type="checkbox" name="scrollPastEnd" value="1">\
 		' + lang.scrollPastEnd + '\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="virtualKeyboardAddOn" value="1">\
+		Virtual keyboard addon\
 	</label>\
 	<br>\
 	<br>\

@@ -1,4 +1,4 @@
-define(["./util", './tabs', './resize', './ssh', 'virtualKeyboardDetector'], function (util, tabs, resize, ssh) {
+define(["./util", './tabs', './resize', './ssh', './prompt', './prefs', 'virtualKeyboardDetector'], function (util, tabs, resize, ssh, prompt, preferences) {
 
 var keyboard;
 
@@ -102,6 +102,11 @@ var termKeys = [{
 }];
 
 function showKeyboard(tab) {
+	var prefs = preferences.get_prefs();
+	if (!prefs.virtualKeyboardAddOn) {
+		return false;
+	}
+	
 	var keys;
 	
 	if (tab.data('file') && tab.data('view')==='code') {
@@ -182,6 +187,22 @@ function init() {
 	virtualKeyboardDetector.on( 'virtualKeyboardHidden', function() {
 		hideKeyboard();
 	} );
+	
+	var prefs = preferences.get_prefs();
+	var ua = navigator.userAgent.toLowerCase();
+	var isAndroid = ua.indexOf("android") > -1; //&& ua.indexOf("mobile");
+	if(!prefs.hideKeyboardNotice && isAndroid) {
+		prompt.alert({
+			title: 'Hello Android User',
+			msg: '<p>The chrome virtual keyboard does not work so well.</p><p>We recommend <a href="https://play.google.com/store/apps/details?id=org.pocketworkstation.pckeyboard&hl=en_GB" target="_blank">Hacker\'s Keyboard</a> instead.<p><p><label><input type="checkbox" id="hideKeyboardNotice"> Never tell me again</label></p>',
+			height: 230,
+			fn: function(button) {
+				if (button==='ok' && $('#hideKeyboardNotice').is(':checked')) {
+					preferences.save('hideKeyboardNotice', true);
+				}
+			}
+		});
+	}
 }
 
 return {

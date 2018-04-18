@@ -13,6 +13,9 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 			},
 			buttons: {
 				Ok: function() {
+					if (options.fn) {
+						options.fn('ok');
+					}
 					$( "#dialog-message" ).remove();
 				}
 			}
