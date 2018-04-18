@@ -1128,6 +1128,19 @@ div.fullScreen{
 	display: none;
 }
 
+/* tinymce dialog must be lower than jquery ui */
+.mce-fade {
+	z-index: 99 !important;
+}
+
+.mce-floatpanel {
+	z-index: 100 !important;
+}
+
+.mce-tinymce{
+	border: 0 !important;
+}
+
 .panel-buttons {
 	padding: 0.4em 0;
 }
@@ -1340,16 +1353,6 @@ div.fullScreen{
 	position: absolute;
 	top: 2px;
 	right: 2px;
-}
-
-
-/* tinymce dialog must be lower than jquery ui */
-.mce-fade {
-	z-index: 99 !important;
-}
-
-.mce-floatpanel {
-	z-index: 100 !important;
 }
 
 /*
