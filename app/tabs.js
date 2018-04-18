@@ -176,6 +176,13 @@ function openFiles(options) {
 							editor.setValue(data.content);
 							editor.moveCursorToPosition({column:0, row:0});
 							editor.focus();
+							
+							if (tab.data('view')==='design') {
+								var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
+								var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+								inst.setContent(data.content);
+							}
+							
 							setEdited(tab, false);
 						} else {
 							console.error('reload tab not found');
