@@ -62,6 +62,9 @@ function create(tab) {
 		document_base_url : base_url,
 		remove_script_host : false,
 		//body_class: 'mceForceColors',
+		force_br_newlines : false,
+		force_p_newlines : false,
+		forced_root_block : '',
 		plugins: [
 			"advlist autolink lists link image charmap print preview anchor",
 			"searchreplace visualblocks code fullscreen fullpage",
@@ -267,7 +270,7 @@ function addCursorTokens(inst) {
 }
 
 function getBodyContent(inst) {
-	code = inst.getContent();
+	var code = inst.getContent();
 	var regexp = /<body[^>]*>([\s\S]*)<\/body>/gi;
 	var match = regexp.exec(code);
 	
@@ -284,9 +287,8 @@ function updateEditorSelection(inst) {
 	var editor = tabs.getEditor(tab);
 	
 	addCursorTokens(inst);
-	getBodyContent(inst);
+	var code = getBodyContent(inst);
 	code = editors.replaceBodyContent(editor, code);
-
 	var startPos = code.indexOf(tokenStart);
 	var endPos = code.indexOf(tokenEnd);
 	var start = editors.posFromIndex(editor, startPos);
@@ -314,11 +316,11 @@ function updateDesignSelection(inst) {
 	var endIndex = editors.indexFromPos(editor, sel.anchor);
 	var before, middle, after, tagEnd;
 	
-	var bodyStartPos = code.indexOf('<body');
+	var bodyStartPos = value.indexOf('<body');
 	if (bodyStartPos !== -1 && bodyEndPos !== -1) {
-		bodyStartPos = code.indexOf('>', bodyStartPos) + 1;
+		bodyStartPos = value.indexOf('>', bodyStartPos) + 1;
 	}
-	var bodyEndPos = code.indexOf('</body');
+	var bodyEndPos = value.indexOf('</body');
 	
 	// make sure cursor is in an editable area (outside tags, script blocks, entities, and inside the body)
 	after = value.substring( startIndex, value.length );
