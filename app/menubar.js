@@ -571,6 +571,7 @@ function init () {
 				var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
 				var editor = tabs.getEditor(tab);
 				var inst;
+				var code;
 		
 				if (tab.data('view')==='code') {
 					panel.find('.editor_status').hide();
@@ -586,25 +587,27 @@ function init () {
 						inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
 					} else {
 						inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
-						
-						var code = editor.getValue();
-						var bodyStartPos = code.indexOf('<body');
-						var bodyEndPos = code.indexOf('</body');
-						if (bodyStartPos !== -1 && bodyEndPos !== -1) {
-							code = code.substr(bodyStartPos, bodyEndPos-bodyStartPos);
-						}
-						
+						code = editor.getValue();
 						inst.setContent(code);
+						
+						designs.updateDesignSelection(inst);
+						
 						inst.focus();
 					}
 				} else {
+					// preserve selection
+					inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+					designs.updateEditorSelection(inst);
+
 					panel.find('.editor_status').show();
 					panel.find('.design').hide();
 					panel.find('.editor').show();
 		
 					tab.data('view', 'code');
 					tab.attr('data-view', 'code');
+					
 					editor.focus();
+					editor.renderer.scrollCursorIntoView(null, 0.5);
 				}
 		
 				$(tab).trigger('activate', [tab]);

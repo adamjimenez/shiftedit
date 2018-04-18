@@ -1,16 +1,23 @@
-define(['./util', './config', './tabs', './site', './prefs', 'exports', 'dialogResize'], function (util, config, tabs, site, preferences, exports) {
+define(['./util', './config', './tabs', './editors', './site', './prefs', 'exports', 'dialogResize'], function (util, config, tabs, editors, site, preferences, exports) {
+
+var tokenStart = String.fromCharCode(8286);
+var tokenEnd = String.fromCharCode(8285);
+
 function create(tab) {
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 	var editor = tabs.getEditor(tab);
-
 	tab.data('design-ready', true);
 	
 	var code = editor.getValue();
+	
+	/*
 	var bodyStartPos = code.indexOf('<body');
 	var bodyEndPos = code.indexOf('</body');
 	if (bodyStartPos !== -1 && bodyEndPos !== -1) {
-		code = code.substr(bodyStartPos, bodyEndPos-bodyStartPos);
+		var pos = code.indexOf('>', bodyStartPos) + 1;
+		code = code.substr(pos, bodyEndPos-pos);
 	}
+	*/
 
 	var ta = $('<div class="tinymce"></div>').appendTo(panel.find('.design'));
 	ta[0].value = code;
@@ -21,9 +28,8 @@ function create(tab) {
 	var convert_urls = false;
 	
 	if (tab.data("site")) {
-		relative_urls = false;
-		convert_urls = true;
-		
+		//relative_urls = false;
+		//convert_urls = true;
 		var settings = site.getSettings(tab.data("site"));
 		
 		if (settings.web_url) {
@@ -43,8 +49,8 @@ function create(tab) {
 	}
 
 	tinymce.init({
-		//mode : "exact",
-		theme: 'inlite',
+		//theme: 'inlite', // breaks relative image urls
+		//inline: true, // breaks relative image urls
 		mobile: { 
 			theme: 'mobile',
 			plugins: [ 'autosave', 'lists', 'autolink' ],
@@ -61,50 +67,27 @@ function create(tab) {
 			"searchreplace visualblocks code fullscreen fullpage",
 			"insertdatetime media table contextmenu paste fullpage textcolor colorpicker"
 		],
-		//toolbar: "styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image forecolor backcolor",
+		toolbar: "styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image forecolor backcolor",
 
 		protect: [
 			/<\?[\s\S]*\?>/g // Protect php code
 		],
 		//insert_toolbar: 'quickimage quicktable media codesample',
+		menubar: false,
+		statusbar: false,
 		insert_toolbar: '',
 		selection_toolbar: 'bold italic strikethrough | quicklink h1 h2 h3 blockquote bullist | forecolor backcolor',
-		inline: true,
 		paste_data_images: true,
 
 		init_instance_callback: function (inst) {
 			inst.on('change undo redo keypress ExecCommand', function(e) {
-				var code = inst.getContent();
-				var regexp = /<body[^>]*>([\s\S]*)<\/body>/gi;
-				var match = regexp.exec(code);
-				
-				if (match) {
-					code = match[1];
-				}
+				var code = getBodyContent(inst);
 
 				//preserve outter html
-				oldCode = editor.getValue();
-
-				var startCode = '';
-				var endCode = '';
-				var bodyStartPos = oldCode.indexOf('<body');
-				if (bodyStartPos !== -1) {
-					var pos = oldCode.indexOf('>', bodyStartPos);
-					startCode = oldCode.substr(0, pos + 1);
-					startCode = startCode;
-				}
-
-				var bodyEndPos = oldCode.indexOf('</body>');
-				if (bodyEndPos !== -1) {
-					endCode = oldCode.substr(bodyEndPos);
-					endCode = endCode;
-				}
-
-				code = startCode + code + endCode;
-
+				code = editors.replaceBodyContent(editor, code);
 				editor.selectAll();
 				editor.insert(code);
-
+				
 				tabs.setEdited(tab, true);
 			});
 
@@ -116,7 +99,7 @@ function create(tab) {
 			inst.focus();
 		},
 
-		file_browser_callback :  function(field_name, url, type, win) {
+		file_browser_callback: function(field_name, url, type, win) {
 			var siteId = site.active();
 			var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 			var settings = site.getSettings();
@@ -256,5 +239,158 @@ function create(tab) {
 	});
 }
 
+function addCursorTokens(inst) {
+	var range = inst.selection.getRng();
+	var doc = inst.getDoc();
+	
+	if (range.startContainer.nodeType===3) {
+		range.startContainer.insertData(range.startOffset, tokenStart);
+	} else if (range.startContainer.nodeType===1) {
+		if (range.startOffset) {
+			range.startContainer.insertBefore(doc.createTextNode(tokenStart), range.startContainer.childNodes[range.startOffset]);
+		} else {
+			range.startContainer.appendChild(doc.createTextNode(tokenStart));
+		}
+	}
+	
+	if (range.collapsed===false) {
+		if (range.endContainer.nodeType===3) {
+			range.endContainer.insertData(range.endOffset, tokenEnd);
+		} else if (range.endContainer.nodeType===1) {
+			if (range.endOffset) {
+				range.endContainer.insertBefore(doc.createTextNode(tokenEnd), range.endContainer.childNodes[range.endOffset]);
+			} else {
+				range.endContainer.appendChild(doc.createTextNode(tokenEnd));
+			}
+		}
+	}
+}
+
+function getBodyContent(inst) {
+	code = inst.getContent();
+	var regexp = /<body[^>]*>([\s\S]*)<\/body>/gi;
+	var match = regexp.exec(code);
+	
+	if (match) {
+		code = match[1];
+	}
+	
+	return code;
+}
+
+function updateEditorSelection(inst) {
+	var panel = $(inst.getElement()).closest('.ui-tabs-panel');
+	var tab = $( "[aria-controls="+panel.attr('id')+"]" );
+	var editor = tabs.getEditor(tab);
+	
+	addCursorTokens(inst);
+	getBodyContent(inst);
+	code = editors.replaceBodyContent(editor, code);
+
+	var startPos = code.indexOf(tokenStart);
+	var endPos = code.indexOf(tokenEnd);
+	var start = editors.posFromIndex(editor, startPos);
+	var end;
+	if (endPos !== -1) {
+		end = editors.posFromIndex(editor, endPos-1);
+	} else {
+		end = start;
+	}
+	
+	var Range = require("ace/range").Range;
+	editor.session.selection.setSelectionRange(new Range(start.row, start.column, end.row, end.column));
+	
+	return;
+}
+
+function updateDesignSelection(inst) {
+	var panel = $(inst.getElement()).closest('.ui-tabs-panel');
+	var tab = $( "[aria-controls="+panel.attr('id')+"]" );
+	var editor = tabs.getEditor(tab);
+	
+	var sel = editor.session.getSelection();
+	var value = editor.getValue();
+	var startIndex = editors.indexFromPos(editor, sel.lead);
+	var endIndex = editors.indexFromPos(editor, sel.anchor);
+	var before, middle, after, tagEnd;
+	
+	var bodyStartPos = code.indexOf('<body');
+	if (bodyStartPos !== -1 && bodyEndPos !== -1) {
+		bodyStartPos = code.indexOf('>', bodyStartPos) + 1;
+	}
+	var bodyEndPos = code.indexOf('</body');
+	
+	// make sure cursor is in an editable area (outside tags, script blocks, entities, and inside the body)
+	after = value.substring( startIndex, value.length );
+	if ( after.match(/^[^<]*>/) ) {
+		tagEnd = after.indexOf(">") + 1;
+		startIndex += tagEnd;
+	}
+	
+	// make sure cursor is in an editable area (outside tags, script blocks, entities, and inside the body)
+	after = value.substring( endIndex, value.length );
+	if ( after.match(/^[^<]*>/) ) {
+		tagEnd = after.indexOf(">") + 1;
+		endIndex += tagEnd;
+	}
+	
+	//indexes must be in body
+	if (bodyStartPos !== -1) {
+		startIndex = Math.max(startIndex, bodyStartPos);
+		endIndex = Math.max(endIndex, bodyStartPos);
+	}
+	
+	if (bodyEndPos !== -1) {
+		startIndex = Math.min(startIndex, bodyEndPos);
+		endIndex = Math.min(endIndex, bodyEndPos);
+	} else {
+		endIndex = startIndex;
+	}
+	
+	// add tokens to content
+	before = value.substring(0, Math.min(startIndex, endIndex));
+	middle = value.substring(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));
+	after = value.substring(Math.max(startIndex, endIndex), value.length);
+	value = before + tokenStart + middle + tokenEnd + after;
+	inst.setContent(value);
+	
+	// replace tokens with spans
+	var doc = inst.getDoc(); 
+	doc.body.innerHTML = doc.body.innerHTML.replace(new RegExp(tokenStart), '<span id="mceEditingStart"></span>');
+	doc.body.innerHTML = doc.body.innerHTML.replace(new RegExp(tokenEnd), '<span id="mceEditingEnd"></span>');
+	var startEl = doc.getElementById('mceEditingStart');
+	var endEl = doc.getElementById('mceEditingEnd');
+	
+	var selObj  = doc.getSelection();
+	var range = doc.createRange();
+
+	// Tables and Images get selected as "objects" rather than the text contents
+	if (!endEl && startEl.tagName && startEl.tagName.toLowerCase().match(/table|img|input|textarea|select/)) {
+		range.selectNode(startEl);
+	} else {
+		range.selectNodeContents(startEl);
+	}
+	
+	if( endEl ){
+		range.setStart(startEl,0);
+		range.setEnd(endEl,0);
+	}
+
+	selObj.removeAllRanges();
+	selObj.addRange(range);
+	
+	startEl.scrollIntoView();
+	startEl.parentNode.removeChild(startEl);
+	endEl.parentNode.removeChild(endEl);
+	
+	var container = panel.find('.design');
+	inst.theme.resizeTo(container.width(), container.height()-110);
+	
+	return;
+}
+
+	exports.updateEditorSelection = updateEditorSelection;
+	exports.updateDesignSelection = updateDesignSelection;
 	exports.create = create;
+	exports.addCursorTokens = addCursorTokens;
 });

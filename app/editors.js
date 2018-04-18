@@ -1,4 +1,4 @@
-define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu', './autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/ext-emmet', /*'ace/ext/tern',*/ 'ace/autocomplete','ace/ext-split', 'firepad', 'firepad-userlist',  "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools, emmet/*, tern*/) {
+define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu', './autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/ext-emmet', /*'ace/ext/tern',*/ 'ace/autocomplete','ace/ext-split', 'firepad', 'firepad-userlist', "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools, emmet/*, tern*/) {
 
 lang = lang.lang;
 var editor;
@@ -332,7 +332,7 @@ function onChangeCursor(e, selection) {
 
 		//position picker
 		el.style.top = pos.pageY + 20 + "px";
-		el.style.left = pos.pageX +  "px";
+		el.style.left = pos.pageX + "px";
 
 		container.parentNode.appendChild(el);
 
@@ -1848,6 +1848,56 @@ function setMode(editor, mode) {
 	resize.resize();
 }
 
+function replaceBodyContent (editor, code) {
+	var oldCode = editor.getValue();
+	var startCode = '';
+	var endCode = '';
+	var bodyStartPos = oldCode.indexOf('<body');
+	if (bodyStartPos !== -1) {
+		var pos = oldCode.indexOf('>', bodyStartPos) + 1;
+		startCode = oldCode.substr(0, pos);
+		startCode = startCode;
+	}
+
+	var bodyEndPos = oldCode.indexOf('</body>');
+	if (bodyEndPos !== -1) {
+		endCode = oldCode.substr(bodyEndPos);
+		endCode = endCode;
+	}
+	
+	code = startCode + code + endCode;
+	return code;
+}
+
+function posFromIndex(editor, index) {
+	var doc = editor.getSession().getDocument();
+	var line, row, _i, _len, _ref;
+	_ref = doc.$lines;
+	for (row = _i = 0, _len = _ref.length; _i < _len; row = ++_i) {
+		line = _ref[row];
+		if (index <= line.length) {
+			break;
+		}
+		index -= line.length + 1;
+	}
+	return {
+		row: row,
+		column: index
+	};
+}
+
+function indexFromPos(editor, pos) {
+	var doc = editor.getSession().getDocument();
+    var i, index, _i, _ref;
+    var lines = doc.$lines;
+
+    index = 0;
+    for (i = _i = 0, _ref = pos.row; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      index += lines[i].length + 1;
+    }
+    return index += pos.column;
+  }
+
 function init() {
 	editor_contextmenu.init();
 }
@@ -1864,6 +1914,9 @@ exports.init = init;
 exports.create = create;
 exports.focus = focus;
 exports.setMode = setMode;
+exports.replaceBodyContent = replaceBodyContent;
+exports.posFromIndex = posFromIndex;
+exports.indexFromPos = indexFromPos;
 exports.applyPrefs = applyPrefs;
 
 });
