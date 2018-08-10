@@ -22,8 +22,7 @@ init = function() {
 
 	socket.on('data', function(id, data) {
 		// prevent line wrapping issue: https://github.com/xtermjs/xterm.js/issues/179
-		data = data.replace(/\r(?!\n)/g, '\r\n');
-		
+		//data = data.replace(/\r(?!\n)/g, '\r\n');
 		var tab = $('li[data-ssh="'+id+'"]');
 		var session = tab.data('session');
 
@@ -105,9 +104,9 @@ var doResize = function(session) {
 	if (!term) {
 		return;
 	}
-	
-	cols = Math.floor($(term.element).parent().innerWidth() / term.charMeasure.width)-2;
-	rows = Math.floor($(term.element).parent().innerHeight() / term.charMeasure.height);
+
+	cols = Math.floor($(term.element).parent().innerWidth() / term._core.charMeasure.width)-3;
+	rows = Math.floor($(term.element).parent().innerHeight() / term._core.charMeasure.height);
 
 	console.log('resize '+cols+'x'+rows);
 
