@@ -1206,8 +1206,8 @@ function quickOpen() {
 
 	//open dialog
 	var dialog = $( "#dialog-message" ).dialogResize({
-		width: 400,
-		height: 320,
+		width: 800,
+		height: 600,
 		modal: true,
 		close: function( event, ui ) {
 			$( this ).remove();
@@ -1465,7 +1465,7 @@ fullScreen = function (toggle) {
 };
 
 //listeners
-$('body').on('click', 'div.openfile', function() {
+$('body').on('click', '.openfile', function() {
 	open($(this).data('file'), $(this).data('site'));
 });
 
