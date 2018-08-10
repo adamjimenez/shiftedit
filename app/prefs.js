@@ -1,4 +1,4 @@
-define(['exports', './config', './editors', './tabs', './storage', './lang', './layout', "./modes", './util', './prompt', './loading', './tree', './keybindings', 'ace/mode/css/csslint', 'lzma/src/lzma_worker', 'dialogResize'], function (exports, config, editors, tabs, storage, lang, layout, modes, util, prompt, loading, tree, keybindings) {
+define(['exports', './config', './editors', './tabs', './storage', './lang', './layout', "./modes", './util', './prompt', './loading', './tree', './keybindings', 'lzma/src/lzma_worker', 'dialogResize'], function (exports, config, editors, tabs, storage, lang, layout, modes, util, prompt, loading, tree, keybindings) {
 lang = lang.lang;
 modes = modes.modes;
 var prefs = storage.get('prefs');
@@ -574,8 +574,7 @@ jslint_options.forEach(function (item) {
 });
 */
 
-var CSSLint = require('ace/mode/css/csslint').CSSLint;
-var css_rules = CSSLint.getRules();
+var css_rules = [{"id":"known-properties","name":"Require use of known properties","desc":"Properties should be known (listed in CSS3 specification) or be a vendor-prefixed property.","browsers":"All"},{"id":"adjoining-classes","name":"Disallow adjoining classes","desc":"Don't use adjoining classes.","browsers":"IE6"},{"id":"order-alphabetical","name":"Alphabetical order","desc":"Assure properties are in alphabetical order","browsers":"All"},{"id":"box-sizing","name":"Disallow use of box-sizing","desc":"The box-sizing properties isn't supported in IE6 and IE7.","browsers":"IE6, IE7","tags":["Compatibility"]},{"id":"box-model","name":"Beware of broken box size","desc":"Don't use width or height when using padding or border.","browsers":"All"},{"id":"overqualified-elements","name":"Disallow overqualified elements","desc":"Don't use classes or IDs with elements (a.foo or a#foo).","browsers":"All"},{"id":"display-property-grouping","name":"Require properties appropriate for display","desc":"Certain properties shouldn't be used with certain display property values.","browsers":"All"},{"id":"bulletproof-font-face","name":"Use the bulletproof @font-face syntax","desc":"Use the bulletproof @font-face syntax to avoid 404's in old IE (http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax).","browsers":"All"},{"id":"compatible-vendor-prefixes","name":"Require compatible vendor prefixes","desc":"Include all compatible vendor prefixes to reach a wider range of users.","browsers":"All"},{"id":"regex-selectors","name":"Disallow selectors that look like regexs","desc":"Selectors that look like regular expressions are slow and should be avoided.","browsers":"All"},{"id":"errors","name":"Parsing Errors","desc":"This rule looks for recoverable syntax errors.","browsers":"All"},{"id":"duplicate-background-images","name":"Disallow duplicate background images","desc":"Every background-image should be unique. Use a common class for e.g. sprites.","browsers":"All"},{"id":"duplicate-properties","name":"Disallow duplicate properties","desc":"Duplicate properties must appear one after the other.","browsers":"All"},{"id":"empty-rules","name":"Disallow empty rules","desc":"Rules without any properties specified should be removed.","browsers":"All"},{"id":"selector-max-approaching","name":"Warn when approaching the 4095 selector limit for IE","desc":"Will warn when selector count is >= 3800 selectors.","browsers":"IE"},{"id":"gradients","name":"Require all gradient definitions","desc":"When using a vendor-prefixed gradient, make sure to use them all.","browsers":"All"},{"id":"fallback-colors","name":"Require fallback colors","desc":"For older browsers that don't support RGBA, HSL, or HSLA, provide a fallback color.","browsers":"IE6,IE7,IE8"},{"id":"floats","name":"Disallow too many floats","desc":"This rule tests if the float property is used too many times","browsers":"All"},{"id":"font-sizes","name":"Disallow too many font sizes","desc":"Checks the number of font-size declarations.","browsers":"All"},{"id":"font-faces","name":"Don't use too many web fonts","desc":"Too many different web fonts in the same stylesheet.","browsers":"All"},{"id":"shorthand","name":"Require shorthand properties","desc":"Use shorthand properties where possible.","browsers":"All"},{"id":"outline-none","name":"Disallow outline: none","desc":"Use of outline: none or outline: 0 should be limited to :focus rules.","browsers":"All","tags":["Accessibility"]},{"id":"important","name":"Disallow !important","desc":"Be careful when using !important declaration","browsers":"All"},{"id":"import","name":"Disallow @import","desc":"Don't use @import, use <link> instead.","browsers":"All"},{"id":"ids","name":"Disallow IDs in selectors","desc":"Selectors should not contain IDs.","browsers":"All"},{"id":"underscore-property-hack","name":"Disallow properties with an underscore prefix","desc":"Checks for the underscore property hack (targets IE6)","browsers":"All"},{"id":"rules-count","name":"Rules Count","desc":"Track how many rules there are.","browsers":"All"},{"id":"qualified-headings","name":"Disallow qualified headings","desc":"Headings should not be qualified (namespaced).","browsers":"All"},{"id":"selector-max","name":"Error when past the 4095 selector limit for IE","desc":"Will error when selector count is > 4095.","browsers":"IE"},{"id":"selector-newline","name":"Disallow new-line characters in selectors","desc":"New-line characters in selectors are usually a forgotten comma and not a descendant combinator.","browsers":"All"},{"id":"star-property-hack","name":"Disallow properties with a star prefix","desc":"Checks for the star property hack (targets IE6/7)","browsers":"All"},{"id":"text-indent","name":"Disallow negative text-indent","desc":"Checks for text indent less than -99px","browsers":"All"},{"id":"unique-headings","name":"Headings should only be defined once","desc":"Headings should be defined only once.","browsers":"All"},{"id":"universal-selector","name":"Disallow universal selector","desc":"The universal selector (*) is known to be slow.","browsers":"All"},{"id":"unqualified-attributes","name":"Disallow unqualified attribute selectors","desc":"Unqualified attribute selectors are known to be slow.","browsers":"All"},{"id":"vendor-prefix","name":"Require standard property with vendor prefix","desc":"When using a vendor-prefixed property, make sure to include the standard one.","browsers":"All"},{"id":"zero-units","name":"Disallow units for 0 values","desc":"You don't need to specify units when a value is 0.","browsers":"All"}];
 
 var csslint_options = [];
 css_rules.forEach(function (item) {
@@ -1306,13 +1305,15 @@ function open() {
 		</div>');
 
 		if(!prefs.useMasterPassword){
-			$('#currentMasterPassword').val('No password set').prop('disabled', true).button('refresh');
+			$('#currentMasterPassword').val('No password set');
+			$('#currentMasterPassword').prop('type', 'text');
+			$('#currentMasterPassword').prop('disabled', true);
 		}
 
 		//open dialog
 		var dialog = $( "#dialog-changeMasterPasword" ).dialogResize({
-			width: 500,
-			height: 600,
+			width: 400,
+			height: 300,
 			modal: true,
 			close: function( event, ui ) {
 				$( this ).remove();
@@ -1356,7 +1357,7 @@ function open() {
 								prefs.masterPasswordHash = data.masterPasswordHash;
 								prefs.useMasterPassword = true;
 
-								$('#useMasterPassword').prop('checked', true);
+								$('#useMasterPassword').prop('checked', true).checkboxradio('refresh');
 								$('#changeMasterPassword').prop('disabled', false).button('refresh');
 								$( "#dialog-changeMasterPasword" ).dialogResize( "close" );
 							}
@@ -1375,19 +1376,21 @@ function open() {
 			<p><input type="checkbox" name="forceRemovePassword" id="forceRemovePassword" value="1"> <label for="forceRemovePassword">'+lang.forceRemoveMasterPasswordText+'</label></p>\
 			</form>\
 		</div>');
+		
+		$('#forceRemovePassword').checkboxradio();
 
 		$('#forceRemovePassword').click(function() {
 			if ($(this).is(':checked')) {
-				$('#currentMasterPassword').prop('disabled', true).button('refresh');
+				$('#currentMasterPassword').prop('disabled', true);
 			} else {
-				$('#currentMasterPassword').prop('disabled', false).button('refresh');
+				$('#currentMasterPassword').prop('disabled', false);
 			}
 		});
 
 		//open dialog
 		var dialog = $( "#dialog-removeMasterPasword" ).dialogResize({
-			width: 880,
-			height: 600,
+			width: 480,
+			height: 300,
 			modal: true,
 			buttons: {
 				OK: function() {
@@ -1416,7 +1419,7 @@ function open() {
 								storage.set('masterPassword', '');
 								prefs.masterPasswordHash = '';
 
-								$('#useMasterPassword').prop('checked', false);
+								$('#useMasterPassword').prop('checked', false).checkboxradio('refresh');
 								$('#changeMasterPassword').prop('disabled', true).button('refresh');
 								$( "#dialog-removeMasterPasword" ).dialogResize( "close" );
 								$( "#dialog-removeMasterPasword" ).remove();
