@@ -130,6 +130,10 @@ a input {
 	border: 0 !important;
 }
 
+select.ui-state-default {
+	background-image: none !important;
+}
+
 .ui-sortable-placeholder{
 	margin: 0 !important;
 }
@@ -753,12 +757,17 @@ div.fullScreen{
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+	height: 100%;
 }
 
 #findForm .row{
 	display: flex;
 	vertical-align: middle;
 	align-items: center;
+}
+
+#findForm progress{
+	width: 100%;
 }
 
 #findForm textarea{

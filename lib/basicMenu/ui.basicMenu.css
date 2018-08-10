@@ -14,4 +14,6 @@
 .custom-basicMenu li{
 	border: 1px solid transparent;
 	border-bottom-color: #ccc;
+	display: inline-block;
+	min-width: 100%;
 }
