@@ -82,7 +82,26 @@ var actions = {
 		label: lang.expandSelection,
 		defaultKeyBinding: 'Alt-Shift-L'
 	},
+	'addSemicolon': {
+		label: lang.addSemicolon,
+		defaultKeyBinding: ''
+	},
+	'jumpToMatching': {
+		label: lang.jumpToMatching,
+		defaultKeyBinding: 'Ctrl-P'
+	},
+	'selectToMatching': {
+		label: lang.selectToMatching,
+		defaultKeyBinding: 'Ctrl-Shift-P'
+	},
 	/*
+	'preferences': {
+		label: lang.preferencesText,
+		defaultKeyBinding: 'Ctrl-U',
+		exec: function() {
+			preferences.open();
+		}
+	},
 	'newTab': {
 		label: 'New Tab',
 		defaultKeyBinding: 'Alt-N'

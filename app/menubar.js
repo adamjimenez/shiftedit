@@ -144,7 +144,7 @@ function init () {
 		target: 'site'
 	}, {
 		id: 'print',
-		text: makeMenuText(lang.print+'...', 'Ctrl-P'),
+		text: makeMenuText(lang.print + '...', 'Ctrl-P'),
 		disabled: true,
 		target: 'file',
 		handler: function() {
@@ -252,7 +252,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'jumpToMatching',
-		text: makeMenuText(lang.jumpToMatching, 'Ctrl-P'),
+		text: makeMenuText(lang.jumpToMatching, preferences.getKeyBinding('jumpToMatching'), 'jumpToMatching'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -263,7 +263,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'selectToMatching',
-		text: makeMenuText(lang.selectToMatching, 'Ctrl-Shift-P'),
+		text: makeMenuText(lang.selectToMatching, preferences.getKeyBinding('selectToMatching'), 'selectToMatching'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -324,7 +324,7 @@ function init () {
 		target: 'file'
 	}, '-', {
 		id: 'addSemicolon',
-		text: makeMenuText(lang.addSemicolon, 'Ctrl-;'),
+		text: makeMenuText(lang.addSemicolon, preferences.getKeyBinding('addSemicolon'), 'addSemicolon'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -334,7 +334,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'applySourceFormatting',
-		text: makeMenuText(lang.beautify, 'Alt-Shift-F'),
+		text: makeMenuText(lang.beautify, preferences.getKeyBinding('applySourceFormatting'), 'applySourceFormatting'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);

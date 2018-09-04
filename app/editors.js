@@ -1095,7 +1095,8 @@ function applyPrefs(tab) {
 			name: "appendLineSelection",
 			exec: function (editor, args, request) {
 				var string = args[0];
-	
+				
+				editor.selection.selectLineEnd();
 				var text = editor.getSelectedText();
 				editor.insert(text.replace(new RegExp("\n", 'g'), string + "\n") + string, true);
 			}
@@ -1425,6 +1426,38 @@ function applyPrefs(tab) {
 			exec: function(editor) { editor.session.toggleFold(false); },
 			multiSelectAction: "forEach",
 			scrollIntoView: "center",
+			readOnly: true
+		}, {
+			name: "addSemicolon",
+			bindKey: {
+				win: preferences.getKeyBinding('addSemicolon'),
+				mac: preferences.getKeyBinding('addSemicolon', 'mac'),
+				sender: "editor"
+			},
+			exec: function(editor) { editor.commands.exec('appendLineSelection', editor, [';']); },
+			multiSelectAction: "forEach",
+			scrollIntoView: "center"
+		}, {
+			name: "jumpToMatching",
+			bindKey: {
+				win: preferences.getKeyBinding('jumpToMatching'),
+				mac: preferences.getKeyBinding('jumpToMatching', 'mac'),
+				sender: "editor"
+			},
+			exec: function(editor) { editor.jumpToMatching(); },
+			multiSelectAction: "forEach",
+			scrollIntoView: "animate",
+			readOnly: true
+		}, {
+			name: "selectToMatching",
+			bindKey: {
+				win: preferences.getKeyBinding('selectToMatching'),
+				mac: preferences.getKeyBinding('selectToMatching', 'mac'),
+				sender: "editor"
+			},
+			exec: function(editor) { editor.jumpToMatching(true); },
+			multiSelectAction: "forEach",
+			scrollIntoView: "animate",
 			readOnly: true
 		}, {
 			name: "tag-start",
