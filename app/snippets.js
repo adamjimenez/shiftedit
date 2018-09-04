@@ -1,4 +1,4 @@
-define(['./config', './prefs', './tabs', './util', './prompt', './loading', './shortcuts', './lang', 'jstree', 'dialogResize'], function (config, preferences, tabs, util, prompt, loading, shortcuts, lang) {
+define(['./config', './prefs', './tabs', './util', './prompt', './loading', './keybindings', './lang', 'jstree', 'dialogResize'], function (config, preferences, tabs, util, prompt, loading, keybindings, lang) {
 lang = lang.lang;
 var confirmed = false;
 var inst;
@@ -140,7 +140,7 @@ function edit(node) {
 					data: params,
 					success: function(data) {
 						refresh();
-						shortcuts.load();
+						keybindings.updateKeyBindings();
 					}
 				});
 

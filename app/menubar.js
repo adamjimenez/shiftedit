@@ -1,4 +1,4 @@
-define(['exports','./lang', './util', './prefs', './tabs', './storage', './main', './prompt','./menus',  './shortcuts',  './editors', './site', './tree', './preview', './designs', './revisions', "jquery.menubar", './chat'], function (exports, lang, util, preferences, tabs,storage, main, prompt, menus, shortcuts, editors, site, tree, preview, designs, revisions) {
+define(['exports','./lang', './util', './prefs', './tabs', './storage', './main', './prompt','./menus',  './keybindings',  './editors', './site', './tree', './preview', './designs', './revisions', "jquery.menubar", './chat'], function (exports, lang, util, preferences, tabs,storage, main, prompt, menus, keybindings, editors, site, tree, preview, designs, revisions) {
 lang = lang.lang;
 var makeMenuText = util.makeMenuText;
 var prefs = {};
@@ -77,12 +77,12 @@ function init () {
 	
 	var fileItems = [{
 		id: 'new',
-		text: makeMenuText(lang.newText + '...', 'Alt-N'),
+		text: makeMenuText(lang.newText + '...', preferences.getKeyBinding('openNewTab'), 'openNewTab'),
 		handler: function () {
 			$('.ui-layout-center').tabs('add');
 		}
 	}, {
-		text: makeMenuText(lang.open + '...', 'Ctrl-O'),
+		text: makeMenuText(lang.open + '...', preferences.getKeyBinding('open'), 'open'),
 		handler: function () {
 			tabs.open();
 		}
@@ -109,7 +109,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'saveAll',
-		text: makeMenuText(lang.saveAllText + '...', 'Ctrl-Shift-S'),
+		text: makeMenuText(lang.saveAllText + '...', preferences.getKeyBinding('saveAll'), 'saveAll'),
 		handler: function () {
 			tabs.saveAll();
 		},
@@ -136,7 +136,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'revisionHistory',
-		text: makeMenuText(lang.revisionHistoryText + '...', 'Ctrl-Alt-Shift-H'),
+		text: makeMenuText(lang.revisionHistoryText + '...', preferences.getKeyBinding('revisionHistory'), 'revisionHistory'),
 		handler: function () {
 			revisions.open();
 		},
@@ -144,12 +144,14 @@ function init () {
 		target: 'site'
 	}, {
 		id: 'print',
-		text: makeMenuText(lang.print + '...', 'Ctrl-P'),
+		text: makeMenuText(lang.print + '...', preferences.getKeyBinding('print'), 'print'),
 		disabled: true,
 		target: 'file',
 		handler: function() {
 			var tab = activeTab;
-			window.open('/print?s=' + tab.attr('data-site') + '&f=' + tab.attr('data-file'));
+			if (tab.attr('data-file')) {
+				window.open('/print?s=' + tab.attr('data-site') + '&f=' + tab.attr('data-file'));
+			}
 		}
 	}];
 	
@@ -474,7 +476,7 @@ function init () {
 		id: 'shortcuts',
 		text: makeMenuText(lang.shortcuts, 'Ctrl-/'),
 		handler: function (item, checked) {
-			shortcuts.show();
+			keybindings.show();
 		}
 	}];
 

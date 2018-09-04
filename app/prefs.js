@@ -710,6 +710,7 @@ function load() {
 				throw new Error('free trial expired');
 			}
 			
+			keybindings.init();
 			keybindings.updateKeyBindings();
 
 			return prefs;

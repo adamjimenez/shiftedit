@@ -1436,6 +1436,11 @@ function uglify(code, options) {
 }
 
 fullScreen = function (toggle) {
+	var tab = active();
+	if (tab) {
+		return;
+	}
+	
 	if (tab.data('file')) {
 		var editor = getEditor(this);
 		var editorDiv = $(editor.container);

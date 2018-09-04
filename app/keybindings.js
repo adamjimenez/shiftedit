@@ -1,4 +1,4 @@
-define([ './prefs', './lang', 'dialogResize'], function (preferences, lang) {
+define([ './prefs', './lang', './config',  './tabs', './find', './site', './tree', './revisions', 'dialogResize'], function (preferences, lang, config, tabs, find, site, tree, revisions) {
 lang = lang.lang;
 	
 var actions = {
@@ -48,11 +48,11 @@ var actions = {
 	},
 	'copyLinesUp': {
 		label: 'Copy Lines Up',
-		defaultKeyBinding: 'Shift-Alt-Up'
+		defaultKeyBinding: 'Alt-Shift-Up'
 	},
 	'copyLinesDown': {
 		label: 'Copy Lines Down',
-		defaultKeyBinding: 'Shift-Alt-Down'
+		defaultKeyBinding: 'Alt-Shift-Down'
 	},
 	'moveLinesUp': {
 		label: 'Move Lines Up',
@@ -94,7 +94,6 @@ var actions = {
 		label: lang.selectToMatching,
 		defaultKeyBinding: 'Ctrl-Shift-P'
 	},
-	/*
 	'preferences': {
 		label: lang.preferencesText,
 		defaultKeyBinding: 'Ctrl-U',
@@ -102,15 +101,109 @@ var actions = {
 			preferences.open();
 		}
 	},
-	'newTab': {
-		label: 'New Tab',
-		defaultKeyBinding: 'Alt-N'
-	},
+	'escape': {
+		label: "Clear",
+		defaultKeyBinding: 'Escape',
+		exec: function (key, e) {
+			$('#shortcutsSheet').remove();
+			$('#link').remove();
+		}
+	}, 
+	'openNewTab': {
+		label: "New tab",
+		defaultKeyBinding: 'Alt-N',
+		exec: function (key, e) {
+			$('.ui-layout-center').tabs('add');
+		}
+	}, 
 	'open': {
-		label: 'Quick Open',
-		defaultKeyBinding: 'Ctrl-O'
+		label: "Open",
+		defaultKeyBinding: 'Ctrl-O',
+		exec: function (key, e) {
+			tabs.open();
+		}
+	}, 
+	'chooseSite': {
+		label: "Choose Site",
+		defaultKeyBinding: 'Ctrl-Shift-O',
+		exec: function (key, e) {
+			site.focus();
+		}
+	}, 
+	'saveAll': {
+		label: "Save All",
+		defaultKeyBinding: 'Ctrl-Shift-S',
+		exec: function (key, e) {
+			tabs.saveAll();
+		}
+	}, 
+	'close': {
+		label: "Close",
+		defaultKeyBinding: 'Ctrl-Alt-W',
+		exec: function (key, e) {
+			tabs.close($('.ui-layout-center .ui-tabs-active'));
+		}
+	}, 
+	'closeAll': {
+		label: "Close All",
+		defaultKeyBinding: 'Ctrl-Shift-W',
+		exec: function (key, e) {
+			tabs.closeAll();
+		}
 	},
-	*/
+	'previousTab': {
+		label: "Previous Tab",
+		defaultKeyBinding: 'Alt-Left',
+		exec: function (key, e) {
+			tabs.prev();
+		}
+	}, 
+	'nextTab': {
+		label: "Next Tab",
+		defaultKeyBinding: 'Alt-Right',
+		exec: function (key, e) {
+			tabs.next();
+		}
+	}, 
+	'shortcuts': {
+		label: "Shortcuts",
+		defaultKeyBinding: 'Ctrl-/',
+		exec: show
+	}, 
+	'print': {
+		label: "Print",
+		defaultKeyBinding: '',
+		exec: function (key, e) {
+			var tab = tabs.active();
+			if (tab && tab.attr('data-file')) {
+				window.open('/print?s=' + tab.attr('data-site') + '&f=' + tab.attr('data-file'));
+			}
+		}
+	}, 
+	'blurEditor': {
+		label: "Blur Editor",
+		defaultKeyBinding: 'Shift-Escape',
+		exec: function (key, e) {
+			if (document.activeElement) {
+				document.activeElement.blur();
+			}
+		}
+	}, 
+	'toggleTree': {
+		label: "Toggle Tree",
+		defaultKeyBinding: 'Ctrl-\\',
+		exec: function (key, e) {
+			jQuery.proxy(tabs.fullScreen, tabs.active())(false);
+			tree.toggle();
+		}
+	}, 
+	'openRevisions': {
+		label: "Open Revisions",
+		defaultKeyBinding: 'Ctrl-Alt-Shift-H',
+		exec: function (key, e) {
+			revisions.open();
+		}
+	}
 };
 
 var reservedKeys = [
@@ -628,16 +721,106 @@ function getKeyBinding(name, os) {
 }
 
 function updateKeyBindings() {
+	shortcuts = {};
+	
 	Object.keys(actions).forEach(function(key, index) {
+		if (actions[key].exec) {
+			shortcuts[getKeyBinding(key)] = actions[key];
+		}
+		
 		// console.log('.' + key + ' .shortcut');
 		$('.' + key + ' .shortcut').text(getKeyBinding(key));
 	});
+	
+	// snippets
+	$.ajax({
+		dataType: "json",
+		url: config.apiBaseUrl+'snippets?cmd=shortcuts',
+		success: function(data) {
+			for(var i in data.snippets) {
+				if (data.snippets.hasOwnProperty(i)) {
+					var item = data.snippets[i];
+					
+					if(item.shortcut) {
+						shortcuts['Ctrl-Shift-'+item.shortcut] = {
+							exec: function (key, e) {
+								var editor = tabs.getEditor(tabs.active());
+
+								if (editor) {
+									if(parseInt(item.wrap)) {
+										editor.commands.exec('wrapSelection', editor, [item.snippet1, item.snippet2]);
+									} else {
+										editor.insert(item.snippet1);
+									}
+								}
+							}
+						};
+					}
+				}
+			}
+		}
+	});
+}
+
+function show() {
+	if (!document.getElementById('shortcutsSheet')) {
+		$.ajax({
+			url: '/screens/shortcuts',
+			success: function (result) {
+				if (!document.getElementById('shortcutsSheet')) {
+					var div = document.createElement('div');
+					div.id = 'shortcutsSheet';
+					div.innerHTML = result;
+					document.body.appendChild(div);
+				}
+			}
+		});
+	}
+}
+
+var shortcuts = {};
+function init() {
+	function keyDown(e) {
+		var keyStr = '';
+		var keyCode = (e.charCode) ? e.charCode : e.keyCode;
+		
+		if (e.ctrlKey) {
+			keyStr += 'Ctrl-';
+		}
+		
+		if (e.altKey) {
+			keyStr += 'Alt-';
+		}
+		
+		if (e.shiftKey) {
+			keyStr += 'Shift-';
+		}
+		
+		if (e.key) {
+			var key = e.key.replace("Arrow", "");
+			keyStr += key.charAt(0).toUpperCase() + key.substr(1);
+		}
+		
+		if (shortcuts[keyStr]) {
+			shortcuts[keyStr].exec();
+
+			if (shortcuts[keyStr].stopEvent !== false) {
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			}
+		}
+	}
+
+	$( "body" ).keydown(keyDown);
 }
 
 return {
 	getKeyBinding: getKeyBinding,
 	openKeyBindings: openKeyBindings,
-	updateKeyBindings: updateKeyBindings
+	updateKeyBindings: updateKeyBindings,
+	show: show,
+	init: init
 };
 
 });
