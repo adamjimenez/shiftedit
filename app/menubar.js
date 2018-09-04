@@ -144,7 +144,7 @@ function init () {
 		target: 'site'
 	}, {
 		id: 'print',
-		text: makeMenuText(lang.print+'...', 'Ctrl-P'),
+		text: makeMenuText(lang.print + '...', 'Ctrl-P'),
 		disabled: true,
 		target: 'file',
 		handler: function() {
@@ -252,7 +252,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'jumpToMatching',
-		text: makeMenuText(lang.jumpToMatching, 'Ctrl-P'),
+		text: makeMenuText(lang.jumpToMatching, preferences.getKeyBinding('jumpToMatching'), 'jumpToMatching'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -263,7 +263,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'selectToMatching',
-		text: makeMenuText(lang.selectToMatching, 'Ctrl-Shift-P'),
+		text: makeMenuText(lang.selectToMatching, preferences.getKeyBinding('selectToMatching'), 'selectToMatching'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -324,7 +324,7 @@ function init () {
 		target: 'file'
 	}, '-', {
 		id: 'addSemicolon',
-		text: makeMenuText(lang.addSemicolon, 'Ctrl-;'),
+		text: makeMenuText(lang.addSemicolon, preferences.getKeyBinding('addSemicolon'), 'addSemicolon'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -334,7 +334,7 @@ function init () {
 		target: 'file'
 	}, {
 		id: 'applySourceFormatting',
-		text: makeMenuText(lang.beautify, 'Alt-Shift-F'),
+		text: makeMenuText(lang.beautify, preferences.getKeyBinding('applySourceFormatting'), 'applySourceFormatting'),
 		handler: function () {
 			var tab = activeTab;
 			var editor = tabs.getEditor(tab);
@@ -571,6 +571,12 @@ function init () {
 				var panel = $(tab).closest('.ui-layout-pane').tabs('getPanelForTab', tab);
 				var editor = tabs.getEditor(tab);
 				var inst;
+				var code;
+				
+				var extension = util.fileExtension(tab.data('file'));
+				if (!extension.match(menu.code.match)) {
+					return false;
+				}
 		
 				if (tab.data('view')==='code') {
 					panel.find('.editor_status').hide();
@@ -586,25 +592,27 @@ function init () {
 						inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
 					} else {
 						inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
-						
-						var code = editor.getValue();
-						var bodyStartPos = code.indexOf('<body');
-						var bodyEndPos = code.indexOf('</body');
-						if (bodyStartPos !== -1 && bodyEndPos !== -1) {
-							code = code.substr(bodyStartPos, bodyEndPos-bodyStartPos);
-						}
-						
+						code = editor.getValue();
 						inst.setContent(code);
+						
+						designs.updateDesignSelection(inst);
+						
 						inst.focus();
 					}
 				} else {
+					// preserve selection
+					inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
+					designs.updateEditorSelection(inst);
+
 					panel.find('.editor_status').show();
 					panel.find('.design').hide();
 					panel.find('.editor').show();
 		
 					tab.data('view', 'code');
 					tab.attr('data-view', 'code');
+					
 					editor.focus();
+					editor.renderer.scrollCursorIntoView(null, 0.5);
 				}
 		
 				$(tab).trigger('activate', [tab]);
@@ -911,6 +919,14 @@ function init () {
 							</td>\
 							<td>\
 								<a href="https://github.com/markdown-it/markdown-it/blob/master/LICENSE" target="_blank">License</a>\
+							</td>\
+						</tr>\
+						<tr>\
+							<td>\
+								<a href="https://www.tinymce.com/" target="_blank">TinyMce</a>\
+							</td>\
+							<td>\
+								<a href="https://github.com/tinymce/tinymce/blob/master/LICENSE.TXT" target="_blank">License</a>\
 							</td>\
 						</tr>\
 						<tr>\

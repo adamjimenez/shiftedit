@@ -426,7 +426,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			searchSource.addEventListener('message', function(event) {
 				var data = JSON.parse(event.data);
 				$('#findResults').show();
-				$('#findResults').append('<li><a href="#" data-file="'+data.msg+'" data-site="'+currentSite+'" class="openfile">' + data.msg + '</a></li>');
+				$('#findResults').append('<li><a data-file="'+data.msg+'" data-site="'+currentSite+'" class="openfile">' + data.msg + '</a></li>');
 			}, false);
 
 			searchSource.addEventListener('error', function(event) {
@@ -513,11 +513,11 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			<input type="radio" id="findInRemote" name="findIn" value="remote"><label class="flex" for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
 		</div>\
 		<div class="row">\
-			<textarea id="find" name="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
+			<textarea id="find" name="find" placeholder="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
 		</div>\
 		<progress id="findprogress"></progress>\
-		<div id="findResults">\
-		</div>\
+		<ul id="findResults">\
+		</ul>\
 		<div id="findButtons" class="row">\
 			<input type="checkbox" id="regex"><label for="regex" title="Regular expression (Alt-R)"><i class="icon-regex"></i></label>\
 			<input type="checkbox" id="caseSensitive"><label for="caseSensitive" title="Case sensitive (Alt-C)"><i class="icon-case-sensitive"></i></label>\
@@ -527,9 +527,8 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			<button type="button" id="findPrevBtn" title="Previous"><i class="fa fa-chevron-up"></i></button>\
 			<button type="button" id="findNextBtn" title="Next"><i class="fa fa-chevron-down"></i></button>\
 		</div>\
-		<p></p>\
-		<div class="row">\
-			<textarea id="replace" name="replace" class="ui-widget ui-state-default ui-corner-all"></textarea>\
+		<div class="row" style="margin-top: 10px;">\
+			<textarea id="replace" name="replace" placeholder="replace with.." class="ui-widget ui-state-default ui-corner-all"></textarea>\
 		</div>\
 		<div id="replaceButtons" class="row">\
 			<button type="button" id="replaceBtn">Replace</button>\
@@ -624,6 +623,12 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			timer = setTimeout(function() {
 				update(null, true);
 			}, 1000);
+		});
+		
+		$("#findResults").basicMenu({
+			select: function (event, ui) {
+				//select(ui.item);
+			}
 		});
 	}
 

@@ -98,6 +98,7 @@ a input {
 
 .ui-tabs .ui-tabs-panel {
 	padding: 0 !important;
+	border-radius: 0 !important;
 }
 
 .ui-layout-west li[role=tab]{
@@ -127,6 +128,10 @@ a input {
 .ui-tabs .ui-tabs-tab, .ui-tabs .ui-tabs-nav, .ui-layout-container .ui-layout-pane, .ui-state-default, .ui-widget-header, .ui-checkboxradio-label, .custom-combobox-toggle, .text, button{
 	border-radius: 0 !important;
 	border: 0 !important;
+}
+
+select.ui-state-default {
+	background-image: none !important;
 }
 
 .ui-sortable-placeholder{
@@ -752,12 +757,17 @@ div.fullScreen{
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+	height: 100%;
 }
 
 #findForm .row{
 	display: flex;
 	vertical-align: middle;
 	align-items: center;
+}
+
+#findForm progress{
+	width: 100%;
 }
 
 #findForm textarea{
@@ -1128,6 +1138,19 @@ div.fullScreen{
 	display: none;
 }
 
+/* tinymce dialog must be lower than jquery ui */
+.mce-fade {
+	z-index: 99 !important;
+}
+
+.mce-floatpanel {
+	z-index: 100 !important;
+}
+
+.mce-tinymce{
+	border: 0 !important;
+}
+
 .panel-buttons {
 	padding: 0.4em 0;
 }
@@ -1340,16 +1363,6 @@ div.fullScreen{
 	position: absolute;
 	top: 2px;
 	right: 2px;
-}
-
-
-/* tinymce dialog must be lower than jquery ui */
-.mce-fade {
-	z-index: 99 !important;
-}
-
-.mce-floatpanel {
-	z-index: 100 !important;
 }
 
 /*

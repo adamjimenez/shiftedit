@@ -930,7 +930,7 @@ function init() {
 			chunked: 1
 		},
 		withCredentials: true,
-		chunkSize: (10*1024*1024)
+		chunkSize: (1*1024*1024)
 	});
 
 	r.assignDrop($('#tree'));
@@ -977,10 +977,17 @@ function init() {
 		refresh();
 	});
 
-	r.on('error', function(message, file){
+	r.on('error', function(message, file) {
 		uploadStarted = false;
 		loading.stop();
-		prompt.alert({title:file, msg:message});
+		if (message === '') {
+			message = 'Failed uploading ' + file.fileName;
+			
+			if(location.protocol==='https:' && util.startsWith(ajaxOptions.url, 'http://') && !util.startsWith(ajaxOptions.url, 'http://localhost/')) {
+				message += '\n<br>Try enabling SSL on your website and updating your web url accordingly.';
+			}
+		}
+		prompt.alert({title: 'File upload error', msg: message});
 	});
 
 	r.on('fileAdded', function(file){

@@ -93,7 +93,7 @@ function edit(node) {
 	}
 
 	//set values
-	if(node) {
+	if(node && node.data) {
 		node.data.name = node.text;
 		node.data.id = node.id;
 		for(var i in node.data) {
@@ -229,7 +229,7 @@ function init() {
 		'contextmenu' : {
 			'items' : function(node) {
 				//var tmp = $.jstree.defaults.contextmenu.items();
-
+				//console.log(node)
 				var tmp = {
 					"newSnippet": {
 						"label": lang.newSnippetText,
@@ -243,7 +243,8 @@ function init() {
 							inst.create_node(parent, { type: "file", text: newName, data: {} }, "last", function (new_node) {
 					   			inst.open_node(parent);
 							});
-						}
+						},
+						_disabled: node.type !== 'default'
 					},
 					"newFolder": {
 						"label": lang.newFolderText,
@@ -260,7 +261,8 @@ function init() {
 									inst.edit(new_node); 
 								}, 0);
 							});
-						}
+						},
+						_disabled: node.type !== 'default'
 					},
 					"edit": {
 						"label": lang.editText,
@@ -269,7 +271,8 @@ function init() {
 							var inst = $.jstree.reference(data.reference),
 								node = inst.get_node(data.reference);
 							edit(node);
-						}
+						},
+						_disabled: node.type !== 'file'
 					},
 					"rename": {
 						"label": lang.renameText,
@@ -343,22 +346,26 @@ function init() {
 		if(data.node.parent!=='#root')
 			parent = data.node.parent;
 		
-		$.get(config.apiBaseUrl+'snippets?cmd=new', { 'type' : data.node.type, 'parent' : parent, 'text' : data.node.text })
-			.done(function (d) {
-				if (d.id) {
-					data.instance.set_id(data.node, d.id);
-					
-					inst.deselect_all();
-					inst.select_node(data.node);
-					
-					if (data.node.type=='file') {
-						edit(data.node);
-					}
+		$.get(config.apiBaseUrl+'snippets?cmd=new', { 
+			'type' : data.node.type, 
+			'parent' : parent, 
+			'text' : data.node.text 
+		})
+		.done(function (d) {
+			if (d.id) {
+				data.instance.set_id(data.node, d.id);
+				
+				inst.deselect_all();
+				inst.select_node(data.node);
+				
+				if (data.node.type=='file') {
+					edit(data.node);
 				}
-			})
-			.fail(function () {
-				data.instance.refresh();
-			});
+			}
+		})
+		.fail(function () {
+			data.instance.refresh();
+		});
 	})
 	.on('rename_node.jstree', function (e, data) {
 		var params = {};
@@ -374,8 +381,7 @@ function init() {
 			if(!d.success){
 				prompt.alert({title:'Error', msg:d.error});
 			}else{
-				data.instance.set_id(data.node, params.name);
-				tree.trigger('rename', params);
+				data.instance.set_text(data.node, params.name);
 			}
 		})
 		.fail(function () {

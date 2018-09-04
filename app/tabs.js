@@ -1,4 +1,4 @@
-define(['./config', './editors', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", "ui.tabs.overflowResize", 'cssmin', 'dialogResize'], function (config, editors, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
+define(['./config', './editors', './designs', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", "ui.tabs.overflowResize", 'cssmin', 'dialogResize'], function (config, editors, designs, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
 lang = lang.lang;
 modes = modes.modes;
 var closing = [];
@@ -176,6 +176,12 @@ function openFiles(options) {
 							editor.setValue(data.content);
 							editor.moveCursorToPosition({column:0, row:0});
 							editor.focus();
+							
+							if (tab.data('view')==='design') {
+								var inst = designs.get(tab);
+								designs.update(inst);
+							}
+							
 							setEdited(tab, false);
 						} else {
 							console.error('reload tab not found');
@@ -716,6 +722,11 @@ function revert(tab) {
 
 	if( editor && tab.data('original')!==editor.getValue() ){
 		editor.setValue(tab.data('original'));
+		
+		if (tab.data('view')==='design') {
+			var inst = designs.get(tab);
+			designs.update(inst);
+		}
 	} else {
 		console.log('file is unchanged');
 	}
@@ -1045,7 +1056,16 @@ function tabActivate(tab) {
 	if (!$("#find").is(":focus")) {
 		if (editor) {
 			//editor.focus();
-			setTimeout(function(){editor.focus();}, 0);
+			if (tab.data('view')==='design') {
+				setTimeout(function() {
+					var inst = designs.get(tab);
+					inst.focus();
+				}, 0);
+			} else {
+				setTimeout(function() {
+					editor.focus();
+				}, 0);
+			}
 		} else {
 			var tabpanel = $(tab).closest(".ui-tabs");
 			var panel = tabpanel.tabs('getPanelForTab', tab);
@@ -1186,8 +1206,8 @@ function quickOpen() {
 
 	//open dialog
 	var dialog = $( "#dialog-message" ).dialogResize({
-		width: 400,
-		height: 320,
+		width: 800,
+		height: 600,
 		modal: true,
 		close: function( event, ui ) {
 			$( this ).remove();
@@ -1416,22 +1436,36 @@ function uglify(code, options) {
 }
 
 fullScreen = function (toggle) {
-	var editor = getEditor(this);
-	var editorDiv = $(editor.container);
-	
-	if (toggle!== false && !editorDiv.hasClass('fullScreen')) {
-		editorDiv.addClass('fullScreen');
-		$('body').addClass('fullScreen');
-	} else {
-		$('.fullScreen').removeClass('fullScreen');
+	if (tab.data('file')) {
+		var editor = getEditor(this);
+		var editorDiv = $(editor.container);
+		
+		if (toggle!== false && !editorDiv.hasClass('fullScreen')) {
+			editorDiv.addClass('fullScreen');
+			$('body').addClass('fullScreen');
+		} else {
+			$('.fullScreen').removeClass('fullScreen');
+		}
+		
+		editor.focus();
+	} else if (tab.data('ssh')) {
+		var session = tab.data('session');
+		var el = $(session.term.element);
+		
+		if (toggle!== false && !el.hasClass('fullScreen')) {
+			el.addClass('fullScreen');
+			$('body').addClass('fullScreen');
+		} else {
+			$('.fullScreen').removeClass('fullScreen');
+		}
+		
+		session.focus();
 	}
-	
-	editor.focus();
 	resize.resize();
 };
 
 //listeners
-$('body').on('click', 'div.openfile', function() {
+$('body').on('click', '.openfile', function() {
 	open($(this).data('file'), $(this).data('site'));
 });
 
