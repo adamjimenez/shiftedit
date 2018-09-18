@@ -774,6 +774,9 @@ function loadSkinUrl(url) {
 		div.remove();
 
 		$('<style id="themeStyle">\
+		body{\
+			background-color: '+defaultBackground+' !important;\
+		}\
 		.jstree-default .jstree-clicked{\
 			background: '+activeBackground+' !important;\
 			color: '+activeColor+' !important;\

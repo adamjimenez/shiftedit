@@ -76,53 +76,54 @@ function init() {
 
 	//page layout
 	myLayout = $('#layout-container').layout({
+		animatePaneSizing: true,
+		enableCursorHotkey: false,
+		fxSpeed: "fast",
+		livePaneResizing: true,
+		noAlert: true,
 		resizable: true,
-		//showOverflowOnHover: true,
+		stateManagement__enabled: true,
+		slideTrigger_close: 'click',
+		onresize_start: function() {
+			animating = true;
+		},
+		onresize_end: function() {
+			animating = false;
+		},
 		north: {
 			closable: false,
-			resizable: false,
-			spacing_open: 0,
-			spacing_closed: 0,
+			maxSize: 44,
 			minSize: 44,
+			resizable: false,
 			size: 44,
-			maxSize: 44
+			spacing_open: 0,
+			spacing_closed: 0
 		},
 		east: {
-			//closable: false,
-			//resizable: false,
+			initClosed: true,
+			size: 300,
 			spacing_open: 10,
 			spacing_closed: 10,
 			//minSize: 36,
-			size: 300,
-			initClosed: true
 		},
 		south: {
 			closable: false,
-			resizable: false,
-			spacing_open: 0,
-			spacing_closed: 0,
-			minSize: 36,
-			size: 36,
+			initHidden: !prefs.statusBar,
 			maxSize: 36,
-			initHidden: !prefs.statusBar
+			minSize: 36,
+			resizable: false,
+			size: 36,
+			spacing_open: 0,
+			spacing_closed: 0
 		},
 		west: {
 			closable: false,
+			minSize: 48,
 			resizable: true,
-			spacing_open: 10,
-			spacing_closed: 10,
 			size: prefs.westSize,
-			minSize: 48
-		},
-		livePaneResizing: true,
-		enableCursorHotkey: false,
-		stateManagement__enabled: true,
-		slideTrigger_close: 'click',
-		noAlert: true
-		//maskContents: true
-		// RESIZE Accordion widget when panes resize
-		//west__onresize: $.layout.callbacks.resizePaneAccordions
-		//east__onresize: $.layout.callbacks.resizePaneAccordions
+			spacing_open: 10,
+			spacing_closed: 10
+		}
 	});
 
 	// allow contextmenu to overflow
@@ -144,7 +145,7 @@ function init() {
 		e.stopPropagation();
 	});
 	
-	$('body').on('mouseover', '.ui-layout-west', function(e) {
+	$('body').on('mouseenter', '.ui-layout-west', function(e) {
 		if (!prefs.hidePanel) {
 			return;
 		}
@@ -164,7 +165,7 @@ function init() {
 	});
 	
 	// min west panel on center panel click
-	$('body').on('mouseover', '.ui-layout-center, .ui-layout-north, .ui-layout-east, .ui-layout-south', function(e) {
+	$('body').on('mouseenter', '.ui-layout-center, .ui-layout-north, .ui-layout-east, .ui-layout-south', function(e) {
 		if (!prefs.hidePanel) {
 			return;
 		}
@@ -178,6 +179,10 @@ function init() {
 	var li = $('.ui-layout-west li');
 	li.first().addClass('my_active');
 	li.on('mouseup', function(e) {
+		if(e.button!==0) {
+			return;
+		}
+		
 		if ( $(this).hasClass('my_active') ) {
 			if (westIsOpen()) {
 				closeWest();
@@ -274,6 +279,7 @@ function init() {
 	});
 }
 
+var animating = false;
 var westFocused = true;
 var westOpen = true;
 function westIsOpen() {
@@ -281,6 +287,9 @@ function westIsOpen() {
 }
 
 function openWest(focus=true) {
+	if (animating) {
+		return;
+	}
 	if (focus) {
 		westFocused = true;
 	}
@@ -292,6 +301,9 @@ function openWest(focus=true) {
 }
 
 function closeWest(focus=true) {
+	if (animating) {
+		return;
+	}
 	if (focus) {
 		westFocused = false;
 	}
