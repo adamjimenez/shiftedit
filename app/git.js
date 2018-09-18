@@ -11,7 +11,7 @@ var currentBranch;
 
 function init() {
 	$('#tabs-git').append('<div class="vbox">\
-		<div id="notAvailable" class="flex" style="text-align:center; color:#ccc;">Git panel will appear here</div>\
+		<div id="notAvailable" class="flex" style="text-align:center; color:#ccc;">Connect to a site</div>\
 		<div id="gitLoading" style="display: none; text-align: center; margin: 10px;"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>\
 		<div id="gitContainer" class="vbox" style="display: none;">\
 			<div class="hbox ui-widget-header panel-buttons">\
@@ -241,14 +241,14 @@ function refresh() {
 	var settings = site.getSettings(site.active());
 	
 	var supported = (
-		['AJAX','SFTP','AWS','Linode'].indexOf(settings.server_type)!==-1 || settings.turbo 
+		['AJAX','SFTP','AWS','Linode'].indexOf(settings.server_type)!==-1 || parseInt(settings.turbo)
 	);
 	
 	var hasRepo = $('#tree').jstree(true).get_node('.git');
 	
 	if (!supported) {
 		$('#gitContainer').hide();
-		$('#notAvailable').html('Git not supported for this server type').show();
+		$('#notAvailable').html('Not supported for ' + settings.server_type).show();
 		return;
 	} else if (!hasRepo) {
 		$('#gitContainer').hide();
@@ -256,7 +256,7 @@ function refresh() {
 		var rootNode = $('#tree').jstree(true).get_node('#root');
 		
 		if (rootNode.children.length) {
-			$('#notAvailable').html('No Git repository and root not empty.').show();
+			$('#notAvailable').html('Empty root folder before cloning a repository.').show();
 		} else {
 			$('#notAvailable').html('<a href="#" class="gitClone">Clone a repository</a>.').show();
 		}
