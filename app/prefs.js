@@ -106,6 +106,8 @@ defaultPrefs.showGit = true;
 defaultPrefs.hideKeyboardNotice = false;
 defaultPrefs.virtualKeyboardAddOn = true;
 defaultPrefs.designMode = false;
+defaultPrefs.hidePanel = false;
+defaultPrefs.westSize = 300;
 
 var skins = [{
 	title: "Smoothness",
@@ -962,7 +964,7 @@ function open() {
 
 		return;
 	}
-
+	
 	var	tabpanel = $('.ui-layout-'+paneName);
 	pane = tabpanel.closest('.ui-layout-pane');
 	paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];

@@ -1,4 +1,4 @@
-define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'], function (tabs, layout, site, autosize) {
+define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function (tabs, layout, site) {
 
 	var timer;
 	var findIn = 'current';
@@ -489,10 +489,12 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 
 	function open(val) {
 		//expand panel
-		layout.get().open('west', false, true);
+		layout.openWest();
 
 		//activate tab
 		$(".ui-layout-west").tabs("option", "active", $('li[aria-controls=tabs-find]').index());
+		$('.ui-layout-west li').removeClass('my_active');
+		$('li[aria-controls=tabs-find]').addClass('my_active');
 
 		//focus find
 		if(val) {
@@ -506,13 +508,13 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 
 	function init() {
 		$('<form id="findForm">\
-		<div id="findInRadio" class="hbox row panel-buttons ui-widget-header">\
+		<div id="findInRadio" class="hbox panel-buttons ui-widget-header">\
 			<input type="radio" id="findInSelection" name="findIn" value="selection"><label class="flex" for="findInSelection" title="Find in selection"><i class="far fa-file-alt"></i></label>\
 			<input type="radio" id="findInCurrent" name="findIn" value="current" checked="checked"><label class="flex" for="findInCurrent" title="Find in current document"><i class="far fa-file"></i></label>\
 			<input type="radio" id="findInOpen" name="findIn" value="open"><label class="flex" for="findInOpen" title="Find in open documents"><i class="far fa-copy"></i></label>\
 			<input type="radio" id="findInRemote" name="findIn" value="remote"><label class="flex" for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
 		</div>\
-		<div class="row">\
+		<div class="row ta">\
 			<textarea id="find" name="find" placeholder="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
 		</div>\
 		<progress id="findprogress"></progress>\
@@ -527,7 +529,7 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 			<button type="button" id="findPrevBtn" title="Previous"><i class="fa fa-chevron-up"></i></button>\
 			<button type="button" id="findNextBtn" title="Next"><i class="fa fa-chevron-down"></i></button>\
 		</div>\
-		<div class="row" style="margin-top: 10px;">\
+		<div class="row ta" style="margin-top: 10px;">\
 			<textarea id="replace" name="replace" placeholder="replace with.." class="ui-widget ui-state-default ui-corner-all"></textarea>\
 		</div>\
 		<div id="replaceButtons" class="row">\
@@ -545,8 +547,6 @@ define(['./tabs','./layout', './site', 'autosize', "jquery-ui-bundle", 'ace/ace'
 		});
 		$('#findprogress').hide();
 
-		autosize($('#findForm textarea'));
-		
 		function insertNL() {
 			var val = this.value;
 			if (typeof this.selectionStart == "number" && typeof this.selectionEnd == "number") {

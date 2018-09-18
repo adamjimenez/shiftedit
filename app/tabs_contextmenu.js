@@ -89,7 +89,7 @@ function init() {
 	
 	// east tabs toggles
 	$.contextMenu({
-		selector: '.ui-layout-west .ui-tab',
+		selector: '.ui-layout-west .ui-tabs-nav',
 		callback: function(key, opt){
 			var tab = $(this);
 
@@ -110,15 +110,15 @@ function init() {
 					tab.parent().find('.git').toggle(!prefs.showGit);
 					preferences.save('showGit', !prefs.showGit);
 				break;
+				case 'hidePanel':
+					preferences.save('hidePanel', !prefs.hidePanel);
+				break;
 			}
 			
 			// if current tab, default to first tab
 			if (!tab.is(':visible')) {
 				$(".ui-layout-west").tabs("option", "active", 0);
 			}
-			
-			// trigger resize
-			$(".ui-layout-west").tabs('doResize');
 		},
 		items: {
 			"file": {
@@ -159,6 +159,14 @@ function init() {
 				name: 'Git',
 				icon: function(opt, $itemElement, itemKey, item) {
 					if (prefs.showGit) {
+						return 'context-menu-icon check';
+					}
+				}
+			},
+			"hidePanel": {
+				name: 'Auto-hide',
+				icon: function(opt, $itemElement, itemKey, item) {
+					if (prefs.hidePanel) {
 						return 'context-menu-icon check';
 					}
 				}

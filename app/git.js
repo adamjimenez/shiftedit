@@ -11,7 +11,7 @@ var currentBranch;
 
 function init() {
 	$('#tabs-git').append('<div class="vbox">\
-		<p id="notAvailable" class="flex" style="text-align:center; color:#ccc;">Git panel will appear here</p>\
+		<div id="notAvailable" class="flex" style="text-align:center; color:#ccc;">Git panel will appear here</div>\
 		<div id="gitLoading" style="display: none; text-align: center; margin: 10px;"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>\
 		<div id="gitContainer" class="vbox" style="display: none;">\
 			<div class="hbox ui-widget-header panel-buttons">\

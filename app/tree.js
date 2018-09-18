@@ -2268,11 +2268,14 @@ function setSingleClickOpen(value) {
 }
 
 function toggle() {
-	if (layout.get().state.west.isClosed) {
-		layout.get().open('west', false, true);
+	if (!layout.westIsOpen()) {
+		layout.get().sizePane('west', prefs.westSize);
+		layout.openWest();
 		
 		//activate tab
 		$(".ui-layout-west").tabs("option", "active", $('li[aria-controls=tabs-filetree]').index());
+		$('.ui-layout-west li').removeClass('my_active');
+		$('li[aria-controls=tabs-filetree]').addClass('my_active');
 		
 		//focus tree
 		var inst = $.jstree.reference(reference);
@@ -2283,7 +2286,7 @@ function toggle() {
 		var node = inst.get_node(node_id, true);
 		node.children('.jstree-anchor').focus();
 	} else {
-		layout.get().close('west', false, true);
+		layout.closeWest();
 	}
 }
 

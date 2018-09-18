@@ -22,41 +22,43 @@ function init() {
 		</div>\
 		\
 		<div class="ui-layout-west" style="display: none;">\
-			<ul>\
-				<li><a href="#tabs-filetree" title="File tree"><i class="fa fa-folder"></i></a></li>\
-				<li><a href="#tabs-find" title="Find"><i class="fa fa-search"></i></a></li>\
-				<li class="definitions"><a href="#tabs-definitions" title="Definitions"><i class="fa fa-code"></i></a></li>\
-				<li class="notes"><a href="#tabs-notes" title="Notes"><i class="fas fa-pencil-alt"></i></a></li>\
-				<li class="snippets"><a href="#tabs-snippets" title="Snippets"><i class="fa fa-cut"></i></a></li>\
-				<li class="git"><a href="#tabs-git" title="Git"><i class="fab fa-git"></i></a></li>\
-			</ul>\
-			<!-- add wrapper that layout will auto-size to fill space -->\
-			<div class="ui-layout-content">\
-				<div id="tabs-filetree">\
-					<div class="vbox">\
-						<div class="hbox ui-widget-header panel-buttons">\
-							<div id="sitebar" class="flex ui-widget-content ui-state-default">\
-								<select id="sites">\
-								</select>\
+			<div class="hbox container-west expanded">\
+				<ul>\
+					<li><a href="#tabs-filetree" title="File tree"><i class="fa fa-folder"></i></a></li>\
+					<li><a href="#tabs-find" title="Find"><i class="fa fa-search"></i></a></li>\
+					<li class="definitions"><a href="#tabs-definitions" title="Definitions"><i class="fa fa-code"></i></a></li>\
+					<li class="notes"><a href="#tabs-notes" title="Notes"><i class="fas fa-pencil-alt"></i></a></li>\
+					<li class="snippets"><a href="#tabs-snippets" title="Snippets"><i class="fa fa-cut"></i></a></li>\
+					<li class="git"><a href="#tabs-git" title="Git"><i class="fab fa-git"></i></a></li>\
+				</ul>\
+				<!-- add wrapper that layout will auto-size to fill space -->\
+				<div class="ui-layout-content">\
+					<div id="tabs-filetree">\
+						<div class="vbox">\
+							<div class="hbox ui-widget-header panel-buttons">\
+								<div id="sitebar" class="flex ui-widget-content ui-state-default">\
+									<select id="sites">\
+									</select>\
+								</div>\
+								<button id="refresh_site"><i class="fas fa-sync"></i></button>\
 							</div>\
-							<button id="refresh_site"><i class="fas fa-sync"></i></button>\
-						</div>\
-						<div id="tree-container" class="vbox" style="display: none;">\
-							<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all" style="display: none;">\
-							<div id="tree"></div>\
+							<div id="tree-container" class="vbox" style="display: none;">\
+								<input type="text" name="filter" class="filter ui-widget ui-state-default ui-corner-all" style="display: none;">\
+								<div id="tree"></div>\
+							</div>\
 						</div>\
 					</div>\
+					\
+					<div id="tabs-find"></div>\
+					<div id="tabs-definitions"></div>\
+					<div id="tabs-notes">\
+						<textarea id="notes" class="ui-widget ui-state-default ui-corner-all" placeholder="Put your development notes in here.."></textarea>\
+					</div>\
+					<div id="tabs-snippets">\
+						<div id="snippets"></div>\
+					</div>\
+					<div id="tabs-git"></div>\
 				</div>\
-				\
-				<div id="tabs-find"></div>\
-				<div id="tabs-definitions"></div>\
-				<div id="tabs-notes">\
-					<textarea id="notes" class="ui-widget ui-state-default ui-corner-all" placeholder="Put your development notes in here.."></textarea>\
-				</div>\
-				<div id="tabs-snippets">\
-					<div id="snippets"></div>\
-				</div>\
-				<div id="tabs-git"></div>\
 			</div>\
 		</div>\
 		\
@@ -76,16 +78,14 @@ function init() {
 	myLayout = $('#layout-container').layout({
 		resizable: true,
 		//showOverflowOnHover: true,
-		west__size: 300,
-		west__minSize: 200,
 		north: {
 			closable: false,
 			resizable: false,
 			spacing_open: 0,
 			spacing_closed: 0,
-			minSize: 36,
-			size: 36,
-			maxSize: 36
+			minSize: 44,
+			size: 44,
+			maxSize: 44
 		},
 		east: {
 			//closable: false,
@@ -107,12 +107,12 @@ function init() {
 			initHidden: !prefs.statusBar
 		},
 		west: {
-			//closable: false,
-			//resizable: false,
+			closable: false,
+			resizable: true,
 			spacing_open: 10,
 			spacing_closed: 10,
-			size: 300,
-			minSize: 200
+			size: prefs.westSize,
+			minSize: 48
 		},
 		livePaneResizing: true,
 		enableCursorHotkey: false,
@@ -132,12 +132,6 @@ function init() {
 	
 	// close slide out panes
 	$('body').on('mouseup', function(e) {
-		if (myLayout.state.west.isSliding) {
-			if ($(e.target).closest('.ui-layout-west').length===0) {
-				console.log(e.target);
-				myLayout.slideClose('west');
-			}
-		}
 		if (myLayout.state.east.isSliding) {
 			if ($(e.target).closest('.ui-layout-east').length===0) {
 				myLayout.slideClose('east');
@@ -149,6 +143,72 @@ function init() {
 	$('body').on('mousedown', '.jstree-contextmenu', function(e) {
 		e.stopPropagation();
 	});
+	
+	$('body').on('mouseover', '.ui-layout-west', function(e) {
+		if (!prefs.hidePanel) {
+			return;
+		}
+		
+		if (!westIsOpen()) {
+			openWest(false);
+		}
+	});
+	
+	// min west panel on center panel click
+	$('body').on('mouseup', '.ui-layout-center, .ui-layout-north, .ui-layout-east, .ui-layout-south', function(e) {
+		if (!prefs.hidePanel) {
+			return;
+		}
+		
+		closeWest();
+	});
+	
+	// min west panel on center panel click
+	$('body').on('mouseover', '.ui-layout-center, .ui-layout-north, .ui-layout-east, .ui-layout-south', function(e) {
+		if (!prefs.hidePanel) {
+			return;
+		}
+		
+		if (!westFocused && westIsOpen()) {
+			closeWest(false);
+		}
+	});
+	
+	// close when active tab clicked
+	var li = $('.ui-layout-west li');
+	li.first().addClass('my_active');
+	li.on('mouseup', function(e) {
+		if ( $(this).hasClass('my_active') ) {
+			if (westIsOpen()) {
+				closeWest();
+			} else {
+				openWest();
+			}
+			
+			e.stopPropagation();
+		} else {
+			li.removeClass('my_active');
+			$(this).addClass('my_active');
+		}
+	});
+	
+	// START autohide west panel
+	$('body').on('mouseup', '.ui-layout-west', function(e) {
+		if (!westIsOpen()) {
+			openWest();
+		}
+	});
+	
+	/*
+	// close when active tab is clicked
+	$('.ui-layout-west li a').on('click', function() {
+		console.log(currentTab);
+		if($(this).closest('li').hasClass('ui-state-active')){
+			alert('this tab is already active');
+		}
+	});
+	*/
+	// END autohide west panel
 
 	// if a new theme is applied, it could change the height of some content,
 	// so call resizeAll to 'correct' any header/footer heights affected
@@ -214,9 +274,41 @@ function init() {
 	});
 }
 
+var westFocused = true;
+var westOpen = true;
+function westIsOpen() {
+	return westOpen;
+}
+
+function openWest(focus=true) {
+	if (focus) {
+		westFocused = true;
+	}
+	if (!westIsOpen()) {
+		myLayout.sizePane('west', prefs.westSize);
+		westOpen = true;
+		$('.container-west').addClass('expanded');
+	}
+}
+
+function closeWest(focus=true) {
+	if (focus) {
+		westFocused = false;
+	}
+	if (westIsOpen()) {
+		preferences.save('westSize', myLayout.west.state.layoutWidth);
+		myLayout.sizePane('west', myLayout.west.state.minSize);
+		westOpen = false;
+		$('.container-west').removeClass('expanded');
+	}
+}
+
 exports.init = init;
 exports.get =  function() {
 	return myLayout;
 };
+exports.westIsOpen = westIsOpen;
+exports.openWest = openWest;
+exports.closeWest = closeWest;
 
 });

@@ -69,7 +69,12 @@ a input {
 
 /* show tree menu */
 .ui-layout-west .ui-layout-content{
-	overflow: visible;
+	overflow: auto;
+	width: 100%;
+}
+
+.ui-layout-west .ui-tab{
+	margin: 0 !important;
 }
 
 /* ensure site menu can be seen */
@@ -103,6 +108,26 @@ a input {
 
 .ui-layout-west li[role=tab]{
 	text-align: center;
+	max-width: 50px;
+	border-radius: 20px !important;
+    transition: border-radius .3s;
+}
+
+.expanded li[role=tab]{
+	border-radius: 0 !important;
+}
+
+.ui-layout-west li:not(.ui-tabs-active):not(.ui-state-hover){
+	background: none;
+}
+
+.ui-layout-west .ui-tabs-nav {
+	max-width: 50px;
+	background-image: none;
+}
+
+.container-west {
+	height: 100%;
 }
 
 .ui-tabs-anchor{
@@ -237,6 +262,10 @@ li[role=tab] .ui-icon {
 .ui-menubar, .ui-widget {
 	font-size: 1em;
 	line-height: 1em;
+}
+
+.ui-widget {
+	/*line-height: 2em !important;*/
 }
 
 .ui-menubar .ui-button-icon-secondary{
@@ -760,10 +789,24 @@ div.fullScreen{
 	height: 100%;
 }
 
+#findForm #findInRadio, #findForm #findButtons{
+	height: 36px;
+	max-height: 36px;
+}
+
+#findForm .ta{
+	flex: 2;
+}
+
 #findForm .row{
 	display: flex;
 	vertical-align: middle;
 	align-items: center;
+	margin: 0 2px;
+}
+
+#findForm #findNextBtn{
+	margin-right: 0;
 }
 
 #findForm progress{
@@ -771,8 +814,8 @@ div.fullScreen{
 }
 
 #findForm textarea{
-	min-height: 100px;
-	max-height: 300px;
+	padding: 5px;
+	height: calc(100% - 14px);
 }
 
 #findForm input[name=port], #findForm input[name=timeout]{
@@ -893,9 +936,8 @@ div.fullScreen{
 }
 
 #notes{
-	width: 100%;
 	flex-grow: 1;
-	margin-top: .4em;
+	padding: 5px;
 }
 
 .ui-menu{
@@ -1151,8 +1193,9 @@ div.fullScreen{
 	border: 0 !important;
 }
 
-.panel-buttons {
-	padding: 0.4em 0;
+
+.ui-button {
+	line-height: 2em !important;
 }
 
 /* stretch site dropdown */
@@ -1161,6 +1204,7 @@ div.fullScreen{
 	cursor: default;
 	position: relative;
 	border: 0;
+	line-height: 2em;
 }
 
 #sitebar .label, #gitBranchBar .label{
