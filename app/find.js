@@ -168,6 +168,7 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 				return;
 			}
 
+			var current = 0;
 			if (num_results) {
 				//highlight next result
 
@@ -193,8 +194,6 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 				}
 
 				//find out what number we are
-				var current = 0;
-
 				var found = false;
 				for (var tab in results) {
 					if(results.hasOwnProperty(tab)) {
@@ -268,18 +267,20 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 					current = target;
 				}
 
-				if( !found ){
+				if(!found) {
 					current = -1;
 				}
-				$("#findStatus").text((current + 1) + ' of ' + num_results);
-				if( !dontSelect ){
+				
+				
+				if(!dontSelect) {
 					editor.find(needle, options);
 				}
-				return num_results;
 			} else {
-				$("#findStatus").text('no results');
-				return false;
+				current = -1;
 			}
+			
+			$("#findStatus").text((current + 1) + ' of ' + num_results);
+			return num_results;
 		}
 	}
 
@@ -514,8 +515,9 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 			<input type="radio" id="findInOpen" name="findIn" value="open"><label class="flex" for="findInOpen" title="Find in open documents"><i class="far fa-copy"></i></label>\
 			<input type="radio" id="findInRemote" name="findIn" value="remote"><label class="flex" for="findInRemote" title="Find in remote site"><i class="fa fa-cloud"></i></label>\
 		</div>\
-		<div class="row ta">\
+		<div class="row ta findHolder">\
 			<textarea id="find" name="find" placeholder="find" class="ui-widget ui-state-default ui-corner-all"></textarea>\
+			<span id="findStatus"></span>\
 		</div>\
 		<progress id="findprogress"></progress>\
 		<ul id="findResults">\
@@ -525,7 +527,6 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 			<input type="checkbox" id="caseSensitive"><label for="caseSensitive" title="Case sensitive (Alt-C)"><i class="icon-case-sensitive"></i></label>\
 			<input type="checkbox" id="wholeWord"><label for="wholeWord" title="Whole words (Alt-W)"><i class="icon-whole-word"></i></label>\
 			<span class="flex"></span>\
-			<span id="findStatus">no results</span>\
 			<button type="button" id="findPrevBtn" title="Previous"><i class="fa fa-chevron-up"></i></button>\
 			<button type="button" id="findNextBtn" title="Next"><i class="fa fa-chevron-down"></i></button>\
 		</div>\
@@ -630,6 +631,8 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 				//select(ui.item);
 			}
 		});
+		
+		$('#findForm .findHolder #findStatus').click(function() { $('#find').focus(); });
 	}
 
 	return {

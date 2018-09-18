@@ -805,6 +805,22 @@ div.fullScreen{
 	margin: 0 2px;
 }
 
+#findForm .findHolder{
+	position: relative;
+}
+
+#findForm .findHolder #findStatus{
+	position: absolute;
+	bottom: 10px;
+	right: 15px;
+	opacity: 0.5;
+}
+
+#findForm .findHolder textarea{
+	padding-bottom: 2em;
+	height: calc(100% - 3em);
+}
+
 #findForm #findNextBtn{
 	margin-right: 0;
 }
@@ -816,6 +832,7 @@ div.fullScreen{
 #findForm textarea{
 	padding: 5px;
 	height: calc(100% - 14px);
+	resize: none;
 }
 
 #findForm input[name=port], #findForm input[name=timeout]{
