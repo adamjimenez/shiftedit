@@ -12,7 +12,7 @@ li[role=tab] {
 li[role=tab] a.ui-tabs-anchor {
 	font-size: 1em !important;
 	margin: 0 !important;
-	padding: 5px 10px !important;
+	padding: 10px !important;
 	font-weight: normal;
 	overflow: hidden;
 }
@@ -33,8 +33,11 @@ li.button {
 }
 
 li[role=tab] a.tabCloseButton {
-	margin: 5px 0;
+	padding: 10px;
 	opacity: 0.5;
+	line-height: 21px;
+	font-size: 1em;
+	margin: 0;
 }
 
 li[role=tab] a.tabCloseButton:hover {
