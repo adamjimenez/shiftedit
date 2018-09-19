@@ -89,6 +89,7 @@ function init() {
 		},
 		onresize_end: function() {
 			animating = false;
+			$('.jstree-table-wrapper').scrollLeft(0);
 		},
 		north: {
 			closable: false,
@@ -294,9 +295,9 @@ function openWest(focus=true) {
 		westFocused = true;
 	}
 	if (!westIsOpen()) {
-		myLayout.sizePane('west', prefs.westSize);
 		westOpen = true;
 		$('.container-west').addClass('expanded');
+		myLayout.sizePane('west', prefs.westSize);
 	}
 }
 
@@ -308,10 +309,10 @@ function closeWest(focus=true) {
 		westFocused = false;
 	}
 	if (westIsOpen()) {
-		preferences.save('westSize', myLayout.west.state.layoutWidth);
-		myLayout.sizePane('west', myLayout.west.state.minSize);
 		westOpen = false;
 		$('.container-west').removeClass('expanded');
+		preferences.save('westSize', myLayout.west.state.layoutWidth);
+		myLayout.sizePane('west', myLayout.west.state.minSize);
 	}
 }
 

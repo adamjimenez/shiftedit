@@ -16,7 +16,10 @@ var actions = {
 	},
 	'find': {
 		label: 'Find Panel',
-		defaultKeyBinding: 'Ctrl-F'
+		defaultKeyBinding: 'Ctrl-F',
+		exec: function (key, e) {
+			find.toggle();
+		}
 	},
 	'gotoLinePrompt': {
 		label: 'Goto Line',

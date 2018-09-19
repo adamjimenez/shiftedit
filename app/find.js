@@ -506,6 +506,22 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 		$('#find').focus().select();
 		return;
 	}
+	
+	function toggle() {
+		if (!layout.westIsOpen() || $(".ui-layout-west").tabs("option", "active") !== $('li[aria-controls=tabs-find]').index()) {
+			open();
+		} else {
+			layout.closeWest(true);
+			
+			var tab = tabs.active();
+			if (tab) {
+				var editor = tabs.getEditor(tab);
+				if (editor) {
+					editor.focus();
+				}
+			}
+		}
+	}
 
 	function init() {
 		$('<form id="findForm">\
@@ -597,8 +613,8 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 			}
 		});
 		$('#findForm [name=find], #findForm [name=replace]').keydown(function(e) {
-			if (e.keyCode==70 && e.ctrlKey) {
-				open();
+			if (e.keyCode==70 && e.ctrlKey) { // ctrl-f
+				toggle();
 				e.preventDefault();
 			}
 			if (['ArrowUp', 'ArrowDown'].indexOf(e.key)!=-1) {
@@ -637,6 +653,7 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 
 	return {
 		init: init,
-		open: open
+		open: open,
+		toggle: toggle
 	};
 });

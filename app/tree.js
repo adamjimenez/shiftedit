@@ -2268,9 +2268,8 @@ function setSingleClickOpen(value) {
 }
 
 function toggle() {
-	if (!layout.westIsOpen()) {
-		layout.get().sizePane('west', prefs.westSize);
-		layout.openWest();
+	if (!layout.westIsOpen() || $(".ui-layout-west").tabs("option", "active") !== $('li[aria-controls=tabs-filetree]').index()) {
+		layout.openWest(true);
 		
 		//activate tab
 		$(".ui-layout-west").tabs("option", "active", $('li[aria-controls=tabs-filetree]').index());
@@ -2286,7 +2285,14 @@ function toggle() {
 		var node = inst.get_node(node_id, true);
 		node.children('.jstree-anchor').focus();
 	} else {
-		layout.closeWest();
+		layout.closeWest(true);
+		var tab = tabs.active();
+		if (tab) {
+			var editor = tabs.getEditor(tab);
+			if (editor) {
+				editor.focus();
+			}
+		}
 	}
 }
 
