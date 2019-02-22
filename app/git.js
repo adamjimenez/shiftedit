@@ -256,9 +256,9 @@ function refresh() {
 		var rootNode = $('#tree').jstree(true).get_node('#root');
 		
 		if (rootNode.children.length) {
-			$('#notAvailable').html('Empty root folder before cloning a repository.').show();
+			$('#notAvailable').html('Empty root folder before cloning a repository').show();
 		} else {
-			$('#notAvailable').html('<a href="#" class="gitClone">Clone a repository</a>.').show();
+			$('#notAvailable').html('<a href="#" class="gitClone">Clone a repository</a>').show();
 		}
 		
 		$('a.gitClone').click(function() {
