@@ -103,7 +103,9 @@ function open(siteId, options) {
 	if (!loading.start('Connecting to site '+site.name, function(){
 		console.log('abort opening site');
 		manuallyAborted = true;
-		ajax.abort();
+		if (ajax) {
+			ajax.abort();
+		}
 		opening = {};
 	})) {
 		console.log('in queue');
@@ -596,12 +598,7 @@ function updateCategory() {
 			$('#'+field).show();
 		});
 
-		if( ['GDrive', 'GDriveLimited', 'Dropbox', 'AmazonS3'].indexOf(category) !== -1 ){
-			$('[name=serverTypeItem][value=Cloud]:first').prop("checked", true);
-		} else {
-			$('[name=serverTypeItem][value=' + category + ']:first').prop("checked", true);
-		}
-
+		$('[name=serverTypeItem][value=' + category + ']:first').prop("checked", true);
 		$( "#serverTypeRadio input[type='radio']" ).checkboxradio('refresh');
 	}
 
@@ -704,7 +701,8 @@ function chooseFolder() {
 	};
 	var params = $.extend({}, ajaxOptions.params, util.serializeObject($('#siteSettings')));
 	
-	if (!params.domain) {
+	if (!params.domain && params.server_type != 'AmazonS3' ) {
+		prompt.alert({title:'Error', msg:'Missing domain'});
 		return;
 	}
 
@@ -1209,12 +1207,6 @@ function edit(siteId, duplicate) {
 					</label>\
 				</span>\
 			</p>\
-			<div id="nameContainer" style="display:none;">\
-				<p>\
-					<label>' + lang.name + ':</label>\
-					<input type="text" name="name" value="" placeholder="my awesome website" class="text ui-widget-content ui-corner-all" required>\
-				</p>\
-			</div>\
 			<div id="newContainer" style="display:none;">\
 				<p>\
 					<label for="server">' + lang.server + ':</label>\
@@ -1270,6 +1262,10 @@ function edit(siteId, duplicate) {
 							<input type="radio" name="serverTypeItem" value="AmazonS3" id="radio5"><label for="radio5">AmazonS3</label>\
 							<input type="radio" name="serverTypeItem" value="WebDAV" id="radio6"><label for="radio6">WebDAV</label>\
 						</span>\
+					</p>\
+					<p>\
+						<label>' + lang.name + ':</label>\
+						<input type="text" name="name" value="" placeholder="my awesome website" class="text ui-widget-content ui-corner-all" required>\
 					</p>\
 					<!--\
 					<div id="cloud_container">\

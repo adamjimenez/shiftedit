@@ -627,10 +627,18 @@ coffeelint_options = [{
 
 var jslintHTML = '';
 jslint_options.forEach(function (item) {
-	jslintHTML += '<label>\
-	<input type="checkbox" name="jslint_'+item.name+'" value="1">\
-	'+item.description+'\
-</label><br>';
+	if (typeof item.value === 'boolean') {
+		jslintHTML += '<label>\
+		<input type="checkbox" name="jslint_'+item.name+'" value="1">\
+		'+item.description+'\
+	</label><br>';	
+	} else {
+		jslintHTML += '\
+		<h4>' + item.description + '</h4>\
+		<input type="number" name="jslint_'+item.name+'" value="'+item.value+'" class="ui-widget ui-state-default ui-corner-all">\
+		<br>\
+		<br>';
+	}
 
 	defaultPrefs['jslint_'+item.name] = item.value;
 });

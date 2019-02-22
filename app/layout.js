@@ -179,7 +179,7 @@ function init() {
 	// close when active tab clicked
 	var li = $('.ui-layout-west li');
 	li.first().addClass('my_active');
-	li.on('mouseup', function(e) {
+	li.on('click', function(e) {
 		if(e.button!==0) {
 			return;
 		}
@@ -199,7 +199,7 @@ function init() {
 	});
 	
 	// START autohide west panel
-	$('body').on('mouseup', '.ui-layout-west', function(e) {
+	$('body').on('click', '.ui-layout-west', function(e) {
 		if (!westIsOpen()) {
 			openWest();
 		}

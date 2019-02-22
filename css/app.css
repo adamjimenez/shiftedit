@@ -397,6 +397,11 @@ li[role=tab] .ui-icon {
 	cursor: default;
 }
 
+.jstree-default .jstree-context {
+	background: none;
+	box-shadow: none;
+}
+
 .vakata-context .vakata-contextmenu-shortcut{
 	display: inline;
 	opacity: 1;
@@ -1227,6 +1232,8 @@ div.fullScreen{
 	position: relative;
 	border: 0;
 	line-height: 2em;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 #sitebar .label, #gitBranchBar .label{
