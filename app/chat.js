@@ -47,6 +47,7 @@ function add() {
 		init();
 	
 	console.log('checking chat');
+			console.log(chats)
 	var tab = $(this);
 
 	var siteId = tab.attr('data-site');
@@ -60,26 +61,26 @@ function add() {
 	if( tab.attr('shared') ){
 		firebaseUrl = "https://shiftedit.firebaseio.com/public/"+doc_name+'/chat';
 		chatName = basename(file);
-	}else{
+	} else {
 		firebaseUrl = "https://shiftedit.firebaseio.com/sites/"+siteId+'/chat';
 
 		var settings = site.getSettings(siteId);
 		chatName = settings.name;
 	}
 
-	if( !groups[firebaseUrl] ){
-		console.log('adding chat');
+	if( firebaseUrl && !groups[firebaseUrl] ){
+		console.log('adding chat '+ firebaseUrl);
 		var li = $('<li data-url="' + firebaseUrl + '"><a href="#">' + chatName + '</a></li>').appendTo('#chat');
 		
 		var firebaseDatabase = firebase.get();
 		var ref = firebaseDatabase.refFromURL(firebaseUrl);
 
 		var recentRef = ref.limitToLast(20);
+		
 		groups[firebaseUrl] = ref;
 		group = firebaseUrl;
 		selectedGroup = group;
-		select(group);
-		chats[group]='';
+		chats[group] = '';
 
 		//delete older than 7 days
 		var timestamp = new Date();
@@ -99,6 +100,9 @@ function add() {
 
 		recentRef.on('child_added', function(snapshot) {
 			var message = snapshot.val();
+			var group = snapshot.ref.parent.toString();
+			
+			console.log('chat message for '+group);
 
 			//remove entities
 			message.message = String(message.message).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -134,6 +138,7 @@ function add() {
 			}
 
 			chats[group] += chatHtml;
+			console.log(chats)
 
 			//scroll to bottom
 			var d = $('#messages');
@@ -211,6 +216,11 @@ function open() {
 		init();
 		
 	$('#dialog-chat').dialogResize( "open" );
+	
+	// select first chat
+	if (!$('.chats .ui-state-focus').length) {
+		$('.chats a').first().click();
+	}
 }
 
 function close() {
@@ -224,7 +234,7 @@ function select() {
 	li.removeClass('unread');
 
 	selectedGroup = li.data('url');
-	$('#messages').html(chats[group]);
+	$('#messages').html(chats[selectedGroup]);
 
 	//scroll to bottom
 	var d = $('#messages');
@@ -251,7 +261,7 @@ function remove(li) {
 	$('#messages').html('');
 }
 
-$('body').on('click', '#chatButton a', function(e){ open(); });
+$('body').on('click', '#chatButton', function(e){ open(); });
 $('body').on('firebaseon', 'li', add);
 	
 //revisions dialog
