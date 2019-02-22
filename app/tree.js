@@ -15,6 +15,7 @@ var singleClickOpen = false;
 var timer;
 var touched = false;
 var renameTimer;
+var drag = false;
 
 function findChild(parent, name) {
 	for( i=0; i<parent.children.length; i++ ){
@@ -1144,9 +1145,84 @@ function init() {
 
 				if(m && m.dnd && m.pos !== 'i') { return false; }
 				if(o === "move_node" || o === "copy_node") {
-					if(this.get_node(n).parent === this.get_node(p).id) { return false; }
+					if(p.type!=='default' || this.get_node(n).parent === this.get_node(p).id) { return false; }
 				}
-
+				
+				if(o === "move_node") {
+					inst.select_node(n);
+					
+					if (m && m.core) {
+						prompt.confirm({
+							title: lang.move,
+							msg: lang.confirmMove,
+							fn: function(btn) {
+								switch(btn){
+									case 'yes':
+										var selected = inst.get_selected();
+										
+										// handle single file
+										if (!selected.length) {
+											selected = [n.id];
+										}
+										
+										queue = [];
+										selected.forEach(function(file) {
+											var newname = util.basename(file);
+											if(p.id!=='#root') {
+												newname = p.id + '/' + newname;
+											}
+											
+											queue.push({
+												oldname: file,
+												newname: newname
+											});
+										});
+										doMove();
+									break;
+									default:
+									break;
+								}
+							}
+						});
+				
+						function doMove() {
+							if (queue.length) {
+								item = queue.shift();
+							} else {
+								inst.refresh();
+								return;
+							}
+				
+							var parent = inst.get_node(p.id);
+							if (treeFn) {
+								treeFn({cmd: 'rename', file: item.oldname, newname: item.newname, parent: parent.id, callback: doMove});
+							}else{
+								var params = util.clone(ajaxOptions.params);
+								params.oldname = item.oldname;
+								params.newname = item.newname;
+								params.site = ajaxOptions.site;
+				
+								$.ajax(ajaxOptions.url+'&cmd=rename', {
+									method: 'POST',
+									dataType: 'json',
+									data: params,
+									xhrFields: {
+										withCredentials: true
+									}
+								})
+								.done(doMove)
+								.fail(function () {
+									prompt.alert({title:'Error', msg:d.error});
+									queue = [];
+									inst.refresh();
+								});
+							}
+						}
+										
+						return false;
+					}
+				}
+				
 				if(o === "delete_node") {
 					if (!confirmed){
 						var delMsg = 'the selected files';
@@ -1707,72 +1783,7 @@ function init() {
 
 	})
 	.on('move_node.jstree', function (e, data) {
-		prompt.confirm({
-			title: lang.move,
-			msg: lang.confirmMove,
-			fn: function(btn) {
-				switch(btn){
-					case 'yes':
-						var selected = inst.get_selected();
-						
-						// handle single file
-						if (!selected.length) {
-							selected = [data.node.id];
-						}
-						
-						queue = [];
-						selected.forEach(function(file) {
-							var newname = util.basename(file);
-							if(data.parent!=='#root') {
-								newname = data.parent + '/' + newname;
-							}
-							
-							queue.push({
-								oldname: file,
-								newname: newname
-							});
-						});
-						doMove();
-					break;
-					default:
-						refresh();
-					break;
-				}
-			}
-		});
 
-		function doMove() {
-			if (queue.length) {
-				item = queue.shift();
-			} else {
-				data.instance.refresh();
-				return;
-			}
-
-			var parent = inst.get_node(data.parent);
-			if (treeFn) {
-				treeFn({cmd: 'rename', file: item.oldname, newname: item.newname, parent: parent.id, callback: doMove});
-			}else{
-				var params = util.clone(ajaxOptions.params);
-				params.oldname = item.oldname;
-				params.newname = item.newname;
-				params.site = ajaxOptions.site;
-
-				$.ajax(ajaxOptions.url+'&cmd=rename', {
-					method: 'POST',
-					dataType: 'json',
-					data: params,
-					xhrFields: {
-						withCredentials: true
-					}
-				})
-				.done(doMove)
-				.fail(function () {
-					queue = [];
-					data.instance.refresh();
-				});
-			}
-		}
 	})
 	.on('copy_node.jstree', function (e, data) {
 		$.get('?operation=copy_node', { 'id' : data.original.id, 'parent' : data.parent })
@@ -1961,20 +1972,51 @@ function init() {
 			$('.filter').focus();
 		}
 	})
+	.on('mousedown','a',function (e, data) {
+		drag = true;
+		
+		if (e.button!==0) {
+			return false;
+		}
+		
+		var ref = this;
+		var inst = $.jstree.reference(ref);
+		var node = inst.get_node(ref);
+		
+		if (e.ctrlKey) {
+			if (inst.is_selected(node)) {
+				inst.deselect_node(node);
+			} else {
+				inst.select_node(node);	
+			}		
+		} else {
+			inst.deselect_all();
+			inst.select_node(node);	
+		}
+	})
 	.on('mouseup','a',function (e, data) {
+		drag = false;
+		
 		if (e.button!==0) {
 			return false;
 		}
 
 		var ref = this;
+		var inst = $.jstree.reference(ref);
+		var node = inst.get_node(ref);
+		
+		if (e.ctrlKey) {
+			if (inst.is_selected(node)) {
+				inst.deselect_node(node);
+			} else {
+				inst.select_node(node);
+			}
+		}
 
 		if ($(ref).hasClass('jstree-clicked') && !singleClickOpen) {
 			clearTimeout(renameTimer);
 			renameTimer = setTimeout(function() {
 				if (ref) {
-					var inst = $.jstree.reference(ref);
-					var node = inst.get_node(ref);
-
 					if(node.id==='#root')
 						return;
 
@@ -2128,14 +2170,22 @@ function init() {
 	//only select filename part on rename
 	$(document).on("focus", '.jstree-rename-input', function(){ setTimeout($.proxy( util.selectFilename, this), 10); });
 
+	/*
 	$('.drag').on('mousedown', function (e) {
 		return $.vakata.dnd.start(e, { 'jstree' : true, 'obj' : $(this), 'nodes' : [{ id : true, text: $(this).text() }] }, '<div id="jstree-dnd" class="jstree-default"><i class="jstree-icon jstree-er"></i>' + $(this).text() + '</div>');
 	});
+	*/
+	
 	$(document).on('dnd_move.vakata', function (e, data) {
 		var t = $(data.event.target);
 		if(!t.closest('.jstree').length) {
 			if(t.closest('.editor').length) {
 				var pos = $(data.helper).position();
+
+				if(!pos) {
+					return false;
+				}
+				
 				data.helper.find('.jstree-icon').removeClass('jstree-er').addClass('jstree-ok');
 
 				var panel = t.closest('.ui-tabs-panel')[0];
@@ -2147,13 +2197,12 @@ function init() {
 				//move caret with mouse
 				var coords = editor.renderer.pixelToScreenCoordinates(pos.left, pos.top-10);
 
-				editor.moveCursorToPosition(coords); // buggy in ace
-				/*
+				//editor.moveCursorToPosition(coords); // buggy in ace
+				
 				editor.selection.setSelectionRange({
 					start: coords,
 					end: coords
 				});
-				*/
 			}
 			else {
 				data.helper.find('.jstree-icon').removeClass('jstree-ok').addClass('jstree-er');
@@ -2161,6 +2210,10 @@ function init() {
 		}
 	})
 	.on('dnd_stop.vakata', function (e, data) {
+		if (!drag) {
+			return;
+		}
+		
 		var t = $(data.event.target);
 		if(!t.closest('.jstree').length) {
 			if(t.closest('.editor').length) {
