@@ -4,7 +4,11 @@ lang = lang.lang;
 var actions = {
 	'save': {
 		label: 'Save',
-		defaultKeyBinding: 'Ctrl-S'
+		defaultKeyBinding: 'Ctrl-S',
+		exec: function() {
+			var tab = tabs.active();
+			tabs.save(tab);
+		}
 	},
 	'saveAs': {
 		label: 'Save As',
