@@ -155,6 +155,54 @@ function init () {
 		}
 	}];
 	
+	var siteItems = [{
+		id: 'new',
+		text: lang.newText + '...',
+		handler: function() {
+			site.edit();
+		}
+	}, {
+		id: 'edit',
+		text: lang.editText + '...',
+		disabled: true,
+		target: 'site',
+		handler: function() {
+			site.edit(site.active());
+		}
+	}, {
+		id: 'delete',
+		text: lang.deleteText,
+		disabled: true,
+		target: 'site',
+		handler: function() {
+			site.remove(site.active());
+		}
+	}, {
+		id: 'duplicate',
+		text: lang.duplicate + '...',
+		disabled: true,
+		target: 'site',
+		handler: function() {
+			site.duplicate(site.active());
+		}
+	}, {
+		id: 'share',
+		text: lang.share + '...',
+		disabled: true,
+		target: 'site',
+		handler: function() {
+			site.share(site.active());
+		}
+	}, {
+		id: 'database',
+		text: lang.database + '...',
+		disabled: true,
+		target: 'site',
+		handler: function() {
+			site.database(site.active());
+		}
+	}];
+	
 	var editItems = [{
 		id: 'undo',
 		className: 'undoBtn',
@@ -485,19 +533,23 @@ function init () {
 		'mobile': {
 			text: '<i class="fas fa-bars"></i>',
 			className: 'mobileButton',
-			items: [{text: 'File', className: 'header', disabled: true}].concat(fileItems).concat(['-']).concat([{text: 'Edit', className: 'header', disabled: true}]).concat(editItems).concat(['-']).concat([{text: 'View', className: 'header', disabled: true}]).concat(viewItems)
+			items: [{text: 'File', className: 'header', disabled: true}].concat(fileItems).concat(['-']).concat([{text: 'Site', className: 'header', disabled: true}]).concat(siteItems).concat(['-']).concat([{text: 'Edit', className: 'header', disabled: true}]).concat(editItems).concat(['-']).concat([{text: 'View', className: 'header', disabled: true}]).concat(viewItems)
 		}, 
 		"file": {
 			className: 'desktopButton',
 			text: lang.fileText,
 			items: fileItems
 		},
+		 "site": {
+			className: 'desktopButton',
+			text: lang.siteText,
+			items: siteItems
+		},
 		 "edit": {
 			className: 'desktopButton',
 			text: lang.editText,
 			items: editItems
 		},
-
 		"view": {
 			className: 'desktopButton',
 			text: lang.viewText,
