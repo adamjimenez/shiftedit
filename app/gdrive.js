@@ -409,6 +409,11 @@ function treeFn(options) {
 	var entries = [];
 	var retrievePageOfFiles = function(request, result) {
 		request.execute(function(resp) {
+			if (resp.error) {
+				prompt.alert({title:'Error', msg:resp.error});
+				return;
+			}
+			
 			entries = entries.concat(resp.items);
 			var nextPageToken = resp.nextPageToken;
 
@@ -419,7 +424,7 @@ function treeFn(options) {
 				var nodes = [];
 
 				entries.forEach(function (entry, i) {
-					if( !entry.title ){
+					if(!entry || !entry.title) {
 						return;
 					}
 
@@ -447,7 +452,7 @@ function treeFn(options) {
 						link = entry.webContentLink.replace('&export=download', '');
 					}
 
-					var icon = isFolder ? '' : 'file file-'+ext;
+					var icon = isFolder ? '' : 'file';
 
 					nodes.push({
 						id: entry.id,
