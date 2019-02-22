@@ -1,7 +1,7 @@
 define(['./prefs'], function (preferences) {
 	var modes = [
 		//picks
-		['html', 'HTML', ['html', 'htm', 'tpl', 'twig'], 'text/html'],
+		['html', 'HTML', ['html', 'htm', 'tpl', 'twig', 'xhtml', 'vue', 'we', 'wpy'], 'text/html'],
 		['javascript', 'JavaScript', ['js', 'jade'], 'text/javascript'],
 		['css', 'CSS', ['css'], 'text/css'],
 		['php', 'PHP', ['php', 'php3', 'phtml', 'ctp', 'phpt'], 'application/x-httpd-php'],
