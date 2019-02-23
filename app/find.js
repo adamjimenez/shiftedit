@@ -190,6 +190,7 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 								active = $('#'+tab);
 								$(".ui-layout-center").tabs("option", "active", active.index());
 								editor = tabs.getEditor(active);
+								editor.renderer.scrollCursorIntoView();
 								
 								options.start = {
 									start: {
@@ -273,11 +274,17 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 								if (count == target) {
 									//fixme get tab panel
 	
-									// set tab
-									$(".ui-layout-center").tabs("option", "active", tab.index());
-	
 									//select
 									tabs.getEditor(tab).selection.setSelectionRange(results[tabId][i]);
+									
+									$(tab).one('activate', function() {
+										setTimeout(function() {
+											tabs.getEditor(tab).renderer.scrollCursorIntoView();
+										}, 1);
+									});
+									
+									// set tab
+									$(".ui-layout-center").tabs("option", "active", tab.index());
 	
 									found = true;
 									break;
