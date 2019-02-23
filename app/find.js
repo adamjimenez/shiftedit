@@ -173,12 +173,40 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 				//highlight next result
 
 				options.skipCurrent = false;
+				options.wrap = false;
 				delete options.start;
 
 				var oldRange = editor.getSelectionRange();
 
-				if( !dontSelect ){
-					editor.find(needle, options);
+				if(!dontSelect) {
+					var nextResult = false;
+					
+					// if no result go to next tab
+					if(!editor.find(needle, options)) {
+						for (var tab in results) {
+							if (active.attr('id') == $('#'+tab).attr('id')) {
+								nextResult = true;
+							} else if (nextResult) {
+								active = $('#'+tab);
+								$(".ui-layout-center").tabs("option", "active", active.index());
+								editor = tabs.getEditor(active);
+								
+								options.start = {
+									start: {
+										column: 0,
+										row: 0
+									},
+									end: {
+										column: 0,
+										row: 0
+									}
+								};
+								
+								editor.find(needle, options)
+								break;
+							}
+						}
+					}
 				}
 
 				var range = editor.getSelectionRange();
