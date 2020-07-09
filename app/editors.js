@@ -1,4 +1,4 @@
-define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu', './autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/ext-emmet', /*'ace/ext/tern',*/ 'ace/autocomplete','ace/ext-split', 'firepad', 'firepad-userlist', "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', 'firebase', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools, emmet/*, tern*/) {
+define(['./config', 'ace/ace','./tabs', 'exports', './prefs', "./util", "./modes", './lang','./syntax_errors', './prompt','./editor_contextmenu', './autocomplete', './site', './firebase', './find', './storage', './resize', 'ace/ext/beautify', "ace/ext/language_tools", 'ace/ext-emmet', /*'ace/ext/tern',*/ 'ace/autocomplete','ace/ext-split', 'firepad', 'firepad-userlist', "ace/keyboard/vim", "ace/keyboard/emacs", 'ace/ext/whitespace', 'ace/ext/searchbox', '@firebase/app', 'jquery'], function (config, ace, tabs, exports, preferences, util, modes, lang, syntax_errors, prompt, editor_contextmenu, autocomplete, site, firebase, find, storage, resize, beautify, language_tools, emmet/*, tern*/) {
 
 lang = lang.lang;
 var editor;
@@ -121,6 +121,10 @@ function onChange(e, document) {
 	}
 
 	// clear tinymce undo stack
+	if (typeof tinymce === 'undefined') {
+		return;
+	}
+	
 	if (tab.data('view')==='code') {
 		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 		var inst = tinymce.get(panel.find('.design .tinymce').attr('id'));
@@ -190,7 +194,7 @@ function onChangeCursor(e, selection) {
 		}
 	}
 	
-	if(url) {
+	if(prefs.linkTooltips && url) {
 		console.log(url);
 		if (document.getElementById('link')) {
 			el = document.getElementById('link');
@@ -411,7 +415,14 @@ function restoreState(state) {
 				//console.log(fold);
 				var range = Range.fromPoints(fold.start, fold.end);
 				//console.log(range);
-				session.addFold(fold.placeholder, range);
+				
+				if (range && !range.isEmpty()) {
+					try{
+						session.addFold(fold.placeholder, range);
+					} catch(e){
+						console.log(e);
+					}
+				}
 			}
 		}
 

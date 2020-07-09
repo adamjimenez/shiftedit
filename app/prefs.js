@@ -41,6 +41,7 @@ defaultPrefs.fontSize = 12;
 defaultPrefs.softTabs = true;
 defaultPrefs.autoTabs = true;
 defaultPrefs.indentOnPaste = false;
+defaultPrefs.linkTooltips = true;
 defaultPrefs.wordWrap = false;
 defaultPrefs.fullLineSelection = false;
 defaultPrefs.highlightActiveLine = false;
@@ -1092,6 +1093,11 @@ function open() {
 	<label>\
 		<input type="checkbox" name="indentOnPaste" value="1">\
 		' + lang.indentOnPaste + '\
+	</label>\
+	<br>\
+	<label>\
+		<input type="checkbox" name="linkTooltips" value="1">\
+		Link tooltips\
 	</label>\
 	<br>\
 	<label>\
