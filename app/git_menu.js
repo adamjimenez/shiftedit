@@ -82,9 +82,9 @@ function init() {
 		
 		list.on('basicmenuclick basicmenuenter', function(event, ui) {
 			if ($(ui.item).data('value')) {
-				git.checkout($(ui.item).data('value'));
+				git.checkout($(ui.item).data('value').trim());
 			} else {
-				git.checkout(dialog.find( '.filter' ).val());
+				git.checkout(dialog.find( '.filter' ).val().trim());
 			}
 			dialog.dialog( "close" );
 		});

@@ -1,4 +1,4 @@
-define(['exports', './loading', './config', './layout', './site', './tree', './tabs', './prompt', './git_menu', 'linkify-html', './lang', "ui.basicMenu", 'dialogResize'], function (exports, loading, config, layout, site, tree, tabs, prompt, git_menu, linkifyHtml, lang) {
+define(['exports', './loading', './config', './layout', './site', './tree', './tabs', './prompt', './git_menu', 'linkify-html', './lang', './util', "ui.basicMenu", 'dialogResize'], function (exports, loading, config, layout, site, tree, tabs, prompt, git_menu, linkifyHtml, lang, util) {
 lang = lang.lang;
 var gitEditor;
 var gitConfig = {
@@ -20,9 +20,10 @@ function init() {
 					</select>\
 				</div>\
 				<div class="flex" id="gitViewContainer">\
-					<span id="gitViewRadio">\
-						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio" disabled><label for="changesRadio">' + lang.changes + '</label>\
-						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label for="historyRadio">' + lang.history + '</label>\
+					<span id="gitViewRadio" class="hbox">\
+						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio" disabled><label class="flex" for="changesRadio" title="Changes"><i class="far fa-folder"></i></label>\
+						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label class="flex" for="historyRadio" title="History"><i class="fas fa-history"></i></label>\
+						<input type="radio" name="gitViewItem" value="Stashes" id="stashesRadio"><label class="flex" for="stashesRadio" title="Stashes"><i class="far fa-clipboard"></i></label>\
 					</span>\
 				</div>\
 				<button type="button" id="gitSync"><span class="count"></span><i class="fas fa-sync"></i></button>\
@@ -30,11 +31,19 @@ function init() {
 			<div id="gitContentContainer" class="vbox">\
 				<ul id="gitHistory"></ul>\
 				<div id="changesContainer" class="vbox" style="display: none;">\
+					<label class="toggle ui-state-default" style="padding: 0.4em 1em; margin: 0;"><input type="checkbox" checked><span class="count">0</span> changed files</label>\
 					<ul id="gitChanges" class="flex"></ul>\
 					<div id="commitPanel">\
 						<input id="gitSubject" type="text" name="subject" placeholder="' + lang.summary + '" class="text ui-widget-content ui-corner-all">\
 						<textarea id="gitDescription" placeholder="' + lang.description + '" class="text ui-widget-content ui-corner-all"></textarea>\
-						<button type="button" id="commitBtn" disabled>' + lang.commitTo + ' master</button>\
+						<button type="button" id="commitBtn" disabled></button>\
+					</div>\
+				</div>\
+				<div id="stashesContainer" class="vbox" style="display: none;">\
+					<ul id="gitStashes" class="flex"></ul>\
+					<div id="stashPanel">\
+						<input id="gitStashSubject" type="text" name="subject" placeholder="' + lang.summary + '" class="text ui-widget-content ui-corner-all">\
+						<button type="button" id="createStashBtn">Create Stash</button>\
 					</div>\
 				</div>\
 			</div>\
@@ -68,13 +77,16 @@ function init() {
 				show(title, $(ui.item).data('diff'));
 			} else {
 				var hash = $(ui.item).data('hash');
-				var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-				loading.fetch(ajaxOptions.url+'&cmd=show&commit='+hash, {
+				var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
+				loading.fetch(ajaxOptions.url+'&cmd=show&commit=' + hash, {
 					action: 'show commit',
 					success: function(data) {
 						if (data.success) {
 							$(ui.item).data('diff', data.result);
-							show(title, $(ui.item).data('diff'));
+							
+							if ($(ui.item).data('diff')) {
+								show(title, $(ui.item).data('diff'));
+							}
 						} else {
 							prompt.alert({title:'Error', msg:data.error});
 						}
@@ -107,13 +119,66 @@ function init() {
 		}
 	});
 	
+	$("#gitStashes").basicMenu({
+		select: function (event, ui) {
+			var title = $(ui.item).find('.name').text();
+			
+			if ($(ui.item).data('diff')) {
+				show(title, $(ui.item).data('diff'));
+			} else {
+				var index = $(ui.item).data('index');
+				var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+				loading.fetch(ajaxOptions.url+'&cmd=stash_show&index=' + index, {
+					action: 'show stash',
+					success: function(data) {
+						if (data.success) {
+							$(ui.item).data('diff', data.result);
+							
+							if ($(ui.item).data('diff')) {
+								show(title, $(ui.item).data('diff'));
+							}
+						} else {
+							prompt.alert({title:'Error', msg:data.error});
+						}
+					}
+				});
+			}
+		}
+	});
+	
+	$('#createStashBtn').button().click(function() {
+		var params = {};
+		params.subject = $('#gitStashSubject').val();
+		
+		// post it
+		var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+		loading.fetch(ajaxOptions.url+'&cmd=stash_push', {
+			action: 'create stash',
+			data: params,
+			success: function(data) {
+				if (data.success) {
+					// clear values
+					$('#gitStashSubject').val('');
+					
+					tree.refresh();
+				} else {
+					prompt.alert({title:'Error', msg:data.error});
+				}
+			}
+		});
+	});
+	
 	$('#gitViewContainer input:radio').change(function() {
+		$('#gitHistory').hide();
+		$('#stashesContainer').hide();
+		$('#changesContainer').hide();
+			
 		if (this.value==='Changes') {
-			$('#gitHistory').hide();
 			$('#changesContainer').show();
 		} else if (this.value==='History') {
 			$('#gitHistory').show();
-			$('#changesContainer').hide();
+		} else if (this.value==='Stashes') {
+			$('#stashesContainer').show();
 		}
 	});
 	
@@ -127,6 +192,20 @@ function init() {
 	
 	$('#gitChanges').on('change click input', 'input', checkCommit);
 	$('#gitSubject').on('change keyup input', checkCommit);
+	$('#changesContainer .toggle').on('change', 'input', function() {
+		$('#gitChanges input').prop("checked", this.checked);
+	});
+
+	// toggle all when individual items are ticked	
+	$('#gitChanges').on('change', 'input', function() {
+		if ($('#gitChanges input:checked').length == $('#gitChanges input').length) {
+			$('#changesContainer .toggle input').prop("checked", true);
+		} else if($('#gitChanges input:checked').length === 0) {
+			$('#changesContainer .toggle input').prop("checked", false);
+		} else {
+			$('#changesContainer .toggle input').prop("indeterminate", true);
+		}
+	});
 	
 	$('#commitBtn').button().click(function() {
 		var params = {};
@@ -188,6 +267,88 @@ function init() {
 		items: {
 			"open": {name: lang.openFile},
 			"discard": {name: lang.discardChanges}
+		}
+	});
+	
+	$.contextMenu({
+		selector: '#gitHistory li',
+		callback: function(key, opt){
+			switch(key) {
+				case 'copy':
+					util.copy($(this).data('hash'));
+				break;
+				case 'revert':
+					var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
+					loading.fetch(ajaxOptions.url+'&cmd=revert&hash=' + $(this).data('hash'), {
+						action: 'revert commit',
+						success: function(data) {
+							if (data.success) {
+								tree.refresh();
+							} else {
+								prompt.alert({title:'Error', msg:data.error});
+							}
+						}
+					});
+				break;
+			}
+		},
+		items: {
+			"copy": {name: lang.copy},
+			"revert": {name: lang.revert}
+		}
+	});
+	
+	$.contextMenu({
+		selector: '#gitStashes li',
+		callback: function(key, opt){
+			var ajaxOptions;
+			var index = $(this).data('index');
+			
+			switch(key) {
+				case 'apply':
+					ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+					loading.fetch(ajaxOptions.url+'&cmd=stash_apply&index=' + index, {
+						action: 'remove stash',
+						success: function(data) {
+							if (data.success) {
+								if (data.result.substr(0, 6) === 'error:' ) {
+									prompt.alert({title:'Error', msg:data.result});
+								} else {
+									tree.refresh();
+									prompt.alert({title:'Success', msg:'Git stash applied'});
+								}
+							} else {
+								prompt.alert({title:'Error', msg:data.error});
+							}
+						}
+					});
+				break;
+				case 'remove':
+					prompt.confirm({
+						title: 'Remove stash',
+						msg: 'Are you sure you want to remove this stash?',
+						fn: function(value) {
+							if (value==='yes') {
+								ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+								loading.fetch(ajaxOptions.url+'&cmd=stash_drop&index=' + index, {
+									action: 'remove stash',
+									success: function(data) {
+										if (data.success) {
+											tree.refresh();
+										} else {
+											prompt.alert({title:'Error', msg:data.error});
+										}
+									}
+								});
+							}
+						}
+					});
+				break;
+			}
+		},
+		items: {
+			"apply": {name: 'Apply'},
+			"remove": {name: 'Remove'}
 		}
 	});
 	
@@ -332,7 +493,7 @@ function gitLog() {
 			// changes
 			$("#gitChanges li").addClass('delete').removeData('diff');
 			$.each(data.changes, function( index, item ) {
-				var li = $("#gitChanges").find('[data-path="'+item.path+'"]');
+				var li = $("#gitChanges").find('[data-path="'+item.path.replace(/"/g, '')+'"]');
 				if ( li.length ) {
 					li.removeClass('delete');
 				} else {
@@ -340,8 +501,20 @@ function gitLog() {
 					.attr('data-path', item.path);
 				}
 			});
+			
+			var changes = data.changes ? data.changes.length : '';
+			$('#changesContainer .count').text(changes);
+			
 			$( "#gitChanges" ).children('.delete').remove();
 			$('#changesRadio').prop('disabled', (!data.changes || data.changes.length===0));
+			
+			// stashes
+			$( "#gitStashes" ).children().remove();
+			$.each(data.stashes, function( index, item ) {
+				$( '<li><a href="#"><span class="name">' + item.name + '</span></a></li>' ).appendTo( "#gitStashes" )
+				.attr('data-index', item.index);
+			});
+			
 			$( "#gitViewRadio input[type='radio']" ).checkboxradio('refresh');
 			
 			$('#notAvailable').hide();
@@ -377,19 +550,20 @@ function gitLog() {
 				}
 			}
 		},
-		error: function(error) {
+		error: function(data) {
+			console.log(arguments)
 			$('#gitContainer').hide();
 			$('#gitLoading').hide();
-			$('#notAvailable').html(error).show();
+			$('#notAvailable').html(data).show();
 		}
 	});
 }
 
 function checkout(branch) {
-	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
 	
-	loading.fetch(ajaxOptions.url+'&cmd=checkout&branch='+branch, {
-		action: 'git checkout '+branch,
+	loading.fetch(ajaxOptions.url + '&cmd=checkout&branch=' + encodeURIComponent(branch), {
+		action: 'git checkout ' + branch,
 		success: function(data) {
 			if (data.success) {
 				tree.refresh();
@@ -430,8 +604,8 @@ function createBranch() {
 					var name = $('#branchForm input[name=name]').val();
 					var from = $('#branchForm select[name=from]').val();
 					
-					loading.fetch(ajaxOptions.url+'&cmd=create_branch&name='+name+'&from='+from, {
-						action: 'git checkout -b '+name+' '+from,
+					loading.fetch(ajaxOptions.url+'&cmd=create_branch&name=' + encodeURIComponent(name) + '&from=' + encodeURIComponent(from), {
+						action: 'git checkout -b ' + name + ' ' + from,
 						success: function(data) {
 							if (data.success) {
 								$( '#dialog-branch' ).dialogResize( "close" );
@@ -477,7 +651,7 @@ function createBranch() {
 
 function doRemoveBranch(branch) {
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-	loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch='+branch, {
+	loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch=' + encodeURIComponent(branch), {
 		action: 'git branch -d '+branch,
 		success: function(data) {
 			if (data.success) {
@@ -486,7 +660,7 @@ function doRemoveBranch(branch) {
 				prompt.alert({title:'Error', msg:data.error});
 			}
 		},
-		error: function(error) {
+		error: function(data) {
 			if (error.indexOf('is not fully merged')) {
 				prompt.confirm({
 					title: lang.forceDeleteBranch+' '+branch,
@@ -494,7 +668,7 @@ function doRemoveBranch(branch) {
 					fn: function(value) {
 						if (value==='yes') {
 							var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-							loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch='+branch+'&force=1', {
+							loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch=' + encodeURIComponent(branch) + '&force=1', {
 								action: 'git branch -D '+branch,
 								success: function(data) {
 									if (data.success) {
@@ -601,6 +775,11 @@ function sync() {
 			} else {
 				prompt.alert({title:lang.errorText, msg:data.error});
 			}
+		},
+		error: function(data) {
+			console.log(arguments)
+			$( "#gitSync" ).children('i').removeClass('fa-spin');
+			prompt.alert({title:'Error', msg:data});
 		}
 	});
 }
