@@ -1,11 +1,15 @@
 requirejs.config({
 	paths: {
-		"firebase": "node_modules/firebase/firebase",
+		"@firebase/app": "node_modules/firebase/firebase-app",
+		"@firebase/database": "node_modules/firebase/firebase-database",
+		"@firebase/auth": "node_modules/firebase/firebase-auth",
+		
 		"jstree": "node_modules/jstree/dist/jstree",
 		"jquery": "node_modules/jquery/dist/jquery",
-		"xterm": "node_modules/xterm/dist/xterm",
-		"xterm/dist/addons/attach/attach": "node_modules/xterm/dist/addons/attach/attach",
-		"xterm/dist/addons/fit/fit": "node_modules/xterm/dist/addons/fit/fit",
+		"xterm": "node_modules/xterm/lib/xterm",
+		"xterm-addon-fit": "node_modules/xterm-addon-fit/lib/xterm-addon-fit",
+		//"xterm/dist/addons/attach/attach": "node_modules/xterm/dist/addons/attach/attach",
+		//"xterm/dist/addons/fit/fit": "node_modules/xterm/dist/addons/fit/fit",
 		"jquery-contextmenu": "node_modules/jquery-contextmenu/dist/jquery.contextMenu",
 		"markdown-it": "node_modules/markdown-it/dist/markdown-it",
 		"resumablejs": "node_modules/resumablejs/resumable",
@@ -122,15 +126,11 @@ requirejs.config({
 			exports: "$",
 			deps: ["jquery"]
 		},
-		"firebase": {
-			exports: "firebase"
-		},
 		"firepad": {
-			deps: ["ace/ace", "firebase"]
+			deps: ["ace/ace", '@firebase/app', '@firebase/database']
 		},
 		"firepad-userlist": {
-			exports: "FirepadUserList",
-			deps: ["firebase"]
+			exports: "FirepadUserList"
 		},
 		"linkify-html": {
 			deps: [

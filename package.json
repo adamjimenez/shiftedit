@@ -13,11 +13,11 @@
     "blueimp-md5": "^2.10.0",
     "crypto-libraries": "https://github.com/chrisveness/crypto.git",
     "cssmin": "^0.4.3",
-    "diff": "^3.4.0",
-    "diff2html": "^2.3.2",
-    "exports-loader": "^0.6.4",
+    "diff": "^4.0.2",
+    "diff2html": "^3.1.2",
+    "exports-loader": "^0.7.0",
     "firepad": "^1.4.0",
-    "imports-loader": "^0.7.1",
+    "imports-loader": "^0.8.0",
     "jquery": "^3.2.1",
     "jquery-contextmenu": "^2.6.3",
     "jquery-ui-bundle": "^1.12.1",
@@ -25,7 +25,7 @@
     "jstree": "^3.3.4",
     "linkifyjs": "^2.1.5",
     "lzma": "^2.3.2",
-    "markdown-it": "^8.4.0",
+    "markdown-it": "^10.0.0",
     "md5": "^2.2.1",
     "requirejs": "^2.3.5",
     "requirejs-plugins": "^1.0.2",
@@ -33,13 +33,14 @@
     "text": "requirejs/text",
     "uglify-js": "^3.2.2",
     "urijs": "^1.19.0",
-    "xterm": "^3.0.2"
+    "xterm": "^4.4.0",
+    "xterm-addon-fit": "^0.3.0"
   },
   "scripts": {
     "build": "webpack"
   },
   "devDependencies": {
     "json-loader": "^0.5.7",
-    "webpack": "^3.10.0"
+    "webpack": "^4.42.0"
   }
 }

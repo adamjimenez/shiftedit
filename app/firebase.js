@@ -1,6 +1,9 @@
-define(['./tabs','./prefs', './storage', 'firebase'],function (tabs, preferences, storage) {
+define(['./tabs','./prefs', './storage', '@firebase/app', '@firebase/auth', '@firebase/database'],function (tabs, preferences, storage) {
 
-var firebase = require('firebase');
+var firebase = require('@firebase/app');
+require('@firebase/database');
+require('@firebase/auth');
+
 var connected = false;
 var connecting = false;
 var firebaseDatabase = null;
