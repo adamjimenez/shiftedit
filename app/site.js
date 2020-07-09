@@ -128,7 +128,22 @@ function open(siteId, options) {
 	}
 
 	if(site.turbo == 1){
+		// prompt for master password
+		var prefs = preferences.get_prefs();
+		if (prefs.useMasterPassword && !storage.get('masterPassword')) {
+			loading.stop();
+			return masterPasswordPrompt(function() {
+				open(siteId, options);
+			});
+		}
+		
 		var ajaxOptions = getAjaxOptions();
+		
+		if (!ajaxOptions) {
+			loading.stop();
+			return;
+		}
+		
 		console.log("connecting to: "+ajaxOptions.url);
 		tree.setAjaxOptions(ajaxOptions);
 		loading.stop();
@@ -1300,7 +1315,7 @@ function edit(siteId, duplicate) {
 					</p>\
 					<p id="pass_container">\
 						<label>' + lang.password + ':</label>\
-						<input type="password" id="ftp_pass" name="ftp_pass" placeholder="server password" value="" class="showPassword text ui-widget-content ui-corner-all" required disabled>\
+						<input type="password" id="ftp_pass" name="ftp_pass" placeholder="server password" value="" class="showPassword text ui-widget-content ui-corner-all" autocomplete="new-password" required>\
 					</p>\
 					<p id="ssh_key_container">\
 						<label>' + lang.yourSSHKey + ':</label>\
@@ -1345,7 +1360,7 @@ function edit(siteId, duplicate) {
 								</p>\
 								<p>\
 									<label>DB Password:</label>\
-									<input type="password" id="db_password" name="db_password" value="" class="showPassword text ui-widget-content ui-corner-all" disabled>\
+									<input type="password" id="db_password" name="db_password" value="" class="showPassword text ui-widget-content ui-corner-all" autocomplete="new-password">\
 								</p>\
 							</div>\
 							<h4>Git</h4>\
@@ -1444,12 +1459,6 @@ function edit(siteId, duplicate) {
 			}
 		}
 	});
-
-	//defeat chrome autofill
-	setTimeout(function(){
-		$('#ftp_pass').removeAttr("disabled");
-		$('#db_password').removeAttr("disabled");
-	}, 500);
 
 	//encoding dropdown
 	var charsets = preferences.charsets;
@@ -2070,8 +2079,7 @@ function getAjaxOptions(ajaxUrl, settings) {
 				ajaxUrl = 'http://'+ajaxUrl;
 			}
 		}
-		
-		//fixme prompt for master password
+
 		var prefs = preferences.get_prefs();
 		var pass = prefs.useMasterPassword ? Aes.Ctr.decrypt(settings.ftp_pass, storage.get('masterPassword'), 256) : settings.ftp_pass;
 
