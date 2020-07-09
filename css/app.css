@@ -1,5 +1,5 @@
 @import url("../node_modules/jstree/dist/themes/default/style.css");
-@import url("../node_modules/xterm/dist/xterm.css");
+@import url("../node_modules/xterm/css/xterm.css");
 /*@import url("../node_modules/jquery-ui-bundle/jquery-ui.css");*/
 @import url("../node_modules/jquery-contextmenu/dist/jquery.contextMenu.css");
 @import url("../lib/layout/layout-default-latest.css");
@@ -28,6 +28,13 @@ a input {
 	vertical-align: -2px;
 }
 
+/* firefox scrollbars */
+* {
+  scrollbar-color: #aaa transparent;
+  scrollbar-width: thin;
+}
+
+/* chrome scrollbars */
 ::-webkit-scrollbar {
 	width: 10px;
 	height: 10px;
@@ -1297,6 +1304,7 @@ div.fullScreen{
 	position: relative;
 	background: none !important;
 }
+
 .jstree-container-ul .jstree-loading > .jstree-ocl:before {
 	content: "\f021";
 	font-family: "Font Awesome\ 5 Free";
@@ -1304,7 +1312,7 @@ div.fullScreen{
 	position: absolute;
 	top: 0;
 	font-weight: 900;
-	animation: a 2s infinite linear;
+	animation: fa-spin 2s infinite linear;
  }
  
 .check:before {
@@ -1329,13 +1337,8 @@ div.fullScreen{
 
 #gitViewContainer {
 	text-align: center;
-	font-size: 10px;
 	min-width: 116px;
-}
-
-#gitViewContainer .ui-button{
-	margin: 0;
-	padding: 6px 4px;
+	margin: 0 4px;
 }
 
 #gitMenu {
@@ -1351,14 +1354,14 @@ div.fullScreen{
 	overflow: auto;
 }
 
-#commitPanel{
+#commitPanel, #stashPanel{
 	border-top: 1px solid #ccc;
 	padding: 10px;
 	text-align: center;
 	height: 120px;
 }
 
-#commitPanel input, #commitPanel textarea{
+#commitPanel input, #commitPanel textarea, #stashPanel input{
 	display: block;
 	width: calc(100% - 20px);
 	margin: 10px;

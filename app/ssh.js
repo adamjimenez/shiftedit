@@ -1,7 +1,7 @@
-define(['./config', './tabs', './prompt', './lang', './loading', './site', './prefs', './layout', './storage', 'xterm', 'xterm/dist/addons/fit/fit', 'aes', 'dialogResize'], function (config, tabs, prompt, lang, loading, site, preferences, layout, storage, Terminal) {
+define(['./config', './tabs', './prompt', './lang', './loading', './site', './prefs', './layout', './storage', 'xterm', 'xterm-addon-fit', 'aes', 'dialogResize'], function (config, tabs, prompt, lang, loading, site, preferences, layout, storage, xterm, xtermAddonFit) {
 
-var fit = require('xterm/dist/addons/fit/fit');
-Terminal.applyAddon(fit);
+var Terminal = xterm.Terminal;
+var FitAddon = xtermAddonFit.FitAddon;
 
 var Aes = require('aes');
 lang = lang.lang;
@@ -26,7 +26,7 @@ init = function() {
 		var tab = $('li[data-ssh="'+id+'"]');
 		var session = tab.data('session');
 
-		if (session.logged_in!==true && data.trim().substr(-('password:'.length))==='password:') {
+		if (typeof session !== 'undefined' && session.logged_in!==true && data.trim().substr(-('password:'.length))==='password:') {
 			console.log('enter password');
 			
 			if (session.password) {
@@ -39,8 +39,15 @@ init = function() {
 			}
 		}
 		
-		if (session.logged_in!==true && data.trim().substr(-1)==='$') {
+		if (typeof session !== 'undefined' && session.logged_in!==true && data.trim().substr(-1)==='$') {
 			console.log('logged in');
+			
+			// shorter prompt
+			//socket.emit('data', id, 'export PS1="\\[\\e]0;\\u\\h: \\w\\a\\]${debian_chroot:+($debian_chroot)}\\[\\033[01;32m\\]\\u\\[\\033[00m\\]: "' + "\n");
+			
+			//debug
+			//socket.emit('resize', id, 10, 10);
+			
 			if (session.cwd) {
 				socket.emit('data', id, "cd "+session.cwd+"\n");
 			}
@@ -99,25 +106,28 @@ var doResize = function(session) {
 		return;
 	}
 	
+	// debug
+	//return
+	
 	var term = terms[session.id];
 	
 	if (!term) {
 		return;
 	}
-
-	cols = Math.floor($(term.element).parent().innerWidth() / term._core.charMeasure.width)-3;
-	rows = Math.floor($(term.element).parent().innerHeight() / term._core.charMeasure.height);
+	
+	cols = Math.floor($(term.element).parent().innerWidth() / term._core._charSizeService.width)-3;
+	rows = Math.floor($(term.element).parent().innerHeight() / term._core._charSizeService.height);
 
 	console.log('resize '+cols+'x'+rows);
 
 	socket.emit('resize', session.id, cols, rows);
-	terms[session.id].fit();
+	terms[session.id].fitAddon.fit();
 };
 
 var destroy = function(session) {
 	socket.emit('kill', session.id);
 	if (terms[session.id]) {
-		terms[session.id].destroy();
+		terms[session.id].dispose();
 	}
 };
 
@@ -156,9 +166,18 @@ function new_session(tab, host, username, port, password, cwd) {
 	
 	var term = new Terminal({
 		cursorBlink: true,
-		screenKeys: true
+		screenKeys: true,
+		/*
+		logLevel: 'debug',
+		cols: 10,
+		rows: 10
+		*/
 	});
-	
+
+	var fitAddon = new FitAddon();
+	term.loadAddon(fitAddon);
+	term.fitAddon = fitAddon;
+
 	var session = {
 		id: null,
 		host: host,
@@ -198,10 +217,11 @@ function new_session(tab, host, username, port, password, cwd) {
 		}
 	});
 	
-	term.on('data', function(data) {
+	term.onData(function(data) {
 		socket.emit('data', session.id, data);
 	});
 	
+	/*
 	term.on('title', function(title) {
 		if (!title) return;
 
@@ -212,6 +232,7 @@ function new_session(tab, host, username, port, password, cwd) {
 		title = (title + '').replace(/[&<>]/g, '');
 		session.title = title;
 	});
+	*/
 	
 	term.open(element, true);
 	
