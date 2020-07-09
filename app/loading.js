@@ -131,7 +131,6 @@ function fetch(url, options) {
 		
 	ajax.then(function (data) {
 		stop();
-
 		if(data.success){
 			options.success(data);
 		}else{
@@ -143,11 +142,12 @@ function fetch(url, options) {
 		}
 		options.complete(data);
 	}).fail(function(error) {
+		console.log(error)
 		stop();
 		if (options.error) {
-			options.error('Error '+options.action);
+			options.error(error.statusText);
 		} else {
-			prompt.alert({title: 'Failed '+options.action, msg: error});
+			prompt.alert({title: 'Failed '+options.action, msg: error.statusText});
 		}
 	});
 }
