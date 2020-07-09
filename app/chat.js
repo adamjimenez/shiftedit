@@ -6,14 +6,15 @@ var chats = {};
 var texts = {};
 var scrolls = {};
 var alertIcon = '<i class="fa fa-bell"></i>';
-var username = storage.get('username');
-var userId = storage.get('user');
-var avatar = storage.get('avatar');
 var alertSound;
 var alertSoundURL = 'https://shiftedit.s3.amazonaws.com/assets/alert.wav';
 var initialized = false;
 
 function send(msg) {
+	var username = storage.get('username');
+	var userId = storage.get('user');
+	var avatar = storage.get('avatar');
+	
 	var groupRef = groups[group];
 
 	if(msg===''){
@@ -23,7 +24,7 @@ function send(msg) {
 	//replace line numbers with links
 	var tab = tabs.active();
 
-	if( tab ){
+	if(tab) {
 		var siteId = tab.data('site');
 		var file = tab.data('file');
 		msg = msg.replace(/#(\d+)/g, '#'+siteId+'/'+file+":$1");
@@ -37,6 +38,8 @@ function send(msg) {
 		avatar: avatar
 	};
 
+	//console.log(message);
+
 	var ref = groupRef.push();
 	var callback;
 	ref.setWithPriority(message, firebase.timestamp(), callback);
@@ -47,7 +50,9 @@ function add() {
 		init();
 	
 	console.log('checking chat');
-			console.log(chats)
+	//console.log(chats);
+			
+	var userId = storage.get('user');
 	var tab = $(this);
 
 	var siteId = tab.attr('data-site');
