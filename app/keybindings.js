@@ -27,6 +27,20 @@ var actions = {
 			find.toggle();
 		}
 	},
+	'findNext': {
+		label: 'Find Next',
+		defaultKeyBinding: 'F3',
+		exec: function (key, e) {
+			find.next();
+		}
+	},
+	'findPrev': {
+		label: 'Find Prev',
+		defaultKeyBinding: 'Shift-F3',
+		exec: function (key, e) {
+			find.previous();
+		}
+	},
 	'gotoLinePrompt': {
 		label: 'Goto Line',
 		defaultKeyBinding: 'Ctrl-G'
@@ -93,7 +107,7 @@ var actions = {
 	},
 	'addSemicolon': {
 		label: lang.addSemicolon,
-		defaultKeyBinding: ''
+		defaultKeyBinding: 'Ctrl-;'
 	},
 	'jumpToMatching': {
 		label: lang.jumpToMatching,
@@ -148,7 +162,7 @@ var actions = {
 	}, 
 	'close': {
 		label: "Close",
-		defaultKeyBinding: 'Ctrl-Alt-W',
+		defaultKeyBinding: 'Alt-W',
 		exec: function (key, e) {
 			tabs.close($('.ui-layout-center .ui-tabs-active'));
 		}
@@ -733,12 +747,17 @@ function updateKeyBindings() {
 	shortcuts = {};
 	
 	Object.keys(actions).forEach(function(key, index) {
-		if (actions[key].exec) {
-			shortcuts[getKeyBinding(key)] = actions[key];
+		var keyStr = getKeyBinding(key);
+		
+		if (!keyStr) {
+			return;
 		}
 		
-		// console.log('.' + key + ' .shortcut');
-		$('.' + key + ' .shortcut').text(getKeyBinding(key));
+		if (actions[key].exec) {
+			shortcuts[keyStr] = actions[key];
+		}
+		
+		$('.' + key + ' .shortcut').text(keyStr);
 	});
 	
 	// snippets
@@ -811,6 +830,10 @@ function init() {
 		}
 		
 		if (shortcuts[keyStr]) {
+			if (e.originalEvent.repeat) {
+				return false;
+			}
+		
 			shortcuts[keyStr].exec();
 
 			if (shortcuts[keyStr].stopEvent !== false) {
