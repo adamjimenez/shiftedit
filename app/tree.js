@@ -16,6 +16,7 @@ var timer;
 var touched = false;
 var renameTimer;
 var drag = false;
+var clicked = false;
 
 function findChild(parent, name) {
 	for( i=0; i<parent.children.length; i++ ){
@@ -1972,7 +1973,7 @@ function init() {
 			$('.filter').focus();
 		}
 	})
-	.on('mousedown','a',function (e, data) {
+	.on('mousedown','a',function (e) {
 		drag = true;
 		
 		if (e.button!==0) {
@@ -1980,8 +1981,10 @@ function init() {
 		}
 		
 		var ref = this;
-		var inst = $.jstree.reference(ref);
+		var inst = $.jstree.reference(ref.id);
+		
 		var node = inst.get_node(ref);
+		clicked = $(ref).hasClass('jstree-clicked');
 		
 		if (e.ctrlKey) {
 			if (inst.is_selected(node)) {
@@ -2013,7 +2016,7 @@ function init() {
 			}
 		}
 
-		if ($(ref).hasClass('jstree-clicked') && !singleClickOpen) {
+		if (clicked && !singleClickOpen) {
 			clearTimeout(renameTimer);
 			renameTimer = setTimeout(function() {
 				if (ref) {
@@ -2300,7 +2303,7 @@ function refresh(node) {
 	if (node) {
 		tree.jstree(true).refresh_node(node);
 	} else {
-		tree.jstree(true).refresh();
+		tree.jstree(true).refresh(false, true);
 	}
 }
 
