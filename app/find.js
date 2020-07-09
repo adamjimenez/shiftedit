@@ -117,6 +117,7 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 			var end;
 			var editor;
 			var i;
+			var tab;
 
 			if (findIn == 'open') {
 				files = $('li[data-file]');
@@ -183,7 +184,7 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 					
 					// if no result go to next tab
 					if(!editor.find(needle, options)) {
-						for (var tab in results) {
+						for (tab in results) {
 							if (active.attr('id') == $('#'+tab).attr('id')) {
 								nextResult = true;
 							} else if (nextResult) {
@@ -224,7 +225,7 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 
 				//find out what number we are
 				var found = false;
-				for (var tab in results) {
+				for (tab in results) {
 					if(results.hasOwnProperty(tab)) {
 						for (i = 0; i < results[tab].length; i++) {
 							if (
@@ -543,7 +544,11 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 	}
 	
 	function toggle() {
-		if (!layout.westIsOpen() || $(".ui-layout-west").tabs("option", "active") !== $('li[aria-controls=tabs-find]').index()) {
+		if (
+			!layout.westIsOpen() || 
+			$(".ui-layout-west").tabs("option", "active") !== $('li[aria-controls=tabs-find]').index() ||
+			document.activeElement !== document.getElementById('find')
+		) {
 			open();
 		} else {
 			layout.closeWest(true);
@@ -648,10 +653,6 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 			}
 		});
 		$('#findForm [name=find], #findForm [name=replace]').keydown(function(e) {
-			if (e.keyCode==70 && e.ctrlKey) { // ctrl-f
-				toggle();
-				e.preventDefault();
-			}
 			if (['ArrowUp', 'ArrowDown'].indexOf(e.key)!=-1) {
 				e.preventDefault();
 			}
@@ -689,6 +690,8 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 	return {
 		init: init,
 		open: open,
-		toggle: toggle
+		toggle: toggle,
+		next: nextSearch,
+		previous: previousSearch
 	};
 });
