@@ -7,7 +7,7 @@ var actions = {
 		defaultKeyBinding: 'Ctrl-S',
 		exec: function() {
 			var tab = tabs.active();
-			if (Tab) {
+			if (tab) {
 				tabs.save(tab);
 			}
 		}

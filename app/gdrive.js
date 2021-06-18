@@ -1,16 +1,19 @@
-define(['./util'], function (util) {
+define(['./util', "./prompt"], function (util, prompt) {
 
 var client_id = '471018772965.apps.googleusercontent.com';
 
 var boundary = '-------314159265358979323846';
 var delimiter = "\r\n--" + boundary + "\r\n";
 var close_delim = "\r\n--" + boundary + "--";
-
 var fullAccess = true;
+var access_token;
+var timer;
 
 function authorise(fn) {
+	console.log('authorise gdrive');
+	
 	var SCOPES;
-	if(fullAccess){
+	if(fullAccess) {
 		SCOPES = 'https://www.googleapis.com/auth/drive';
 	} else {
 		SCOPES = 'https://www.googleapis.com/auth/drive.file';
@@ -21,29 +24,34 @@ function authorise(fn) {
 		fn();
 	};
 
-	gapi.auth.authorize(
-		{'client_id': client_id, 'scope': SCOPES, 'immediate': true},
-		function handleAuthResult(authResult) {
-			if (authResult && !authResult.error) {
-				// Access token has been successfully retrieved, requests can be sent to the API.
-				access_token = authResult.access_token;
+	gapi.auth2.authorize({
+		'client_id': client_id, 
+		'scope': SCOPES, 
+		'immediate': true
+	}, function handleAuthResult(authResult) {
+		console.log(authResult);
+		
+		if (authResult.error) {
+			prompt.alert({title: 'Error', msg: authResult.error});
+			callback();
+		} else if (authResult.access_token) {
+			// Access token has been successfully retrieved, requests can be sent to the API.
+			access_token = authResult.access_token;
 
-				gapi.client.load('drive', 'v2', callback);
-			} else {
-				// No access token could be retrieved, show the button to start the authorization flow.
-				console.log('no auth token');
+			gapi.client.load('drive', 'v2', callback);
+		} else {
+			// No access token could be retrieved, show the button to start the authorization flow.
+			console.log('no auth token');
 
-				gapi.auth.authorize(
-					{
-						'client_id': client_id,
-						'scope': SCOPES,
-						'immediate': false
-					},
-					callback
-				);
-			}
+			gapi.auth2.authorize({
+					'client_id': client_id,
+					'scope': SCOPES,
+					'immediate': false
+				},
+				callback
+			);
 		}
-	);
+	});
 }
 
 function directFn(options) {
@@ -58,7 +66,7 @@ function directFn(options) {
 
 	switch (options.cmd) {
 		case 'file_exists':
-			parent = (options.parent!='#') ? options.parent : 'root';
+			parent = (options.parent != '#') ? options.parent : 'root';
 
 			request = gapi.client.drive.children.list({
 				'folderId': parent,
@@ -85,11 +93,11 @@ function directFn(options) {
 			var method = 'POST';
 
 			if(!options.parent){
-				url += '/'+options.file+'?uploadType=multipart';
+				url += '/' + options.file + '?uploadType=multipart';
 				method = 'PUT';
 			}else{
 				metadata.title = options.title;
-				parent = (options.parent!='#') ? options.parent : 'root';
+				parent = (options.parent != '#') ? options.parent : 'root';
 				metadata.parents = [{id: parent}];
 			}
 
@@ -115,7 +123,7 @@ function directFn(options) {
 				method: method,
 				headers: {
 					"Content-Type": 'multipart/mixed; boundary="' + boundary + '"',
-					authorization: 'Bearer '+access_token
+					authorization: 'Bearer ' + access_token
 				},
 				data: multipartRequestBody,
 				processData: false,
@@ -129,21 +137,25 @@ function directFn(options) {
 		break;
 
 		case 'open':
-			console.log('opening: '+options.file);
+			console.log('opening: ' + options.file);
 
-			if(!access_token){
-				authorise(function(){
-					directFn(options);
-				});
+			if(!access_token) {
+				console.log('retry');
+				clearTimeout(timer);
+				timer = setTimeout(function() {
+					authorise(function(){
+						directFn(options);
+					});
+				}, 1000);
 				return;
 			}
 
 			$.ajax({
-				url: 'https://content.googleapis.com/drive/v2/files/' + options.file,
+				url: 'https://www.googleapis.com/drive/v2/files/' + options.file,
 				method: 'GET',
 				dataType: 'json',
 				headers: {
-					authorization: 'Bearer '+access_token
+					authorization: 'Bearer ' + access_token
 				},
 				success: function (result) {
 					var response = {success: false};
@@ -394,7 +406,7 @@ function treeFn(options) {
 	var dirPath = options.node.id;
 	var path = dirPath;
 
-	if(path==='#') {
+	if(path === '#') {
 		path = options.tree.data('dir_id') ? options.tree.data('dir_id') : 'root';
 		text = options.tree.data('dir') ? options.tree.data('dir') : ' ';
 
@@ -408,9 +420,14 @@ function treeFn(options) {
 
 	var entries = [];
 	var retrievePageOfFiles = function(request, result) {
+		if (!request) {
+			options.callback.call(options.tree, []);
+			return false;
+		}
+		
 		request.execute(function(resp) {
 			if (resp.error) {
-				prompt.alert({title:'Error', msg:resp.error});
+				prompt.alert({title: 'Error', msg: resp.error});
 				return;
 			}
 			
@@ -431,7 +448,7 @@ function treeFn(options) {
 					var path = entry.title;
 
 					if( dirPath ){
-						path = dirPath+'/'+path;
+						path = dirPath + '/' + path;
 					}
 
 					//remove site id from start
@@ -445,14 +462,14 @@ function treeFn(options) {
 
 					var date = new Date(entry.modifiedDate);
 					var ext = util.fileExtension(entry.title);
-					var isFolder = (entry.mimeType=='application/vnd.google-apps.folder');
+					var isFolder = (entry.mimeType == 'application/vnd.google-apps.folder');
 
 					var link = '';
 					if (entry.webContentLink) {
 						link = entry.webContentLink.replace('&export=download', '');
 					}
 
-					var icon = isFolder ? '' : 'file';
+					//var icon = isFolder ? '' : 'file';
 
 					nodes.push({
 						id: entry.id,
@@ -460,7 +477,7 @@ function treeFn(options) {
 						type: (isFolder) ? 'folder' : 'file',
 						children: isFolder,
 						disabled: false,
-						icon: icon,
+						//icon: icon,
 						data: {
 							modified: date.getTime()/1000,
 							size: entry.fileSize,
@@ -470,24 +487,17 @@ function treeFn(options) {
 				});
 
 				//console.log(nodes);
-/*
-				nodes.sort(function(a, b){
-					a = a.text.toLowerCase();
-					b = b.text.toLowerCase();
-					if(a < b) {
-						return -1;
-					} else if (a > b) {
-						return 1;
-					}
-					return 0;
-				});
-*/
+
 				options.callback.call(options.tree, nodes);
 			}
 		});
 	};
-	var initialRequest = gapi.client.drive.files.list({'q': "'"+path+"' in parents AND trashed = false", 'maxResults': 1000});
-	retrievePageOfFiles(initialRequest, []);
+	
+	if (gapi.client.drive) {
+		var initialRequest = gapi.client.drive.files.list({'q': "'" + path + "' in parents AND trashed = false", 'maxResults': 1000});
+		
+		retrievePageOfFiles(initialRequest, []);
+	}
 }
 
 function get_public(parentId) {

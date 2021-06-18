@@ -131,23 +131,25 @@ function fetch(url, options) {
 		
 	ajax.then(function (data) {
 		stop();
-		if(data.success){
+		if(data.success) {
 			options.success(data);
-		}else{
+		} else {
+			console.log(data);
+			
 			if (options.error) {
 				options.error(data.error);
 			} else {
-				prompt.alert({title:'Error', msg:data.error});
+				prompt.alert({title: 'Error', msg:data.error});
 			}
 		}
 		options.complete(data);
 	}).fail(function(error) {
-		console.log(error)
+		console.log(error);
 		stop();
 		if (options.error) {
-			options.error(error.statusText);
+			options.error(error);
 		} else {
-			prompt.alert({title: 'Failed '+options.action, msg: error.statusText});
+			prompt.alert({title: 'Failed ' + options.action, msg: error});
 		}
 	});
 }

@@ -47,7 +47,7 @@ function findAvailableName(d, text) {
 	while(findChild(d, newName)!==false) {
 		i++;
 		var pos = text.indexOf('.');
-		var copyStr = ' ('+i+')';
+		var copyStr = ' (' + i + ')';
 
 		if(pos == -1) {
 			newName = text + copyStr;
@@ -1098,7 +1098,7 @@ function init() {
 							
 							function setTypes(files) {
 								for(var i=0; i<files.length; i++) {
-									if (files[i].type === 'file') {
+									if (files[i].type === 'file' && files[i].text) {
 										file_extension = util.fileExtension(files[i].text);
 										type = extensionToType(file_extension);
 										if (type !== 'file') {
@@ -1588,10 +1588,6 @@ function init() {
 								path += node.id;
 							}
 							
-							if (!$('.ui-layout-resizer-east').is(':visible')) {
-								toggle();
-							}
-							
 							ssh.connect({
 								username: settings.ftp_user,
 								password: settings.ftp_pass,
@@ -2070,7 +2066,10 @@ function init() {
 	.on('refresh.jstree', function(e, data){
 		//expand root node
 		var rootNode = getNode('#').children[0];
-		inst.open_node(rootNode);
+		inst.open_node(rootNode, function() {
+			var col = $('#tree-container .jstree-table-midwrapper>div').eq(0);
+			$('#tree').jstree().autosize_column(col);
+		});
 	})
 	.on('open_node.jstree', function(e, data){
 		var path = data.node.id;

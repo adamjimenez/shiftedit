@@ -1537,20 +1537,21 @@ function create(file, content, siteId, options) {
 
 	//create tab
 	var tab = tabpanel.tabs('add', title, '<div class="vbox">\
-	<div class="editor_status" style="display: none;" data-currentError="0">\
-	<button class="previous" type="button" disabled>\
-	<i class="fa fa-arrow-left"></i></button> \
-	<button class="next" type="button" disabled>\
-	<i class="fa fa-arrow-right"></i></button> \
-	<!--<button class="fix" type="button" disabled>Fix</button>--> \
-	<span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
-	</div>\
-	<div class="editor"></div><div class="design flex" style="display: none;"></div></div>'
-	//, 'site-'+siteId
+		<div class="editor_status" style="display: none;" data-currentError="0">\
+		<button class="previous" type="button" disabled>\
+		<i class="fa fa-arrow-left"></i></button> \
+		<button class="next" type="button" disabled>\
+		<i class="fa fa-arrow-right"></i></button> \
+		<!--<button class="fix" type="button" disabled>Fix</button>--> \
+		<span class="status" style="font-size:11px;">' + lang.noSyntaxErrorsText + '</span>\
+		</div>\
+		<div class="editor"></div><div class="design flex" style="display: none;"></div></div>'
+		//, 'site-'+siteId
 	);
 
 	tab.addClass('closable');
 	tab.data(file, file);
+	console.log('set tab file');
 	tab.attr('data-file', file);
 
 	tab.data('view', 'code');
@@ -1603,7 +1604,7 @@ function create(file, content, siteId, options) {
 	editor.split = split;
 
 	//check mode for default file associations
-	var ext = util.fileExtension(file);
+	var ext = util.fileExtension(tab.attr('data-title'));
 	var mode = modes.find(ext);
 
 	// hack to get html snippets in php

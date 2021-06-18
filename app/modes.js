@@ -27,7 +27,7 @@ define(['./prefs'], function (preferences) {
 		['fsharp', 'F#', ['fs'], 'text/x-f#src'],
 		['golang', 'Go', ['go'], 'text/x-go'],
 		['groovy', 'Groovy', ['groovy'], 'text/x-groovy'],
-		['jade', 'Jade', ['jade'], 'text/x-jade'],
+		['jade', 'Jade', ['jade', 'pug'], 'text/x-jade'],
 		['java', 'Java', ['java'], 'text/x-java'],
 		['jsx', 'JSX', ['jsx'], 'text/x-jsx'],
 		['julia', 'Julia', ['jl'], 'text/x-julia'],

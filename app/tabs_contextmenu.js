@@ -15,6 +15,9 @@ function init() {
 				case 'new':
 					tab.closest(".ui-tabs").tabs('add');
 				break;
+				case 'copyPath':
+					util.copy(tab.data('title'));
+				break;
 				case 'reload':
 					tabs.reload(tab);
 				break;
@@ -67,20 +70,22 @@ function init() {
 		items: {
 			"new": {name: makeMenuText(lang.newText + '...', 'Alt-N'), isHtmlName: true},
 			"sep1": "---------",
+			"copyPath": {name: 'Copy path'},
+			"sep2": "---------",
 			"reload": {name: makeMenuText(lang.reload, preferences.getKeyBinding('reload'), 'reload'), isHtmlName: true, disabled: notFile},
 			"revert": {name: makeMenuText(lang.revertToSaved, preferences.getKeyBinding('revertToOriginal'), 'revertToOriginal'), isHtmlName: true, disabled: notFile},
-			"sep2": "---------",
+			"sep3": "---------",
 			"close": {name: makeMenuText(lang.closeTab, 'Alt-W'), isHtmlName: true},
 			"closeOtherTabs": {name: lang.closeOtherTabs, isHtmlName: true},
 			"closeAllTabs": {name: makeMenuText(lang.closeAllTabs, 'Ctrl-Shift-W'), isHtmlName: true},
 			"closeTabsRight": {name: lang.closeTabsRight, isHtmlName: true},
-			"sep3": "---------",
+			"sep4": "---------",
 			"save": {name: makeMenuText(lang.saveText, preferences.getKeyBinding('save'), 'save'), isHtmlName: true, disabled: notFile},
 			"saveAs": {name: makeMenuText(lang.saveAsText + '...', preferences.getKeyBinding('saveAs'), 'saveAs'), isHtmlName: true, disabled: notFile},
 			"saveAll": {name: makeMenuText(lang.saveAllText, 'Ctrl-Shift-S'), isHtmlName: true, disabled: notFile},
 			"saveWithMinified": {name: makeMenuText(lang.minify), isHtmlName: true, disabled: notFile, match: 'js|css'},
 			"download": {name: makeMenuText(lang.download), isHtmlName: true, disabled: notFile},
-			"sep4": "---------",
+			"sep5": "---------",
 			"revealInTree": {name: lang.revealInFileTree, isHtmlName: true, disabled: notFile},
 			"bookmarkAll": {name: lang.bookmarkAllFiles, isHtmlName: true}
 		},

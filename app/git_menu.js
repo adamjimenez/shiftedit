@@ -4,12 +4,12 @@ var makeMenuText = util.makeMenuText;
 
 function init() {
 	var select = $( "#gitBranch" );
-	var placeholder = lang.selectBranch;
+	var placeholder = '&nbsp;';
 	var list;
 	var dialog;
 	
 	var selectContainer = select.parent();
-	select.after('<div class="label">'+placeholder+'</div><div class="caret"><i class="fas fa-caret-down"></i></div>').hide();
+	select.after('<div class="label">' + placeholder + '</div>').hide();
 	
 	// menu hover
 	selectContainer.on('mouseover', function () {
@@ -81,11 +81,8 @@ function init() {
 		list = dialog.find("ul").basicMenu();
 		
 		list.on('basicmenuclick basicmenuenter', function(event, ui) {
-			if ($(ui.item).data('value')) {
-				git.checkout($(ui.item).data('value').trim());
-			} else {
-				git.checkout(dialog.find( '.filter' ).val().trim());
-			}
+			var branch = $(ui.item).data('value') ? $(ui.item).data('value').trim() : dialog.find( '.filter' ).val().trim();
+			git.checkout(branch);
 			dialog.dialog( "close" );
 		});
 		
@@ -125,7 +122,8 @@ function init() {
 
 		//create select items
 		items.forEach(function(item) {
-			list.append( '<li data-value="'+item.name+'"><a href="#">'+item.name+'</a></li>' );
+			var remote = item.remote ? ' <i class="fas fa-server"></i>' : '';
+			list.append( '<li data-value="' + item.name + '"><a href="#">' + item.name + remote + '</a></li>' );
 		});
 		
 		list.find("li:first").addClass("ui-state-active");
@@ -153,10 +151,14 @@ function init() {
 				case 'delete':
 					git.removeBranch(value);
 				break;
+				case 'merge':
+					git.merge(value);
+				break;
 			}
 		},
 		items: {
-			"delete": {name: lang.deleteText, disabled: function() { return ($(this).data('value')==='master'); }}
+			"delete": {name: lang.deleteText, disabled: function() { return ($(this).data('value') === 'master'); }},
+			"merge": {name: 'Merge', disabled: function() { return ($(this).data('value') === git.activeBranch()); }}
 		},
 		zIndex: 3
 	});

@@ -69,14 +69,15 @@ function init() {
 	});
 	
 	var menu = [{
-		text: '&nbsp;',
-		className: 'title',
-		tooltip: 'Click to copy',
-		handler: function (tab) {
-			util.copy(this.children('div').text());
-			$('.ui-tooltip-content').text('Copied');
-		}
-	}, {
+			text: '<select id="gitBranch"></select>',
+			className: 'gitBranchBar',
+			disabled: true
+		}, {
+			text: '<span class="count"></span><i class="fas fa-sync" title="Synchronize changes"></i>',
+			className: 'gitSync',
+			disabled: true
+		},
+		'->', {
 		text: '&nbsp;',
 		className: 'pos',
 		handler: function () {
@@ -85,7 +86,7 @@ function init() {
 				editor.commands.exec('gotoLinePrompt', editor);
 			}
 		}
-	}, '->', {
+	}, {
 		text: 'Mode',
 		className: 'mode',
 		displayField: 'label',

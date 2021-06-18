@@ -26,8 +26,8 @@ define(['./util', 'jquery-ui-bundle', 'dialogResize'], function (util) {
 		$( "#dialog-message" ).remove();
 
 		$( "body" ).append('<div id="dialog-message" title="'+options.title+'">\
-	<p>\
-		'+options.msg+'\
+	<p style="white-space: pre-line;">\
+		' + options.msg + '\
 	</p>\
 </div>');
 

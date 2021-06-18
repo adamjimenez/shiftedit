@@ -95,7 +95,6 @@ define(["jquery.menubar"], function () {
 					);
 				}
 				
-				
 				if(typeof menu[i].buttons === 'object'){
 					item.find('.label').removeClass('label');
 					

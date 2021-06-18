@@ -124,9 +124,10 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 				func = func.trim();
 
 				if(func){
-					if( inClass ){
+					console.log(func)
+					if (inClass) {
 						definitions[context].classes[inClass].functions[func] = args.trim()+')';
-					}else{
+					} else {
 						definitions[context].functions[func] = args.trim()+')';
 					}
 				}
@@ -134,9 +135,12 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 				args = '';
 			}else if( args ){
 				args += token.value;
-			}else if( func!==false ){
-				func += token.value;
-				func = func.trim();
+			}else if( func !== false ){
+				console.log(token)
+				if (token.type === 'identifier') {
+					func += token.value;
+					func = func.trim();
+				}
 
 				if(func){
 					if( inClass ){
@@ -164,12 +168,14 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 			}
 			
 			//functions that aren't defined
+			/*
 			if (!func && token.type == 'paren.lparen' && token.value == '(' && prevToken && prevToken.type === 'identifier') {
 				definitions[context].functions[prevToken.value] = '()';
 				definitionRanges[context].functions[prevToken.value] = {
 					start: prevPos
 				};
 			}
+			*/
 			
 			if (!func && token.type == 'identifier' && definitions[context] && !definitions[context].functions[token.value]) {
 				//check for wordpress
@@ -445,7 +451,7 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 	function update(tab) {
 		var tabId = $(tab).attr('id');
 		var defs = window.shiftedit.defs[tabId].definitions;
-		var HTML = '';
+		var HTML = '<div style="padding: 0 10px;">';
 
 		if (defs) {
 			definitionRanges = window.shiftedit.defs[tabId].definitionRanges;
@@ -490,6 +496,8 @@ var TokenIterator = require("ace/token_iterator").TokenIterator;
 		if( !HTML ){
 			HTML = '<p style="text-align:center; color:#ccc;">definitions will appear here</p>';
 		}
+		
+		HTML += '</div>';
 
 		$('#tabs-definitions').html(HTML);
 

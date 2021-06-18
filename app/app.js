@@ -1,4 +1,10 @@
 requirejs.config({
+    map: {
+        "*": {
+            "firebase/app": "@firebase/app",
+            "firebase/database": "@firebase/database",
+        }
+    },
 	paths: {
 		"@firebase/app": "node_modules/firebase/firebase-app",
 		"@firebase/database": "node_modules/firebase/firebase-database",
@@ -8,8 +14,6 @@ requirejs.config({
 		"jquery": "node_modules/jquery/dist/jquery",
 		"xterm": "node_modules/xterm/lib/xterm",
 		"xterm-addon-fit": "node_modules/xterm-addon-fit/lib/xterm-addon-fit",
-		//"xterm/dist/addons/attach/attach": "node_modules/xterm/dist/addons/attach/attach",
-		//"xterm/dist/addons/fit/fit": "node_modules/xterm/dist/addons/fit/fit",
 		"jquery-contextmenu": "node_modules/jquery-contextmenu/dist/jquery.contextMenu",
 		"markdown-it": "node_modules/markdown-it/dist/markdown-it",
 		"resumablejs": "node_modules/resumablejs/resumable",
@@ -29,31 +33,29 @@ requirejs.config({
 		"ace/ext/beautify": "node_modules/ace-builds/src/ext-beautify",
 		"text": "node_modules/text/text",
 		"json": "node_modules/requirejs-plugins/src/json",
+		"jquery-ui-bundle": "node_modules/jquery-ui-bundle/jquery-ui",
+		"jquery.layout": "node_modules/layout-jquery3/dist/jquery.layout_and_plugins",
+		"linkify": "node_modules/linkifyjs/dist/linkify.amd",
+		"linkify-html": "node_modules/linkifyjs/dist/linkify-html.amd",
+		"firepad": "node_modules/firepad/dist/firepad",
+		"ui.tabs.stretchyTabs": "node_modules/stretchy-tabs/ui.tabs.stretchyTabs",
 		
 		// these ones below should be moved to node_modules
-		"firepad": "lib/firepad/dist/firepad",
-		"jquery-ui-bundle": "lib/jquery-ui/jquery-ui",
-		"virtualKeyboardDetector": "lib/virtualKeyboardDetector/virtualKeyboardDetector",
-		"linkify": "lib/linkify/linkify",
-		"linkify-html": "lib/linkify/linkify-html",
-		"aes": "lib/crypto/aes",
 		"diff2html": "lib/diff2html/diff2html",
 		"diff2html-ui": "lib/diff2html/diff2html-ui",
+		
+		"aes": "lib/crypto/aes",
 		"cssmin": "lib/cssmin/cssmin",
-		//"coffee-script": "lib/coffee-script/coffee-script",
-		"jquery.layout": "lib/layout/jquery.layout",
+		"virtualKeyboardDetector": "lib/virtualKeyboardDetector/virtualKeyboardDetector",
 		"jstreetable": "lib/jstreetable/jstreetable",
 		"jquery.menubar": "lib/menubar/jquery.menubar",
 		"ui.basicMenu": "lib/basicMenu/ui.basicMenu",
 		"ui.tabs.addTab": "lib/addTab/ui.tabs.addTab",
 		"ui.tabs.closable": "lib/closable/ui.tabs.closable",
 		"ui.combobox": "lib/combobox/ui.combobox",
-		"ui.tabs.overflowResize": "lib/overflowResize/ui.tabs.overflowResize",
 		"firepad-userlist": "lib/firepad-userlist/firepad-userlist",
 		"emmet": "lib/emmet/emmet",
 		"ace/ext-emmet": "lib/emmet/ext-emmet",
-		//"ace/autocomplete": "lib/tern/ext-tern",
-		//"ace/ext/tern": "lib/tern/ext-tern",
 		"dialogResize": "lib/dialogResize/ui.dialog.dialogResize",
 		"showPassword": "lib/showPassword/showPassword",
 	},
@@ -70,13 +72,8 @@ requirejs.config({
 		"ace/ext-split": {
 			deps: ["ace/ace"]
 		},
-		/*
-		"ace/ext-tern": {
-			deps: ["ace/ace"]
-		},
-		*/
 		"ace/autocomplete": {
-			deps: ["ace/ace"/*, "ace/ext/tern"*/]
+			deps: ["ace/ace"]
 		},
 		"jquery-ui-bundle": {
 			exports: "$",
@@ -110,7 +107,7 @@ requirejs.config({
 			exports: "$",
 			deps: ["jquery-ui-bundle"]
 		},
-		"ui.tabs.overflowResize": {
+		"ui.tabs.stretchyTabs": {
 			exports: "$",
 			deps: ["jquery-ui-bundle", "ui.tabs.addTab", "ui.tabs.closable"]
 		},

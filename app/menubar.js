@@ -527,6 +527,12 @@ function init () {
 			keybindings.show();
 		}
 	}];
+	
+	var date1 = new Date(); 
+	var date2 = new Date(storage.get('trial_end')); 
+	  
+	// To calculate the no. of days between two dates 
+	var trial_days = Math.ceil((date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
 
 	console.log('menubar');
 	var menu = {
@@ -838,7 +844,7 @@ function init () {
 
 		upgrade: {
 			id: 'goPremier',
-			text: (storage.get('edition') == 'Trial' ? 'Trial Period' : 'Go Premier'),
+			text: (storage.get('edition') == 'Trial' ? 'Trial Period: ' + trial_days + 'd' : 'Go Premier'),
 			handler: function () {
 				window.open('/premier');
 			},

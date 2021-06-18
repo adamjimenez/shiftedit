@@ -65,7 +65,7 @@ defaultPrefs.emmet = false;
 defaultPrefs.behaviours = true;
 defaultPrefs.scrollPastEnd = true;
 defaultPrefs.selectDollar = false;
-defaultPrefs.sshPane = 'east';
+defaultPrefs.sshPane = '_blank';
 defaultPrefs.syntaxErrors = true;
 defaultPrefs.filePanelWidth = 250;
 defaultPrefs.designModeWarning = true;
@@ -75,6 +75,7 @@ defaultPrefs.errorReporting = false;
 defaultPrefs.homeTab = true;
 defaultPrefs.local = false;
 defaultPrefs.restoreTabs = true;
+defaultPrefs.restorePaths = true;
 defaultPrefs.treeThemeVariant = 'small';
 defaultPrefs.openBrowserTab = false;
 defaultPrefs.stripWhitespace = false;
@@ -696,6 +697,8 @@ function load() {
 			storage.set('masterPassword', data.masterPassword);
 			storage.set('premier', data.premier);
 			storage.set('edition', data.edition);
+			storage.set('subscr_end', data.subscr_end);
+			storage.set('trial_end', data.trial_end);
 			storage.set('channel', data.channel);
 			storage.set('authToken', data.authToken);
 			storage.set('newAuthToken', data.newAuthToken);
@@ -1013,6 +1016,11 @@ function open() {
 	</label>\
 	<br>\
 	<label>\
+		<input type="checkbox" name="restorePaths" value="1">\
+		' + lang.restorePathsInTreeText + '\
+	</label>\
+	<br>\
+	<label>\
 		<input type="checkbox" name="singleClickOpen" value="1">\
 		' + lang.singleClickOpen + '\
 	</label>\
@@ -1197,6 +1205,11 @@ function open() {
 	<label>\
 		<input type="radio" name="sshPane" value="east">\
 		' + lang.east +'\
+	</label>\
+	<br>\
+	<label>\
+		<input type="radio" name="sshPane" value="_blank">\
+		New window\
 	</label>\
 	<br>\
 	<br>\

@@ -1,4 +1,4 @@
-define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function (tabs, layout, site) {
+define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace'], function (tabs, layout, site, preferences) {
 
 	var timer;
 	var findIn = 'current';
@@ -33,6 +33,9 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 		if (tab.view === 'design') {
 			toggleView('code');
 		}
+		
+		// prevent behaviours
+		editor.setBehavioursEnabled(false);
 
 		if (find === editor.getSession().doc.getTextRange(getSelectionRange())) {
 			editor.insert(replace);
@@ -41,6 +44,11 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 				needle: find
 			});
 		}
+		
+		// re-enable behaviours
+		var prefs = preferences.get_prefs();
+		editor.setBehavioursEnabled(prefs.behaviours);
+		
 		return;
 	}
 
@@ -67,7 +75,15 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 		count = results.length;
 
 		editor.find(find);
+		
+		// prevent behaviours
+		editor.setBehavioursEnabled(false);
+		
 		editor.replaceAll(replace);
+		
+		// re-enable behaviours
+		var prefs = preferences.get_prefs();
+		editor.setBehavioursEnabled(prefs.behaviours);
 
 		return count;
 	}
@@ -341,7 +357,15 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 				replace = value.replace(new RegExp(find), replace);
 			}
 
+			// prevent behaviours
+			editor.setBehavioursEnabled(false);
+			
 			editor.insert(replace);
+			
+			// re-enable behaviours
+			var prefs = preferences.get_prefs();
+			editor.setBehavioursEnabled(prefs.behaviours);
+			
 			update(true);
 			return true;
 		}
@@ -372,9 +396,17 @@ define(['./tabs','./layout', './site', "jquery-ui-bundle", 'ace/ace'], function 
 			var result = input.replace(re, replacement);
 
 			if( result!==null ){
+		
+				// prevent behaviours
+				editor.setBehavioursEnabled(false);
+				
 				editor.insert(result);
+				
+				// re-enable behaviours
+				var prefs = preferences.get_prefs();
+				editor.setBehavioursEnabled(prefs.behaviours);
 			}
-		}else{
+		} else {
 			var num_results = update();
 			//console.log(num_results);
 			if (num_results) {

@@ -1,4 +1,4 @@
-define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','./recent','./repositories','./editors','./virtual_keyboard', './tree', './site', './hash','./definitions','./find', './exit', './notes', './snippets', './resize','./splash', './appcache', './prompt', './git', './notifications', './syntax_errors', "jquery-ui-bundle"], function (exports, lang, preferences, tabs, layout, drop, restore, recent, repositories, editors, virtual_keyboard, tree, site, hash, definitions, find, exit, notes, snippets, resize, splash, appcache, prompt, git, notifications, syntax_errors) {
+define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','./recent','./repositories','./editors','./virtual_keyboard', './tree', './site', './hash','./definitions','./find', './exit', './notes', './snippets', './resize','./splash', './prompt', './git', './notifications', './syntax_errors', "jquery-ui-bundle"], function (exports, lang, preferences, tabs, layout, drop, restore, recent, repositories, editors, virtual_keyboard, tree, site, hash, definitions, find, exit, notes, snippets, resize, splash, prompt, git, notifications, syntax_errors) {
 	var version = window.shifteditVersion ? window.shifteditVersion : 'dev';
 	var locale = lang;
 	
@@ -32,24 +32,37 @@ define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','.
 		editors.init();
 		tree.init();
 		tree.setSingleClickOpen(prefs.singleClickOpen);
+		hash.init();
 		site.init();
 
 		splash.update('loading sites..');
 		site.load({
 			callback: function() {
-				var hash = window.location.hash;
-				if(prefs.restoreTabs) {
-					restore.restoreBatch(preferences.getOpeningFilesBatch(), function() {
-						$( ".ui-layout-east, .ui-layout-center" ).each(function( index ) {
-							if (!$( this ).children('.ui-tabs-nav').children(':not(.button)').length) {
-								$( this ).tabs('add');
-							}
-						});
+				var hashVal = window.location.hash.substr(1);
+				
+				var openDefaultTab = function () {
+					$( ".ui-layout-east, .ui-layout-center" ).each(function( index ) {
+						if (!$( this ).children('.ui-tabs-nav').children(':not(.button)').length) {
+							console.log('open default tab');
+							$( this ).tabs('add');
+						}
 					});
 				}
-				console.log('load hash');
-				if (hash) {
-					window.location.hash = hash;
+				
+				var loadHash = function() {
+					if (hashVal) {
+						console.log('load hash ' + hashVal);
+						hash.set(hashVal);
+						hash.load();
+					} else {
+						openDefaultTab();
+					}
+				}
+				
+				if(prefs.restoreTabs) {
+					restore.restoreBatch(preferences.getOpeningFilesBatch(), loadHash);
+				} else {
+					loadHash();
 				}
 			}
 		});

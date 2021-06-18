@@ -2,15 +2,17 @@
 @import url("../node_modules/xterm/css/xterm.css");
 /*@import url("../node_modules/jquery-ui-bundle/jquery-ui.css");*/
 @import url("../node_modules/jquery-contextmenu/dist/jquery.contextMenu.css");
-@import url("../lib/layout/layout-default-latest.css");
+@import url("../node_modules/layout-jquery3/dist/layout-default.css");
 @import url("../lib/menubar/jquery.menubar.css");
 @import url("../lib/combobox/ui.combobox.css");
-@import url("../lib/overflowResize/ui.tabs.overflowResize.css");
+@import url("../node_modules/stretchy-tabs/ui.tabs.stretchyTabs.css");
 @import url("../lib/basicMenu/ui.basicMenu.css");
+/*@import url("../node_modules/diff2html/bundles/css/diff2html.min.css");*/
 @import url("../lib/diff2html/diff2html.css");
 @import url("../lib/showPassword/showPassword.css");
 
 body{
+	font-family: Verdana,Arial,sans-serif;
 	font-size: 12px;
 	margin: 0;
 	overflow-y: hidden;
@@ -72,6 +74,7 @@ a input {
 .ui-layout-content {
 	border-top: 0 !important; /* tab-buttons above this DIV already has a border-bottom */
 	padding: 0;
+	overflow: auto;
 }
 
 /* show tree menu */
@@ -82,6 +85,7 @@ a input {
 
 .ui-layout-west .ui-tab{
 	margin: 0 !important;
+	width: 100%;
 }
 
 /* ensure site menu can be seen */
@@ -483,7 +487,6 @@ li[role=tab] .ui-icon {
 	top: 0;
 	width: 100%;
 	z-index: 1000000; /* higher than modal windows */
-	margin: 10px;
 	opacity: 0.8;
 	text-align: center;
 }
@@ -603,7 +606,16 @@ div.fullScreen{
 	line-height: 16px;
 }
 
-#siteSettings label:first-child, #serverSettings label:first-child, #masterPasswordForm label:first-child, .tidy label:first-child{
+#siteSettings label:first-child {
+	color: #ccc;
+}
+
+#siteSettings p>label {
+	display: block;
+	margin-top: 1em;
+}
+
+#serverSettings label:first-child, #masterPasswordForm label:first-child, .tidy label:first-child{
 	display: inline-block;
 	min-width: 110px;
 	width: 110px;
@@ -629,7 +641,7 @@ div.fullScreen{
 }
 
 #siteSettings .hbox label:first-child{
-	min-width: 110px;
+	/*min-width: 110px;*/
 	padding: 0;
 }
 
@@ -959,6 +971,19 @@ div.fullScreen{
 
 #tabs-definitions{
 	overflow: auto;
+}
+
+#tabs-definitions ul {
+	padding-left: 20px;
+	margin-bottom: 10px;
+}
+
+#tabs-definitions ul li {
+	line-height: 20px;
+}
+
+#tabs-definitions a {
+	text-decoration: none;
 }
 
 #tabs-snippets{
@@ -1569,4 +1594,8 @@ div.fullScreen{
 
 .link:hover{
 	text-decoration: underline;
+}
+
+.my-1 {
+	margin: 1em 0;
 }

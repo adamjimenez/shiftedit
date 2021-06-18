@@ -10,12 +10,12 @@ var socket;
 var terms = {};
 var initialised = false;
 
-init = function() {
+var init = function() {
 	socket = io.connect('https://ssh.shiftedit.net', {
 		resource: 'socket.io',
 		query: "token="+storage.get('authToken')
 	});
-
+	
 	socket.on('connect', function() {
 		console.log('connect');
 	});
@@ -407,10 +407,10 @@ function open(tabpanel) {
 }
 
 function connect(options) {
-	cwd = options.path;
-	
+	var qs = '';
 	var prefs = preferences.get_prefs();
 	var paneName = prefs.sshPane;
+	
 	if (!$('.ui-layout-resizer-east').is(':visible')) {
 		paneName = 'center';
 	}
@@ -422,6 +422,10 @@ function connect(options) {
 		options.domain = settings.domain;
 		options.username = settings.ftp_user;
 		options.port = settings.port;
+		
+		qs = 'site=' + site.active();
+	} else {
+		qs = 'hostname=' + options.domain + '&username=' + options.username;
 	}
 	
 	var username = options.username;
@@ -437,11 +441,16 @@ function connect(options) {
 	var minWidth = 300;
 	var myLayout = layout.get();
 	myLayout.open(paneName);
-	if(myLayout.panes[paneName].outerWidth() < minWidth) {
+	if(myLayout.panes[paneName] && myLayout.panes[paneName].outerWidth() < minWidth) {
 		myLayout.sizePane(paneName, minWidth);
 	}
 	
-	new_session(tab, options.domain, username, options.port, options.password, cwd);
+	if (prefs.sshPane === '_blank') {
+		window.open('/ssh/?' + qs + '&path=' + options.path);
+	} else {
+		new_session(tab, options.domain, username, options.port, options.password, options.path);
+	}
+	
 }
 
 function get(tab) {

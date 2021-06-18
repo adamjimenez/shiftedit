@@ -2,35 +2,44 @@ define(['./tabs', './site'], function (tabs, site) {
 
 var value = '';
 
-load = function (callback) {
+var load = function (callback) {
 	var hash = window.location.hash.substr(1);
 	hash = decodeURIComponent(hash);
 
+	console.log('current hash: ' + hash);
+	
 	var files = [];
 	if(value !== hash){
-		console.log('hash: '+ hash);
+		console.log('new hash: ' + hash);
 	
 		//protect from xss
-		if(hash.indexOf('<')!==-1){
+		if(hash.indexOf('<') !== -1){
 			console.warn('"<" in file name');
 			return;
 		}
 	
 		var line = 0;
 		files = hash.split('|');
-		files.forEach(function(path){
+		files.forEach(function(path) {
+			var siteName, file;
 			var pos = path.indexOf('/');
+			
 			if (pos !== -1) {
-				var siteName = path.substr(0, pos);
-				var file = path.substr(pos + 1);
+				siteName = path.substr(0, pos);
+				file = path.substr(pos + 1);
 	
 				pos = file.indexOf(':');
 				if(pos!==-1) {
 					line = file.substr(pos+1);
 					file = file.substr(0, pos);
 				}
-	
-				var settings = site.getSettings(siteName);
+			} else {
+				siteName = path
+			}
+
+			var settings = site.getSettings(siteName);
+
+			if (file) {
 				tabs.open(file, settings.id, function(tab, firstOpen) {
 					if(firstOpen) {
 						var editor = tabs.getEditor(tab);
@@ -38,6 +47,8 @@ load = function (callback) {
 						editor.focus();
 					}
 				});
+			} else {
+				site.open(settings.id);
 			}
 		});
 	}
@@ -47,26 +58,41 @@ load = function (callback) {
 	}
 };
 
-set = function(hash) {
-	if('#'+hash!=window.location.hash){
+var set = function(hash) {
+	if('#' + hash != window.location.hash) {
 		value = hash;
 
-		console.log('set hash: #'+ value);
-		window.location.hash = '#'+value;
+		console.log('set hash: ' + value);
+		
+		if (value) {
+			window.location.hash = '#' + value;
+		} else {
+			remove();
+		}
 	}
 };
 
-$(window).on( 'hashchange', function(e) { load(); } );
+var init = function() {
+	$(window).on('hashchange', function(e) { load(); });
+	
+	// clear hash when all center tabs are closed
+	$('body').on('close', '.ui-layout-center', function(e) {
+		if (!$(this).children('ul').children('li:not(.button)').length) {
+			console.log('clear hash');
+			set('');
+		}
+	});
+}
 
-// clear hash when all center tabs are closed
-$('body').on('close', '.ui-layout-center', function(e) {
-	if (!$(this).children('ul').children('li:not(.button)').length) {
-		set('');
-	}
-});
+var remove = function () {
+	history.pushState("", document.title, window.location.pathname + window.location.search);
+}
 
 return {
 	load: load,
-	set: set
+	set: set,
+	init: init,
+	remove: remove
 };
+
 });

@@ -1,4 +1,4 @@
-define(['./config', './editors', './designs', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", "ui.tabs.overflowResize", 'cssmin', 'dialogResize'], function (config, editors, designs, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
+define(['./config', './editors', './designs', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", "ui.tabs.stretchyTabs", 'cssmin', 'dialogResize'], function (config, editors, designs, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
 lang = lang.lang;
 modes = modes.modes;
 var closing = [];
@@ -150,10 +150,10 @@ function openFiles(options) {
 		loading.stop();
 
 		if (!data.success) {
-			prompt.alert({title:lang.failedText, msg:'Error opening file' + ': ' + data.error});
+			prompt.alert({title:lang.failedText, msg: 'Error opening file' + ': ' + data.error});
 			opening = [];
 		}else if (data.content===false) {
-			prompt.alert({title:lang.failedText, msg:'Missing file'});
+			prompt.alert({title:lang.failedText, msg: 'Missing file'});
 			opening = [];
 		} else {
 			$('#data .content').hide();
@@ -893,10 +893,11 @@ function newTab (e, ui) {
 		return;
 	}
 
+	tab.data('file', 'newTab');
 	tab.addClass('closable');
 
 	var panelId = tab.attr( "aria-controls" );
-	var panel = $( "#"+panelId );
+	var panel = $( "#" + panelId );
 	
 	var showMoreText = 'Show more';
 	var showLessText = 'Show less';
@@ -1046,10 +1047,13 @@ function tabActivate(tab) {
 		settings = site.getSettings(siteId);
 		hashVal += settings.name + '/';
 	}
+	
+	hashVal += file ? tab.data('file') : '';
 
-	hashVal += file ? tab.data('file') : 'newfile';
-
-	hash.set(hashVal);
+	if (hashVal) {
+		console.log('set tab hash');
+		hash.set(hashVal);
+	}
 
 	var editor = getEditor(tab);
 	
@@ -1092,6 +1096,8 @@ function updateTabs(e, params) {
 		}
 		
 		setTitle(tab, title);
+		
+		console.log('update tabs');
 		tabActivate(tab);
 		recordOpenFiles();
 	}
@@ -1263,7 +1269,7 @@ function init() {
 
 	// initialize overflow
 	$('.ui-layout-west').tabs();
-	$('.ui-layout-east, .ui-layout-center').tabs('overflowResize');
+	$('.ui-layout-east, .ui-layout-center').tabs('stretchyTabs');
 	$('.ui-layout-east, .ui-layout-center').on('tabsbeforeremove', checkEdited);
 	$('.ui-layout-east, .ui-layout-center').on('tabsremove', afterClose);
 	$('.ui-layout-east, .ui-layout-center').on('tabsadd', newTab);
@@ -1280,6 +1286,7 @@ function init() {
 		newPanel.closest('.ui-layout-content').scrollTop(newPanel.data("scrollTop"));
 
 		//set title etc
+		console.log('restore scroll');
 		tabActivate($(ui.newTab));
 	});
 

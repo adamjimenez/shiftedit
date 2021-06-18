@@ -1,4 +1,4 @@
-define(['exports', './loading', './config', './layout', './site', './tree', './tabs', './prompt', './git_menu', 'linkify-html', './lang', './util', "ui.basicMenu", 'dialogResize'], function (exports, loading, config, layout, site, tree, tabs, prompt, git_menu, linkifyHtml, lang, util) {
+define(['exports', './loading', './config', './layout', './site', './tree', './tabs', './prompt', './git_menu', 'linkify-html', './lang', './util', "ui.basicMenu", 'dialogResize', 'diff2html-ui'], function (exports, loading, config, layout, site, tree, tabs, prompt, git_menu, linkifyHtml, lang, util) {
 lang = lang.lang;
 var gitEditor;
 var gitConfig = {
@@ -15,18 +15,13 @@ function init() {
 		<div id="gitLoading" style="display: none; text-align: center; margin: 10px;"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>\
 		<div id="gitContainer" class="vbox" style="display: none;">\
 			<div class="hbox ui-widget-header panel-buttons">\
-				<div id="gitBranchBar" class="flex ui-widget-content ui-state-default">\
-					<select id="gitBranch">\
-					</select>\
-				</div>\
 				<div class="flex" id="gitViewContainer">\
 					<span id="gitViewRadio" class="hbox">\
-						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio" disabled><label class="flex" for="changesRadio" title="Changes"><i class="far fa-folder"></i></label>\
+						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio"><label class="flex" for="changesRadio" title="Changes"><i class="far fa-folder"></i></label>\
 						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label class="flex" for="historyRadio" title="History"><i class="fas fa-history"></i></label>\
 						<input type="radio" name="gitViewItem" value="Stashes" id="stashesRadio"><label class="flex" for="stashesRadio" title="Stashes"><i class="far fa-clipboard"></i></label>\
 					</span>\
 				</div>\
-				<button type="button" id="gitSync"><span class="count"></span><i class="fas fa-sync"></i></button>\
 			</div>\
 			<div id="gitContentContainer" class="vbox">\
 				<ul id="gitHistory"></ul>\
@@ -54,7 +49,7 @@ function init() {
 		icon: false
 	});
 	
-	$('#gitSync').button().click(sync);
+	$('.gitSync').click(sync);
 	
 	// update on file rename / delete
 	$('#tree').on('loaded.jstree rename delete', function(e, obj) {
@@ -63,7 +58,7 @@ function init() {
 	
 	// update on tree reload (extract/ move triggers a reload)
 	$('#tree').on('open_node.jstree', function(e, obj) {
-		if (obj.node.id==='#root')
+		if (obj.node.id === '#root')
 			refresh();
 	});
 	
@@ -245,13 +240,28 @@ function init() {
 	$.contextMenu({
 		selector: '#gitChanges li',
 		callback: function(key, opt){
+			var ajaxOptions;
+			
 			switch(key) {
 				case 'open':
 					tabs.open($(this).data('path'), site.active());
 				break;
 				case 'discard':
-					var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-					loading.fetch(ajaxOptions.url+'&cmd=discard&path='+$(this).data('path'), {
+					ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+					loading.fetch(ajaxOptions.url+'&cmd=discard&path=' + $(this).data('path'), {
+						action: 'discard file',
+						success: function(data) {
+							if (data.success) {
+								tree.refresh();
+							} else {
+								prompt.alert({title:'Error', msg:data.error});
+							}
+						}
+					});
+				break;
+				case 'ignore':
+					ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
+					loading.fetch(ajaxOptions.url+'&cmd=ignore&path=' + $(this).data('path'), {
 						action: 'discard file',
 						success: function(data) {
 							if (data.success) {
@@ -266,7 +276,8 @@ function init() {
 		},
 		items: {
 			"open": {name: lang.openFile},
-			"discard": {name: lang.discardChanges}
+			"discard": {name: lang.discardChanges},
+			"ignore": {name: 'Add to .gitignore'}
 		}
 	});
 	
@@ -384,6 +395,13 @@ function show(title, result) {
 	
 	tab.children('.ui-tabs-anchor').attr('title', title);
 	tab.children('.ui-tabs-anchor').contents().last().replaceWith(title);
+
+	/*	
+	var Diff2HtmlUI = require('diff2html-ui');
+	var configuration = { matching: 'lines' };
+	var diff2htmlUi = new Diff2HtmlUI.Diff2HtmlUI(document.getElementById('gitDiff'), result, configuration);
+	diff2htmlUi.draw();
+	*/
 	
 	require(['diff2html-ui'], function() {
 		var diff2htmlUi = new Diff2HtmlUI({diff: result});
@@ -406,17 +424,20 @@ function refresh() {
 	);
 	
 	var hasRepo = $('#tree').jstree(true).get_node('.git');
+
+	$('.status_bar .gitBranchBar, .status_bar .gitSync').addClass('ui-state-disabled');
 	
 	if (!supported) {
 		$('#gitContainer').hide();
 		$('#notAvailable').html('Not supported for ' + settings.server_type).show();
+		
 		return;
 	} else if (!hasRepo) {
 		$('#gitContainer').hide();
 		
 		var rootNode = $('#tree').jstree(true).get_node('#root');
 		
-		if (rootNode.children.length) {
+		if (rootNode.children && rootNode.children.length) {
 			$('#notAvailable').html('Empty root folder before cloning a repository').show();
 		} else {
 			$('#notAvailable').html('<a href="#" class="gitClone">Clone a repository</a>').show();
@@ -450,6 +471,8 @@ function refresh() {
 		return;
 	}
 	
+	$('.status_bar .gitBranchBar, .status_bar .gitSync').removeClass('ui-state-disabled');
+	
 	// get commits / branches / status
 	gitLog();
 }
@@ -479,8 +502,8 @@ function gitLog() {
 				}
 			});
 			
-			$( "#gitBranchBar .label" ).html(currentBranch);
-			$( "#gitBranchBar" ).data('value', currentBranch);
+			$( ".gitBranchBar .label" ).html('<i class="fas fa-code-branch"></i> ' + currentBranch);
+			$( ".gitBranchBar" ).data('value', currentBranch);
 			$( '#commitBtn' ).html('Commit to ' + currentBranch);
 			
 			// history
@@ -494,7 +517,7 @@ function gitLog() {
 			$("#gitChanges li").addClass('delete').removeData('diff');
 			$.each(data.changes, function( index, item ) {
 				var li = $("#gitChanges").find('[data-path="'+item.path.replace(/"/g, '')+'"]');
-				if ( li.length ) {
+				if (li.length) {
 					li.removeClass('delete');
 				} else {
 					$( '<li><a href="#"><input type="checkbox" value="1" checked>' + item.path + '</a></li>' ).appendTo( "#gitChanges" )
@@ -506,7 +529,10 @@ function gitLog() {
 			$('#changesContainer .count').text(changes);
 			
 			$( "#gitChanges" ).children('.delete').remove();
-			$('#changesRadio').prop('disabled', (!data.changes || data.changes.length===0));
+			
+			if (data.changes && data.changes.length > 0) {
+				$( ".gitBranchBar .label" ).append('<span>*</span>');
+			}
 			
 			// stashes
 			$( "#gitStashes" ).children().remove();
@@ -528,24 +554,24 @@ function gitLog() {
 				var count = matches ? matches[2] : '';
 				var status = matches ? matches[1] : '';
 				
-				$('#gitSync .count').text(count);
+				$('.gitSync .count').text(count);
 
-				$('#gitSync i').removeClass('fa-sync');
-				$('#gitSync i').removeClass('fa-arrow-down');
-				$('#gitSync i').removeClass('fa-arrow-up');
-				$('#gitSync').removeClass('ui-state-highlight');
+				$('.gitSync i').removeClass('fa-sync');
+				$('.gitSync i').removeClass('fa-arrow-down');
+				$('.gitSync i').removeClass('fa-arrow-up');
+				$('.gitSync').removeClass('ui-state-highlight');
 				
 				switch(status) {
 					case 'ahead':
-						$('#gitSync i').addClass('fa-arrow-up');
-						$('#gitSync').addClass('ui-state-highlight');
+						$('.gitSync i').addClass('fa-arrow-up');
+						$('.gitSync').addClass('ui-state-highlight');
 					break;
 					case 'behind':
-						$('#gitSync i').addClass('fa-arrow-down');
-						$('#gitSync').addClass('ui-state-highlight');
+						$('.gitSync i').addClass('fa-arrow-down');
+						$('.gitSync').addClass('ui-state-highlight');
 					break;
 					default:
-						$('#gitSync i').addClass('fa-sync');
+						$('.gitSync i').addClass('fa-sync');
 					break;
 				}
 			}
@@ -555,11 +581,14 @@ function gitLog() {
 			$('#gitContainer').hide();
 			$('#gitLoading').hide();
 			$('#notAvailable').html(data).show();
+			$('.status_bar .gitBranchBar, .status_bar .gitSync').addClass('ui-state-disabled');
 		}
 	});
 }
 
 function checkout(branch) {
+	$( ".gitBranchBar .label" ).html('<i class="fas fa-code-branch"></i> ' + branch);
+	
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
 	
 	loading.fetch(ajaxOptions.url + '&cmd=checkout&branch=' + encodeURIComponent(branch), {
@@ -650,9 +679,9 @@ function createBranch() {
 }
 
 function doRemoveBranch(branch) {
-	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-	loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch=' + encodeURIComponent(branch), {
-		action: 'git branch -d '+branch,
+	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
+	loading.fetch(ajaxOptions.url + '&cmd=delete_branch&branch=' + encodeURIComponent(branch), {
+		action: 'git branch -d ' + branch,
 		success: function(data) {
 			if (data.success) {
 				tree.refresh();
@@ -660,21 +689,21 @@ function doRemoveBranch(branch) {
 				prompt.alert({title:'Error', msg:data.error});
 			}
 		},
-		error: function(data) {
+		error: function(error) {
 			if (error.indexOf('is not fully merged')) {
 				prompt.confirm({
-					title: lang.forceDeleteBranch+' '+branch,
+					title: lang.forceDeleteBranch + ' ' + branch,
 					msg: lang.confirmDeleteUnmergedBranch,
 					fn: function(value) {
-						if (value==='yes') {
-							var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-							loading.fetch(ajaxOptions.url+'&cmd=delete_branch&branch=' + encodeURIComponent(branch) + '&force=1', {
-								action: 'git branch -D '+branch,
+						if (value === 'yes') {
+							var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site='+site.active());
+							loading.fetch(ajaxOptions.url + '&cmd=delete_branch&branch=' + encodeURIComponent(branch) + '&force=1', {
+								action: 'git branch -D ' + branch,
 								success: function(data) {
 									if (data.success) {
 										tree.refresh();
 									} else {
-										prompt.alert({title:'Error', msg:data.error});
+										prompt.alert({title: 'Error', msg: data.error});
 									}
 								}
 							});
@@ -682,7 +711,7 @@ function doRemoveBranch(branch) {
 					}
 				});
 			} else {
-				prompt.alert({title:'Error', msg:data.error});
+				prompt.alert({title:'Error', msg:error});
 			}
 		}
 	});
@@ -693,8 +722,40 @@ function removeBranch(branch) {
 		title: lang.deleteBranch + ' ' + branch,
 		msg: lang.areYouSure,
 		fn: function(value) {
-			if (value==='yes') {
+			if (value === 'yes') {
 				doRemoveBranch(branch);
+				return;
+			}
+			
+			return false;
+		}
+	});
+}
+
+function doMerge(branch) {
+	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
+	loading.fetch(ajaxOptions.url + '&cmd=merge&branch=' + encodeURIComponent(branch), {
+		action: 'git merge ' + branch,
+		success: function(data) {
+			if (data.success) {
+				tree.refresh();
+			} else {
+				prompt.alert({title:'Error', msg:data.error});
+			}
+		},
+		error: function(error) {
+			prompt.alert({title:'Error', msg:error});
+		}
+	});
+}
+
+function merge(branch) {
+	prompt.confirm({
+		title: 'Merge ' + branch,
+		msg: lang.areYouSure,
+		fn: function(value) {
+			if (value === 'yes') {
+				doMerge(branch);
 				return;
 			}
 			
@@ -753,17 +814,15 @@ function configure() {
 }
 
 function sync() {
-	$('#gitSync i').removeClass('fa-arrow-down');
-	$('#gitSync i').removeClass('fa-arrow-up');
-	$('#gitSync').removeClass('ui-state-highlight');
-	$('#gitSync i').addClass('fa-sync');
-	$( "#gitSync" ).children('i').addClass('fa-spin');
+	$('.gitSync i').removeClass('fa-arrow-down').removeClass('fa-arrow-up');
+	$('.gitSync').removeClass('ui-state-highlight');
+	$('.gitSync i').addClass('fa-sync').addClass('fa-spin');
 	
-	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-	loading.fetch(ajaxOptions.url+'&cmd=sync', {
+	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
+	loading.fetch(ajaxOptions.url + '&cmd=sync', {
 		action: 'syncing',
 		success: function(data) {
-			$( "#gitSync" ).children('i').removeClass('fa-spin');
+			$('.gitSync i').removeClass('fa-spin');
 			
 			if (data.success) {
 				tree.refresh();
@@ -771,15 +830,14 @@ function sync() {
 				html = html.replace(/remote:\s/g, '');
 				html = html.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
 				html = linkifyHtml(html);
-				prompt.alert({title:lang.success, msg:html});
+				prompt.alert({title:lang.success, msg: html});
 			} else {
-				prompt.alert({title:lang.errorText, msg:data.error});
+				prompt.alert({title: 'Sync Unsuccessful', msg: $(data.error).text()});
 			}
 		},
-		error: function(data) {
-			console.log(arguments)
-			$( "#gitSync" ).children('i').removeClass('fa-spin');
-			prompt.alert({title:'Error', msg:data});
+		error: function(error) {
+			$('.gitSync i').removeClass('fa-spin');
+			prompt.alert({title: 'Sync Error', msg: util.escapeHTML(error)});
 		}
 	});
 }
@@ -798,6 +856,7 @@ exports.getBranches = getBranches;
 exports.activeBranch = activeBranch;
 exports.createBranch = createBranch;
 exports.removeBranch = removeBranch;
+exports.merge = merge;
 exports.checkout = checkout;
 exports.refresh = refresh;
 exports.sync = sync;

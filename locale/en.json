@@ -256,6 +256,7 @@
 	"removeUserText":"Remove user",
 	"reportAnIssue":"Report an issue",
 	"restoreTabsOnStartupText":"Restore tabs on startup",
+	"restorePathsInTreeText":"Restore paths in tree",
 	"revealInFileTree":"Reveal in file tree",
 	"revert":"Revert",
 	"revertToFileText":"Revert to this file",
