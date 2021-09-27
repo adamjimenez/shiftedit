@@ -111,18 +111,18 @@ function openFiles(options) {
 	}
 
 	//switch site if need be
-	if (siteId!==site.active()) {
+	if (siteId !== site.active()) {
 		opening.unshift(item);
 
 		site.open(siteId, {
 			callback: function() {
-				openFiles();
+				openFiles(options);
 			}
 		});
 		return;
 	}
 
-	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
+	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site='+siteId);
 	var ajax;
 	if (!loading.start('Opening ' + file, function(){
 		console.log('abort opening files');
