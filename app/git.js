@@ -596,6 +596,12 @@ function checkout(branch) {
 		success: function(data) {
 			if (data.success) {
 				tree.refresh();
+				
+				// reload files
+				$( "li[data-file][data-site='" + site.active() + "']" ).each(function( index ) {
+					var tab = $( this );
+					tabs.reload(tab);
+				});
 			} else {
 				prompt.alert({title:'Error', msg:data.error});
 			}
