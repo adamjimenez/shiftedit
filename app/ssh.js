@@ -497,7 +497,6 @@ var timer;
 function handle_resize() {
 	clearTimeout(timer);
 	timer = setTimeout(function() {
-		console.log('ssh resize');
 		$('.ui-tabs-active[data-ssh]').each(function() {
 			var session = tab.data('session');
 			doResize(session);

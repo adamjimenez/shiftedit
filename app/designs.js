@@ -34,13 +34,11 @@ function create(tab) {
 		
 		if (settings.web_url) {
 			base_url = settings.web_url;
-		
-			if (settings.encryption == "1") {
-				base_url = 'https://'+base_url;
-			} else {
-				base_url = 'http://'+base_url;
-			}
 			
+			if (!util.startsWith(base_url, 'http://') && !util.startsWith(base_url, 'https://')) {
+				base_url = 'https://' + base_url;
+			}
+		
 			var dirname = util.dirname($(tab).data('file'));
 			if (dirname) {
 				base_url = base_url + dirname + '/';
@@ -209,16 +207,16 @@ function create(tab) {
 									
 									if (path.indexOf('://') ==-1) {
 										if (parseInt(settings.encryption)) {
-											path = 'https://'+path;
+											path = 'https://' + path;
 										} else {
-											path = 'http://'+path;
+											path = 'http://' + path;
 										}
 									}
 								}else{
-									path = 	'//'+settings.domain;
+									path = 	'//' + settings.domain;
 								}
 
-								if( path.substr(-1, 1)!=='/' ){
+								if( path.substr(-1, 1) !== '/' ){
 									path += '/';
 								}
 

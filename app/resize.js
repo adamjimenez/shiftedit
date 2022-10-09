@@ -3,7 +3,6 @@ define(['jquery'], function () {
 var timer;
 
 function doResize() {
-	console.log('resize');
 	//active file tabs
 	$('.ui-tabs-active[data-file]').each(function() {
 		var tab = $(this);

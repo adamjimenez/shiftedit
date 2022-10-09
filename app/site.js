@@ -1,4 +1,4 @@
-define(['exports', './config', "./prompt", "./tree", "./storage", "./util", "./ssl", "./loading", './prefs', './layout', 'aes', './gdrive', './editors', './servers', './git', './site_menu', './lang',  "ui.combobox", 'dialogResize', 'showPassword'], function (exports, config, prompt, tree, storage, util, ssl, loading, preferences, layout, Aes, gdrive, editors, servers, git, site_menu, lang) {
+define(['exports', './config', "./prompt", "./tree", "./storage", "./util", "./ssl", "./loading", './prefs', './layout', 'aes', './gdrive', './editors', './git', './site_menu', './lang',  "ui.combobox", 'dialogResize', 'showPassword'], function (exports, config, prompt, tree, storage, util, ssl, loading, preferences, layout, Aes, gdrive, editors, git, site_menu, lang) {
 lang = lang.lang;
 var directFn;
 var sites = [];
@@ -42,7 +42,7 @@ function disableMenuItems() {
 function init() {
 	var prefs = preferences.get_prefs();
 	
-	if (!location.hash && prefs.restoreTabs) {
+	if (prefs.restoreTabs) {
 		currentSite = storage.get('currentSite');
 	}
 	
@@ -273,14 +273,15 @@ function masterPasswordPrompt(callback) {
 	});
 }
 
-function loadUsers() {
-	loading.fetch(config.apiBaseUrl+'share?cmd=list&site='+currentSite, {
+function loadUsers(siteId) {
+	
+	loading.fetch(config.apiBaseUrl+'share?cmd=list&site=' + siteId, {
 		action: 'getting users',
 		success: function(data) {
 			// shared
 			var html = '';
 			data.shared.forEach(function(item){
-				html += '<p>' + item.name + ' <a href="#" data-id="'+item.id+'" class="delete">X</a></p>';
+				html += '<p>' + item.name + ' <a href="#" data-id="' + item.id + '" class="delete">X</a></p>';
 			});
 
 			if (html) {
@@ -292,7 +293,7 @@ function loadUsers() {
 			// contacts
 			html = '';
 			data.contacts.forEach(function(item){
-				html += '<p>' + item.name + ' <a href="#" data-email="'+item.email+'" class="add">Add</a></p>';
+				html += '<p>' + item.name + ' <a href="#" data-email="' + item.email + '" class="add">Add</a></p>';
 			});
 
 			if (html) {
@@ -305,7 +306,7 @@ function loadUsers() {
 			
 			// toggle shared site
 			sites.forEach(function(entry) {
-				if(entry.id == currentSite) {
+				if(entry.id == siteId) {
 					var shared = data.shared.length ? true : false;
 					
 					if (entry.shared != shared) {
@@ -318,11 +319,11 @@ function loadUsers() {
 							icon = 'fa fa-share-alt';
 						}
 						
-						$( "#sites option[value='"+currentSite+"']" ).attr( 'data-icon', icon ).data( 'icon', icon );
+						$( "#sites option[value='" + siteId + "']" ).attr( 'data-icon', icon ).data( 'icon', icon );
 						
 						// toggle firepad from open files
 						var action = shared ? 'share' : 'unshare';
-						$("li[data-site='"+currentSite+"']").trigger(action);
+						$("li[data-site='" + siteId + "']").trigger(action);
 					}
 					
 					return;
@@ -356,7 +357,7 @@ function load(options) {
 
 				$( "#sites" ).append( '<option data-icon="'+icon+'" value="'+site.id+'">' + site.name + '</option>' );
 			});
-
+			
 			if(currentSite) {
 				return open(currentSite, options);
 			} else {
@@ -443,7 +444,7 @@ function share(siteId) {
 
 	$('#shareSiteForm button').button();
 
-	loadUsers();
+	loadUsers(siteId);
 
 	//handle add user
 	$('#shareSiteForm').submit(function(event){
@@ -453,7 +454,7 @@ function share(siteId) {
 			action: 'saving user',
 			success: function(data) {
 				$('#shareSiteForm input[name=email]').val('');
-				loadUsers();
+				loadUsers(siteId);
 			}
 		});
 	});
@@ -464,7 +465,7 @@ function share(siteId) {
 			action: 'saving user',
 			success: function(data) {
 				$('#shareSiteForm input[name=email]').val('');
-				loadUsers();
+				loadUsers(siteId);
 			}
 		});
 	});
@@ -474,7 +475,7 @@ function share(siteId) {
 		loading.fetch(config.apiBaseUrl+'share?cmd=delete&site='+siteId+'&contact='+$(this).data('id'), {
 			action: 'deleting user',
 			success: function(data) {
-				loadUsers();
+				loadUsers(siteId);
 			}
 		});
 	});

@@ -50,10 +50,10 @@ define(['exports',"./lang","./prefs","./tabs","./layout","./drop",'./restore','.
 				}
 				
 				var loadHash = function() {
+					//console.log('load hash ' + hashVal);
+					
 					if (hashVal) {
-						console.log('load hash ' + hashVal);
 						hash.set(hashVal);
-						hash.load();
 					} else {
 						openDefaultTab();
 					}

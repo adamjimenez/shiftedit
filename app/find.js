@@ -135,7 +135,7 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 			var i;
 			var tab;
 
-			if (findIn == 'open') {
+			if (findIn === 'open') {
 				files = $('li[data-file]');
 			} else {
 				files = tabs.active();
@@ -350,21 +350,27 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 
 		if (update()) {
 			var replace = $("#replace").val();
+			var find = $("#find").val();
 
-			if( $("#regex").prop('checked') ){
-				var find = $("#find").val();
-				var value = editor.getSelectedText();
-				replace = value.replace(new RegExp(find), replace);
-			}
+			var Search = require('ace/search').Search;
+			var options = {
+				needle: find,
+				regExp: $("#regex").prop('checked'),
+				wrap: false
+			};
+
+			var search = new Search().set(options);
 
 			// prevent behaviours
-			editor.setBehavioursEnabled(false);
+			//editor.setBehavioursEnabled(false);
 			
-			editor.insert(replace);
+			editor.replace(replace);
+			
+			//editor.insert(replace);
 			
 			// re-enable behaviours
-			var prefs = preferences.get_prefs();
-			editor.setBehavioursEnabled(prefs.behaviours);
+			//var prefs = preferences.get_prefs();
+			//editor.setBehavioursEnabled(prefs.behaviours);
 			
 			update(true);
 			return true;
@@ -377,9 +383,9 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 		if( findIn == 'selection' ){
 			var tab = tabs.active();
 			var editor = tabs.getEditor(tab);
+			var find = $("#find").val();
 
 			var Search = require('ace/search').Search;
-			var find = $("#find").val();
 			var options = {
 				needle: find,
 				regExp: $("#regex").prop('checked'),
@@ -482,7 +488,7 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 			$('#findResults').hide();
 
 			//remote search
-			if( searchSource ){
+			if(searchSource) {
 				searchSource.close();
 			}
 
@@ -494,8 +500,13 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 
 			searchSource.addEventListener('message', function(event) {
 				var data = JSON.parse(event.data);
+				
+				if (findIn !== 'remote') {
+					return;
+				}
+				
 				$('#findResults').show();
-				$('#findResults').append('<li><a data-file="'+data.msg+'" data-site="'+currentSite+'" class="openfile">' + data.msg + '</a></li>');
+				$('#findResults').append('<li><a data-path="' + data.msg + '" data-site="' + currentSite + '" class="openfile">' + data.msg + '</a></li>');
 			}, false);
 
 			searchSource.addEventListener('error', function(event) {
@@ -528,13 +539,17 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 	function toggleFields() {
 		findIn = $('#findForm input[name=findIn]:checked').val();
 
-		if (['remote'].indexOf(findIn) !== -1) {
+		if (findIn === 'remote') {
 			$('#replace').hide();
 			$('#findButtons').hide();
 			$('#replaceButtons').hide();
 			$('#findResults').show();
 			keyUp();
 		} else {
+			if(searchSource) {
+				searchSource.close();
+			}
+			
 			$( "#findprogress" ).hide();
 			$('#replace').show();
 			$('#findButtons').show();
@@ -608,8 +623,7 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 			<span id="findStatus"></span>\
 		</div>\
 		<progress id="findprogress"></progress>\
-		<ul id="findResults">\
-		</ul>\
+		<ul id="findResults"></ul>\
 		<div id="findButtons" class="row">\
 			<input type="checkbox" id="regex"><label for="regex" title="Regular expression (Alt-R)"><i class="icon-regex"></i></label>\
 			<input type="checkbox" id="caseSensitive"><label for="caseSensitive" title="Case sensitive (Alt-C)"><i class="icon-case-sensitive"></i></label>\
@@ -703,7 +717,7 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 		});
 		
 		var timer;
-		$('body').on('change', 'li[role=tab][data-file]', function() {
+		$('body').on('change', 'li[role=tab][data-path]', function() {
 			clearTimeout(timer);
 			timer = setTimeout(function() {
 				update(null, true);
@@ -712,7 +726,8 @@ define(['./tabs','./layout', './site', './prefs', "jquery-ui-bundle", 'ace/ace']
 		
 		$("#findResults").basicMenu({
 			select: function (event, ui) {
-				//select(ui.item);
+				var item = ui.item.find('a');
+				tabs.open(item.data('path'), item.data('site'));
 			}
 		});
 		

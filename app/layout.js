@@ -1,12 +1,15 @@
 define(['exports', "./menubar", './status_bar', './prefs', "jquery.layout"], function (exports, menubar, status_bar, preferences) {
-var myLayout;
+	var myLayout;
+	var animating = false;
+	var westFocused = true;
+	var westOpen = true;
 
-function init() {
-	prefs = preferences.get_prefs();
-	
-	console.log('layout');
+	function init() {
+		prefs = preferences.get_prefs();
 
-	$('<div id="main-container" class="vbox">\
+		console.log('layout');
+
+		$('<div id="main-container" class="vbox">\
 	<div id="layout-container" class="flex">\
 		<div class="ui-layout-north ui-widget-content" style="display: none;">\
 			<ul id="menubar" class="menubar"></ul>\
@@ -29,7 +32,7 @@ function init() {
 					<li class="definitions"><a href="#tabs-definitions" title="Definitions"><i class="fa fa-code"></i></a></li>\
 					<li class="notes"><a href="#tabs-notes" title="Notes"><i class="fas fa-pencil-alt"></i></a></li>\
 					<li class="snippets"><a href="#tabs-snippets" title="Snippets"><i class="fa fa-cut"></i></a></li>\
-					<li class="git"><a href="#tabs-git" title="Git"><i class="fab fa-git"></i></a></li>\
+					<li class="git"><a href="#tabs-git" title="Git"><i class="fab fa-git"></i><span class="badge" style="display: none;"></span></a></li>\
 				</ul>\
 				<!-- add wrapper that layout will auto-size to fill space -->\
 				<div class="ui-layout-content">\
@@ -71,141 +74,156 @@ function init() {
 	</div>\
 	</div>').appendTo($('body'));
 
-	menubar.init();
-	status_bar.init();
+		menubar.init();
+		status_bar.init();
 
-	//page layout
-	myLayout = $('#layout-container').layout({
-		animatePaneSizing: true,
-		enableCursorHotkey: false,
-		fxSpeed: "fast",
-		livePaneResizing: true,
-		noAlert: true,
-		resizable: true,
-		stateManagement__enabled: true,
-		slideTrigger_close: 'click',
-		onresize_start: function() {
-			animating = true;
-		},
-		onresize_end: function() {
-			animating = false;
-			$('.jstree-table-wrapper').scrollLeft(0);
-		},
-		north: {
-			closable: false,
-			maxSize: 44,
-			minSize: 44,
-			resizable: false,
-			size: 44,
-			spacing_open: 0,
-			spacing_closed: 0
-		},
-		east: {
-			initClosed: true,
-			size: 300,
-			spacing_open: 10,
-			spacing_closed: 10,
-			//minSize: 36,
-		},
-		south: {
-			closable: false,
-			initHidden: !prefs.statusBar,
-			maxSize: 36,
-			minSize: 36,
-			resizable: false,
-			size: 36,
-			spacing_open: 0,
-			spacing_closed: 0
-		},
-		west: {
-			closable: false,
-			minSize: 48,
+		//page layout
+		myLayout = $('#layout-container').layout({
+			animatePaneSizing: true,
+			enableCursorHotkey: false,
+			fxSpeed: "fast",
+			livePaneResizing: true,
+			noAlert: true,
 			resizable: true,
-			size: prefs.westSize,
-			spacing_open: 10,
-			spacing_closed: 10
-		}
-	});
+			stateManagement__enabled: true,
+			slideTrigger_close: 'click',
+			onresize_start: function() {
+				animating = true;
+			},
+			onresize_end: function() {
+				animating = false;
+				$('.jstree-table-wrapper').scrollLeft(0);
+				
+				if (myLayout && myLayout.state && myLayout.west && myLayout.state.west.size > myLayout.west.state.minSize) {
+					westOpen = true;
+					$('.container-west').addClass('expanded');
+				}
+			},
+			north: {
+				closable: false,
+				maxSize: 44,
+				minSize: 44,
+				resizable: false,
+				size: 44,
+				spacing_open: 0,
+				spacing_closed: 0
+			},
+			east: {
+				initClosed: true,
+				size: 300,
+				spacing_open: 10,
+				spacing_closed: 10,
+				//minSize: 36,
+			},
+			south: {
+				closable: false,
+				initHidden: !prefs.statusBar,
+				maxSize: 36,
+				minSize: 36,
+				resizable: false,
+				size: 36,
+				spacing_open: 0,
+				spacing_closed: 0
+			},
+			west: {
+				closable: false,
+				minSize: 48,
+				resizable: true,
+				size: prefs.westSize,
+				spacing_open: 10,
+				spacing_closed: 10
+			}
+		});
 
-	// allow contextmenu to overflow
-	$('body').on('menufocus focusin', '.ui-layout-pane', function() {
-		myLayout.allowOverflow($(this));
-	});
-	
-	// close slide out panes
-	$('body').on('mouseup', function(e) {
-		if (myLayout.state.east.isSliding) {
-			if ($(e.target).closest('.ui-layout-east').length===0) {
-				myLayout.slideClose('east');
+		// allow contextmenu to overflow
+		$('body').on('menufocus focusin', '.ui-layout-pane', function() {
+			myLayout.allowOverflow($(this));
+		});
+
+		// close slide out panes
+		$('body').on('mouseup', function(e) {
+			if (myLayout.state.east.isSliding) {
+				if ($(e.target).closest('.ui-layout-east').length === 0) {
+					myLayout.slideClose('east');
+				}
 			}
-		}
-	});
-	
-	// unless using tree context menu
-	$('body').on('mousedown', '.jstree-contextmenu', function(e) {
-		e.stopPropagation();
-	});
-	
-	$('body').on('mouseenter', '.ui-layout-west', function(e) {
-		if (!prefs.hidePanel) {
-			return;
-		}
-		
-		if (!westIsOpen()) {
-			openWest(false);
-		}
-	});
-	
-	// min west panel on center panel click
-	$('body').on('mouseup', '.ui-layout-center, .ui-layout-north, .ui-layout-east, .ui-layout-south', function(e) {
-		if (!prefs.hidePanel) {
-			return;
-		}
-		
-		closeWest();
-	});
-	
-	// min west panel on center panel click
-	$('body').on('mouseenter', '.ui-layout-center, .ui-layout-north, .ui-layout-east, .ui-layout-south', function(e) {
-		if (!prefs.hidePanel) {
-			return;
-		}
-		
-		if (!westFocused && westIsOpen()) {
-			closeWest(false);
-		}
-	});
-	
-	// close when active tab clicked
-	var li = $('.ui-layout-west li');
-	li.first().addClass('my_active');
-	li.on('click', function(e) {
-		if(e.button!==0) {
-			return;
-		}
-		
-		if ( $(this).hasClass('my_active') ) {
-			if (westIsOpen()) {
+		});
+
+		// unless using tree context menu
+		$('body').on('mousedown',
+			'.jstree-contextmenu',
+			function(e) {
+				e.stopPropagation();
+			});
+
+		$('body').on('mouseenter',
+			'.ui-layout-west',
+			function(e) {
+				if (!prefs.hidePanel) {
+					return;
+				}
+
+				if (!westIsOpen()) {
+					openWest(false);
+				}
+			});
+
+		// min west panel on center panel click
+		$('body').on('mouseup',
+			'.ui-layout-center, .ui-layout-north, .ui-layout-east, .ui-layout-south',
+			function(e) {
+				if (!prefs.hidePanel) {
+					return;
+				}
+
 				closeWest();
-			} else {
-				openWest();
+			});
+
+		// min west panel on center panel click
+		$('body').on('mouseenter',
+			'.ui-layout-center, .ui-layout-north, .ui-layout-east, .ui-layout-south',
+			function(e) {
+				if (!prefs.hidePanel) {
+					return;
+				}
+
+				if (!westFocused && westIsOpen()) {
+					closeWest(false);
+				}
+			});
+
+		// close when active tab clicked
+		var li = $('.ui-layout-west li');
+		li.first().addClass('my_active');
+		li.on('click', function(e) {
+			if (e.button !== 0) {
+				return;
 			}
-			
-			e.stopPropagation();
-		} else {
-			li.removeClass('my_active');
-			$(this).addClass('my_active');
-		}
-	});
-	
-	// START autohide west panel
-	$('body').on('click', '.ui-layout-west', function(e) {
-		if (!westIsOpen()) {
-			openWest();
-		}
-	});
-	
-	/*
+
+			if ($(this).hasClass('my_active')) {
+				if (westIsOpen()) {
+					closeWest();
+				} else {
+					openWest();
+				}
+
+				e.stopPropagation();
+			} else {
+				li.removeClass('my_active');
+				$(this).addClass('my_active');
+			}
+		});
+
+		// START autohide west panel
+		$('body').on('click',
+			'.ui-layout-west',
+			function(e) {
+				if (!westIsOpen()) {
+					openWest();
+				}
+			});
+
+		/*
 	// close when active tab is clicked
 	$('.ui-layout-west li a').on('click', function() {
 		console.log(currentTab);
@@ -214,114 +232,113 @@ function init() {
 		}
 	});
 	*/
-	// END autohide west panel
+		// END autohide west panel
 
-	// if a new theme is applied, it could change the height of some content,
-	// so call resizeAll to 'correct' any header/footer heights affected
-	// NOTE: this is only necessary because we are changing CSS *AFTER LOADING* using themeSwitcher
-	setTimeout( function() {
-		myLayout.resizeAll();
+		// if a new theme is applied, it could change the height of some content,
+		// so call resizeAll to 'correct' any header/footer heights affected
+		// NOTE: this is only necessary because we are changing CSS *AFTER LOADING* using themeSwitcher
+		setTimeout(function() {
+			myLayout.resizeAll();
 
-		// some shenanigans to get the resize bars in the right place
-		var eastWidth = myLayout.panes.east.outerWidth();
-		var westWidth = myLayout.panes.west.outerWidth();
+			// some shenanigans to get the resize bars in the right place
+			var eastWidth = myLayout.panes.east.outerWidth();
+			var westWidth = myLayout.panes.west.outerWidth();
 
-		myLayout.sizePane('east', eastWidth+1);
-		myLayout.sizePane('east', eastWidth);
-		myLayout.sizePane('west', westWidth+1);
-		myLayout.sizePane('west', westWidth);
-	}, 1000 ); /* allow time for browser to re-render with new theme */
+			myLayout.sizePane('east', eastWidth+1);
+			myLayout.sizePane('east', eastWidth);
+			myLayout.sizePane('west', westWidth+1);
+			myLayout.sizePane('west', westWidth);
+		},
+			1000); /* allow time for browser to re-render with new theme */
 
-	//send resize events to window
-	var timer;
-	$('.ui-layout-pane').on('layoutpaneonresize', function() { 
-		$(window).trigger('resize');
-		
-		var needResize = false;
-		if ($(window).width() < 768) {
-			if ($('.ui-layout-resizer-east').is(':visible')) {
-				$('.ui-layout-resizer-east').show();
-				myLayout.hide("east");
-				myLayout.state.isClosed = true;
-				needResize = true;
+		//send resize events to window
+		var timer;
+		$('.ui-layout-pane').on('layoutpaneonresize',
+			function() {
+				$(window).trigger('resize');
+
+				var needResize = false;
+				if ($(window).width() < 768) {
+					if ($('.ui-layout-resizer-east').is(':visible')) {
+						$('.ui-layout-resizer-east').show();
+						myLayout.hide("east");
+						myLayout.state.isClosed = true;
+						needResize = true;
+					}
+				} else {
+					if (!$('.ui-layout-resizer-east').is(':visible')) {
+						$('.ui-layout-resizer-east').show();
+						myLayout.show("east");
+						myLayout.state.isClosed = false;
+						myLayout.sizePane('east', 200);
+						needResize = true;
+					}
+				}
+
+				if (needResize) {
+					clearTimeout(timer);
+					timer = setTimeout(function() {
+						myLayout.resizeAll();
+					}, 1000);
+				}
+			});
+
+		// expand panes when tab is dragged over
+		$('.ui-layout-resizer').droppable({
+			over: function(e, ui) {
+				// get nearest panel
+				var paneName = this.className.match('ui-layout-resizer-([a-z]*)')[1];
+
+				// expand panel
+				myLayout.open(paneName);
+
+				// refresh target dropzones
+				if ($(".ui-layout-"+paneName+" .ui-tabs-nav").hasClass('ui-sortable')) {
+					$(".ui-layout-"+paneName+" .ui-tabs-nav").sortable("refresh");
+				}
 			}
-		} else {
-			if (!$('.ui-layout-resizer-east').is(':visible')) {
-				$('.ui-layout-resizer-east').show();
-				myLayout.show("east");
-				myLayout.state.isClosed = false;
-				myLayout.sizePane('east', 200);
-				needResize = true;
-			}
+		});
+	}
+
+	function westIsOpen() {
+		return westOpen;
+	}
+
+	function openWest(focus = true) {
+		if (animating) {
+			return;
 		}
-		
-		if (needResize) {
-			clearTimeout(timer);
-			timer = setTimeout( function() {
-				myLayout.resizeAll();
-			}, 1000);
+		if (focus) {
+			westFocused = true;
 		}
-	});
-	
-	// expand panes when tab is dragged over
-	$('.ui-layout-resizer').droppable({
-		over: function( e, ui ) {
-			// get nearest panel
-			var paneName = this.className.match('ui-layout-resizer-([a-z]*)')[1];
-	
-			// expand panel
-			myLayout.open(paneName);
-			
-			// refresh target dropzones
-			if ($( ".ui-layout-"+paneName+" .ui-tabs-nav" ).hasClass('ui-sortable')) {
-				$( ".ui-layout-"+paneName+" .ui-tabs-nav" ).sortable( "refresh" );
-			}
+		if (!westIsOpen()) {
+			westOpen = true;
+			$('.container-west').addClass('expanded');
+			myLayout.sizePane('west', prefs.westSize);
 		}
-	});
-}
+	}
 
-var animating = false;
-var westFocused = true;
-var westOpen = true;
-function westIsOpen() {
-	return westOpen;
-}
+	function closeWest(focus = true) {
+		if (animating) {
+			return;
+		}
+		if (focus) {
+			westFocused = false;
+		}
+		if (westIsOpen()) {
+			westOpen = false;
+			$('.container-west').removeClass('expanded');
+			preferences.save('westSize', myLayout.west.state.layoutWidth);
+			myLayout.sizePane('west', myLayout.west.state.minSize);
+		}
+	}
 
-function openWest(focus=true) {
-	if (animating) {
-		return;
-	}
-	if (focus) {
-		westFocused = true;
-	}
-	if (!westIsOpen()) {
-		westOpen = true;
-		$('.container-west').addClass('expanded');
-		myLayout.sizePane('west', prefs.westSize);
-	}
-}
-
-function closeWest(focus=true) {
-	if (animating) {
-		return;
-	}
-	if (focus) {
-		westFocused = false;
-	}
-	if (westIsOpen()) {
-		westOpen = false;
-		$('.container-west').removeClass('expanded');
-		preferences.save('westSize', myLayout.west.state.layoutWidth);
-		myLayout.sizePane('west', myLayout.west.state.minSize);
-	}
-}
-
-exports.init = init;
-exports.get =  function() {
-	return myLayout;
-};
-exports.westIsOpen = westIsOpen;
-exports.openWest = openWest;
-exports.closeWest = closeWest;
+	exports.init = init;
+	exports.get = function() {
+		return myLayout;
+	};
+	exports.westIsOpen = westIsOpen;
+	exports.openWest = openWest;
+	exports.closeWest = closeWest;
 
 });

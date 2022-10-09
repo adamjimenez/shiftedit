@@ -97,14 +97,14 @@ function onChange(e, document) {
 				var lines = e.lines.length -1;
 				var start = e.start.row;
 				var end = e.end.row;
-				if(e.action==='insert'){
+				if(e.action === 'insert'){
 					//console.log('new lines',breakpoint, start , end );
 					if(breakpoint>start ){
 						//console.log('breakpoint forward');
 						editor.session.clearBreakpoint(breakpoint);
 						editor.session.setBreakpoint(breakpoint + lines);
 					}
-				} else if(e.action==='remove'){
+				} else if(e.action === 'remove'){
 					//console.log('removed lines',breakpoint, start , end);
 					if(breakpoint>start && breakpoint<end ){
 						//console.log('breakpoint remove');
@@ -594,8 +594,10 @@ function addFirepad(tab) {
 			tabs.setEdited(tab, false);
 		}
 
-		//move cursor to start
-		editor.gotoLine(1, 0);
+		//restore cursor or move to start
+		var line = tab.data('line') ? parseInt(tab.data('line')) : 1;
+		editor.gotoLine(line, 0);
+		editor.focus();
 
 		saveRef = firepadRef.child('save');
 		saveRef.on('value', function(snapshot) {
@@ -766,7 +768,6 @@ function applyPrefs(tab) {
 			['auto','unix','windows'].indexOf(prefs.lineBreak) !== -1 &&
 			!$(tab).data('firepad')
 		){
-			console.log('Linemode: '+prefs.lineBreak);
 			editor.getSession().getDocument().setNewLineMode(prefs.lineBreak);
 		}
 
@@ -1550,8 +1551,8 @@ function create(file, content, siteId, options) {
 	);
 
 	tab.addClass('closable');
+	
 	tab.data(file, file);
-	console.log('set tab file');
 	tab.attr('data-file', file);
 
 	tab.data('view', 'code');
@@ -1560,17 +1561,13 @@ function create(file, content, siteId, options) {
 	if(siteId) {
 		tab.data('site', siteId);
 		tab.attr('data-site', siteId);
+		tab.attr('data-edited', 0);
 		settings = site.getSettings(siteId);
 		title = settings.name + '/' + title;
-	
-		// tab colour - disabled as the colours are hard to interpret
-		/*
-		if ($('#siteStyle-'+siteId).length===0) {
-			var color = util.strToHex(siteId);
-			$('<style id="siteStyle-'+siteId+'">li[data-site="' + siteId + '"]{border-top: 1px solid ' + color + ' !important;}</style>').appendTo('head');
-		}
-		*/
 	}
+	
+	//reactivate
+	$(tabpanel).trigger('tabsactivate', {newTab:tab});
 	
 	tabs.setTitle(tab, title);
 
@@ -1726,11 +1723,9 @@ snippet ifeil\n\
 	};
 
 	//syntax bar handlers
-	panel.find('.previous').button()
-	.click(jQuery.proxy(syntax_errors.previous, tab));
+	panel.find('.previous').button().click(jQuery.proxy(syntax_errors.previous, tab));
 
-	panel.find('.next').button()
-	.click(jQuery.proxy(syntax_errors.next, tab));
+	panel.find('.next').button().click(jQuery.proxy(syntax_errors.next, tab));
 
 	//FIREPAD
 	var firepad = false;
@@ -1835,8 +1830,6 @@ snippet ifeil\n\
 	$('<div class="fullScreenBtn" title="Full Screen (Ctrl-Shift-F)"><i class="fa fa-expand"></i></div>').appendTo($(editor.container))
 	.click(jQuery.proxy(tabs.fullScreen, tab));
 
-	//reactivate
-	//$(tab).trigger('activate', [tab]);
 	$(tab).closest('.ui-tabs').trigger('open');
 
 	return $(tab);

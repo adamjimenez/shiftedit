@@ -71,7 +71,7 @@ function refresh() {
 		if(combobox) {
 			var val = combobox.input.val();
 			if (val.indexOf('://') == -1) {
-				val = 'http://' + val;
+				val = 'https://' + val;
 				$( ".address" ).combobox('val', val);
 			}
 	
@@ -223,11 +223,9 @@ function load(tab) {
 				if(settings.web_url) {
 					url = settings.web_url+file;
 				}
-				
-				if (parseInt(settings.encryption)===1) {
+
+				if (!util.startsWith(url, 'http://') && !util.startsWith(url, 'https://')) {
 					url = 'https://' + url;
-				} else {
-					url = 'http://' + url;
 				}
 			}
 

@@ -1,536 +1,561 @@
 define(['./config', './editors', './designs', './prefs', 'exports', "./prompt", "./lang", "./site", "./modes", "./loading", './util', './recent', './ssh', './preview', './diff', './tree', './resize', './hash', "./tabs_contextmenu", "ui.tabs.stretchyTabs", 'cssmin', 'dialogResize'], function (config, editors, designs, preferences, exports, prompt, lang, site, modes, loading, util, recent, ssh, preview, diff, tree, resize, hash, tabs_contextmenu) {
-lang = lang.lang;
-modes = modes.modes;
-var closing = [];
-var saving = [];
-var opening = [];
-var autoSaveTimer;
-var manuallyAborted = false;
+	lang = lang.lang;
+	modes = modes.modes;
+	var closing = [];
+	var saving = [];
+	var opening = [];
+	var autoSaveTimer;
+	var manuallyAborted = false;
 
-function active() {
-	return $('.ui-layout-center .ui-tabs-active');
-}
-
-function next() {
-	var tab = active().next('li:not(.button)');
-	if(!tab.length) {
-		tab = active().parent().children('li:not(.button):first');
+	function active() {
+		return $('.ui-layout-center .ui-tabs-active');
 	}
 
-	$(".ui-layout-center").tabs("option", "active", tab.index());
-}
+	function next() {
+		var tab = active().next('li:not(.button)');
+		if (!tab.length) {
+			tab = active().parent().children('li:not(.button):first');
+		}
 
-function prev() {
-	var tab = active().prev('li:not(.button)');
-	if(!tab.length) {
-		tab = active().parent().children('li:not(.button):last');
+		$(".ui-layout-center").tabs("option", "active", tab.index());
 	}
 
-	$(".ui-layout-center").tabs("option", "active", tab.index());
-}
+	function prev() {
+		var tab = active().prev('li:not(.button)');
+		if (!tab.length) {
+			tab = active().parent().children('li:not(.button):last');
+		}
 
-function getEditor(tab) {
-	tab = $(tab);
-
-	if (window.splits && window.splits[tab.attr('id')]) {
-		return window.splits[tab.attr('id')].getEditor(0);
+		$(".ui-layout-center").tabs("option", "active", tab.index());
 	}
 
-	/*
+	function getEditor(tab) {
+		tab = $(tab);
+
+		if (window.splits && window.splits[tab.attr('id')]) {
+			return window.splits[tab.attr('id')].getEditor(0);
+		}
+
+		/*
 	var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
 
 	if(panel.children('div.editor').length) {
 		return ace.edit(panel.children('div.editor')[0]);
 	}*/
 
-	return false;
-}
-
-function open(file, siteId, options) {
-	if(!file)
-		return quickOpen();
-
-	if(!siteId) {
-		console.log('no site id');
-		return;
-	}
-
-	var found = false;
-	opening.forEach(function(item) {
-		if(item.file === file && item.siteId === siteId){
-			found = true;
-			return;
-		}
-	});
-
-	if(!found) {
-		opening.push({
-			siteId: siteId,
-			file: file
-		});
-		openFiles(options);
-	}
-}
-
-function isOpen(file, siteId) {
-	//check if file already open
-	var li = $("li[data-file='"+file+"'][data-site='"+siteId+"']");
-	if(li.length && li.index()!==-1){
-		console.log('file already open');
-		li.closest('.ui-tabs').tabs("option", "active", li.index());
-		return li;
-	}
-	
-	return false;
-}
-
-function openFiles(options) {
-	if (!opening.length)
-		return;
-
-	if(!options){
-		options = {};
-	}
-
-	var item = opening.shift();
-	var siteId = item.siteId;
-	var fileId = item.file;
-	var file = fileId;
-
-	if(!siteId || !fileId) {
-		console.trace('file open error');
-		console.log(opening);
-		console.log(item);
 		return false;
 	}
 
-	if (!options.reload && isOpen(file, siteId)) {
-		if (options.callback)
-			options.callback(active(), false);
-		return;
-	}
+	function open(file, siteId, options) {
+		if (!file)
+			return quickOpen();
 
-	//switch site if need be
-	if (siteId !== site.active()) {
-		opening.unshift(item);
-
-		site.open(siteId, {
-			callback: function() {
-				openFiles(options);
-			}
-		});
-		return;
-	}
-
-	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site='+siteId);
-	var ajax;
-	if (!loading.start('Opening ' + file, function(){
-		console.log('abort opening files');
-		manuallyAborted = true;
-		ajax.abort();
-		opening = [];
-	})) {
-		opening.push(item);
-		console.log('in queue');
-		return;
-	}
-
-	function openCallback(data) {
-		var title = file;
-		if(data.title) {
-			title = data.title;
-		}
-
-		if (options.tabpanel) {
-			data.tabpanel = options.tabpanel;
-		}
-
-		var type = util.fileExtension(title);
-
-		loading.stop();
-
-		if (!data.success) {
-			prompt.alert({title:lang.failedText, msg: 'Error opening file' + ': ' + data.error});
-			opening = [];
-		}else if (data.content===false) {
-			prompt.alert({title:lang.failedText, msg: 'Missing file'});
-			opening = [];
-		} else {
-			$('#data .content').hide();
-			switch(type) {
-				case 'png':
-				case 'jpg':
-				case 'jpeg':
-				case 'bmp':
-				case 'gif':
-					//$('#data .image img').one('load', function () { $(this).css({'marginTop':'-' + $(this).height()/2 + 'px','marginLeft':'-' + $(this).width()/2 + 'px'}); }).attr('src',d.content);
-					//$('#data .image').show();
-				break;
-				default:
-					//$('#data .default').html(d.content).show();
-					if (options.reload) {
-						tab = isOpen(file, siteId);
-						
-						if (tab) {
-							editor = getEditor(tab);
-							editor.setValue(data.content);
-							editor.moveCursorToPosition({column:0, row:0});
-							editor.focus();
-							
-							if (tab.data('view')==='design') {
-								var inst = designs.get(tab);
-								designs.update(inst);
-							}
-							
-							setEdited(tab, false);
-						} else {
-							console.error('reload tab not found');
-						}
-					} else {
-						editors.create(file, data.content, ajaxOptions.site, data);
-						recent.add(file, ajaxOptions.site);
-					}
-				break;
-			}
-
-			if (opening.length) {
-				openFiles(options.callback);
-			}else{
-				recordOpenFiles();
-
-				if (options.callback)
-					options.callback(tab, true);
-			}
-		}
-	}
-
-	var directFn = site.getdirectFn();
-	if(directFn) {
-		directFn({
-			cmd: 'open',
-			file: fileId,
-			callback: openCallback
-		});
-	} else {
-		//backcompat turbo mode
-		var params = util.clone(ajaxOptions.params);
-		params.file = fileId;
-
-		ajax = $.ajax(ajaxOptions.url+'&cmd=open&file=' + encodeURIComponent(fileId), {
-			method: 'POST',
-			dataType: 'json',
-			data: params,
-			xhrFields: {
-				withCredentials: true
-			},
-			success: openCallback
-		}, 'json').fail(function() {
-			loading.stop();
-			if (!manuallyAborted) {
-				prompt.alert({title:lang.failedText, msg:'Error opening file'});
-			} else {
-				manuallyAborted = false;
-			}
-			opening = [];
-		});
-	}
-}
-
-function reload(tab) {
-	open(tab.attr('data-file'), tab.attr('data-site'), {reload: true});
-}
-
-function save(tab, options) {
-	//saving[tab.attr('id')] = tab;
-	var found = false;
-	saving.forEach(function(item) {
-		if(item.id === tab.attr('id')){
-			found = true;
+		if (!siteId) {
+			console.log('no site id');
 			return;
 		}
-	});
 
-	if(!found) {
-		saving.push({
-			id: tab.attr('id'),
-			tab: tab
+		var found = false;
+		opening.forEach(function(item) {
+			if (item.file === file && item.siteId === siteId) {
+				found = true;
+				return;
+			}
 		});
-		saveFiles(options);
+
+		if (!found) {
+			var reload = options && options.reload ? true: false;
+
+			opening.push({
+				siteId: siteId,
+				file: file,
+				reload: reload
+			});
+			openFiles(options);
+		}
 	}
-}
 
-function saveFiles(options) {
-	if (!saving.length)
-		return;
-
-	if (!options) {
-		options = {};
-	}
-
-	var item = saving.shift();
-
-	console.log('save');
-
-	var content;
-	var tab;
-	var siteId;
-	var title;
-	var file;
-	var mdate;
-	
-	if (item.tab) {
-		tab = item.tab;
-		siteId = tab.data("site");
-		title = tab.data("title");
-		var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
-		var editor = getEditor(tab);
-		mdate = tab.data("mdate");
-		if(!mdate) {
-			mdate = -1;
+	function isOpen(file, siteId) {
+		//check if file already open
+		var li = $("li[data-file='"+file+"'][data-site='"+siteId+"']");
+		if (li.length && li.index()!==-1) {
+			console.log('file already open');
+			li.closest('.ui-tabs').tabs("option", "active", li.index());
+			return li;
 		}
 
-		if(!editor){
-			console.error('editor instance not found');
+		return false;
+	}
+
+	function openFiles(options) {
+		if (!opening.length)
+			return;
+
+		if (!options) {
+			options = {};
+		}
+
+		var item = opening.shift();
+		var siteId = item.siteId;
+		var fileId = item.file;
+		var file = fileId;
+
+		if (!siteId || !fileId) {
+			console.trace('file open error');
+			console.log(opening);
+			console.log(item);
 			return false;
 		}
 
-		file = tab.data("file");
-		content = editor.getValue();
-	} else if (typeof item.content != 'undefined') {
-		siteId = item.site;
-		title = item.title;
-		file = item.file;
-		content = item.content;
-		mdate = -1;
-	}
+		if (!item.reload && isOpen(file, siteId)) {
+			if (options.callback)
+				options.callback(active(), false);
+			return;
+		}
 
-	//save pref
-	if(tab && tab.data('pref')){
-		preferences.save(tab.data('pref'), content);
-		setEdited(tab, false);
-		return;
-	}
+		//switch site if need be
+		if (siteId !== site.active()) {
+			opening.unshift(item);
 
-	//switch site if need be
-	if (!siteId) {
-		console.log('no site');
-		saveAs(tab, options);
-		return;
-	}
+			site.open(siteId, {
+				callback: function() {
+					openFiles(options);
+				}
+			});
+			return;
+		}
 
-	if (siteId!==site.active()) {
-		saving.unshift(item);
+		var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site='+siteId);
+		var ajax;
+		if (!loading.start('Opening ' + file, function() {
+			console.log('abort opening files');
+			manuallyAborted = true;
+			ajax.abort();
+			opening = [];
+		})) {
+			opening.push(item);
+			console.log('in queue');
+			return;
+		}
 
-		site.open(siteId, {
-			callback: function() {
-				saveFiles();
+		function openCallback(data) {
+			var title = file;
+			if (data.title) {
+				title = data.title;
 			}
-		});
-		return;
-	}
 
-	//strip whitespace
-	var prefs = preferences.get_prefs();
-	if (prefs.stripWhitespace) {
-		var lines = content.split("\n");
-		content = '';
-		for (var i in lines) {
-			if (lines.hasOwnProperty(i)) {
-				content += lines[i].replace(/\s+$/, "") + '\n';
+			if (options.tabpanel) {
+				data.tabpanel = options.tabpanel;
+			}
+
+			var type = util.fileExtension(title);
+
+			loading.stop();
+
+			if (!data.success) {
+				prompt.alert({
+					title: lang.failedText, msg: 'Error opening file' + ': ' + data.error
+				});
+				opening = [];
+			} else if (data.content === false) {
+				prompt.alert({
+					title: lang.failedText, msg: 'Missing file'
+				});
+				opening = [];
+			} else {
+				$('#data .content').hide();
+				switch (type) {
+					case 'png':
+					case 'jpg':
+					case 'jpeg':
+					case 'bmp':
+					case 'gif':
+						break;
+					default:
+						if (item.reload) {
+							tab = isOpen(file, siteId);
+
+							if (tab) {
+								editor = getEditor(tab);
+								editor.setValue(data.content);
+								editor.moveCursorToPosition({
+									column: 0, row: 0
+								});
+								editor.focus();
+
+								if (tab.data('view') === 'design') {
+									var inst = designs.get(tab);
+									designs.update(inst);
+								}
+
+								setEdited(tab, false);
+							} else {
+								console.error('reload tab not found');
+							}
+						} else {
+							editors.create(file, data.content, ajaxOptions.site, data);
+							recent.add(file, ajaxOptions.site);
+						}
+						break;
+				}
+
+				if (opening.length) {
+					openFiles(options.callback);
+				} else {
+					recordOpenFiles();
+					
+					if (options.callback) {
+						options.callback(active(), false);
+					}
+				}
 			}
 		}
-		//remove trailing line break
-		content = content.substr(0, content.length-1);
+
+		var directFn = site.getdirectFn();
+		if (directFn) {
+			directFn({
+				cmd: 'open',
+				file: fileId,
+				callback: openCallback
+			});
+		} else {
+			//backcompat turbo mode
+			var params = util.clone(ajaxOptions.params);
+			params.file = fileId;
+
+			ajax = $.ajax(ajaxOptions.url + '&cmd=open&file=' + encodeURIComponent(fileId), {
+				method: 'POST',
+				dataType: 'json',
+				data: params,
+				xhrFields: {
+					withCredentials: true
+				},
+				success: openCallback
+			}, 'json').fail(function() {
+				loading.stop();
+				if (!manuallyAborted) {
+					prompt.alert({
+						title: lang.failedText, msg: 'Error opening file'
+					});
+				} else {
+					manuallyAborted = false;
+				}
+				opening = [];
+			});
+		}
 	}
 
-	var confirmed = 1;
-	if (tab) {
-		title = tab.data('title');
+	function reload(tab) {
+		open(tab.attr('data-file'),
+			tab.attr('data-site'),
+			{
+				reload: true
+			});
+	}
 
-		//save as if new file
-		if(!tab.data("site") || !tab.data("file")) {
+	function reloadActive(tab) {
+		// reload files
+		$("li[data-file][data-site='" + site.active() + "'][data-edited='0']").each(function(index) {
+			var tab = $(this);
+			reload(tab);
+		});
+	}
+
+	function save(tab, options) {
+		//saving[tab.attr('id')] = tab;
+		var found = false;
+		saving.forEach(function(item) {
+			if (item.id === tab.attr('id')) {
+				found = true;
+				return;
+			}
+		});
+
+		if (!found) {
+			saving.push({
+				id: tab.attr('id'),
+				tab: tab
+			});
+			saveFiles(options);
+		}
+	}
+
+	function saveFiles(options) {
+		if (!saving.length)
+			return;
+
+		if (!options) {
+			options = {};
+		}
+
+		var item = saving.shift();
+
+		console.log('save');
+
+		var content;
+		var tab;
+		var siteId;
+		var title;
+		var file;
+		var mdate;
+
+		if (item.tab) {
+			tab = item.tab;
+			siteId = tab.data("site");
+			title = tab.data("title");
+			var panel = $('.ui-layout-center').tabs('getPanelForTab', tab);
+			var editor = getEditor(tab);
+			mdate = tab.data("mdate");
+			if (!mdate) {
+				mdate = -1;
+			}
+
+			if (!editor) {
+				console.error('editor instance not found');
+				return false;
+			}
+
+			file = tab.data("file");
+			content = editor.getValue();
+		} else if (typeof item.content != 'undefined') {
+			siteId = item.site;
+			title = item.title;
+			file = item.file;
+			content = item.content;
+			mdate = -1;
+		}
+
+		//save pref
+		if (tab && tab.data('pref')) {
+			preferences.save(tab.data('pref'), content);
+			setEdited(tab, false);
+			return;
+		}
+
+		//switch site if need be
+		if (!siteId) {
+			console.log('no site');
 			saveAs(tab, options);
 			return;
 		}
 
-		confirmed = tab.data('overwrite') ? tab.data('overwrite') : 0;
-	}
+		if (siteId !== site.active()) {
+			saving.unshift(item);
 
-	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
-
-	var params = util.clone(ajaxOptions.params);
-	params.content = content;
-
-	//compile LESS
-	var fileExtension = util.fileExtension(title);
-	if( prefs.compileLESS && ['less', 'scss'].indexOf(fileExtension)!==-1 ){
-		params.compile = true;
-	}
-
-	var minify = options.minify ? 1 : 0;
-	if( prefs.saveWithMinified && ['css', 'js'].indexOf(fileExtension)!==-1 ){
-		minify = 1;
-	}
-
-	var ajax;
-	if (!loading.start('Saving ' + title, function(){
-		console.log('abort saving files');
-		ajax.abort();
-	})) {
-		console.log('in queued save');
-		return;
-	}
-
-	function saveCallback(data) {
-		loading.stop();
-		//console.log(data);
-
-		if (data.success) {
-			//trigger event save
-			//tab.parent('div').trigger('save', [tab]);
-
-			if(data.changed && !confirmed ){
-				prompt.confirm({
-					title: 'File changed',
-					msg: 'File has changed since last save.. save anyway?',
-					fn: function(value) {
-						switch(value) {
-							case 'yes':
-								saving.unshift(item);
-								tab.data('overwrite', 1);
-								saveFiles();
-							break;
-							case 'no':
-							case 'cancel':
-							break;
-					   }
-					}
-				});
-			}else{
-				if (tab) {
-					setEdited(tab, false);
-					tab.data('overwrite', 0);
-					tab.data('mdate', data.last_modified);
-					tab.trigger('save');
-
-					if (data.file) {
-						tab.attr('data-file', data.file);
-						tab.data('file', data.file);
-					}
+			site.open(siteId, {
+				callback: function() {
+					saveFiles();
 				}
+			});
+			return;
+		}
 
-				//save revision for turbo mode or AJAX
-				settings = site.getSettings(siteId);
-				if( settings.turbo == 1 || settings.server_type=='AJAX' ){
-					$.ajax({
-						url: config.apiBaseUrl+'revisions?cmd=save&site='+siteId+'&file='+encodeURIComponent(params.file),
-						method: 'POST',
-						data: params,
-						dataType: 'json'
+		//strip whitespace
+		var prefs = preferences.get_prefs();
+		if (prefs.stripWhitespace) {
+			var lines = content.split("\n");
+			content = '';
+			for (var i in lines) {
+				if (lines.hasOwnProperty(i)) {
+					content += lines[i].replace(/\s+$/, "") + '\n';
+				}
+			}
+			//remove trailing line break
+			content = content.substr(0, content.length-1);
+		}
+
+		var confirmed = 1;
+		if (tab) {
+			title = tab.data('title');
+
+			//save as if new file
+			if (!tab.data("site") || !tab.data("file")) {
+				saveAs(tab, options);
+				return;
+			}
+
+			confirmed = tab.data('overwrite') ? tab.data('overwrite'): 0;
+		}
+
+		var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
+
+		var params = util.clone(ajaxOptions.params);
+		params.content = content;
+
+		//compile LESS
+		var fileExtension = util.fileExtension(title);
+		if (prefs.compileLESS && ['less', 'scss'].indexOf(fileExtension)!==-1) {
+			params.compile = true;
+		}
+
+		var minify = options.minify ? 1: 0;
+		if (prefs.saveWithMinified && ['css', 'js'].indexOf(fileExtension)!==-1) {
+			minify = 1;
+		}
+
+		var ajax;
+		if (!loading.start('Saving ' + title, function() {
+			console.log('abort saving files');
+			ajax.abort();
+		})) {
+			console.log('in queued save');
+			return;
+		}
+
+		function saveCallback(data) {
+			loading.stop();
+			//console.log(data);
+
+			if (data.success) {
+				//trigger event save
+				//tab.parent('div').trigger('save', [tab]);
+
+				if (data.changed && !confirmed) {
+					prompt.confirm({
+						title: 'File changed',
+						msg: 'File has changed since last save.. save anyway?',
+						fn: function(value) {
+							switch (value) {
+								case 'yes':
+									saving.unshift(item);
+									tab.data('overwrite', 1);
+									saveFiles();
+									break;
+								case 'no':
+								case 'cancel':
+									break;
+							}
+						}
 					});
-				}
+				} else {
+					if (tab) {
+						setEdited(tab, false);
+						tab.data('overwrite', 0);
+						tab.data('mdate', data.last_modified);
+						tab.trigger('save');
 
-				//compile coffee
-				var newTitle, pos, file;
-				if (prefs.compileCoffeeScript && util.fileExtension(title)==='coffee') {
-					newTitle = tab.data('title');
-					pos = newTitle.indexOf('.');
-					newTitle = newTitle.substr(0, pos) + '.js';
-					file = tab.data('file');
-					pos = file.lastIndexOf('.');
-					newFile = file.substr(0, pos) + '.js';
+						if (data.file) {
+							tab.attr('data-file', data.file);
+							tab.data('file', data.file);
+						}
+					}
 
-
-					require(['coffee-script'], function(CoffeeScript) {					
-						content = CoffeeScript.compile(content);
-	
-						saving.push({
-							site: tab.data('site'),
-							title: newTitle,
-							file: file,
-							parent: parent,
-							content: content
+					//save revision for turbo mode or AJAX
+					settings = site.getSettings(siteId);
+					if (settings.turbo == 1 || settings.server_type == 'AJAX') {
+						$.ajax({
+							url: config.apiBaseUrl+'revisions?cmd=save&site='+siteId+'&file='+encodeURIComponent(params.file),
+							method: 'POST',
+							data: params,
+							dataType: 'json'
 						});
-					});
+					}
+
+					//compile coffee
+					var newTitle,
+					pos,
+					file;
+					if (prefs.compileCoffeeScript && util.fileExtension(title) === 'coffee') {
+						newTitle = tab.data('title');
+						pos = newTitle.indexOf('.');
+						newTitle = newTitle.substr(0, pos) + '.js';
+						file = tab.data('file');
+						pos = file.lastIndexOf('.');
+						newFile = file.substr(0, pos) + '.js';
+
+
+						require(['coffee-script'], function(CoffeeScript) {
+							content = CoffeeScript.compile(content);
+
+							saving.push({
+								site: tab.data('site'),
+								title: newTitle,
+								file: file,
+								parent: parent,
+								content: content
+						});
+						});
 				}
-				
+
 				//minify
-				if (minify && util.fileExtension(title)==='js' && !util.endsWith(title, '.min.js')) {
+				if (minify && util.fileExtension(title) === 'js' && !util.endsWith(title, '.min.js')) {
 					newTitle = tab.data('title');
 					pos = newTitle.lastIndexOf('.');
 					newTitle = newTitle.substr(0, pos) + '.min.js';
 					file = tab.data('file');
 					pos = file.lastIndexOf('.');
 					newFile = file.substr(0, pos) + '.min.js';
-					
+
 					uglify_options = {};
-					
-					require(['uglify-js/lib/compress'], function(){
+
+					require(['uglify-js/lib/compress'], function() {
 						content = uglify(content, uglify_options);
-						
+
 						if (content !== false) {
 							saving.push({
 								site: tab.data('site'),
 								title: newTitle,
 								file: newFile,
 								content: content
-							});
-						}
-					});
-				}
-				
-				if (minify && util.fileExtension(title)==='css' && !util.endsWith(title, '.min.css')) {
-					newTitle = tab.data('title');
-					pos = newTitle.lastIndexOf('.');
-					newTitle = newTitle.substr(0, pos) + '.min.css';
-					file = tab.data('file');
-					pos = file.lastIndexOf('.');
-					newFile = file.substr(0, pos) + '.min.css';
-					
-					content = cssmin(content);
-
-					if (content !== false) {
-						saving.push({
-							site: tab.data('site'),
-							title: newTitle,
-							file: newFile,
-							content: content
 						});
 					}
-				}
-				
-				// reload if file doesn't exist
-				if (!tree.getNode(data.file) && data.file_id) {
-					parent = util.dirname(data.file_id);
-					if (!parent) {
-						parent = '#root';
-					}
-					tree.refresh(parent);
-				}
+					});
+			}
 
-				//continue with next save
-				if (saving.length) {
-					saveFiles(options);
-				} else if (options.callback) {
-					if (tab) {
-						tab.closest('.ui-tabs').trigger('save');
-					}
-					options.callback(tab);
+			if (minify && util.fileExtension(title) === 'css' && !util.endsWith(title, '.min.css')) {
+				newTitle = tab.data('title');
+				pos = newTitle.lastIndexOf('.');
+				newTitle = newTitle.substr(0, pos) + '.min.css';
+				file = tab.data('file');
+				pos = file.lastIndexOf('.');
+				newFile = file.substr(0, pos) + '.min.css';
+
+				content = cssmin(content);
+
+				if (content !== false) {
+					saving.push({
+						site: tab.data('site'),
+						title: newTitle,
+						file: newFile,
+						content: content
+					});
 				}
 			}
-		} else {
-			if (data.require_master_password) {
-				site.masterPasswordPrompt(function() {
-					saveFiles(options);
-				});
-			} else {
-				prompt.alert({title:lang.failedText, msg:'Error saving file' + ': ' + data.error});
+
+			// reload if file doesn't exist
+			if (!tree.getNode(data.file) && data.file_id) {
+				parent = util.dirname(data.file_id);
+				if (!parent) {
+					parent = '#root';
+				}
+				tree.refresh(parent);
+			}
+
+			//continue with next save
+			if (saving.length) {
+				saveFiles(options);
+			} else if (options.callback) {
+				if (tab) {
+					tab.closest('.ui-tabs').trigger('save');
+				}
+				options.callback(tab);
 			}
 		}
+	} else {
+		if (data.require_master_password) {
+			site.masterPasswordPrompt(function() {
+				saveFiles(options);
+			});
+		} else {
+			prompt.alert({
+				title: lang.failedText, msg: 'Error saving file' + ': ' + data.error
+			});
+		}
 	}
+}
 
 	var directFn = site.getdirectFn();
-	if(directFn) {
+	if (directFn) {
 		directFn({
 			cmd: 'save',
 			file: file,
@@ -562,7 +587,9 @@ function saveFiles(options) {
 			loading.stop();
 
 			if (!manuallyAborted) {
-				prompt.alert({title:lang.failedText, msg:'Error saving file'});
+				prompt.alert({
+					title: lang.failedText, msg: 'Error saving file'
+				});
 			} else {
 				manuallyAborted = false;
 			}
@@ -571,13 +598,15 @@ function saveFiles(options) {
 }
 
 function saveAs(tab, options) {
-	if(!options){
+	if (!options) {
 		options = {};
 	}
 
 	console.log('save as');
 	if (!site.active()) {
-		prompt.alert({title:'No site selected', msg:'Select a site from the site dropdown'});
+		prompt.alert({
+			title: 'No site selected', msg: 'Select a site from the site dropdown'
+		});
 		return;
 	}
 
@@ -590,22 +619,24 @@ function saveAs(tab, options) {
 				loading.stop();
 
 				if (!data.success) {
-					prompt.alert({title:lang.failedText, msg:'Error checking file: ' + data.error});
+					prompt.alert({
+						title: lang.failedText, msg: 'Error checking file: ' + data.error
+					});
 					opening = [];
 				} else {
 					options.callback = function() {
 						tree.refresh();
 					};
 
-					if(data.file_exists) {
+					if (data.file_exists) {
 						prompt.confirm({
 							title: 'Confirm',
 							msg: '<strong>'+file+'</strong> exists, overwrite?',
 							fn: function(btn) {
-								switch(btn) {
+								switch (btn) {
 									case 'yes':
 										doSaveAs(tab, file, options);
-									break;
+										break;
 								}
 							}
 						});
@@ -617,7 +648,7 @@ function saveAs(tab, options) {
 
 			if (btn == "ok") {
 				//check if filename exists
-				if (!loading.start('Check file exists', function(){
+				if (!loading.start('Check file exists', function() {
 					console.log('abort checking file site');
 					ajax.abort();
 				})) {
@@ -627,7 +658,7 @@ function saveAs(tab, options) {
 				var siteId = site.active();
 
 				var directFn = site.getdirectFn();
-				if(directFn) {
+				if (directFn) {
 					var node = tree.getNode(tab.attr('data-file'));
 					//console.log(node);
 
@@ -644,7 +675,7 @@ function saveAs(tab, options) {
 				} else {
 					var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+siteId);
 					var params = util.clone(ajaxOptions.params);
-					
+
 					$.ajax({
 						url: ajaxOptions.url+'&cmd=file_exists&site='+siteId+'&file='+encodeURIComponent(file),
 						method: 'POST',
@@ -658,7 +689,9 @@ function saveAs(tab, options) {
 						fileExistsCallback(data);
 					}).fail(function() {
 						loading.stop();
-						prompt.alert({title:lang.failedText, msg:'Error checking site'});
+						prompt.alert({
+							title: lang.failedText, msg: 'Error checking site'
+						});
 					});
 				}
 			} else if (btn == 'cancel') {
@@ -671,17 +704,20 @@ function saveAs(tab, options) {
 }
 
 function doSaveAs(tab, file, options) {
-	setTitle(tab, file);
-	tab.data('file', file);
-	tab.attr('data-file', file);
+	setTitle(tab,
+		file);
+	tab.data('file',
+		file);
+	tab.attr('data-file',
+		file);
 
 	var siteId = site.active();
 
-	if(!siteId) {
+	if (!siteId) {
 		prompt.alert('Error', 'No site selected');
 		return false;
 	}
-	
+
 	settings = site.getSettings(siteId);
 	title = settings.name + '/' + file;
 	setTitle(tab, title);
@@ -694,7 +730,7 @@ function doSaveAs(tab, file, options) {
 }
 
 function saveAll(tab) {
-	$('li[data-file]').each(function( index ) {
+	$('li[data-file]').each(function(index) {
 		var tab = $(this);
 		saving.push({
 			id: tab.attr('id'),
@@ -720,17 +756,17 @@ function download(tab) {
 function revert(tab) {
 	var editor = getEditor(tab);
 
-	if( editor && tab.data('original')!==editor.getValue() ){
+	if (editor && tab.data('original') !== editor.getValue()) {
 		editor.setValue(tab.data('original'));
-		
-		if (tab.data('view')==='design') {
+
+		if (tab.data('view') === 'design') {
 			var inst = designs.get(tab);
 			designs.update(inst);
 		}
 	} else {
 		console.log('file is unchanged');
 	}
-	
+
 	setEdited(tab, false);
 }
 
@@ -741,26 +777,26 @@ function revealInTree(tab) {
 		return tree.select(tab.data('file'));
 	}
 
-	if(site.active()==siteId) {
+	if (site.active() == siteId) {
 		return revealFile();
-	}else{
+	} else {
 		$('#tree').one('refresh.jstree', revealFile);
 		return site.open(siteId, null);
 	}
 }
 
 function setEdited(tab, edited) {
-	var value = edited ? 1 : 0;
+	var value = edited ? 1: 0;
 
 	tab = $(tab);
 	tab.data("edited", value);
 	tab.attr('data-edited', value);
 
-	if(edited) {
+	if (edited) {
 		tab.trigger('change');
 
 		//autosave
-		if(tab.data("file") && tab.data("site")) {
+		if (tab.data("file") && tab.data("site")) {
 			prefs = preferences.get_prefs();
 
 			clearTimeout(autoSaveTimer);
@@ -771,7 +807,7 @@ function setEdited(tab, edited) {
 			}
 		}
 	}
-	
+
 	//update tab
 	tab.trigger('mouseout');
 }
@@ -781,8 +817,8 @@ function setTitle(tab, title) {
 	tab.attr('data-title', title);
 	tab.children('.ui-tabs-anchor').attr('title', title);
 	tab.children('.ui-tabs-anchor').contents().last().replaceWith(util.basename(title));
-	
-	
+
+
 	/*
 	// disabled because it wipes the title attribute
 	$( tab ).tooltip({
@@ -797,8 +833,8 @@ function setTitle(tab, title) {
 function recordOpenFiles() {
 	var files = [];
 
-	$( "li[data-file][data-site]" ).each(function( index ) {
-		var tab = $( this );
+	$("li[data-file][data-site]").each(function(index) {
+		var tab = $(this);
 
 		files.push({
 			site: tab.data('site'),
@@ -818,14 +854,16 @@ function recordOpenFiles() {
 function checkEdited (e, ui) {
 	var tabpanel = this;
 
-	if($(ui.tab).data('edited')) {
+	if ($(ui.tab).data('edited')) {
 		prompt.confirm({
 			title: lang.saveChangesText,
 			msg: 'Save changes to: '+$(ui.tab).data('file'),
 			fn: function (btn) {
 				if (btn == "yes") {
 					//save
-					save($(ui.tab), { callback: close });
+					save($(ui.tab), {
+						callback: close
+					});
 				} else if (btn == 'no') {
 					//remove
 					setEdited(ui.tab, false);
@@ -838,26 +876,22 @@ function checkEdited (e, ui) {
 			}
 		});
 		return false;
-	}else{
-		if($(ui.tab).attr('aria-selected')) {
-			document.title = 'ShiftEdit';
-		}
-
+	} else {
 		$(ui.tab).trigger('beforeClose'); //destroy editor and firepad
 	}
 }
 
 function afterClose(e, ui) {
 	var queue = false;
-	if(closing.length>1) {
+	if (closing.length > 1) {
 		queue = true;
 	}
-	
-	if(closing.length) {
+
+	if (closing.length) {
 		closing.splice(0, 1);
 		close(closing[0]);
 	}
-	
+
 	if (!queue) {
 		$(ui.tab).closest('.ui-tabs').trigger('close');
 		recordOpenFiles();
@@ -889,19 +923,19 @@ function newTab (e, ui) {
 	//show new tab page
 	var tab = $(ui.tab);
 
-	if(!tab.attr('data-newtab')){
+	if (!tab.attr('data-newtab')) {
 		return;
 	}
 
 	tab.data('file', 'newTab');
 	tab.addClass('closable');
 
-	var panelId = tab.attr( "aria-controls" );
-	var panel = $( "#" + panelId );
-	
+	var panelId = tab.attr("aria-controls");
+	var panel = $("#" + panelId);
+
 	var showMoreText = 'Show more';
 	var showLessText = 'Show less';
-	
+
 	var prefs = preferences.get_prefs();
 	var news = preferences.getNews();
 
@@ -929,7 +963,7 @@ function newTab (e, ui) {
 						<li class="ui-state-default"><div class="preview"><i class="fa fa-desktop"></i> ' + lang.preview + '</div></li>\
 						<li class="ui-state-default"><div class="diff"><i class="fa fa-copy"></i> ' + lang.fileCompare + '</div></li>\
 						<li class="ui-state-default"><div class="preferences"><i class="fa fa-wrench"></i> ' + lang.preferencesText + '</div></li>\
-						<li class="ui-state-default"><div class="server"><i class="fa fa-server"></i> Servers</div></li>\
+						<li class="ui-state-default"><div class="serverwand"><i class="fa fa-server"></i> ServerWand</div></li>\
 						<li class="ui-state-default"><div class="database"><i class="fas fa-database"></i> ' + lang.database + '</div></li>\
 					</ul>\
 				</div>\
@@ -937,19 +971,19 @@ function newTab (e, ui) {
 		</div>\
 		<br style="clear: both">\
 	');
-	
+
 	// hide for non-center panel
 	var pane = tab.closest('.ui-layout-pane');
 	var paneName = pane[0].className.match('ui-layout-pane-([a-z]*)')[1];
-	if (paneName!='center') {
+	if (paneName != 'center') {
 		panel.find('.news, .create').hide();
 	}
-	
+
 	// news
 	if (!news.page_name || localStorage.read === news.page_name) {
 		panel.find('.news').hide();
 	}
-	
+
 	panel.find('.news .closeButton').click(function() {
 		$(this).parent().hide();
 		localStorage.read = $(this).data('name');
@@ -960,25 +994,25 @@ function newTab (e, ui) {
 	var addedModes = [];
 	prefs.newFiles.forEach(function(value) {
 		modes.forEach(function(mode) {
-			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
+			if (mode[2][0] === value && addedModes.indexOf(mode[2][0])===-1) {
 				HTML += '<li class="'+mode[0]+' ui-state-default"><div data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</div></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
 	});
 	panel.find('ul.fileTypes').append(HTML);
-	
+
 	// other file types
 	HTML = '';
 	prefs.newFilesOther.forEach(function(value) {
 		modes.forEach(function(mode) {
-			if (mode[2][0]===value && addedModes.indexOf(mode[2][0])===-1) {
+			if (mode[2][0] === value && addedModes.indexOf(mode[2][0])===-1) {
 				HTML += '<li class="'+mode[0]+' ui-state-default"><div data-filetype="'+mode[2][0]+'" class="newfile file-' + mode[2][0] + '"><div class="handle"></div>' + mode[1] + '</div></li>';
 				addedModes.push(mode[2][0]);
 			}
 		});
 	});
-	
+
 	// lump any that aren't found into other
 	modes.forEach(function(mode) {
 		if (addedModes.indexOf(mode[2][0])===-1) {
@@ -991,76 +1025,64 @@ function newTab (e, ui) {
 		var tabpanel = $(ui.tab.closest('.ui-tabs'));
 
 		var content = '';
-		if( prefs.defaultCode && prefs.defaultCode[this.dataset.filetype] ){
+		if (prefs.defaultCode && prefs.defaultCode[this.dataset.filetype]) {
 			content = prefs.defaultCode[this.dataset.filetype];
 		}
 
 		close(ui.tab);
-		editors.create("untitled."+this.dataset.filetype, content, null, {tabpanel: tabpanel});
+		editors.create("untitled."+this.dataset.filetype, content, null, {
+			tabpanel: tabpanel
+		});
 	});
-	
-	panel.find( ".fileTypes, .moreFileTypes" ).sortable({
+
+	panel.find(".fileTypes, .moreFileTypes").sortable({
 		axis: "y",
-		connectWith: panel.find( ".fileTypes, .moreFileTypes" ),
-		start: function( event, ui ) {
-			panel.find( ".fileTypes, .moreFileTypes" ).addClass('dropable')
+		connectWith: panel.find(".fileTypes, .moreFileTypes"),
+		start: function(event, ui) {
+			panel.find(".fileTypes, .moreFileTypes").addClass('dropable')
 			.next('.toggleMore').text(showLessText);
 			panel.find('.moreFileTypes').slideDown();
 		},
-		stop: function( event, ui ) {
-			panel.find( ".fileTypes, .moreFileTypes" ).removeClass('dropable');
-			
+		stop: function(event, ui) {
+			panel.find(".fileTypes, .moreFileTypes").removeClass('dropable');
+
 			var newFiles = [];
-			panel.find('.fileTypes li div').each(function( index ) {
+			panel.find('.fileTypes li div').each(function(index) {
 				newFiles.push($(this).data('filetype'));
 			});
-			
+
 			var newFilesOther = [];
-			panel.find('.moreFileTypes li div').each(function( index ) {
+			panel.find('.moreFileTypes li div').each(function(index) {
 				newFilesOther.push($(this).data('filetype'));
 			});
-			
+
 			preferences.save('newFiles', newFiles);
 			preferences.save('newFilesOther', newFilesOther);
 		}
 	});
-	
+
 	panel.find('.toggleMore').click(function() {
 		var el = this;
 		var more = $(el).prev();
 		more.slideToggle(400, function() {
-			$(el).text(more.is(':visible') ? showLessText : showMoreText);
-		}); 
+			$(el).text(more.is(':visible') ? showLessText: showMoreText);
+		});
 	});
+
+	panel.find('.serverwand').click(function() {
+		window.open('https://manage.serverwand.com');
+	});
+
 }
 
 //event listener
 function tabActivate(tab) {
-	var file = tab.data('file');
-	var siteId = tab.data('site');
-	var title = file ? file : 'ShiftEdit';
-	document.title = title;
-
-	//hash
-	var hashVal = '';
-	if(siteId){
-		settings = site.getSettings(siteId);
-		hashVal += settings.name + '/';
-	}
-	
-	hashVal += file ? tab.data('file') : '';
-
-	if (hashVal) {
-		console.log('set tab hash');
-		hash.set(hashVal);
-	}
-
 	var editor = getEditor(tab);
-	
+
 	if (!$("#find").is(":focus")) {
 		if (editor) {
 			//editor.focus();
-			if (tab.data('view')==='design') {
+			if (tab.data('view') === 'design') {
 				setTimeout(function() {
 					var inst = designs.get(tab);
 					inst.focus();
@@ -1082,21 +1104,21 @@ function tabActivate(tab) {
 
 function updateTabs(e, params) {
 	var tab = $('li[data-file="'+params.oldname+'"][data-site="'+params.site+'"]');
-	if(tab.length){
+	if (tab.length) {
 		tab = $(tab);
-		
+
 		var file = params.newname;
 		tab.data('file', file);
 		tab.attr('data-file', file);
-		
+
 		var title = file;
 		if (params.site) {
 			settings = site.getSettings(params.site);
 			title = settings.name + '/' + title;
 		}
-		
+
 		setTitle(tab, title);
-		
+
 		console.log('update tabs');
 		tabActivate(tab);
 		recordOpenFiles();
@@ -1105,7 +1127,7 @@ function updateTabs(e, params) {
 
 function quickOpen() {
 	//construct dialog
-	$( "body" ).append('<div id="dialog-message" title="Quick open">\
+	$("body").append('<div id="dialog-message" title="Quick open">\
   <form class="vbox">\
 	<input type="text" name="input" id="quickOpenSearch" value="" class="text ui-widget-content ui-corner-all" autocomplete="off" autofocus><br>\
 	<select id="quickOpenFile" size="14" class="ui-widget ui-state-default ui-corner-all flex"></select>\
@@ -1117,10 +1139,10 @@ function quickOpen() {
 	var size = $('#quickOpenFile').prop('size');
 
 	//handle keyboard: up / down enter / input
-	$( "#quickOpenSearch" ).keydown(function(e) {
+	$("#quickOpenSearch").keydown(function(e) {
 		var next;
 
-		switch(e.keyCode){
+		switch (e.keyCode) {
 			case 38: //up
 				$('#quickOpenFile option:selected').prev().prop('selected', true);
 				return false;
@@ -1128,18 +1150,18 @@ function quickOpen() {
 				$('#quickOpenFile option:selected').next().prop('selected', true);
 				return false;
 			case 33: //page up
-				next = $('#quickOpenFile option:selected').prevAll( ":eq("+size+")");
+				next = $('#quickOpenFile option:selected').prevAll(":eq("+size+")");
 
-				if(!next.length) {
+				if (!next.length) {
 					next = $('#quickOpenFile option:selected').prevAll().last();
 				}
 
 				next.prop('selected', true);
 				return false;
 			case 34: //page down
-				next = $('#quickOpenFile option:selected').nextAll( ":eq("+size+")");
+				next = $('#quickOpenFile option:selected').nextAll(":eq("+size+")");
 
-				if(!next.length) {
+				if (!next.length) {
 					next = $('#quickOpenFile option:selected').nextAll().last();
 				}
 
@@ -1158,11 +1180,11 @@ function quickOpen() {
 	});
 
 	function pickSelected() {
-		var val = $( "#quickOpenFile" ).val();
+		var val = $("#quickOpenFile").val();
 
-		if (val){
-			$( "#dialog-message" ).dialogResize( "close" );
-			$( "#dialog-message" ).remove();
+		if (val) {
+			$("#dialog-message").dialogResize("close");
+			$("#dialog-message").remove();
 
 			var pos = val.indexOf('/');
 			siteId = val.substr(0, pos);
@@ -1172,15 +1194,15 @@ function quickOpen() {
 	}
 
 	function refresh() {
-		var search = $( "#quickOpenSearch" ).val();
-		var val = $( "#quickOpenFile" ).val();
+		var search = $("#quickOpenSearch").val();
+		var val = $("#quickOpenFile").val();
 
 		//populate with recent files
 		recentFiles = recent.getRecent();
 		var items = util.clone(recentFiles);
 
-		for(var i in items) {
-			if(items[i].file.indexOf(search)==-1) {
+		for (var i in items) {
+			if (items[i].file.indexOf(search)==-1) {
 				delete items[i];
 			}
 		}
@@ -1191,7 +1213,7 @@ function quickOpen() {
 		$('#quickOpenFile').children('option').remove();
 
 		//create select items
-		items.forEach(function(item){
+		items.forEach(function(item) {
 			$('#quickOpenFile').append('<option value="'+item.site+'/'+item.file+'">'+item.domain+'/'+item.file+'</option>');
 		});
 
@@ -1199,32 +1221,34 @@ function quickOpen() {
 		var selected = $('#quickOpenFile').val(val);
 
 		//or first one
-		if(!$('#quickOpenFile option:selected').length){
+		if (!$('#quickOpenFile option:selected').length) {
 			$('#quickOpenFile').children(':first').prop('selected', true);
 		}
 	}
 
-	$( "#quickOpenSearch" ).on('input', refresh);
+	$("#quickOpenSearch").on('input', refresh);
 	refresh();
 
 	//select item click
 	$('#quickOpenFile').click(pickSelected);
 
 	//open dialog
-	var dialog = $( "#dialog-message" ).dialogResize({
+	var dialog = $("#dialog-message").dialogResize({
 		width: 800,
 		height: 600,
 		modal: true,
-		close: function( event, ui ) {
-			$( this ).remove();
+		close: function(event, ui) {
+			$(this).remove();
 		}
 	});
 
 	//make sure quick open is focused
-	setTimeout(function(){ $('#quickOpenSearch').focus(); }, 100);
+	setTimeout(function() {
+		$('#quickOpenSearch').focus();
+	}, 100);
 
 	//prevent form submit
-	form = dialog.find( "form" ).on( "submit", function( event ) {
+	form = dialog.find("form").on("submit", function(event) {
 		event.preventDefault();
 		options.fn('yes');
 	});
@@ -1234,36 +1258,40 @@ function init() {
 	var prefs = preferences.get_prefs();
 
 	// hide tabs
-	if(!prefs.showDefinitions) {
+	if (!prefs.showDefinitions) {
 		$('.ui-layout-west').find('.definitions').hide();
 	}
-	if(!prefs.showNotes) {
+	if (!prefs.showNotes) {
 		$('.ui-layout-west').find('.notes').hide();
 	}
-	if(!prefs.showSnippets) {
+	if (!prefs.showSnippets) {
 		$('.ui-layout-west').find('.snippets').hide();
 	}
-	if(!prefs.showGit) {
+	if (!prefs.showGit) {
 		$('.ui-layout-west').find('.git').hide();
 	}
-	
+
 	tabs_contextmenu.init();
 
 	// TABS - sortable
-	$( ".ui-layout-west" ).tabs({event: 'mousedown'});
-	var tabs = $( ".ui-layout-east, .ui-layout-center" ).tabs({closable: true, addTab:true, event: 'mousedown'});
+	$(".ui-layout-west").tabs({
+		event: 'mousedown'
+	});
+	var tabs = $(".ui-layout-east, .ui-layout-center").tabs({
+		closable: true, addTab: true, event: 'mousedown'
+	});
 
 	// hide tabs
-	if(!prefs.showDefinitions) {
+	if (!prefs.showDefinitions) {
 		$('.ui-layout-west').find('.definitions').hide();
 	}
-	if(!prefs.showNotes) {
+	if (!prefs.showNotes) {
 		$('.ui-layout-west').find('.notes').hide();
 	}
-	if(!prefs.showSnippets) {
+	if (!prefs.showSnippets) {
 		$('.ui-layout-west').find('.snippets').hide();
 	}
-	if(!prefs.showGit) {
+	if (!prefs.showGit) {
 		$('.ui-layout-west').find('.git').hide();
 	}
 
@@ -1273,27 +1301,26 @@ function init() {
 	$('.ui-layout-east, .ui-layout-center').on('tabsbeforeremove', checkEdited);
 	$('.ui-layout-east, .ui-layout-center').on('tabsremove', afterClose);
 	$('.ui-layout-east, .ui-layout-center').on('tabsadd', newTab);
-	
+
 	//remember scroll
-	$( ".ui-layout-east, .ui-layout-center" ).on( "tabsbeforeactivate", function(e, ui){
+	$(".ui-layout-east, .ui-layout-center").on("tabsbeforeactivate", function(e, ui) {
 		var oldPanel = $(ui.oldPanel);
 		oldPanel.data('scrollTop', oldPanel.closest('.ui-layout-content').scrollTop());
 	});
 
 	//restore scroll
-	$( ".ui-layout-east, .ui-layout-center" ).on( "tabsactivate", function(e, ui){
+	$(".ui-layout-east, .ui-layout-center").on("tabsactivate", function(e, ui) {
 		var newPanel = $(ui.newPanel);
 		newPanel.closest('.ui-layout-content').scrollTop(newPanel.data("scrollTop"));
 
-		//set title etc
-		console.log('restore scroll');
+		//set focus etc
 		tabActivate($(ui.newTab));
 	});
 
-	$( "#tree" ).on( "rename", updateTabs );
+	$("#tree").on("rename", updateTabs);
 
 	//connected sortable (http://stackoverflow.com/questions/13082404/multiple-jquery-ui-tabs-connected-sortables-not-working-as-expected)
-	tabs.find( ".ui-tabs-nav" ).sortable({
+	tabs.find(".ui-tabs-nav").sortable({
 		distance: 10,
 		//revert: true,
 		connectWith: '.ui-tabs-nav',
@@ -1302,19 +1329,19 @@ function init() {
 			var sender = $(ui.sender[0]).parent();
 			var tab = $(ui.item[0]);
 			// Find the id of the associated panel
-			var panelId = tab.attr( "aria-controls" );
+			var panelId = tab.attr("aria-controls");
 			var insertBefore = document.elementFromPoint(event.pageX, event.pageY);
 
-			if(insertBefore.parentElement == tab[0]){
+			if (insertBefore.parentElement == tab[0]) {
 				insertBefore = document.elementFromPoint(event.pageX + insertBefore.offsetWidth, event.pageY);
 			}
 
 			insertBefore = $(insertBefore).closest('li[role="tab"]').get(0);
-			
+
 			if (!insertBefore)
 				insertBefore = receiver.find('.addTab');
 
-			if(insertBefore)
+			if (insertBefore)
 				tab.insertBefore(insertBefore);
 			else
 				$(this).append(tab);
@@ -1326,7 +1353,7 @@ function init() {
 
 			//activate tab
 			receiver.tabs("option", "active", tab.index());
-			
+
 			// overflow resize
 			tabs.tabs('doResize');
 		},
@@ -1335,7 +1362,7 @@ function init() {
 		items: "li:not(.button)",
 		//allow dragging out of panel Adam Jimenez
 		sort: function(e, ui) {
-			if (ui.item.parent().prop("tagName")!=='BODY') {
+			if (ui.item.parent().prop("tagName") !== 'BODY') {
 				ui.item.appendTo('body');
 				ui.item.css('width', 'auto');
 				ui.item.css('height', 'auto');
@@ -1357,7 +1384,7 @@ function init() {
 		},
 		change: function(e, ui) {
 			var receiver = $(this).parent();
-			
+
 			// overflow resize
 			receiver.tabs('doResize');
 		}
@@ -1387,7 +1414,7 @@ var default_options = {
 		join_vars: true,
 		side_effects: true,
 		negate_iife: true,
-		
+
 		warnings: true,
 		global_defs: {}
 	},
@@ -1409,24 +1436,37 @@ var default_options = {
 };
 function uglify(code, options) {
 	// Create copies of the options
-	var parse_options = defaults({}, options.parse);
-	var compress_options = defaults({}, options.compress);
-	var output_options = defaults({}, options.output);
+	var parse_options = defaults({},
+		options.parse);
+	var compress_options = defaults({},
+		options.compress);
+	var output_options = defaults({},
+		options.output);
 
-	parse_options = defaults(parse_options, default_options.parse, true);
-	compress_options = defaults(compress_options, default_options.compress, true);
-	output_options = defaults(output_options, default_options.output, true);
+	parse_options = defaults(parse_options,
+		default_options.parse,
+		true);
+	compress_options = defaults(compress_options,
+		default_options.compress,
+		true);
+	output_options = defaults(output_options,
+		default_options.output,
+		true);
 
 	// 1. Parse
 	var toplevel_ast;
-	try{
-		toplevel_ast = parse(code, parse_options);
+	try {
+		toplevel_ast = parse(code,
+			parse_options);
 		toplevel_ast.figure_out_scope();
 	} catch(e) {
-		prompt.alert({title:lang.failedText, msg:'Error parsing file' + ': ' + e.message});
+		prompt.alert({
+			title: lang.failedText,
+			msg: 'Error parsing file' + ': ' + e.message
+		});
 		return false;
 	}
-	
+
 
 	// 2. Compress
 	var compressor = new Compressor(compress_options);
@@ -1445,33 +1485,33 @@ function uglify(code, options) {
 
 fullScreen = function (toggle) {
 	var tab = active();
-	if (tab) {
+	if (!tab) {
 		return;
 	}
-	
+
 	if (tab.data('file')) {
 		var editor = getEditor(this);
 		var editorDiv = $(editor.container);
-		
-		if (toggle!== false && !editorDiv.hasClass('fullScreen')) {
+
+		if (toggle !== false && !editorDiv.hasClass('fullScreen')) {
 			editorDiv.addClass('fullScreen');
 			$('body').addClass('fullScreen');
 		} else {
 			$('.fullScreen').removeClass('fullScreen');
 		}
-		
+
 		editor.focus();
 	} else if (tab.data('ssh')) {
 		var session = tab.data('session');
 		var el = $(session.term.element);
-		
-		if (toggle!== false && !el.hasClass('fullScreen')) {
+
+		if (toggle !== false && !el.hasClass('fullScreen')) {
 			el.addClass('fullScreen');
 			$('body').addClass('fullScreen');
 		} else {
 			$('.fullScreen').removeClass('fullScreen');
 		}
-		
+
 		session.focus();
 	}
 	resize.resize();
@@ -1486,26 +1526,28 @@ $('body').on('click', 'div.database', function() {
 	site.database(site.active());
 });
 
-	exports.active = active;
-	exports.getEditor = getEditor;
-	exports.setEdited = setEdited;
-	exports.save = save;
-	exports.saveAs = saveAs;
-	exports.saveAll = saveAll;
-	exports.download = download;
-	exports.revert = revert;
-	exports.revealInTree = revealInTree;
-	exports.init = init;
-	exports.close = close;
-	exports.closeAll = closeAll;
-	exports.closeOther = closeOther;
-	exports.closeTabsRight = closeTabsRight;
-	exports.open = open;
-	exports.reload = reload;
-	exports.isOpen = isOpen;
-	exports.recordOpenFiles = recordOpenFiles;
-	exports.next = next;
-	exports.prev = prev;
-	exports.setTitle = setTitle;
-	exports.fullScreen = fullScreen;
+exports.active = active;
+exports.getEditor = getEditor;
+exports.setEdited = setEdited;
+exports.save = save;
+exports.saveAs = saveAs;
+exports.saveAll = saveAll;
+exports.download = download;
+exports.revert = revert;
+exports.revealInTree = revealInTree;
+exports.init = init;
+exports.close = close;
+exports.closeAll = closeAll;
+exports.closeOther = closeOther;
+exports.closeTabsRight = closeTabsRight;
+exports.open = open;
+exports.openFiles = openFiles;
+exports.reload = reload;
+exports.reloadActive = reloadActive;
+exports.isOpen = isOpen;
+exports.recordOpenFiles = recordOpenFiles;
+exports.next = next;
+exports.prev = prev;
+exports.setTitle = setTitle;
+exports.fullScreen = fullScreen;
 });

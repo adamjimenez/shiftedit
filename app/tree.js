@@ -219,7 +219,7 @@ function _processQueue(queue) {
 	} else {
 		if(clipboard.dest) {
 			tree.jstree(true).refresh_node(clipboard.dest);
-		}else{
+		} else {
 			refresh();
 		}
 
@@ -546,7 +546,7 @@ function processUploads() {
 
 function uploadFolder() {
 	$('<input type="file" multiple directory webkitdirectory mozdirectory>').change(function(e) {
-		//loading maask
+		//loading mask
 		var node = getSelected();
 		var parent = getDir(node);
 		var path = parent.id;
@@ -734,7 +734,18 @@ function open(data, force) {
 	if(selected && selected.length) {
 		selected.forEach(function(file) {
 			if (file.type === 'image') {
-				window.open('/api/files?cmd=open_image&site=' + site.active() + '+&file=' + file.id);
+				var settings = site.getSettings();
+				
+				if (settings.web_url) {
+					var web_url = settings.web_url;
+					if (web_url.indexOf('://') == -1) {
+						web_url = 'https://' + web_url;
+					}
+					
+					window.open(web_url + file.id);
+				} else {
+					window.open('/api/files?cmd=open_image&site=' + site.active() + '+&file=' + file.id);
+				}
 			} else if (file.type === 'code' || force) {
 				tabs.open(file.id, site.active());
 			}
@@ -940,7 +951,7 @@ function init() {
 	$('#tree').on('dragenter', 'a', function(e) {
 		var inst = $.jstree.reference(this);
 		inst.deselect_all();
-		var node = inst.select_node(this);
+		inst.select_node(this);
 	});
 
 	$('#tree').on('dragleave', function(e) {
@@ -985,7 +996,7 @@ function init() {
 		if (message === '') {
 			message = 'Failed uploading ' + file.fileName;
 			
-			if(location.protocol==='https:' && util.startsWith(ajaxOptions.url, 'http://') && !util.startsWith(ajaxOptions.url, 'http://localhost/')) {
+			if (location.protocol === 'https:' && util.startsWith(ajaxOptions.url, 'http://') && !util.startsWith(ajaxOptions.url, 'http://localhost/')) {
 				message += '\n<br>Try enabling SSL on your website and updating your web url accordingly.';
 			}
 		}
@@ -1121,12 +1132,12 @@ function init() {
 					}).fail(function(jqXHR, textStatus) {
 						var msg = 'Try checking your site settings.';
 						
-						if(jqXHR.responseJSON && jqXHR.responseJSON.error) {
+						if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
 							msg = '<code>'+jqXHR.responseJSON.error+'</code>';
 							prompt.alert({title: 'Failed getting file listing', msg: msg});
 						} else {
 							// check if non-ssl blocked
-							if(location.protocol==='https:' && util.startsWith(ajaxOptions.url, 'http://') && !util.startsWith(ajaxOptions.url, 'http://localhost/') && ssl.is_blocked()) {
+							if (location.protocol === 'https:' && util.startsWith(ajaxOptions.url, 'http://') && !util.startsWith(ajaxOptions.url, 'http://localhost/') && ssl.is_blocked()) {
 								ssl.test()
 								.fail(function () {
 									prompt.alert({title:'Proxy Blocked', msg:'Enable SSL or click Shield icon in address bar, then "Load unsafe scripts"'});
@@ -1144,12 +1155,12 @@ function init() {
 			'check_callback': function(o, n, p, i, m) {
 				var t = this;
 
-				if(m && m.dnd && m.pos !== 'i') { return false; }
-				if(o === "move_node" || o === "copy_node") {
-					if(p.type!=='default' || this.get_node(n).parent === this.get_node(p).id) { return false; }
+				if (m && m.dnd && m.pos !== 'i') { return false; }
+				if (o === "move_node" || o === "copy_node") {
+					if (p.type!=='default' || this.get_node(n).parent === this.get_node(p).id) { return false; }
 				}
 				
-				if(o === "move_node") {
+				if (o === "move_node") {
 					inst.select_node(n);
 					
 					if (m && m.core) {
@@ -2064,12 +2075,15 @@ function init() {
 		}
 	})
 	.on('refresh.jstree', function(e, data){
-		//expand root node
+		// expand root node
 		var rootNode = getNode('#').children[0];
 		inst.open_node(rootNode, function() {
 			var col = $('#tree-container .jstree-table-midwrapper>div').eq(0);
 			$('#tree').jstree().autosize_column(col);
 		});
+		
+		// finish opening files
+		tabs.openFiles();
 	})
 	.on('open_node.jstree', function(e, data){
 		var path = data.node.id;

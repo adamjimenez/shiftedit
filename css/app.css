@@ -387,6 +387,12 @@ li[role=tab] .ui-icon {
 .jstree .file-fla { background-position: -398px 0 }
 */
 
+.jstree input {
+	position: absolute;
+	z-index: 1000;
+	padding: 2px 30px;
+}
+
 .jstree-table-header-regular, .jstree-table-column {
 	padding: 0.6em !important;
 }
@@ -1598,4 +1604,15 @@ div.fullScreen{
 
 .my-1 {
 	margin: 1em 0;
+}
+
+.badge {
+    position: absolute;
+    bottom: 5px;
+    background: #26b3f7;
+    color: white;
+    font-size: 8px;
+    border-radius: 10px;
+    line-height: 8px;
+    padding: 1px;
 }

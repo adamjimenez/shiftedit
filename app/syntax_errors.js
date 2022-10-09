@@ -69,6 +69,25 @@ function update() {
 
 	//get errors
 	var errors = session.getAnnotations();
+	
+	// find merge conflicts
+	var Search = require("ace/search").Search;
+	var search = new Search().set({
+		needle: '<<<<<<<'
+	});
+	
+	var results = search.findAll(session);
+	results.reverse();
+	
+	results.forEach(function(item) {
+		errors.unshift({
+			row: item.start.row,
+			column: 0,
+			text: 'Merge conflict',
+			type: 'Error'
+		});
+	});
+	
 	if (!errors.length) {
 		$(panel).find('.status').html(lang.noSyntaxErrorsText);
 		editor_status.removeClass('ui-state-highlight');

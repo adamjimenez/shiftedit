@@ -17,15 +17,14 @@ function init() {
 			<div class="hbox ui-widget-header panel-buttons">\
 				<div class="flex" id="gitViewContainer">\
 					<span id="gitViewRadio" class="hbox">\
-						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio"><label class="flex" for="changesRadio" title="Changes"><i class="far fa-folder"></i></label>\
-						<input type="radio" name="gitViewItem" value="History" id="historyRadio" checked><label class="flex" for="historyRadio" title="History"><i class="fas fa-history"></i></label>\
+						<input type="radio" name="gitViewItem" value="Changes" id="changesRadio" checked><label class="flex" for="changesRadio" title="Changes"><i class="far fa-folder"></i></label>\
+						<input type="radio" name="gitViewItem" value="History" id="historyRadio"><label class="flex" for="historyRadio" title="History"><i class="fas fa-history"></i></label>\
 						<input type="radio" name="gitViewItem" value="Stashes" id="stashesRadio"><label class="flex" for="stashesRadio" title="Stashes"><i class="far fa-clipboard"></i></label>\
 					</span>\
 				</div>\
 			</div>\
 			<div id="gitContentContainer" class="vbox">\
-				<ul id="gitHistory"></ul>\
-				<div id="changesContainer" class="vbox" style="display: none;">\
+				<div id="changesContainer" class="vbox">\
 					<label class="toggle ui-state-default" style="padding: 0.4em 1em; margin: 0;"><input type="checkbox" checked><span class="count">0</span> changed files</label>\
 					<ul id="gitChanges" class="flex"></ul>\
 					<div id="commitPanel">\
@@ -34,6 +33,7 @@ function init() {
 						<button type="button" id="commitBtn" disabled></button>\
 					</div>\
 				</div>\
+				<ul id="gitHistory" style="display: none;"></ul>\
 				<div id="stashesContainer" class="vbox" style="display: none;">\
 					<ul id="gitStashes" class="flex"></ul>\
 					<div id="stashPanel">\
@@ -93,14 +93,14 @@ function init() {
 	
 	$("#gitChanges").basicMenu({
 		click: function (event, ui) {
-			var title = $(ui.item).text();
+			var title = $(ui.item).data('path');
 			if ($(ui.item).data('diff')) {
 				show(title, $(ui.item).data('diff'));
 			} else {
 				var path = $(ui.item).data('path');
 				var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
-				loading.fetch(ajaxOptions.url+'&cmd=diff&path='+path, {
-					action: 'diff '+path,
+				loading.fetch(ajaxOptions.url+'&cmd=diff&path=' + path, {
+					action: 'diff ' +  path,
 					success: function(data) {
 						if (data.success) {
 							$(ui.item).data('diff', data.result);
@@ -284,12 +284,13 @@ function init() {
 	$.contextMenu({
 		selector: '#gitHistory li',
 		callback: function(key, opt){
+			var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
+
 			switch(key) {
 				case 'copy':
 					util.copy($(this).data('hash'));
 				break;
 				case 'revert':
-					var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl + 'files?site=' + site.active());
 					loading.fetch(ajaxOptions.url+'&cmd=revert&hash=' + $(this).data('hash'), {
 						action: 'revert commit',
 						success: function(data) {
@@ -301,11 +302,34 @@ function init() {
 						}
 					});
 				break;
+				case 'reset':
+					var hash = $(this).data('hash');
+					
+					prompt.confirm({
+						title: 'Reset commit',
+						msg: 'Are you sure you want to reset to this commit?',
+						fn: function(value) {
+							if (value === 'yes') {
+								loading.fetch(ajaxOptions.url+'&cmd=reset&hash=' + hash, {
+									action: 'resetting commit',
+									success: function(data) {
+										if (data.success) {
+											tree.refresh();
+										} else {
+											prompt.alert({title:'Error', msg:data.error});
+										}
+									}
+								});
+							}
+						}
+					});
+				break;
 			}
 		},
 		items: {
 			"copy": {name: lang.copy},
-			"revert": {name: lang.revert}
+			"revert": {name: lang.revert},
+			"reset": {name: 'Reset to commit'}
 		}
 	});
 	
@@ -404,8 +428,15 @@ function show(title, result) {
 	*/
 	
 	require(['diff2html-ui'], function() {
+		// clear diff
+		$('#gitDiff').html('');
+		
+		if (!result) {
+			return;
+		}
+		
 		var diff2htmlUi = new Diff2HtmlUI({diff: result});
-	
+
 		diff2htmlUi.draw('#gitDiff', {
 			inputFormat: 'json', //diff
 			//showFiles: true,
@@ -416,6 +447,8 @@ function show(title, result) {
 }
 
 function refresh() {
+	$('.git .badge').hide();
+	
 	// must have a git folder and use SFTP or a proxy
 	var settings = site.getSettings(site.active());
 	
@@ -484,7 +517,7 @@ function gitLog() {
 	
 	var ajaxOptions = site.getAjaxOptions(config.apiBaseUrl+'files?site='+site.active());
 	
-	loading.fetch(ajaxOptions.url+'&cmd=git_info', {
+	loading.fetch(ajaxOptions.url + '&cmd=git_info', {
 		giveWay: true,
 		action: false,
 		success: function(data) {
@@ -509,24 +542,38 @@ function gitLog() {
 			// history
 			$( "#gitHistory" ).children().remove();
 			$.each(data.commits, function( index, item ) {
-				$( '<li><a href="#"><span class="subject">' + item.subject + '</span><br><span class="date">' + item.date + '</span> by <span class="author">' + item.author + '</span></a></li>' ).appendTo( "#gitHistory" )
+				var el = $( '<li><a href="#"><span class="subject"></span><br><span class="date">' + item.date + '</span> by <span class="author">' + item.author + '</span></a></li>' ).appendTo( "#gitHistory" )
 				.attr('data-hash', item.hash);
+				el.find('.subject').text(item.subject);
 			});
 			
 			// changes
+			var changeCount = 0;
 			$("#gitChanges li").addClass('delete').removeData('diff');
 			$.each(data.changes, function( index, item ) {
 				var li = $("#gitChanges").find('[data-path="'+item.path.replace(/"/g, '')+'"]');
 				if (li.length) {
 					li.removeClass('delete');
+					changeCount++;
 				} else {
-					$( '<li><a href="#"><input type="checkbox" value="1" checked>' + item.path + '</a></li>' ).appendTo( "#gitChanges" )
+					//var disabled = item.status.length === 2 ? '' : 'disabled';
+					
+					if (item.status.substr(1, 1) !== ' ') {
+						changeCount++;
+					
+						$( '<li><a href="#"><div class="hbox"><input type="checkbox" value="1" checked><span class="flex">' + item.path + '</span><span>' + item.status.substr(0, 1) + '</span></div></a></li>' ).appendTo( "#gitChanges" )
 					.attr('data-path', item.path);
+					
+					}
 				}
 			});
 			
-			var changes = data.changes ? data.changes.length : '';
-			$('#changesContainer .count').text(changes);
+			var changes = data.changes ? changeCount : '';
+			$('#changesContainer .count, .git .badge').text(changes);
+			
+			if (changes) {
+				$('.git .badge').show();
+			}
 			
 			$( "#gitChanges" ).children('.delete').remove();
 			
@@ -550,7 +597,6 @@ function gitLog() {
 			// status: "## master...origin/master [ahead 1]"
 			if (data.status) {
 				var matches = data.status.match(/\[(ahead|behind)\s(.*)\]/);
-				
 				var count = matches ? matches[2] : '';
 				var status = matches ? matches[1] : '';
 				
@@ -597,11 +643,7 @@ function checkout(branch) {
 			if (data.success) {
 				tree.refresh();
 				
-				// reload files
-				$( "li[data-file][data-site='" + site.active() + "']" ).each(function( index ) {
-					var tab = $( this );
-					tabs.reload(tab);
-				});
+				tabs.reloadActive();
 			} else {
 				prompt.alert({title:'Error', msg:data.error});
 			}
@@ -784,8 +826,10 @@ function configure() {
 	  </form>\
 	</div>');
 	
-	$('#configForm input[name=name]').val(gitConfig.name);
-	$('#configForm input[name=email]').val(gitConfig.email);
+	if (gitConfig) {
+		$('#configForm input[name=name]').val(gitConfig.name);
+		$('#configForm input[name=email]').val(gitConfig.email);
+	}
 	
 	var dialog = $( "#dialog-config" ).dialogResize({
 		width: 320,
@@ -814,7 +858,7 @@ function configure() {
 						}
 					});
 				}
-			},
+			}
 		}
 	});
 }
@@ -837,6 +881,8 @@ function sync() {
 				html = html.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
 				html = linkifyHtml(html);
 				prompt.alert({title:lang.success, msg: html});
+				
+				tabs.reloadActive();
 			} else {
 				prompt.alert({title: 'Sync Unsuccessful', msg: $(data.error).text()});
 			}
